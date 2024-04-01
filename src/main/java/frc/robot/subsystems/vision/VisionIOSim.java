@@ -40,8 +40,8 @@ public class VisionIOSim implements VisionIO {
 
     var cameraProp = new SimCameraProperties();
     cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(128.2));
-    cameraProp.setCalibError(0.01, 0.10);
-    cameraProp.setFPS(15);
+    cameraProp.setCalibError(0.01, 0.01);
+    cameraProp.setFPS(25);
     cameraProp.setAvgLatencyMs(25);
     cameraProp.setLatencyStdDevMs(10);
 
