@@ -63,7 +63,7 @@ public class AutosManager {
       list.add(() -> testPath("TestCircle", true));
       list.add(() -> testPath("TestCircle", false, "TestCircleDontResetPose"));
       list.add(() -> testPath("TestZigZag", false));
-      list.add(this::characterization);
+      // list.add(this::characterization);
     }
 
     return list;
@@ -153,15 +153,15 @@ public class AutosManager {
         useInitialPose ? traj.getInitialPose(true) : null);
   }
 
-  private Auto characterization() {
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Characterization");
-    return new Auto(
-        "Characterization",
-        Commands.runOnce(() -> subsystems.drivetrain().setPose(Constants.zeroPose2d))
-            .andThen(AutoBuilder.followPath(path))
-            .finallyDo(subsystems.drivetrain()::resetVelocityOverride),
-        Constants.zeroPose2d);
-  }
+  // private Auto characterization() {
+  //   PathPlannerPath path = PathPlannerPath.fromPathFile("Characterization");
+  //   return new Auto(
+  //       "Characterization",
+  //       Commands.runOnce(() -> subsystems.drivetrain().setPose(Constants.zeroPose2d))
+  //           .andThen(AutoBuilder.followPath(path))
+  //           .finallyDo(subsystems.drivetrain()::resetVelocityOverride),
+  //       Constants.zeroPose2d);
+  // }
 
   /* Copy these to get waypoints for choreo. If pasted in choreo, they will automatically be turned into waypoints
 

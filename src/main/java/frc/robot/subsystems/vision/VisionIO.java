@@ -20,7 +20,7 @@ public interface VisionIO {
     return null;
   }
 
-  public default void updateMedians(double latency, double timeSinceLastUpdate) {
+  public default void updateTimeMedian(double latency, double timeSinceLastUpdate) {
     // medianLatency = latencyMedianFilter.calculate(latency);
     // medianUpdateTime = updateTimeMedianFilter.calculate(timeSinceLastUpdate);
   }

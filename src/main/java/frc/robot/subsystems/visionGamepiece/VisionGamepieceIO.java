@@ -5,7 +5,6 @@ public interface VisionGamepieceIO {
   public static class Inputs {
     public boolean isConnected;
     public boolean validTarget;
-    public double totalLatencyMs;
     public double timestamp;
     public double[] pitch = new double[] {};
     public double[] yaw = new double[] {};

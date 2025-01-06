@@ -13,8 +13,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.units.Units;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
@@ -28,11 +33,11 @@ public class ElevatorIOReal implements ElevatorIO {
       new MotionMagicVoltage(0.0).withEnableFOC(true);
   private final VoltageOut openLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
-  private StatusSignal<Double> rotorPosition;
-  private StatusSignal<Double> rotorVelocity;
-  private StatusSignal<Double> appliedVolts;
-  private StatusSignal<Double> currentAmps;
-  private StatusSignal<Double> tempCelsius;
+  private StatusSignal<Angle> rotorPosition;
+  private StatusSignal<AngularVelocity> rotorVelocity;
+  private StatusSignal<Voltage> appliedVoltage;
+  private StatusSignal<Current> current;
+  private StatusSignal<Temperature> temp;
 
   private final BaseStatusSignal[] refreshSet;
 
@@ -64,21 +69,21 @@ public class ElevatorIOReal implements ElevatorIO {
 
     rotorPosition = motor.getRotorPosition();
     rotorVelocity = motor.getRotorVelocity();
-    appliedVolts = motor.getMotorVoltage();
-    currentAmps = motor.getStatorCurrent();
-    tempCelsius = motor.getDeviceTemp();
+    appliedVoltage = motor.getMotorVoltage();
+    current = motor.getStatorCurrent();
+    temp = motor.getDeviceTemp();
 
     // Update status signals
 
     BaseStatusSignal.setUpdateFrequencyForAll(100, rotorPosition, rotorVelocity);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, appliedVolts, currentAmps);
-    BaseStatusSignal.setUpdateFrequencyForAll(1, tempCelsius);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, appliedVoltage, current);
+    BaseStatusSignal.setUpdateFrequencyForAll(1, temp);
 
     motor.optimizeBusUtilization();
 
     refreshSet =
         new BaseStatusSignal[] {
-          rotorPosition, rotorVelocity, appliedVolts, currentAmps, tempCelsius
+          rotorPosition, rotorVelocity, appliedVoltage, current, temp
         };
   }
 
@@ -86,12 +91,12 @@ public class ElevatorIOReal implements ElevatorIO {
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.heightInches = rotorPosition.getValueAsDouble() / ElevatorConstants.INCHES_TO_MOTOR_ROT;
+    inputs.heightInches = rotorPosition.getValue().in(Units.Rotations) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
     inputs.velocityInchesPerSecond =
-        rotorVelocity.getValueAsDouble() / ElevatorConstants.INCHES_TO_MOTOR_ROT;
-    inputs.appliedVolts = appliedVolts.getValueAsDouble();
-    inputs.currentAmps = currentAmps.getValueAsDouble();
-    inputs.tempCelsius = tempCelsius.getValueAsDouble();
+        rotorVelocity.getValue().in(Units.RPM) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
+    inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
+    inputs.currentAmps = current.getValue().in(Units.Amps);
+    inputs.tempCelsius = temp.getValue().in(Units.Celsius);
   }
 
   @Override
@@ -101,13 +106,13 @@ public class ElevatorIOReal implements ElevatorIO {
   }
 
   @Override
-  public void setHeight(Measure<Distance> height) {
+  public void setHeight(Distance height) {
     closedLoopControl.withPosition(height.in(Units.Inches) * ElevatorConstants.INCHES_TO_MOTOR_ROT);
     motor.setControl(closedLoopControl);
   }
 
   @Override
-  public void setSensorPosition(Measure<Distance> position) {
+  public void setSensorPosition(Distance position) {
     motor.setPosition(position.in(Units.Inches) * ElevatorConstants.INCHES_TO_MOTOR_ROT);
   }
 

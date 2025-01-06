@@ -6,8 +6,7 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.ControlMode;
@@ -79,7 +78,7 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIO.Inputs inputs = new ElevatorIO.Inputs(logGroup);
 
-  private Measure<Distance> targetHeight = Units.Meters.zero();
+  private Distance targetHeight = Units.Meters.zero();
   private ControlMode controlMode = ControlMode.OPEN_LOOP;
 
   /** Creates a new ElevatorSubsystem. */
@@ -123,7 +122,7 @@ public class Elevator extends SubsystemBase {
     controlMode = ControlMode.OPEN_LOOP;
   }
 
-  public void setHeight(Measure<Distance> height) {
+  public void setHeight(Distance height) {
     io.setHeight(height);
     targetHeight = height;
     logTargetHeight.info(targetHeight.in(Units.Inches));
@@ -151,7 +150,7 @@ public class Elevator extends SubsystemBase {
     return Math.abs(targetHeight.in(Units.Inches) - inputs.heightInches) <= tolerance.get();
   }
 
-  public boolean isAtTarget(Measure<Distance> height) {
+  public boolean isAtTarget(Distance height) {
     return Math.abs(height.in(Units.Inches) - inputs.heightInches) <= tolerance.get();
   }
 

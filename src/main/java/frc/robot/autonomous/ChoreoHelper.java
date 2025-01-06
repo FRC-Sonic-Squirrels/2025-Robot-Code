@@ -278,7 +278,9 @@ public class ChoreoHelper {
               state.heading,
               state.velocityX / speedScaling,
               state.velocityY / speedScaling,
-              state.angularVelocity / speedScaling));
+              state.angularVelocity / speedScaling,
+              state.moduleForcesX,
+              state.moduleForcesY));
     }
 
     return new ChoreoTrajectory(newStates);

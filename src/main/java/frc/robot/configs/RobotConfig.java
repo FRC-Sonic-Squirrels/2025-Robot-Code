@@ -5,8 +5,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -77,7 +76,7 @@ public abstract class RobotConfig {
 
   // ----------------------- ROBOT DIMENSIONS -------------------
 
-  public abstract Measure<Distance> getWheelRadius();
+  public abstract Distance getWheelRadius();
 
   public abstract double getSwerveModuleDriveGearRatio();
 
@@ -90,7 +89,7 @@ public abstract class RobotConfig {
    * @return the trackwidth (i.e., the center-to-center distance between the left and right wheels)
    *     of the robot in meters
    */
-  public abstract Measure<Distance> getTrackWidth_Y();
+  public abstract Distance getTrackWidth_Y();
 
   /**
    * Returns the wheelbase (i.e., the center-to-center distance between the front and back wheels)
@@ -99,7 +98,7 @@ public abstract class RobotConfig {
    * @return the wheelbase (i.e., the center-to-center distance between the front and back wheels)
    *     of the robot in meters
    */
-  public abstract Measure<Distance> getTrackWidth_X();
+  public abstract Distance getTrackWidth_X();
 
   public double getDriveBaseRadius() {
     return Math.hypot(

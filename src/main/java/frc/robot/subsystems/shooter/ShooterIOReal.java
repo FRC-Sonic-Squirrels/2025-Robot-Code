@@ -16,6 +16,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -27,16 +32,16 @@ public class ShooterIOReal implements ShooterIO {
   private final TalonFX launcher = new TalonFX(Constants.CanIDs.SHOOTER_CAN_ID);
   private final TalonFX pivot = new TalonFX(Constants.CanIDs.SHOOTER_PIVOT_CAN_ID);
 
-  private final StatusSignal<Double> pivotPosition;
-  private final StatusSignal<Double> pivotVelocity;
-  private final StatusSignal<Double> pivotVoltage;
-  private final StatusSignal<Double> pivotCurrentAmps;
-  private final StatusSignal<Double> pivotTempCelsius;
+  private final StatusSignal<Angle> pivotPosition;
+  private final StatusSignal<AngularVelocity> pivotVelocity;
+  private final StatusSignal<Voltage> pivotVoltage;
+  private final StatusSignal<Current> pivotCurrent;
+  private final StatusSignal<Temperature> pivotTemp;
 
-  private final StatusSignal<Double> launcherVelocity;
-  private final StatusSignal<Double> launcherVoltage;
-  private final StatusSignal<Double> launcherCurrentAmps;
-  private final StatusSignal<Double> launcherTempCelsius;
+  private final StatusSignal<AngularVelocity> launcherVelocity;
+  private final StatusSignal<Voltage> launcherVoltage;
+  private final StatusSignal<Current> launcherCurrent;
+  private final StatusSignal<Temperature> launcherTemp;
 
   private final BaseStatusSignal[] refreshSet;
 
@@ -54,9 +59,6 @@ public class ShooterIOReal implements ShooterIO {
     TalonFXConfiguration launcherConfig = new TalonFXConfiguration();
 
     launcherConfig.CurrentLimits.SupplyCurrentLimit = LauncherConstants.SUPPLY_CURRENT_LIMIT;
-    launcherConfig.CurrentLimits.SupplyCurrentThreshold =
-        LauncherConstants.SUPPLY_CURRENT_THRESHOLD;
-    launcherConfig.CurrentLimits.SupplyTimeThreshold = LauncherConstants.SUPPLY_TIME_THRESHOLD;
     launcherConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     launcherConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -72,8 +74,6 @@ public class ShooterIOReal implements ShooterIO {
     TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
 
     pivotConfig.CurrentLimits.SupplyCurrentLimit = PivotConstants.SUPPLY_CURRENT_LIMIT;
-    pivotConfig.CurrentLimits.SupplyCurrentThreshold = PivotConstants.SUPPLY_CURRENT_THRESHOLD;
-    pivotConfig.CurrentLimits.SupplyTimeThreshold = PivotConstants.SUPPLY_TIME_THRESHOLD;
     pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     pivotConfig.Feedback.SensorToMechanismRatio = PivotConstants.GEARING;
@@ -95,22 +95,22 @@ public class ShooterIOReal implements ShooterIO {
     pivotPosition = pivot.getPosition();
     pivotVelocity = pivot.getVelocity();
     pivotVoltage = pivot.getMotorVoltage();
-    pivotCurrentAmps = pivot.getStatorCurrent();
-    pivotTempCelsius = pivot.getDeviceTemp();
+    pivotCurrent = pivot.getStatorCurrent();
+    pivotTemp = pivot.getDeviceTemp();
 
     // Launcher status signals
 
     launcherVelocity = launcher.getVelocity();
     launcherVoltage = launcher.getMotorVoltage();
-    launcherCurrentAmps = launcher.getStatorCurrent();
-    launcherTempCelsius = launcher.getDeviceTemp();
+    launcherCurrent = launcher.getStatorCurrent();
+    launcherTemp = launcher.getDeviceTemp();
 
     // Update status signals
 
     BaseStatusSignal.setUpdateFrequencyForAll(100, pivotPosition, launcherVelocity);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, pivotVelocity, pivotVoltage, pivotCurrentAmps);
-    BaseStatusSignal.setUpdateFrequencyForAll(10, launcherVoltage, launcherCurrentAmps);
-    BaseStatusSignal.setUpdateFrequencyForAll(1, launcherTempCelsius, pivotTempCelsius);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, pivotVelocity, pivotVoltage, pivotCurrent);
+    BaseStatusSignal.setUpdateFrequencyForAll(10, launcherVoltage, launcherCurrent);
+    BaseStatusSignal.setUpdateFrequencyForAll(1, launcherTemp, pivotTemp);
 
     launcher.optimizeBusUtilization();
     pivot.optimizeBusUtilization();
@@ -120,13 +120,13 @@ public class ShooterIOReal implements ShooterIO {
           pivotPosition,
           pivotVelocity,
           pivotVoltage,
-          pivotCurrentAmps,
-          pivotTempCelsius,
+          pivotCurrent,
+          pivotTemp,
           // --
           launcherVelocity,
           launcherVoltage,
-          launcherCurrentAmps,
-          launcherTempCelsius
+          launcherCurrent,
+          launcherTemp
         };
   }
 
@@ -134,21 +134,21 @@ public class ShooterIOReal implements ShooterIO {
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.pivotPosition = Rotation2d.fromRotations(pivotPosition.getValueAsDouble());
+    inputs.pivotPosition = Rotation2d.fromRotations(pivotPosition.getValue().in(Units.Rotations));
     inputs.pivotVelocityDegreesPerSec =
-        Units.RotationsPerSecond.of(pivotVelocity.getValueAsDouble()).in(Units.DegreesPerSecond);
-    inputs.pivotAppliedVolts = pivotVoltage.getValueAsDouble();
-    inputs.pivotCurrentAmps = pivotCurrentAmps.getValueAsDouble();
+        pivotVelocity.getValue().in(Units.DegreesPerSecond);
+    inputs.pivotAppliedVolts = pivotVoltage.getValue().in(Units.Volts);
+    inputs.pivotCurrentAmps = pivotCurrent.getValue().in(Units.Amps);
 
     inputs.launcherRPM =
-        Units.RotationsPerSecond.of(launcherVelocity.getValueAsDouble()).in(Units.RPM);
+        launcherVelocity.getValue().in(Units.RPM);
 
-    inputs.launcherAppliedVolts = launcherVoltage.getValueAsDouble();
+    inputs.launcherAppliedVolts = launcherVoltage.getValue().in(Units.Volts);
 
-    inputs.launcherCurrentAmps = launcherCurrentAmps.getValueAsDouble();
+    inputs.launcherCurrentAmps = launcherCurrent.getValue().in(Units.Amps);
 
-    inputs.tempsCelcius[0] = launcherTempCelsius.getValueAsDouble();
-    inputs.tempsCelcius[1] = pivotTempCelsius.getValueAsDouble();
+    inputs.tempsCelcius[0] = launcherTemp.getValue().in(Units.Celsius);
+    inputs.tempsCelcius[1] = pivotTemp.getValue().in(Units.Celsius);
   }
 
   // PIVOT

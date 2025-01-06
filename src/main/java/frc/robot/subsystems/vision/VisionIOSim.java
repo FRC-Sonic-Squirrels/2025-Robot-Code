@@ -76,7 +76,7 @@ public class VisionIOSim implements VisionIO {
         event -> {
           // FIXME Use CTRE TIME check what sim module does
           PhotonPipelineResult result = camera.getLatestResult();
-          double timestamp = Utils.getCurrentTimeSeconds() - (result.getLatencyMillis() / 1000.0);
+          double timestamp = result.getTimestampSeconds();
           synchronized (VisionIOSim.this) {
             lastTimestamp = timestamp;
             lastResult = result;

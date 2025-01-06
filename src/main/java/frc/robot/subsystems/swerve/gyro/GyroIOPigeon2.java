@@ -18,6 +18,10 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.SwerveModule;
 import java.util.List;
@@ -25,12 +29,12 @@ import java.util.List;
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 pigeon;
-  private final StatusSignal<Double> yaw;
-  private final StatusSignal<Double> yawVelocity;
+  private final StatusSignal<Angle> yaw;
+  private final StatusSignal<AngularVelocity> yawVelocity;
 
-  private final StatusSignal<Double> xAcceleration;
-  private final StatusSignal<Double> yAcceleration;
-  private final StatusSignal<Double> zAcceleration;
+  private final StatusSignal<LinearAcceleration> xAcceleration;
+  private final StatusSignal<LinearAcceleration> yAcceleration;
+  private final StatusSignal<LinearAcceleration> zAcceleration;
 
   private final BaseStatusSignal[] refreshSet;
 
@@ -76,7 +80,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public Rotation2d updateOdometry(Inputs inputs) {
-    var gyroRotation = Rotation2d.fromDegrees(yaw.getValueAsDouble());
+    var gyroRotation = Rotation2d.fromDegrees(yaw.getValue().in(Units.Degrees));
     inputs.yawPosition = gyroRotation;
     return gyroRotation;
   }
@@ -85,9 +89,9 @@ public class GyroIOPigeon2 implements GyroIO {
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.yawVelocityRadPerSec = Math.toRadians(yawVelocity.getValueAsDouble());
-    inputs.xAcceleration = xAcceleration.getValueAsDouble();
-    inputs.yAcceleration = yAcceleration.getValueAsDouble();
-    inputs.zAcceleration = zAcceleration.getValueAsDouble();
+    inputs.yawVelocityRadPerSec = yawVelocity.getValue().in(Units.RadiansPerSecond);
+    inputs.xAcceleration = xAcceleration.getValue().in(Units.MetersPerSecondPerSecond);
+    inputs.yAcceleration = yAcceleration.getValue().in(Units.MetersPerSecondPerSecond);
+    inputs.zAcceleration = zAcceleration.getValue().in(Units.MetersPerSecondPerSecond);
   }
 }

@@ -6,8 +6,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.lib.team2930.TalonFXElevatorSim;
@@ -46,12 +45,12 @@ public class ElevatorIOSim implements ElevatorIO {
   }
 
   @Override
-  public void setHeight(Measure<Distance> height) {
+  public void setHeight(Distance height) {
     sim.setControl(closedLoopControl.withPosition(height.in(Units.Inch)));
   }
 
   @Override
-  public void setSensorPosition(Measure<Distance> position) {
+  public void setSensorPosition(Distance position) {
     sim.setSensorPosition(position.in(Units.Inches));
   }
 

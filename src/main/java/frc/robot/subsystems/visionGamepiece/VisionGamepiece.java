@@ -93,7 +93,6 @@ public class VisionGamepiece extends SubsystemBase {
       io.updateInputs(inputs);
 
       // Logging
-      logTotalLatencyMs.info(inputs.totalLatencyMs);
       logInputs_isConnected.info(inputs.isConnected);
       logInputs_validTarget.info(inputs.validTarget);
       logInputs_timestamp.info(inputs.timestamp);

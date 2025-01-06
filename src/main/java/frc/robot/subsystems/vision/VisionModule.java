@@ -64,7 +64,6 @@ public class VisionModule {
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            visionIO.getCamera(),
             RobotToCamera);
     // might as well do lowest ambiguity since we this will likely only happen when only 1 target is
     // seen
@@ -101,7 +100,7 @@ public class VisionModule {
 
   public void log(Pose3d robotPose) {
     byte[] photonPacketBytes = new byte[visionIOInputs.lastResult.getPacketSize()];
-    PhotonPipelineResult.serde.pack(new Packet(photonPacketBytes), visionIOInputs.lastResult);
+    visionIOInputs.lastResult.getSerde().pack(new Packet(photonPacketBytes), visionIOInputs.lastResult);
     log_photonPacketBytes.info(photonPacketBytes);
     log_lastTimestampCTRETime.info(visionIOInputs.lastTimestampCTRETime);
     log_connected.info(visionIOInputs.connected);

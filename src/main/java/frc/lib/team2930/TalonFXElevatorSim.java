@@ -7,10 +7,9 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.lib.team2930.TalonFXSim.ControlMode;
 import frc.robot.Constants;
@@ -67,11 +66,11 @@ public class TalonFXElevatorSim {
     return output;
   }
 
-  public Measure<Velocity<Distance>> getVelocity() {
+  public LinearVelocity getVelocity() {
     return Units.MetersPerSecond.of(sim.getVelocityMetersPerSecond());
   }
 
-  public Measure<Distance> getPosition() {
+  public Distance getPosition() {
     return Units.Meters.of(sim.getPositionMeters());
   }
 

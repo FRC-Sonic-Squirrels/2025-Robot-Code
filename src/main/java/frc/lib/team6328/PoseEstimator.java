@@ -301,5 +301,5 @@ public class PoseEstimator {
 
   /** Represents a single vision pose with a timestamp and associated standard deviations. */
   public record TimestampedVisionUpdate(
-      List<Integer> tags, double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {}
+      List<Short> tags, double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {}
 }

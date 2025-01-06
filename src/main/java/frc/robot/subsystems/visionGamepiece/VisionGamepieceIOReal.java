@@ -35,7 +35,6 @@ public class VisionGamepieceIOReal implements VisionGamepieceIO {
       inputs.yaw[index] = targets.get(index).getYaw();
       inputs.area[index] = targets.get(index).getArea();
     }
-    inputs.totalLatencyMs = results.getLatencyMillis();
     inputs.targetCount = targets.size();
 
     var timestamp = results.getTimestampSeconds();
