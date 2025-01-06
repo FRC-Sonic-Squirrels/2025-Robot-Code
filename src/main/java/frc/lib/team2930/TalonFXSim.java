@@ -6,10 +6,9 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
@@ -113,11 +112,11 @@ public class TalonFXSim {
     return volts;
   }
 
-  public Measure<Velocity<Angle>> getVelocity() {
+  public AngularVelocity getVelocity() {
     return Units.RPM.of(motor.getAngularVelocityRPM() * gearing);
   }
 
-  public Measure<Angle> getPosition() {
+  public Angle getPosition() {
     return Units.Radian.of(motor.getAngularPositionRad() * gearing);
   }
 

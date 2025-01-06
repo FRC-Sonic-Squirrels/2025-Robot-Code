@@ -21,8 +21,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -130,7 +129,7 @@ public final class Constants {
     public static double FIELD_WIDTH = 8.211;
 
     // FIXME: double check this number
-    public static final Measure<Distance> TARGET_HEIGHT = Units.Inches.of(6 * 12.0 + 12.5);
+    public static final Distance TARGET_HEIGHT = Units.Inches.of(6 * 12.0 + 12.5);
 
     // TODO: move to right
     public static final Translation2d BLUE_TARGET_TRANSLATION = new Translation2d(0.0, 5.6);
@@ -157,7 +156,7 @@ public final class Constants {
       return isRedAlliance() ? RED_TARGET_TRANSLATION_3D : BLUE_TARGET_TRANSLATION_3D;
     }
 
-    public static Measure<Distance> getDistanceToTarget(Pose2d pose) {
+    public static Distance getDistanceToTarget(Pose2d pose) {
       var targetTranslation = FieldConstants.getTargetTranslation();
       var targetDx = targetTranslation.getX() - pose.getX();
       var targetDy = targetTranslation.getY() - pose.getY();
@@ -167,18 +166,18 @@ public final class Constants {
 
     public static class Gamepieces {
       // TODO: add specific gamepiece dimensions for new season
-      public static final Measure<Distance> GAMEPIECE_HEIGHT =
+      public static final Distance GAMEPIECE_HEIGHT =
           Units.Inches.of(0.0); // TODO: change this to new value
-      public static final Measure<Distance> GAMEPIECE_TOLERANCE = Units.Inches.of(20.0);
+      public static final Distance GAMEPIECE_TOLERANCE = Units.Inches.of(20.0);
       public static final double GAMEPIECE_PERSISTENCE = 0.5;
     }
 
-    public static final Measure<Distance> TARGET_GOAL_LENGTH = Units.Inches.of(19);
+    public static final Distance TARGET_GOAL_LENGTH = Units.Inches.of(19);
 
     /** distance from bottom of opening to bottom lip of the upper guard */
-    public static final Measure<Distance> TARGET_GOAL_HEIGHT = Units.Inches.of(6.0);
+    public static final Distance TARGET_GOAL_HEIGHT = Units.Inches.of(6.0);
 
-    public static final Measure<Distance> TARGET_GOAL_WIDTH = Units.Inches.of(41);
+    public static final Distance TARGET_GOAL_WIDTH = Units.Inches.of(41);
   }
 
   public static class MotorConstants {
@@ -207,22 +206,22 @@ public final class Constants {
 
   public static class ElevatorConstants { // TODO: check all constants for new season
     public static final double GEAR_RATIO = 23.05;
-    public static final Measure<Distance> PULLEY_DIAMETER = Units.Inches.of(2.256);
+    public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.256);
     public static final double CARRIAGE_MASS = 10.0; // arbitrary
 
     public static final double INCHES_TO_MOTOR_ROT =
         Constants.ElevatorConstants.GEAR_RATIO
             / (Math.PI * Constants.ElevatorConstants.PULLEY_DIAMETER.in(Units.Inches));
 
-    public static final Measure<Distance> MAX_HEIGHT = Units.Inches.of(26.2);
-    public static final Measure<Distance> MAX_LEGAL_HEIGHT = Units.Inches.of(26.2); // FIXME
-    public static final Measure<Distance> TRUE_TOP_HARD_STOP = Units.Inches.of(26.5);
+    public static final Distance MAX_HEIGHT = Units.Inches.of(26.2);
+    public static final Distance MAX_LEGAL_HEIGHT = Units.Inches.of(26.2); // FIXME
+    public static final Distance TRUE_TOP_HARD_STOP = Units.Inches.of(26.5);
 
-    public static final Measure<Distance> SAFE_HEIGHT = Units.Inches.of(15.491);
+    public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
-    public static final Measure<Distance> HOME_POSITION = Units.Inches.of(7.35);
-    public static final Measure<Distance> LOADING_POSITION = Units.Inches.of(7.35); // was 7.5
+    public static final Distance HOME_POSITION = Units.Inches.of(7.35);
+    public static final Distance LOADING_POSITION = Units.Inches.of(7.35); // was 7.5
     public static final String ROOT_TABLE = "Elevator";
   }
 
@@ -230,9 +229,9 @@ public final class Constants {
     public static final double PREP_RPM = 2500.0;
     public static final double SHOOTING_RPM = 8000.0;
     public static final double SHOOTING_PERCENT_OUT = 0.95;
-    public static final Measure<Distance> SHOOTER_BASE_HEIGHT = Units.Inches.of(4.0);
-    public static final Measure<Distance> SHOOTER_LENGTH = Units.Inches.of(12.0);
-    public static final Measure<Distance> MAX_SHOOTING_DISTANCE = Units.Inches.of(180.0);
+    public static final Distance SHOOTER_BASE_HEIGHT = Units.Inches.of(4.0);
+    public static final Distance SHOOTER_LENGTH = Units.Inches.of(12.0);
+    public static final Distance MAX_SHOOTING_DISTANCE = Units.Inches.of(180.0);
 
     public static final double SHOOTING_SPEED =
         SHOOTING_RPM / 60.0 * LauncherConstants.WHEEL_DIAMETER.in(Units.Meters) * Math.PI;
@@ -265,7 +264,7 @@ public final class Constants {
 
       public static final InterpolatingDoubleTreeMap PITCH_ADJUSTMENT_MAP;
 
-      public static final Measure<Distance> MIN_DISTANCE = Units.Inches.of(40.0);
+      public static final Distance MIN_DISTANCE = Units.Inches.of(40.0);
 
       static {
         PITCH_ADJUSTMENT_MAP = new InterpolatingDoubleTreeMap();
@@ -275,7 +274,7 @@ public final class Constants {
         PITCH_ADJUSTMENT_MAP.put(Units.Inches.of(0).in(Units.Meters), 0.0);
       }
 
-      public static double getPitchOffset(Measure<Distance> distance) {
+      public static double getPitchOffset(Distance distance) {
         if (distance.lt(MIN_DISTANCE)) {
           return 0.0;
         }
@@ -288,7 +287,7 @@ public final class Constants {
     public static class LauncherConstants { // TODO: check all constants for new season
       public static final double MOI = 0.01;
       public static final double GEARING = (18.0 / 30.0);
-      public static final Measure<Distance> WHEEL_DIAMETER = Units.Inches.of(2.0);
+      public static final Distance WHEEL_DIAMETER = Units.Inches.of(2.0);
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
       public static final double SUPPLY_CURRENT_THRESHOLD = 60.0;
       public static final double SUPPLY_TIME_THRESHOLD = 0.1;
@@ -348,7 +347,7 @@ public final class Constants {
 
     public static final Rotation2d TRAP_SCORE_ANGLE = Rotation2d.fromDegrees(15.0);
 
-    public static final Measure<Distance> ARM_LENGTH = Units.Inches.of(14);
+    public static final Distance ARM_LENGTH = Units.Inches.of(14);
 
     public static final String ROOT_TABLE = "Arm";
   }
@@ -372,7 +371,7 @@ public final class Constants {
   }
 
   public static class AutoConstants { // TODO: check all constants for new season
-    public static final Measure<Distance> DIST_TO_START_INTAKING = Units.Meters.of(1.0);
+    public static final Distance DIST_TO_START_INTAKING = Units.Meters.of(1.0);
   }
 
   public static final boolean unusedCode = false;

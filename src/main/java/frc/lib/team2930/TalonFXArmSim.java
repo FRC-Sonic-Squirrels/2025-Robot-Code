@@ -8,10 +8,9 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.team2930.TalonFXSim.ControlMode;
 import frc.robot.Constants;
@@ -26,7 +25,7 @@ public class TalonFXArmSim {
   private ControlMode control = ControlMode.VOLTAGE;
 
   private double targetVoltage;
-  private Measure<Angle> targetPosition;
+  private Angle targetPosition;
 
   private double output;
 
@@ -71,11 +70,11 @@ public class TalonFXArmSim {
     return output;
   }
 
-  public Measure<Velocity<Angle>> getVelocity() {
+  public AngularVelocity getVelocity() {
     return Units.RadiansPerSecond.of(sim.getVelocityRadPerSec());
   }
 
-  public Measure<Angle> getPosition() {
+  public Angle getPosition() {
     return Units.Radians.of(sim.getAngleRads());
   }
 

@@ -7,8 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
 import frc.lib.constants.SwerveModuleConstants;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -22,7 +21,7 @@ public class SimulatorRobotConfig extends RobotConfig {
   // private static final boolean PHOENIX_PRO_LICENSE = true;
 
   // ------------ SWERVE ---------------------
-  private static final Measure<Distance> WHEEL_RADIUS = Units.Inches.of(2.0);
+  private static final Distance WHEEL_RADIUS = Units.Inches.of(2.0);
 
   // -------- GYRO OFFSETS --------
 
@@ -54,9 +53,9 @@ public class SimulatorRobotConfig extends RobotConfig {
 
   // -------- ROBOT DIMENSIONS -----------
   // front to back
-  private static final Measure<Distance> TRACK_WIDTH_X = Units.Inches.of(30); // 24.375 inches
+  private static final Distance TRACK_WIDTH_X = Units.Inches.of(30); // 24.375 inches
   // left to right
-  private static final Measure<Distance> TRACK_WIDTH_Y = Units.Inches.of(30); // 22.625 inches
+  private static final Distance TRACK_WIDTH_Y = Units.Inches.of(30); // 22.625 inches
 
   // ------- ROBOT MAX SPEED --------
   private static final double MAX_VELOCITY_METERS_PER_SECOND = 4.78;
@@ -195,12 +194,12 @@ public class SimulatorRobotConfig extends RobotConfig {
   }
 
   @Override
-  public Measure<Distance> getTrackWidth_Y() {
+  public Distance getTrackWidth_Y() {
     return TRACK_WIDTH_Y;
   }
 
   @Override
-  public Measure<Distance> getTrackWidth_X() {
+  public Distance getTrackWidth_X() {
     return TRACK_WIDTH_X;
   }
 
@@ -276,7 +275,7 @@ public class SimulatorRobotConfig extends RobotConfig {
   }
 
   @Override
-  public Measure<Distance> getWheelRadius() {
+  public Distance getWheelRadius() {
     return WHEEL_RADIUS;
   }
 

@@ -12,6 +12,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
@@ -19,10 +23,10 @@ import frc.robot.Constants.MotorConstants.KrakenConstants;
 public class IntakeIOReal implements IntakeIO {
   private TalonFX motor = new TalonFX(Constants.CanIDs.INTAKE_CAN_ID);
 
-  private final StatusSignal<Double> currentAmps;
-  private final StatusSignal<Double> deviceTemp;
-  private final StatusSignal<Double> appliedVolts;
-  private final StatusSignal<Double> velocityRPS;
+  private final StatusSignal<Current> current;
+  private final StatusSignal<Temperature> deviceTemp;
+  private final StatusSignal<Voltage> appliedVoltage;
+  private final StatusSignal<AngularVelocity> velocity;
 
   private final VoltageOut openLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
@@ -51,28 +55,28 @@ public class IntakeIOReal implements IntakeIO {
 
     // Status signals
 
-    currentAmps = motor.getStatorCurrent();
+    current = motor.getStatorCurrent();
     deviceTemp = motor.getDeviceTemp();
-    appliedVolts = motor.getMotorVoltage();
-    velocityRPS = motor.getVelocity();
+    appliedVoltage = motor.getMotorVoltage();
+    velocity = motor.getVelocity();
 
     // Update status signals
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50, appliedVolts, currentAmps, velocityRPS);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, appliedVoltage, current, velocity);
     BaseStatusSignal.setUpdateFrequencyForAll(1, deviceTemp);
 
     motor.optimizeBusUtilization();
-    refreshSet = new BaseStatusSignal[] {currentAmps, deviceTemp, appliedVolts, velocityRPS};
+    refreshSet = new BaseStatusSignal[] {current, deviceTemp, appliedVoltage, velocity};
   }
 
   @Override
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.currentAmps = currentAmps.getValueAsDouble();
+    inputs.currentAmps = current.getValueAsDouble();
     inputs.tempCelsius = deviceTemp.getValueAsDouble();
-    inputs.appliedVolts = appliedVolts.getValueAsDouble();
-    inputs.velocityRPM = Units.RotationsPerSecond.of(velocityRPS.getValueAsDouble()).in(Units.RPM);
+    inputs.appliedVolts = appliedVoltage.getValueAsDouble();
+    inputs.velocityRPM = Units.RotationsPerSecond.of(velocity.getValueAsDouble()).in(Units.RPM);
   }
 
   @Override

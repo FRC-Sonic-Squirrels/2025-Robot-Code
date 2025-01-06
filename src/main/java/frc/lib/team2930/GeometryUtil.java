@@ -5,8 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
 
 public class GeometryUtil {
@@ -31,7 +30,7 @@ public class GeometryUtil {
   }
 
   public static Translation3d translation3dFromMeasures(
-      Measure<Distance> x, Measure<Distance> y, Measure<Distance> z) {
+      Distance x, Distance y, Distance z) {
     return new Translation3d(x.in(Units.Meters), y.in(Units.Meters), z.in(Units.Meters));
   }
 

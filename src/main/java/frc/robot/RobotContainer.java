@@ -13,10 +13,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Units;
@@ -342,27 +338,28 @@ public class RobotContainer {
 
     drivetrainWrapper = new DrivetrainWrapper(drivetrain);
 
+    // FIXME: uncomment and fix if we want to use path planner swerve
     // FIXME: remove once we are happy with path planner based swerve
     // characterization
-    AutoBuilder.configureHolonomic(
-        drivetrain::getPoseEstimatorPose,
-        drivetrain::setPose,
-        drivetrain::getChassisSpeeds,
-        drivetrainWrapper::setVelocityOverride,
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
-            // your Constants class
-            new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(0.0, 0.0, 0.0), // Rotation PID constants
-            4.5, // Max module speed, in m/s
-            config.getDriveBaseRadius(), // Drive base radius in meters.
-            // Distance from robot center to
-            // furthest module.
-            new ReplanningConfig() // Default path replanning config. See the
-            // API for the options
-            // here
-            ),
-        () -> false,
-        drivetrain);
+    // AutoBuilder.configureHolonomic(
+    //     drivetrain::getPoseEstimatorPose,
+    //     drivetrain::setPose,
+    //     drivetrain::getChassisSpeeds,
+    //     drivetrainWrapper::setVelocityOverride,
+    //     new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
+    //         // your Constants class
+    //         new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
+    //         new PIDConstants(0.0, 0.0, 0.0), // Rotation PID constants
+    //         4.5, // Max module speed, in m/s
+    //         config.getDriveBaseRadius(), // Drive base radius in meters.
+    //         // Distance from robot center to
+    //         // furthest module.
+    //         new ReplanningConfig() // Default path replanning config. See the
+    //         // API for the options
+    //         // here
+    //         ),
+    //     () -> false,
+    //     drivetrain);
 
     var subsystems = new AutosSubsystems(drivetrainWrapper, visionGamepiece, led);
 

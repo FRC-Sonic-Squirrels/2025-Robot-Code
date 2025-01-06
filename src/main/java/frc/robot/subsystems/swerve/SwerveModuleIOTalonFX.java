@@ -31,10 +31,17 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.configs.IndividualSwerveModuleConfig;
 import frc.robot.configs.RobotConfig;
+
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.util.List;
 
 /**
@@ -75,16 +82,16 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   private final CANcoder cancoder;
 
   // Status signals
-  private final StatusSignal<Double> drivePosition;
-  private final StatusSignal<Double> driveVelocity;
-  private final StatusSignal<Double> driveAppliedVolts;
-  private final StatusSignal<Double> driveCurrent;
+  private final StatusSignal<Angle> drivePosition;
+  private final StatusSignal<AngularVelocity> driveVelocity;
+  private final StatusSignal<Voltage> driveAppliedVolts;
+  private final StatusSignal<Current> driveCurrent;
 
-  private final StatusSignal<Double> turnAbsolutePosition;
-  private final StatusSignal<Double> turnPosition;
-  private final StatusSignal<Double> turnVelocity;
-  private final StatusSignal<Double> turnAppliedVolts;
-  private final StatusSignal<Double> turnCurrent;
+  private final StatusSignal<Angle> turnAbsolutePosition;
+  private final StatusSignal<Angle> turnPosition;
+  private final StatusSignal<AngularVelocity> turnVelocity;
+  private final StatusSignal<Voltage> turnAppliedVolts;
+  private final StatusSignal<Current> turnCurrent;
 
   private VoltageOut driveVoltageRequest;
   private VoltageOut steerVoltageRequest;
@@ -210,11 +217,11 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
+    inputs.driveVelocityRadPerSec = driveVelocity.getValue().in(Units.RadiansPerSecond);
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
 
-    inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
+    inputs.turnVelocityRadPerSec = turnVelocity.getValue().in(Units.RadiansPerSecond);
     inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
   }
@@ -229,23 +236,21 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   @Override
   public SwerveModulePosition updateOdometry(Inputs inputs, double wheelRadius) {
     // Process drive motor position.
-    var drivePositionRotations = drivePosition.getValueAsDouble();
-    var drivePositionRaw = Units.rotationsToRadians(drivePositionRotations);
-    inputs.drivePositionRad = drivePositionRaw;
+    var drivePositionRaw = drivePosition.getValue();
+    inputs.drivePositionRad = drivePositionRaw.in(Units.Radians);
 
     // Process turn motor position.
-    var turnPositionAngle = turnPosition.getValueAsDouble();
+    var turnPositionAngle = turnPosition.getValue().in(Units.Rotations);
     var angleRelative = Rotation2d.fromRotations(turnPositionAngle);
     inputs.turnPosition = angleRelative;
 
     // Process turn encoder position.
-    var turnAbsolutePositionRaw = turnAbsolutePosition.getValueAsDouble();
-    var turnAbsolutePositionRotations = Rotation2d.fromRotations(turnAbsolutePositionRaw);
-    inputs.turnAbsolutePosition = turnAbsolutePositionRotations.minus(absoluteEncoderOffset);
+    var turnAbsolutePositionRotations = turnAbsolutePosition.getValue().in(Units.Rotations);
+    inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePositionRotations).minus(absoluteEncoderOffset);
 
     // On first cycle, reset relative turn encoder
     // Wait until absolute angle is nonzero in case it wasn't initialized yet
-    if (turnRelativeOffset == null && turnAbsolutePositionRaw == 0.0) {
+    if (turnRelativeOffset == null && turnAbsolutePositionRotations == 0.0) {
       return null;
     }
 
@@ -254,7 +259,7 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
 
     inputs.angle = angleRelative.plus(turnRelativeOffset);
 
-    var positionMeters = drivePositionRaw * wheelRadius;
+    var positionMeters = drivePositionRaw.in(Units.Rotations) * wheelRadius;
     var res = new SwerveModulePosition(positionMeters - lastPositionMeters, inputs.angle);
     lastPositionMeters = positionMeters;
 
@@ -274,9 +279,9 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
 
     // m/s -> divide by wheel radius to get radians/s -> convert to rotations
     var velocityRotationsPerSecond =
-        Units.radiansToRotations(velocityMetersPerSec * distanceToRotation);
+        Units.Radians.of(velocityMetersPerSec).in(Units.Rotations) * distanceToRotation;
     var accelerationRotationsPerSecondSquared =
-        Units.radiansToRotations(accelerationMetersPerSecondSquared * distanceToRotation);
+    Units.Radians.of(accelerationMetersPerSecondSquared).in(Units.Rotations) * distanceToRotation;
 
     driveTalon.setControl(
         driveMotionMagicVelocityRequest

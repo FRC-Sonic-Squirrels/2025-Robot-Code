@@ -15,23 +15,27 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
 
 public class ArmIOReal implements ArmIO {
-  private final StatusSignal<Double> appliedVols;
-  private final StatusSignal<Double> positionRotations;
-  private final StatusSignal<Double> currentAmps;
-  private final StatusSignal<Double> tempCelsius;
-  private final StatusSignal<Double> velocity;
+  private final StatusSignal<Voltage> appliedVoltage;
+  private final StatusSignal<Angle> position;
+  private final StatusSignal<Current> current;
+  private final StatusSignal<Temperature> temp;
+  private final StatusSignal<AngularVelocity> velocity;
 
   private final MotionMagicVoltage closedLoopControl =
       new MotionMagicVoltage(0.0).withEnableFOC(true);
   private final VoltageOut openLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
   private final TalonFX motor = new TalonFX(Constants.CanIDs.ARM_CAN_ID);
-  ;
 
   private final BaseStatusSignal[] refreshSet;
 
@@ -62,34 +66,34 @@ public class ArmIOReal implements ArmIO {
 
     // Status signals
 
-    appliedVols = motor.getMotorVoltage();
-    positionRotations = motor.getPosition();
-    currentAmps = motor.getStatorCurrent();
-    tempCelsius = motor.getDeviceTemp();
+    appliedVoltage = motor.getMotorVoltage();
+    position = motor.getPosition();
+    current = motor.getStatorCurrent();
+    temp = motor.getDeviceTemp();
     velocity = motor.getVelocity();
 
     // Update status signals
 
-    BaseStatusSignal.setUpdateFrequencyForAll(100, appliedVols, positionRotations, velocity);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, currentAmps);
-    BaseStatusSignal.setUpdateFrequencyForAll(1, tempCelsius);
+    BaseStatusSignal.setUpdateFrequencyForAll(100, appliedVoltage, position, velocity);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, current);
+    BaseStatusSignal.setUpdateFrequencyForAll(1, temp);
 
     motor.optimizeBusUtilization();
 
     refreshSet =
-        new BaseStatusSignal[] {appliedVols, positionRotations, currentAmps, tempCelsius, velocity};
+        new BaseStatusSignal[] {appliedVoltage, position, current, temp, velocity};
   }
 
   @Override
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.armPosition = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
-    inputs.armAppliedVolts = appliedVols.getValueAsDouble();
-    inputs.armCurrentAmps = currentAmps.getValueAsDouble();
-    inputs.armTempCelsius = tempCelsius.getValueAsDouble();
+    inputs.armPosition = Rotation2d.fromRotations(position.getValue().in(Units.Rotations));
+    inputs.armAppliedVolts = appliedVoltage.getValue().in(Units.Volts);
+    inputs.armCurrentAmps = current.getValue().in(Units.Amps);
+    inputs.armTempCelsius = temp.getValue().in(Units.Celsius);
     inputs.armVelocityDegreesPerSecond =
-        Units.RotationsPerSecond.of(velocity.getValueAsDouble()).in(Units.DegreesPerSecond);
+        velocity.getValue().in(Units.DegreesPerSecond);
   }
 
   @Override

@@ -92,7 +92,7 @@ public class Vision extends SubsystemBase {
   private boolean useGyroBasedFilteringForVision = true;
 
   private final HashMap<Integer, Double> lastTagDetectionTimes = new HashMap<>();
-  private final List<Integer> tagsUsedInPoseEstimation = new ArrayList<>();
+  private final List<Short> tagsUsedInPoseEstimation = new ArrayList<>();
 
   private final List<Pose3d> posesFedToPoseEstimator3D = new ArrayList<>();
   private final List<Pose2d> posesFedToPoseEstimator2D = new ArrayList<>();
@@ -221,14 +221,14 @@ public class Vision extends SubsystemBase {
 
     // remove any tags that are not part of the field layout
     var timeStampCameraResult = cameraResult.getTimestampSeconds();
-    List<Integer> cleanTargets = new ArrayList<>();
+    List<Short> cleanTargets = new ArrayList<>();
 
     for (PhotonTrackedTarget target : cameraResult.getTargets()) {
       int fiducialId = target.getFiducialId();
       Optional<Pose3d> optTagPose = aprilTagLayout.getTagPose(fiducialId);
       if (optTagPose.isEmpty()) continue;
 
-      cleanTargets.add(target.getFiducialId());
+      cleanTargets.add((short)target.getFiducialId());
       lastTagDetectionTimes.put(fiducialId, timeStampCameraResult);
     }
 
@@ -260,7 +260,7 @@ public class Vision extends SubsystemBase {
         photonPoseEstimatorResult.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
     if (multiTagSuccess) {
       // only include tags used by PNP
-      cleanTargets = cameraResult.getMultiTagResult().fiducialIDsUsed;
+      cleanTargets = cameraResult.getMultiTagResult().get().fiducialIDsUsed;
     }
 
     var newCalculatedRobotPose = photonPoseEstimatorResult.estimatedPose;

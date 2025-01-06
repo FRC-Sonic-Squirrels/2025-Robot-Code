@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.*;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -254,10 +255,12 @@ public class LoggerGroup {
       logFile.delete();
     }
 
+    //TODO: check if this change is correct:
     // Create new log
-    dataLog_handle =
-        new DataLog(
-            dataLog_folder, dataLog_filename, dataLog_writePeriodSecs, logWriter_extraHeader);
+    // dataLog_handle =
+    //     new DataLog(
+    //         dataLog_folder, dataLog_filename, dataLog_writePeriodSecs, logWriter_extraHeader);
+    dataLog_handle = DataLogManager.getLog();
     dataLog_timestampID = dataLog_handle.start(timestampKey, "int", logWriter_entryMetadata, 0);
 
     // Reset data
@@ -355,7 +358,8 @@ public class LoggerGroup {
             newFilenameBuilder.append(".wpilog");
             String newFilename = newFilenameBuilder.toString();
             if (!newFilename.equals(dataLog_filename)) {
-              dataLog_handle.setFilename(newFilename);
+              // TODO: figure out how to fix this file name issue
+              // dataLog_handle.(newFilename);
               dataLog_filename = newFilename;
             }
           }

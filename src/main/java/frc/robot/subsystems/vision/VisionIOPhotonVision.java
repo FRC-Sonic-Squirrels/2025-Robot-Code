@@ -16,8 +16,6 @@ public class VisionIOPhotonVision implements VisionIO {
   private double lastTimestampCTRETime = -1;
   private PhotonPipelineResult lastResult = new PhotonPipelineResult();
 
-  public double medianLatency = 0.0;
-  MedianFilter latencyMedianFilter = new MedianFilter(10);
   public double medianUpdateTime = 0.0;
   MedianFilter updateTimeMedianFilter = new MedianFilter(10);
 
@@ -53,7 +51,7 @@ public class VisionIOPhotonVision implements VisionIO {
           timestamp += ctre;
 
           synchronized (VisionIOPhotonVision.this) {
-            updateMedians(result.getLatencyMillis(), timestamp - lastTimestampCTRETime);
+            updateTimeMedian(timestamp - lastTimestampCTRETime);
 
             lastTimestampCTRETime = timestamp;
             lastResult = result;
@@ -66,7 +64,6 @@ public class VisionIOPhotonVision implements VisionIO {
     inputs.lastTimestampCTRETime = this.lastTimestampCTRETime;
     inputs.lastResult = this.lastResult;
     inputs.connected = camera.isConnected();
-    inputs.medianLatency = medianLatency;
     inputs.medianUpdateTime = medianUpdateTime;
   }
 
@@ -75,8 +72,7 @@ public class VisionIOPhotonVision implements VisionIO {
     return camera;
   }
 
-  public void updateMedians(double latency, double timeSinceLastUpdate) {
-    medianLatency = latencyMedianFilter.calculate(latency);
+  public void updateTimeMedian(double timeSinceLastUpdate) {
     medianUpdateTime = updateTimeMedianFilter.calculate(timeSinceLastUpdate);
   }
 }
