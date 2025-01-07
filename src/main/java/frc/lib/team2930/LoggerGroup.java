@@ -4,13 +4,14 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DataLogWriter;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -256,9 +257,11 @@ public class LoggerGroup {
     }
 
     // Create new log
-    dataLog_handle =
-        new DataLog(
-            dataLog_folder, dataLog_filename, dataLog_writePeriodSecs, logWriter_extraHeader);
+    try {
+      dataLog_handle = new DataLogWriter(dataLog_filename);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
 
     // Reset data
     dataLog_logDate = null;

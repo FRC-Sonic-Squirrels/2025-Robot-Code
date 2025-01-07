@@ -5,6 +5,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
@@ -246,12 +247,18 @@ public class StateMachine {
   protected void spawnCommand(Command command, ResumeStateHandlerFromCommand handler) {
     var sequence =
         command.andThen(
-            () -> {
-              if (!isRunning()) return;
+            new InstantCommand(
+                () -> {
+                  if (!isRunning()) return;
 
-              var nextState = handler.advance(command);
-              if (nextState != null) {
-                setNextState(nextState);
+                  var nextState = handler.advance(command);
+                  if (nextState != null) {
+                    setNextState(nextState);
+                  }
+                }) {
+              @Override
+              public boolean runsWhenDisabled() {
+                return true;
               }
             });
 
