@@ -1,8 +1,6 @@
 package frc.robot.autonomous;
 
-import com.choreo.lib.Choreo;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
+import choreo.Choreo;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -99,8 +97,14 @@ public class AutosManager {
     paths.add(new PathDescriptor("TestPortable1", "TestPortable2", true, false));
     paths.add(new PathDescriptor("TestPortable3", "TestPortable4", true, false));
     var state = new AutoStateMachine(subsystems, config, paths);
+    // TODO: add throw message?
     return new Auto(
-        "TestPortable", state.asCommand(), Choreo.getTrajectory("TestPortable1").getInitialPose());
+        "TestPortable",
+        state.asCommand(),
+        Choreo.loadTrajectory("TestPortable1")
+            .orElseThrow()
+            .getInitialPose(Constants.isRedAlliance())
+            .get());
   }
 
   private Auto testPath(String pathName, boolean useInitialPose) {

@@ -5,8 +5,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 
 public class GeometryUtil {
   public static Rotation2d getHeading(Translation2d pose, Translation2d targetPose) {
@@ -29,8 +29,7 @@ public class GeometryUtil {
     return new Rotation3d(0.0, 0.0, rotation.getRadians());
   }
 
-  public static Translation3d translation3dFromMeasures(
-      Distance x, Distance y, Distance z) {
+  public static Translation3d translation3dFromMeasures(Distance x, Distance y, Distance z) {
     return new Translation3d(x.in(Units.Meters), y.in(Units.Meters), z.in(Units.Meters));
   }
 

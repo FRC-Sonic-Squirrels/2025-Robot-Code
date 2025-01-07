@@ -6,9 +6,10 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
@@ -39,7 +40,7 @@ public class TalonFXSim {
   private double lastPos;
 
   public TalonFXSim(DCMotor motorType, double gearing, double MOI) {
-    motor = new DCMotorSim(motorType, gearing, MOI);
+    motor = new DCMotorSim(LinearSystemId.createDCMotorSystem(motorType, MOI, gearing), motorType);
     this.gearing = gearing;
   }
 

@@ -2,28 +2,28 @@ package frc.robot.visualization;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class SimpleMechanismVisualization {
   private static final LoggerGroup logGroup = LoggerGroup.build("Mechanism");
   private static final LoggerEntry.Mechanism logMech = logGroup.buildMechanism2d("SimpleMechanism");
 
-  static Mechanism2d mechanism2d =
-      new Mechanism2d(
+  static LoggedMechanism2d mechanism2d =
+      new LoggedMechanism2d(
           Units.Inches.of(32.0).in(Units.Meters), Units.Inches.of(50.0).in(Units.Meters));
 
-  static MechanismRoot2d mechRoot =
+  static LoggedMechanismRoot2d mechRoot =
       mechanism2d.getRoot(
           "mechRoot", Units.Inches.of(4).in(Units.Meters), Units.Inches.of(4).in(Units.Meters));
 
-  static MechanismLigament2d mechLigament =
+  static LoggedMechanismLigament2d mechLigament =
       mechRoot.append(
-          new MechanismLigament2d(
+          new LoggedMechanismLigament2d(
               "mech",
               0, // TODO: change to length of ligament
               0 // TODO: change to initial angle of ligament

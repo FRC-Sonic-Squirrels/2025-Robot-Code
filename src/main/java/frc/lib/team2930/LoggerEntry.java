@@ -5,11 +5,11 @@ import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.util.struct.StructBuffer;
 import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 
 public abstract class LoggerEntry {
   public final String key;
@@ -485,8 +485,8 @@ public abstract class LoggerEntry {
   }
 
   public static class Mechanism extends LoggerEntry {
-    private Mechanism2d valuePrevious;
-    private Mechanism2d value;
+    private LoggedMechanism2d valuePrevious;
+    private LoggedMechanism2d value;
 
     Mechanism(String key, int updateFrequencyInSeconds) {
       super(key, updateFrequencyInSeconds);
@@ -504,13 +504,13 @@ public abstract class LoggerEntry {
 
     @Override
     public void publish() {
-      // This uses internal implementation details of Mechanism2d, keeping it on AdvantageKit
+      // This uses internal implementation details of LoggedMechanism2d, keeping it on AdvantageKit
       // logging.
       Logger.recordOutput(key, value);
       valuePrevious = value;
     }
 
-    public void info(Mechanism2d value) {
+    public void info(LoggedMechanism2d value) {
       this.value = value;
       this.changed = true;
     }

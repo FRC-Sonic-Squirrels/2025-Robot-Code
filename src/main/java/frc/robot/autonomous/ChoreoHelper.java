@@ -1,7 +1,8 @@
 package frc.robot.autonomous;
 
-import com.choreo.lib.ChoreoTrajectory;
-import com.choreo.lib.ChoreoTrajectoryState;
+import choreo.trajectory.EventMarker;
+import choreo.trajectory.SwerveSample;
+import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -49,7 +50,7 @@ public class ChoreoHelper {
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
   private static final LoggedTunableNumber useCorrection = group.build("useCorrection", 1);
 
-  private final ChoreoTrajectory traj;
+  private final Trajectory<SwerveSample> traj;
   private final PIDController xFeedback;
   private final PIDController yFeedback;
   private final PIDController rotationalFeedback;
@@ -59,7 +60,7 @@ public class ChoreoHelper {
 
   private double timeOffset;
   private double pausedTime = Double.NaN;
-  private ChoreoTrajectoryState stateTooBehind;
+  private SwerveSample stateTooBehind;
 
   public record ChassisSpeedsWithPathEnd(ChassisSpeeds chassisSpeeds, boolean atEndOfPath) {}
 
@@ -88,14 +89,14 @@ public class ChoreoHelper {
     this.rotationalFeedback = rotationalFeedback;
     this.rotationalFeedback.enableContinuousInput(-Math.PI, Math.PI);
 
-    ChoreoTrajectoryState closestState = null;
+    SwerveSample closestState = null;
     double closestDistance = Double.MAX_VALUE;
     double lastDistance = Double.MAX_VALUE;
 
     if (useCorrection.get() != 0) {
-      for (ChoreoTrajectoryState state : getStates(traj)) {
-        ChoreoTrajectoryState stateComputed =
-            traj.sample(state.timestamp, Constants.isRedAlliance());
+      for (SwerveSample state : getStates(traj)) {
+        SwerveSample stateComputed =
+            traj.sampleAt(state.t, Constants.isRedAlliance()).orElseThrow();
         double stateDistance = GeometryUtil.getDist(initialPose, stateComputed.getPose());
 
         if (stateDistance > lastDistance) {
@@ -113,7 +114,7 @@ public class ChoreoHelper {
     }
 
     if (closestState != null) {
-      this.timeOffset = closestState.timestamp;
+      this.timeOffset = closestState.t;
       log_closestPose.info(closestState.getPose());
     }
 
@@ -144,7 +145,7 @@ public class ChoreoHelper {
    * @param timestamp time of path
    */
   public ChassisSpeedsWithPathEnd calculateChassisSpeeds(Pose2d robotPose, double timestamp) {
-    ChoreoTrajectoryState state;
+    SwerveSample state;
 
     log_isPaused.info(isPaused());
 
@@ -155,7 +156,7 @@ public class ChoreoHelper {
     } else {
       var timestampCorrected = timestamp - initialTime + timeOffset;
 
-      state = traj.sample(timestampCorrected, Constants.isRedAlliance());
+      state = traj.sampleAt(timestampCorrected, Constants.isRedAlliance()).orElseThrow();
       if (timestampCorrected >= traj.getTotalTime()) {
         atTheEndOfPath = true;
       }
@@ -172,7 +173,7 @@ public class ChoreoHelper {
       if (stateTooBehind != null) stateTooBehind = state;
     }
 
-    log_stateTimestamp.info(state.timestamp);
+    log_stateTimestamp.info(state.t);
     log_stateTimeOffset.info(timeOffset);
 
     double xRobot = robotPose.getX();
@@ -193,8 +194,8 @@ public class ChoreoHelper {
           resume(timestamp);
         }
       } else {
-        var velMagnitude = Math.hypot(state.velocityX, state.velocityY);
-        if (stateTooBehind == null && velMagnitude >= minVelToPause && state.timestamp > 0.25) {
+        var velMagnitude = Math.hypot(state.vx, state.vy);
+        if (stateTooBehind == null && velMagnitude >= minVelToPause && state.t > 0.25) {
           stateTooBehind = state;
           pause(timestamp);
         }
@@ -217,8 +218,8 @@ public class ChoreoHelper {
     double pidXVel = xFeedback.calculate(xRobot, xDesired);
     double pidYVel = yFeedback.calculate(yRobot, yDesired);
 
-    double xVel = state.velocityX * scaleVelocity;
-    double yVel = state.velocityY * scaleVelocity;
+    double xVel = state.vx * scaleVelocity;
+    double yVel = state.vy * scaleVelocity;
 
     if (useCorrection) {
       xVel += pidXVel;
@@ -228,12 +229,12 @@ public class ChoreoHelper {
     log_pidXVelEffort.info(pidXVel);
     log_pidYVelEffort.info(pidYVel);
     log_pidVelEffort.info(Math.hypot(pidXVel, pidYVel));
-    log_stateLinearVel.info(Math.hypot(state.velocityX, state.velocityY));
-    log_stateLinearVelError.info(Math.hypot(state.velocityX - xVel, state.velocityY - yVel));
+    log_stateLinearVel.info(Math.hypot(state.vx, state.vy));
+    log_stateLinearVelError.info(Math.hypot(state.vx - xVel, state.vy - yVel));
 
     Rotation2d rotation = robotPose.getRotation();
     double theta = rotation.getRadians();
-    double omegaVel = state.angularVelocity + rotationalFeedback.calculate(theta, state.heading);
+    double omegaVel = state.omega + rotationalFeedback.calculate(theta, state.heading);
 
     log_optimalPose.info(state.getPose());
     log_desiredVelocity.info(new Pose2d(xVel, yVel, Rotation2d.fromRadians(omegaVel)));
@@ -244,16 +245,17 @@ public class ChoreoHelper {
         atTheEndOfPath);
   }
 
-  private ChoreoTrajectoryState isFutureStateCloser(
-      Pose2d robotPose, ChoreoTrajectoryState state, double lookaheadTime) {
-    var stateAhead = traj.sample(state.timestamp + lookaheadTime, Constants.isRedAlliance());
+  private SwerveSample isFutureStateCloser(
+      Pose2d robotPose, SwerveSample state, double lookaheadTime) {
+    var stateAhead =
+        traj.sampleAt(state.t + lookaheadTime, Constants.isRedAlliance()).orElseThrow();
 
     double stateDistance = distanceToState(robotPose, state);
     double stateDistanceAhead = distanceToState(robotPose, stateAhead);
     return stateDistanceAhead < stateDistance ? stateAhead : null;
   }
 
-  private static double distanceToState(Pose2d robotPose, ChoreoTrajectoryState state) {
+  private static double distanceToState(Pose2d robotPose, SwerveSample state) {
     double xRobot = robotPose.getX();
     double yRobot = robotPose.getY();
 
@@ -263,35 +265,40 @@ public class ChoreoHelper {
     return Math.hypot(xDesired - xRobot, yDesired - yRobot);
   }
 
-  public static ChoreoTrajectory rescale(ChoreoTrajectory traj, double speedScaling) {
+  public static Trajectory<SwerveSample> rescale(
+      Trajectory<SwerveSample> traj, double speedScaling) {
     if (speedScaling == 1.0) {
       return traj;
     }
 
-    var newStates = new ArrayList<ChoreoTrajectoryState>();
+    var newStates = new ArrayList<SwerveSample>();
     for (var state : getStates(traj)) {
       newStates.add(
-          new ChoreoTrajectoryState(
-              state.timestamp * speedScaling,
+          new SwerveSample(
+              state.t * speedScaling,
               state.x,
               state.y,
               state.heading,
-              state.velocityX / speedScaling,
-              state.velocityY / speedScaling,
-              state.angularVelocity / speedScaling,
-              state.moduleForcesX,
-              state.moduleForcesY));
+              state.vx / speedScaling,
+              state.vy / speedScaling,
+              state.omega / speedScaling,
+              state.ax,
+              state.ay,
+              state.alpha,
+              state.moduleForcesX(),
+              state.moduleForcesY()));
     }
 
-    return new ChoreoTrajectory(newStates);
+    // TODO: check instantiation for Trajectory object
+    return new Trajectory("", newStates, new ArrayList<Integer>(), new ArrayList<EventMarker>());
   }
 
-  private static List<ChoreoTrajectoryState> getStates(ChoreoTrajectory traj) {
+  private static List<SwerveSample> getStates(Trajectory<SwerveSample> traj) {
     try {
       var f = traj.getClass().getDeclaredField("samples");
       f.setAccessible(true);
       //noinspection unchecked
-      return (List<ChoreoTrajectoryState>) f.get(traj);
+      return (List<SwerveSample>) f.get(traj);
     } catch (NoSuchFieldException | IllegalAccessException e) {
       throw new RuntimeException(e);
     }

@@ -80,8 +80,7 @@ public class ArmIOReal implements ArmIO {
 
     motor.optimizeBusUtilization();
 
-    refreshSet =
-        new BaseStatusSignal[] {appliedVoltage, position, current, temp, velocity};
+    refreshSet = new BaseStatusSignal[] {appliedVoltage, position, current, temp, velocity};
   }
 
   @Override
@@ -92,8 +91,7 @@ public class ArmIOReal implements ArmIO {
     inputs.armAppliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.armCurrentAmps = current.getValue().in(Units.Amps);
     inputs.armTempCelsius = temp.getValue().in(Units.Celsius);
-    inputs.armVelocityDegreesPerSecond =
-        velocity.getValue().in(Units.DegreesPerSecond);
+    inputs.armVelocityDegreesPerSecond = velocity.getValue().in(Units.DegreesPerSecond);
   }
 
   @Override

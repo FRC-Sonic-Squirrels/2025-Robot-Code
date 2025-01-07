@@ -9,8 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import frc.lib.constants.SwerveModuleConstants;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.subsystems.swerve.SwerveModule;
@@ -68,14 +68,10 @@ public class RobotConfig2025 extends RobotConfig {
 
   // -------- SWERVE CURRENT LIMITS ---------
   private static final CurrentLimitsConfigs DRIVE_TALON_CURRENT_LIMIT_CONFIGS =
-      new CurrentLimitsConfigs()
-          .withSupplyCurrentLimit(20)
-          .withSupplyCurrentLimitEnable(true);
+      new CurrentLimitsConfigs().withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true);
 
   private static final CurrentLimitsConfigs STEER_TALON_CURRENT_LIMIT_CONFIGS =
-      new CurrentLimitsConfigs()
-          .withSupplyCurrentLimit(25)
-          .withSupplyCurrentLimitEnable(true);
+      new CurrentLimitsConfigs().withSupplyCurrentLimit(25).withSupplyCurrentLimitEnable(true);
 
   // --------- SWERVE GEAR RATIO ---------
   public static final double SWERVE_DRIVE_GEAR_RATIO =
