@@ -255,13 +255,10 @@ public class LoggerGroup {
       logFile.delete();
     }
 
-    //TODO: check if this change is correct:
     // Create new log
-    // dataLog_handle =
-    //     new DataLog(
-    //         dataLog_folder, dataLog_filename, dataLog_writePeriodSecs, logWriter_extraHeader);
-    dataLog_handle = DataLogManager.getLog();
-    dataLog_timestampID = dataLog_handle.start(timestampKey, "int", logWriter_entryMetadata, 0);
+    dataLog_handle =
+        new DataLog(
+            dataLog_folder, dataLog_filename, dataLog_writePeriodSecs, logWriter_extraHeader);
 
     // Reset data
     dataLog_logDate = null;
