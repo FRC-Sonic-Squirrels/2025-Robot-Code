@@ -135,13 +135,11 @@ public class ShooterIOReal implements ShooterIO {
     inputs.refreshAll(refreshSet);
 
     inputs.pivotPosition = Rotation2d.fromRotations(pivotPosition.getValue().in(Units.Rotations));
-    inputs.pivotVelocityDegreesPerSec =
-        pivotVelocity.getValue().in(Units.DegreesPerSecond);
+    inputs.pivotVelocityDegreesPerSec = pivotVelocity.getValue().in(Units.DegreesPerSecond);
     inputs.pivotAppliedVolts = pivotVoltage.getValue().in(Units.Volts);
     inputs.pivotCurrentAmps = pivotCurrent.getValue().in(Units.Amps);
 
-    inputs.launcherRPM =
-        launcherVelocity.getValue().in(Units.RPM);
+    inputs.launcherRPM = launcherVelocity.getValue().in(Units.RPM);
 
     inputs.launcherAppliedVolts = launcherVoltage.getValue().in(Units.Volts);
 

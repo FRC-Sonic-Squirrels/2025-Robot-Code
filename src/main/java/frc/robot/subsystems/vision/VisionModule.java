@@ -11,7 +11,6 @@ import frc.robot.subsystems.vision.VisionIO.Inputs;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.common.dataflow.structures.Packet;
-import org.photonvision.targeting.PhotonPipelineResult;
 
 public class VisionModule {
   final VisionIO visionIO;
@@ -62,9 +61,7 @@ public class VisionModule {
 
     this.photonPoseEstimator =
         new PhotonPoseEstimator(
-            aprilTagFieldLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            RobotToCamera);
+            aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, RobotToCamera);
     // might as well do lowest ambiguity since we this will likely only happen when only 1 target is
     // seen
     // no point filtering for the best target when there is only 1.
@@ -100,7 +97,10 @@ public class VisionModule {
 
   public void log(Pose3d robotPose) {
     byte[] photonPacketBytes = new byte[visionIOInputs.lastResult.getPacketSize()];
-    visionIOInputs.lastResult.getSerde().pack(new Packet(photonPacketBytes), visionIOInputs.lastResult);
+    visionIOInputs
+        .lastResult
+        .getSerde()
+        .pack(new Packet(photonPacketBytes), visionIOInputs.lastResult);
     log_photonPacketBytes.info(photonPacketBytes);
     log_lastTimestampCTRETime.info(visionIOInputs.lastTimestampCTRETime);
     log_connected.info(visionIOInputs.connected);

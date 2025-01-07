@@ -13,14 +13,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.units.Units;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
@@ -82,16 +81,15 @@ public class ElevatorIOReal implements ElevatorIO {
     motor.optimizeBusUtilization();
 
     refreshSet =
-        new BaseStatusSignal[] {
-          rotorPosition, rotorVelocity, appliedVoltage, current, temp
-        };
+        new BaseStatusSignal[] {rotorPosition, rotorVelocity, appliedVoltage, current, temp};
   }
 
   @Override
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.heightInches = rotorPosition.getValue().in(Units.Rotations) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
+    inputs.heightInches =
+        rotorPosition.getValue().in(Units.Rotations) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
     inputs.velocityInchesPerSecond =
         rotorVelocity.getValue().in(Units.RPM) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);

@@ -228,7 +228,7 @@ public class Vision extends SubsystemBase {
       Optional<Pose3d> optTagPose = aprilTagLayout.getTagPose(fiducialId);
       if (optTagPose.isEmpty()) continue;
 
-      cleanTargets.add((short)target.getFiducialId());
+      cleanTargets.add((short) target.getFiducialId());
       lastTagDetectionTimes.put(fiducialId, timeStampCameraResult);
     }
 

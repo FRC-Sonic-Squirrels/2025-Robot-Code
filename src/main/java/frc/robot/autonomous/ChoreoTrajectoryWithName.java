@@ -1,14 +1,17 @@
 package frc.robot.autonomous;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
+import choreo.Choreo;
+import choreo.trajectory.SwerveSample;
+import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.lib.team2930.AllianceFlipUtil;
 
-public record ChoreoTrajectoryWithName(String name, ChoreoTrajectory states) {
+public record ChoreoTrajectoryWithName(String name, Trajectory<SwerveSample> states) {
   public static ChoreoTrajectoryWithName getTrajectory(String name) {
     if (name == null) return null;
-    return new ChoreoTrajectoryWithName(name, Choreo.getTrajectory(name));
+    // TODO: add throw message?
+    // TODO: check whether this cast is okay:
+    return new ChoreoTrajectoryWithName(
+        name, (Trajectory<SwerveSample>) Choreo.loadTrajectory(name).orElseThrow());
   }
 
   public static String getName(ChoreoTrajectoryWithName trajWithName) {
@@ -20,14 +23,12 @@ public record ChoreoTrajectoryWithName(String name, ChoreoTrajectory states) {
   }
 
   public Pose2d getInitialPose(boolean flipForAlliance) {
-    var pose = states.getInitialPose();
-
-    return flipForAlliance ? AllianceFlipUtil.flipPoseForAlliance(pose) : pose;
+    // TODO: add throw message?
+    return states.getInitialPose(flipForAlliance).orElseThrow();
   }
 
   public Pose2d getFinalPose(boolean flipForAlliance) {
-    var pose = states.getFinalPose();
-
-    return flipForAlliance ? AllianceFlipUtil.flipPoseForAlliance(pose) : pose;
+    // TODO: add throw message?
+    return states.getFinalPose(flipForAlliance).orElseThrow();
   }
 }

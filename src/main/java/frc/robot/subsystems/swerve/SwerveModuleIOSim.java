@@ -20,6 +20,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
@@ -38,10 +39,14 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
   private final DCMotorSim driveSim =
       new DCMotorSim(
-          DCMotor.getKrakenX60(1), RobotConfig2024Maestro.SWERVE_DRIVE_GEAR_RATIO, 0.025);
+          LinearSystemId.createDCMotorSystem(
+              DCMotor.getKrakenX60(1), 0.025, RobotConfig2024Maestro.SWERVE_DRIVE_GEAR_RATIO),
+          DCMotor.getKrakenX60(1));
   private final DCMotorSim turnSim =
       new DCMotorSim(
-          DCMotor.getFalcon500(1), RobotConfig2024Maestro.SWERVE_STEER_GEAR_RATIO, 0.004);
+          LinearSystemId.createDCMotorSystem(
+              DCMotor.getKrakenX60(1), 0.004, RobotConfig2024Maestro.SWERVE_STEER_GEAR_RATIO),
+          DCMotor.getFalcon500(1));
 
   private final SimpleMotorFeedforward driveFeedforward;
   private final PIDController driveFeedback;

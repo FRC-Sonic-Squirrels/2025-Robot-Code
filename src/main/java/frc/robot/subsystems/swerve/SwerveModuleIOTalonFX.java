@@ -39,9 +39,6 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.configs.IndividualSwerveModuleConfig;
 import frc.robot.configs.RobotConfig;
-
-import static edu.wpi.first.units.Units.Rotation;
-
 import java.util.List;
 
 /**
@@ -246,7 +243,8 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
 
     // Process turn encoder position.
     var turnAbsolutePositionRotations = turnAbsolutePosition.getValue().in(Units.Rotations);
-    inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePositionRotations).minus(absoluteEncoderOffset);
+    inputs.turnAbsolutePosition =
+        Rotation2d.fromRotations(turnAbsolutePositionRotations).minus(absoluteEncoderOffset);
 
     // On first cycle, reset relative turn encoder
     // Wait until absolute angle is nonzero in case it wasn't initialized yet
@@ -281,7 +279,8 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
     var velocityRotationsPerSecond =
         Units.Radians.of(velocityMetersPerSec).in(Units.Rotations) * distanceToRotation;
     var accelerationRotationsPerSecondSquared =
-    Units.Radians.of(accelerationMetersPerSecondSquared).in(Units.Rotations) * distanceToRotation;
+        Units.Radians.of(accelerationMetersPerSecondSquared).in(Units.Rotations)
+            * distanceToRotation;
 
     driveTalon.setControl(
         driveMotionMagicVelocityRequest
