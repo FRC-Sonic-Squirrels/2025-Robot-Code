@@ -162,7 +162,11 @@ public class Elevator extends SubsystemBase {
     return inputs.appliedVolts;
   }
 
-  public double getVelocity() {
+  public double getVelocityInchesPerSecond() {
     return inputs.velocityInchesPerSecond;
+  }
+
+  public double getTimeOfFlightDistanceInches() {
+    return inputs.timeOfFlightDistInches;
   }
 }

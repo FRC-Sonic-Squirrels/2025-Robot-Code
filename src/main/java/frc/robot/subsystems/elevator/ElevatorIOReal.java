@@ -13,6 +13,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -39,6 +41,9 @@ public class ElevatorIOReal implements ElevatorIO {
   private StatusSignal<Temperature> temp;
 
   private final BaseStatusSignal[] refreshSet;
+
+  // TODO: consider moving elsewhere?
+  TimeOfFlight timeOfFlight = new TimeOfFlight(Constants.CanIDs.SHOOTER_TOF_CAN_ID);
 
   public ElevatorIOReal() {
     // Motor config
@@ -82,6 +87,9 @@ public class ElevatorIOReal implements ElevatorIO {
 
     refreshSet =
         new BaseStatusSignal[] {rotorPosition, rotorVelocity, appliedVoltage, current, temp};
+
+    timeOfFlight.setRangeOfInterest(0, 16, 16, 0);
+    timeOfFlight.setRangingMode(RangingMode.Long, 40);
   }
 
   @Override
@@ -95,6 +103,7 @@ public class ElevatorIOReal implements ElevatorIO {
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.currentAmps = current.getValue().in(Units.Amps);
     inputs.tempCelsius = temp.getValue().in(Units.Celsius);
+    inputs.timeOfFlightDistInches = Units.Millimeters.of(timeOfFlight.getRange()).in(Units.Inches);
   }
 
   @Override
