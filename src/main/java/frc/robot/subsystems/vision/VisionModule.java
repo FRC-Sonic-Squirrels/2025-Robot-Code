@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team6328.Alert;
@@ -19,6 +20,7 @@ public class VisionModule {
   final PhotonPoseEstimator photonPoseEstimator;
   final Transform3d RobotToCamera;
   final String name;
+  final int id;
 
   public VisionResultLoggedFields loggedFields;
   public double lastSuccessfullyProcessedResultTimeStampCTRETime;
@@ -47,15 +49,19 @@ public class VisionModule {
   public final LoggerEntry.Decimal log_thetaStandardDeviation;
   public final LoggerEntry.Bool log_successfulResult;
   public final LoggerEntry.DecimalArray log_seenTargetsIDs;
+  public final LoggerEntry.Decimal log_xOffset;
+  public final LoggerEntry.Decimal log_yOffset;
 
   public VisionModule(
       LoggerGroup logGroup,
       VisionModuleConfiguration config,
-      AprilTagFieldLayout aprilTagFieldLayout) {
+      AprilTagFieldLayout aprilTagFieldLayout,
+      int id) {
     this.visionIO = config.visionIO;
     this.visionIOInputs = new Inputs();
     this.RobotToCamera = config.robotToCamera;
     this.name = config.logName;
+    this.id = id;
 
     this.loggedFields = VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.INIT);
     this.lastSuccessfullyProcessedResultTimeStampCTRETime = -1.0;
@@ -94,9 +100,11 @@ public class VisionModule {
     log_thetaStandardDeviation = logGroup.buildDecimal("thetaStandardDeviation");
     log_successfulResult = logGroup.buildBoolean("SUCCESSFUL_RESULT?");
     log_seenTargetsIDs = logGroup.buildDecimalArray("seenTargetsIDs");
+    log_xOffset = logGroup.buildDecimal("tagOffset/yaw");
+    log_yOffset = logGroup.buildDecimal("tagOffset/pitch");
   }
 
-  public void log(Pose3d robotPose) {
+  public void log(Pose3d robotPose, Translation2d tagOffset) {
     if (Constants.unusedCode) {
       byte[] photonPacketBytes = new byte[visionIOInputs.lastResult.getPacketSize()];
       visionIOInputs
@@ -140,5 +148,8 @@ public class VisionModule {
     log_thetaStandardDeviation.info(fieldsToLog.thetaStandardDeviation());
     log_successfulResult.info(status.success);
     log_seenTargetsIDs.info(seenTagsArray);
+
+    log_xOffset.info(tagOffset.getX());
+    log_yOffset.info(tagOffset.getY());
   }
 }
