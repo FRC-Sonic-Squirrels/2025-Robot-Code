@@ -35,6 +35,7 @@ import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
+import frc.robot.commands.drive.SnapToReef;
 import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
@@ -411,6 +412,23 @@ public class RobotContainer {
                       driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
                       led.setRobotState(RobotState.BASE);
                     }));
+
+    driverController
+        .leftTrigger()
+        .whileTrue(
+            new SnapToReef(
+                vision::getTagOffsets,
+                drivetrainWrapper,
+                () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                0));
+    driverController
+        .leftTrigger()
+        .whileTrue(
+            new SnapToReef(
+                vision::getTagOffsets,
+                drivetrainWrapper,
+                () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                1));
 
     // ---------- OPERATOR CONTROLS -----------
 
