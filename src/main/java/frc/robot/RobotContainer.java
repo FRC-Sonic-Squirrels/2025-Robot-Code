@@ -35,7 +35,7 @@ import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
-import frc.robot.commands.elevator.ElevatorSetHeight;
+import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.configs.SimulatorRobotConfig;
