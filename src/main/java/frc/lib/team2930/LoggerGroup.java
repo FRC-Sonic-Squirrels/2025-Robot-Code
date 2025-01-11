@@ -10,6 +10,7 @@ import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -256,11 +257,14 @@ public class LoggerGroup {
       logFile.delete();
     }
 
-    // Create new log
-    try {
-      dataLog_handle = new DataLogWriter(dataLog_filename);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    if (Constants.unusedCode) {
+      // BUGBUG: new logging library incompatibility.
+      // Create new log
+      try {
+        dataLog_handle = new DataLogWriter(dataLog_filename);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     // Reset data
