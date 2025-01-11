@@ -54,7 +54,7 @@ public final class Constants {
   }
 
   public static class RobotMode {
-    private static final RobotType ROBOT = RobotType.ROBOT_2024_RETIRED_MAESTRO;
+    private static final RobotType ROBOT = RobotType.ROBOT_2025;
 
     private static final Alert invalidRobotAlert =
         new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -84,9 +84,9 @@ public final class Constants {
         return RobotType.ROBOT_SIMBOT;
       }
 
-      if (ROBOT != RobotType.ROBOT_2024_RETIRED_MAESTRO) {
+      if (ROBOT != RobotType.ROBOT_2024_RETIRED_MAESTRO || ROBOT != RobotType.ROBOT_2025) {
         invalidRobotAlert.set(true);
-        return RobotType.ROBOT_2024_RETIRED_MAESTRO;
+        return RobotType.ROBOT_2025;
       }
 
       return ROBOT;
