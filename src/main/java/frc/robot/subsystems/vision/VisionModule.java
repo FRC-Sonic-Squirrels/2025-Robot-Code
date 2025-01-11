@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team6328.Alert;
+import frc.robot.Constants;
 import frc.robot.subsystems.vision.VisionIO.Inputs;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -96,12 +97,14 @@ public class VisionModule {
   }
 
   public void log(Pose3d robotPose) {
-    byte[] photonPacketBytes = new byte[visionIOInputs.lastResult.getPacketSize()];
-    visionIOInputs
-        .lastResult
-        .getSerde()
-        .pack(new Packet(photonPacketBytes), visionIOInputs.lastResult);
-    log_photonPacketBytes.info(photonPacketBytes);
+    if (Constants.unusedCode) {
+      byte[] photonPacketBytes = new byte[visionIOInputs.lastResult.getPacketSize()];
+      visionIOInputs
+          .lastResult
+          .getSerde()
+          .pack(new Packet(photonPacketBytes), visionIOInputs.lastResult);
+      log_photonPacketBytes.info(photonPacketBytes);
+    }
     log_lastTimestampCTRETime.info(visionIOInputs.lastTimestampCTRETime);
     log_connected.info(visionIOInputs.connected);
     log_medianLatency.info(visionIOInputs.medianLatency);
