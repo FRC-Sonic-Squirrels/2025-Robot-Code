@@ -47,64 +47,64 @@ public class MechanismActions {
 //     return goToPositionParallel(elevator, arm, position, false);
 //   }
 
-//   private static Command goToPositionParallel(
-//       Elevator elevator, Arm arm, Supplier<MechanismPosition> position, boolean ignoreSafety) {
+  private static Command goToPositionParallel(
+      Elevator elevator, Arm arm, Supplier<MechanismPosition> position, boolean ignoreSafety) {
 
-//     var cmd =
-//         new Command() {
-//           boolean elevatorInPosition = false;
-//           boolean armInPosition = false;
+    var cmd =
+        new Command() {
+          boolean elevatorInPosition = false;
+          boolean armInPosition = false;
 
-//           @Override
-//           public void execute() {
-//             MechanismPosition targetPosition = position.get();
-//             Measure<Distance> safeHeight = Constants.ElevatorConstants.SAFE_HEIGHT;
-//             boolean runningArm =
-//                 elevator.getHeightInches()
-//                         >= safeHeight.minus(Units.Inches.of(1.0)).in(Units.Inches)
-//                     || (arm.getAngle().getRadians()
-//                             > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-//                         && position.get().armAngle().getRadians()
-//                             > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians());
-//             if (ignoreSafety) runningArm = true;
-//             if (runningArm) {
-//               arm.setAngle(targetPosition.armAngle());
-//             }
+          @Override
+          public void execute() {
+            MechanismPosition targetPosition = position.get();
+            Distance safeHeight = Constants.ElevatorConstants.SAFE_HEIGHT;
+            boolean runningArm =
+                elevator.getHeightInches()
+                        >= safeHeight.minus(Units.Inches.of(1.0)).in(Units.Inches)
+                    || (arm.getAngle().getRadians()
+                            > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
+                        && position.get().armAngle().getRadians()
+                            > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians());
+            if (ignoreSafety) runningArm = true;
+            if (runningArm) {
+              arm.setAngle(targetPosition.armAngle());
+            }
 
-//             boolean runningElevatorSafety =
-//                 targetPosition.elevatorHeight().lte(safeHeight)
-//                     && ((arm.getAngle().getRadians()
-//                                 >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-//                             && targetPosition.armAngle().getRadians()
-//                                 <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians())
-//                         || (arm.getAngle().getRadians()
-//                                 <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-//                             && position.get().armAngle().getRadians()
-//                                 >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()));
-//             if (ignoreSafety) runningElevatorSafety = false;
+            boolean runningElevatorSafety =
+                targetPosition.elevatorHeight().lte(safeHeight)
+                    && ((arm.getAngle().getRadians()
+                                >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
+                            && targetPosition.armAngle().getRadians()
+                                <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians())
+                        || (arm.getAngle().getRadians()
+                                <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
+                            && position.get().armAngle().getRadians()
+                                >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()));
+            if (ignoreSafety) runningElevatorSafety = false;
 
-//             if (runningElevatorSafety) {
-//               elevator.setHeight(safeHeight);
-//             } else {
-//               elevator.setHeight(targetPosition.elevatorHeight());
-//             }
-//             log_runningArm.info(runningArm);
-//             log_runningElevator.info(runningElevatorSafety);
-//             elevatorInPosition = elevator.isAtTarget(position.get().elevatorHeight());
-//             log_ElevatorInPosition.info(elevatorInPosition);
-//             armInPosition =
-//                 arm.isAtTargetAngle(position.get().armAngle(), Rotation2d.fromDegrees(5.0));
-//             log_ArmInPosition.info(armInPosition);
-//           }
+            if (runningElevatorSafety) {
+              elevator.setHeight(safeHeight);
+            } else {
+              elevator.setHeight(targetPosition.elevatorHeight());
+            }
+            log_runningArm.info(runningArm);
+            log_runningElevator.info(runningElevatorSafety);
+            elevatorInPosition = elevator.isAtTarget(position.get().elevatorHeight());
+            log_ElevatorInPosition.info(elevatorInPosition);
+            armInPosition =
+                arm.isAtTargetAngle(position.get().armAngle(), Rotation2d.fromDegrees(5.0));
+            log_ArmInPosition.info(armInPosition);
+          }
 
-//           @Override
-//           public boolean isFinished() {
-//             return elevatorInPosition && armInPosition;
-//           }
-//         };
+          @Override
+          public boolean isFinished() {
+            return elevatorInPosition && armInPosition;
+          }
+        };
 
-//     cmd.addRequirements(elevator, arm);
-//     cmd.setName("MechanismAction");
-//     return cmd;
-//   }
+    cmd.addRequirements(elevator, arm);
+    cmd.setName("MechanismAction");
+    return cmd;
+  }
 }
