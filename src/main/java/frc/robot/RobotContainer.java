@@ -42,28 +42,17 @@ import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
 import frc.robot.subsystems.LED.RobotState;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.arm.ArmIO;
-import frc.robot.subsystems.arm.ArmIOReal;
-import frc.robot.subsystems.arm.ArmIOSim;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOReal;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOReal;
-import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.arm.*;
+import frc.robot.subsystems.elevator.*;
+import frc.robot.subsystems.endEffector.*;
+import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionModuleConfiguration;
-import frc.robot.subsystems.visionGamepiece.VisionGamepiece;
-import frc.robot.subsystems.visionGamepiece.VisionGamepieceIO;
-import frc.robot.subsystems.visionGamepiece.VisionGamepieceIOReal;
-import frc.robot.subsystems.visionGamepiece.VisionGamepieceIOSim;
+import frc.robot.subsystems.visionGamepiece.*;
 import frc.robot.visualization.MechanismVisualization;
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -88,6 +77,7 @@ public class RobotContainer {
   private final Arm arm;
   private final Elevator elevator;
   private final Intake intake;
+  private final EndEffector endEffector;
   private final VisionGamepiece visionGamepiece;
   private final LED led;
 
@@ -154,6 +144,7 @@ public class RobotContainer {
       arm = new Arm(new ArmIO() {});
       elevator = new Elevator(new ElevatorIO() {});
       intake = new Intake(new IntakeIO() {});
+      endEffector = new EndEffector(new EndEffectorIO() {});
       visionGamepiece =
           new VisionGamepiece(
               new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
@@ -217,6 +208,7 @@ public class RobotContainer {
           arm = new Arm(new ArmIOSim());
           elevator = new Elevator(new ElevatorIOSim());
           intake = new Intake(new IntakeIOSim());
+          endEffector = new EndEffector(new EndEffectorIO() {});
           led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
           break;
 
@@ -239,6 +231,7 @@ public class RobotContainer {
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
+          endEffector = new EndEffector(new EndEffectorIO() {});
           visionGamepiece =
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
@@ -255,6 +248,7 @@ public class RobotContainer {
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
           intake = new Intake(new IntakeIOReal());
+          endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
           vision =
@@ -281,6 +275,7 @@ public class RobotContainer {
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
           intake = new Intake(new IntakeIOReal());
+          endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
           vision =
@@ -316,6 +311,7 @@ public class RobotContainer {
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
+          endEffector = new EndEffector(new EndEffectorIO() {});
           visionGamepiece =
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
