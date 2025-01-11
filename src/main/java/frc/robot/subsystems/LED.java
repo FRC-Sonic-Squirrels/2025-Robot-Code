@@ -73,7 +73,10 @@ public class LED extends SubsystemBase {
     robotLoops++;
 
     if (useTunableLEDs.get() == 0) {
-      System.out.print(getCurrentState());
+      if (robotLoops % 20 == 0) {
+        System.out.println("LED BASE STATE " + getCurrentBaseState());
+        System.out.println("LED STATE " + getCurrentState());
+      }
       // This method will be called once per scheduler run
       // TODO: add condition for if elevator is not zeroed.
 
@@ -94,9 +97,10 @@ public class LED extends SubsystemBase {
                   if (DriverStation.isTeleop() && DriverStation.isEnabled()) {
                     setSolidColor(Color.kBlack);
                   } else if (DriverStation.isAutonomous()) {
-                    setAudioLevelMeter(100);
+                    setSeaLevelGraphic();
                   } else {
-                    setSnake(squirrelOrange, new Color(1, 0.3, 0));
+                    //setSnake(squirrelOrange, new Color(1, 0.3, 0));
+                    setSeaLevelGraphic(); //TODO: REMOVE TEST CASES
                   }
                 }
               }
@@ -119,7 +123,7 @@ public class LED extends SubsystemBase {
               setSolidColor(Color.kBlueViolet);
               break;
             default:
-              setAudioLevelMeter(100);
+              setSeaLevelGraphic();
               break;
           }
           break;
@@ -197,7 +201,7 @@ public class LED extends SubsystemBase {
   private void setSnake(Color color1, Color color2) {
     LEDPattern pattern = LEDPattern.progressMaskLayer(() -> 50 / 100);
     // TODO: Measure properly instead of random number
-    Distance ledSpacing = Meters.of(1 / 120);
+    Distance ledSpacing = Meters.of(1 / 120.0);
     LEDPattern absolute =
         pattern.scrollAtAbsoluteSpeed(Centimeters.per(Second).of(12.5), ledSpacing);
     LEDPattern layer1 = LEDPattern.solid(color1);
@@ -209,7 +213,7 @@ public class LED extends SubsystemBase {
   private void setRainbow() {
     LEDPattern rainbow = LEDPattern.rainbow(255, 128);
     // TODO: Measure properly instead of random number
-    Distance ledSpacing = Meters.of(1 / 120);
+    Distance ledSpacing = Meters.of(1 / 120.0);
     LEDPattern scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), ledSpacing);
     scrollingRainbow.applyTo(ledBuffer);
     led.setData(ledBuffer);
@@ -225,33 +229,29 @@ public class LED extends SubsystemBase {
    * @param bpm beats per minute
    */
   private void setAudioLevelMeter(int bpm) {
-
-    int max = ledBuffer.getLength();
     double theta = levelMeterCount * 0.02 * Math.PI * bpm / 60.0;
-    int volume =
-        (int)
-            Math.round(
-                1
-                    + Math.abs(11.0 * Math.sin(theta))
-                    + (3.0 * Math.sin(theta * 7.0))
-                    + (1.0 * Math.sin(theta * 17.0)));
-
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      if (i <= volume) {
-        if (i <= (0.6 * max)) {
-          ledBuffer.setLED(i, Color.kGreen);
-        } else if (i <= 0.8 * max) {
-          ledBuffer.setLED(i, Color.kYellow);
-        } else {
-          ledBuffer.setLED(i, Color.kRed);
-        }
-      } else {
-        ledBuffer.setLED(i, Color.kBlack);
-      }
-    }
+    double volume = 1 + Math.abs(11.0 * Math.sin(theta)) + (3.0 * Math.sin(theta * 7.0)) + (1.0 * Math.sin(theta * 17.0));
+    double mappedVolume = (volume / 15) * 100;
+    LEDPattern volumeMask = LEDPattern.progressMaskLayer(() -> (mappedVolume) / 100);
+    LEDPattern volumeGradient = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kRed).mask(volumeMask);
+    volumeGradient.applyTo(ledBuffer);
+    led.setData(ledBuffer);
     levelMeterCount += 1;
+  }
 
-    System.out.println("LED: count=" + levelMeterCount + " vol=" + volume + " theta=" + theta);
+  private void setSeaLevelGraphic() {
+    int speed = 8;
+    double theta = levelMeterCount * 0.02 * Math.PI * speed / 60.0;
+    double seaLevel = 1 + Math.abs(11.0 * Math.sin(theta)) + (3.0 * Math.sin(theta * 7.0)) + (1.0 * Math.sin(theta * 17.0));
+    double mappedSeaLevel = (seaLevel / 15) * 100;
+    LEDPattern seaMask = LEDPattern.progressMaskLayer(() -> (mappedSeaLevel) / 100);
+    Color deepSea = new Color(0.0, 0.01, 0.025);
+    Color shallowSea = new Color(0.0, 0.3, 0.4);
+    Color seaColor = Color.lerpRGB(shallowSea, deepSea, mappedSeaLevel/100);
+    LEDPattern seaGradient = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, deepSea, seaColor).mask(seaMask);
+    seaGradient.applyTo(ledBuffer);
+    led.setData(ledBuffer);
+    levelMeterCount += 1;
   }
 
   public void setBaseRobotState(BaseRobotState baseRobotState) {
