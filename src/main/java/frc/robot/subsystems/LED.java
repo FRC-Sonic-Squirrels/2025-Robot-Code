@@ -4,12 +4,17 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.LoggerEntry;
@@ -17,11 +22,6 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
-
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-
 import java.util.function.Supplier;
 
 public class LED extends SubsystemBase {
@@ -43,7 +43,6 @@ public class LED extends SubsystemBase {
       new AddressableLEDBuffer(13); // TODO: change length of buffers to new
   // robot's led size
   private AddressableLEDBuffer previousBuffer = new AddressableLEDBuffer(13);
-  
 
   private int rainbowFirstPixelHue = 0;
   private int levelMeterCount = 0;
@@ -177,7 +176,7 @@ public class LED extends SubsystemBase {
   }
 
   private void setProgressBar(Color color, double percent) {
-    LEDPattern progress = LEDPattern.progressMaskLayer( ()-> (percent)/100);
+    LEDPattern progress = LEDPattern.progressMaskLayer(() -> (percent) / 100);
     progress.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
@@ -191,24 +190,24 @@ public class LED extends SubsystemBase {
     LEDPattern blink = solid.blink(Seconds.of(seconds));
     blink.applyTo(ledBuffer);
     led.setData(ledBuffer);
-    
   }
 
   private void setSnake(Color color1, Color color2) {
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      final var shade = Math.sin(Timer.getFPGATimestamp() * 4 - i * 0.32);
-      ledBuffer.setRGB(
-          i,
-          (int) (shade * color1.red * 255 + color2.red * (1 - shade) * 255),
-          (int) (shade * color1.green * 255 + color2.green * (1 - shade) * 255),
-          (int) (shade * color1.blue * 255 + color2.blue * (1 - shade)) * 255);
-    }
+    LEDPattern pattern = LEDPattern.progressMaskLayer(() -> 50 / 100);
+    // TODO: Measure properly instead of random number
+    Distance ledSpacing = Meters.of(1 / 120);
+    LEDPattern absolute =
+        pattern.scrollAtAbsoluteSpeed(Centimeters.per(Second).of(12.5), ledSpacing);
+    LEDPattern layer1 = LEDPattern.solid(color1);
+    LEDPattern layer2 = LEDPattern.solid(color2).mask(absolute).overlayOn(layer1);
+    layer2.applyTo(ledBuffer);
+    led.setData(ledBuffer);
   }
 
   private void setRainbow() {
     LEDPattern rainbow = LEDPattern.rainbow(255, 128);
-    //TODO: Measure properly instead of random number
-    Distance ledSpacing = Meters.of(1/120);
+    // TODO: Measure properly instead of random number
+    Distance ledSpacing = Meters.of(1 / 120);
     LEDPattern scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), ledSpacing);
     scrollingRainbow.applyTo(ledBuffer);
     led.setData(ledBuffer);
