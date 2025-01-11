@@ -54,10 +54,6 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterIO;
-import frc.robot.subsystems.shooter.ShooterIOReal;
-import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
@@ -92,7 +88,6 @@ public class RobotContainer {
   private final Arm arm;
   private final Elevator elevator;
   private final Intake intake;
-  private final Shooter shooter;
   private final VisionGamepiece visionGamepiece;
   private final LED led;
 
@@ -159,7 +154,6 @@ public class RobotContainer {
       arm = new Arm(new ArmIO() {});
       elevator = new Elevator(new ElevatorIO() {});
       intake = new Intake(new IntakeIO() {});
-      shooter = new Shooter(new ShooterIO() {});
       visionGamepiece =
           new VisionGamepiece(
               new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
@@ -223,7 +217,6 @@ public class RobotContainer {
           arm = new Arm(new ArmIOSim());
           elevator = new Elevator(new ElevatorIOSim());
           intake = new Intake(new IntakeIOSim());
-          shooter = new Shooter(new ShooterIOSim());
           led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
           break;
 
@@ -246,7 +239,6 @@ public class RobotContainer {
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
-          shooter = new Shooter(new ShooterIO() {});
           visionGamepiece =
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
@@ -265,7 +257,6 @@ public class RobotContainer {
           intake = new Intake(new IntakeIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
-          shooter = new Shooter(new ShooterIOReal());
           vision =
               new Vision(
                   aprilTagLayout,
@@ -292,7 +283,6 @@ public class RobotContainer {
           intake = new Intake(new IntakeIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
-          shooter = new Shooter(new ShooterIOReal());
           vision =
               new Vision(
                   aprilTagLayout,
@@ -326,7 +316,6 @@ public class RobotContainer {
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
-          shooter = new Shooter(new ShooterIO() {});
           visionGamepiece =
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
