@@ -4,9 +4,11 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,6 +17,11 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
+
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.util.function.Supplier;
 
 public class LED extends SubsystemBase {
@@ -36,6 +43,7 @@ public class LED extends SubsystemBase {
       new AddressableLEDBuffer(13); // TODO: change length of buffers to new
   // robot's led size
   private AddressableLEDBuffer previousBuffer = new AddressableLEDBuffer(13);
+  
 
   private int rainbowFirstPixelHue = 0;
   private int levelMeterCount = 0;
@@ -77,7 +85,7 @@ public class LED extends SubsystemBase {
               } else if (!brakeMode.get()) {
                 setSnake(Color.kGreen, Color.kCrimson);
               } else if (!gyroConnected.get() && !Constants.RobotMode.isSimBot()) {
-                setBlinking(Color.kAquamarine, Color.kRed);
+                setBlinking(Color.kAquamarine);
               } else {
                 if (gamepieceInRobot) {
                   setSolidColor(squirrelOrange);
@@ -100,7 +108,7 @@ public class LED extends SubsystemBase {
               setSolidColor(Color.kYellow);
 
             case GOAL_LINE_UP:
-              setBlinking(Color.kWhite, Color.kBlack);
+              setBlinking(Color.kWhite);
               break;
 
             case SHOOTING_PREP:
@@ -119,22 +127,22 @@ public class LED extends SubsystemBase {
           setSolidColor(Color.kGreen);
           break;
         case TWENTY_SECOND_WARNING:
-          setBlinking(Color.kMagenta, Color.kBlack);
+          setBlinking(Color.kMagenta);
           break;
         case HOME_SUBSYSTEMS:
-          setBlinking(Color.kGreen, Color.kBlack);
+          setBlinking(Color.kGreen);
           break;
         case BREAK_MODE_ON:
-          setBlinking(Color.kRed, Color.kBlack);
+          setBlinking(Color.kRed);
           break;
         case BREAK_MODE_OFF:
-          setBlinking(Color.kBlue, Color.kBlack, 0.3);
+          setBlinking(Color.kBlue, 0.3);
           break;
         case TEST:
           setSolidColor(Color.kCyan);
           break;
         case INTAKE_SUCCESS:
-          setBlinking(Color.kGreen, Color.kBlack);
+          setBlinking(Color.kGreen);
           break;
         case BRAKE_MODE_FAILED:
           setSolidColor(Color.kPurple);
@@ -163,36 +171,27 @@ public class LED extends SubsystemBase {
   // Setters
 
   private void setSolidColor(Color color) {
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      ledBuffer.setLED(i, color);
-    }
+    LEDPattern solid = LEDPattern.solid(color);
+    solid.applyTo(ledBuffer);
+    led.setData(ledBuffer);
   }
 
   private void setProgressBar(Color color, double percent) {
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      if ((double) i / (double) ledBuffer.getLength() < percent) {
-        ledBuffer.setLED(i, color);
-      } else {
-        ledBuffer.setLED(i, Color.kBlack);
-      }
-    }
+    LEDPattern progress = LEDPattern.progressMaskLayer( ()-> (percent)/100);
+    progress.applyTo(ledBuffer);
+    led.setData(ledBuffer);
   }
 
-  private void setBlinking(Color color1, Color color2) {
-    setBlinking(color1, color2, 0.1);
+  private void setBlinking(Color color) {
+    setBlinking(color, 0.1);
   }
 
-  private void setBlinking(Color color1, Color color2, double period) {
-
-    if (Math.sin(Timer.getFPGATimestamp() * Math.PI / period) >= 0) {
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        ledBuffer.setLED(i, color1);
-      }
-    } else {
-      for (int i = 0; i < ledBuffer.getLength(); i++) {
-        ledBuffer.setLED(i, color2);
-      }
-    }
+  private void setBlinking(Color color, double seconds) {
+    LEDPattern solid = LEDPattern.solid(color);
+    LEDPattern blink = solid.blink(Seconds.of(seconds));
+    blink.applyTo(ledBuffer);
+    led.setData(ledBuffer);
+    
   }
 
   private void setSnake(Color color1, Color color2) {
@@ -207,13 +206,12 @@ public class LED extends SubsystemBase {
   }
 
   private void setRainbow() {
-    for (var i = 0; i < ledBuffer.getLength(); i++) {
-      final var hue = (rainbowFirstPixelHue + (i * 180 / ledBuffer.getLength())) % 180;
-      ledBuffer.setHSV(i, hue, 255, 128);
-    }
-
-    rainbowFirstPixelHue += 3;
-    rainbowFirstPixelHue %= 180;
+    LEDPattern rainbow = LEDPattern.rainbow(255, 128);
+    //TODO: Measure properly instead of random number
+    Distance ledSpacing = Meters.of(1/120);
+    LEDPattern scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), ledSpacing);
+    scrollingRainbow.applyTo(ledBuffer);
+    led.setData(ledBuffer);
   }
 
   public void setRobotState(RobotState robotState) {
