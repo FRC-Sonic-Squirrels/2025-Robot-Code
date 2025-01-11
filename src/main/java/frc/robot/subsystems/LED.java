@@ -226,31 +226,22 @@ public class LED extends SubsystemBase {
 
     int max = ledBuffer.getLength();
     double theta = levelMeterCount * 0.02 * Math.PI * bpm / 60.0;
-    int volume =
-        (int)
-            Math.round(
-                1
-                    + Math.abs(11.0 * Math.sin(theta))
-                    + (3.0 * Math.sin(theta * 7.0))
-                    + (1.0 * Math.sin(theta * 17.0)));
-
-    for (int i = 0; i < ledBuffer.getLength(); i++) {
-      if (i <= volume) {
-        if (i <= (0.6 * max)) {
-          ledBuffer.setLED(i, Color.kGreen);
-        } else if (i <= 0.8 * max) {
-          ledBuffer.setLED(i, Color.kYellow);
-        } else {
-          ledBuffer.setLED(i, Color.kRed);
-        }
-      } else {
-        ledBuffer.setLED(i, Color.kBlack);
-      }
-    }
     levelMeterCount += 1;
 
-    // System.out.println("LED: count=" + levelMeterCount + " vol=" + volume + "
-    // theta=" + theta);
+    double progressNumber = 0; // new number, make this go down gradually instead of the weird math
+
+    System.out.println("theta: " + theta);
+    // TODO: Figure out what theta is, and if it goes over 100
+    // TODO: Also figure out what makes the number to down gradually. What the sigma is this!!!!
+
+    LEDPattern baseProgress = LEDPattern.progressMaskLayer(() -> (progressNumber) / 100);
+    LEDPattern twoThirdsOfProgress = LEDPattern.progressMaskLayer(() -> (((progressNumber)/3)*2) / 100);
+    LEDPattern oneThirdOfProgress = LEDPattern.progressMaskLayer(() -> ((progressNumber/3)) / 100);
+    LEDPattern base = LEDPattern.solid(Color.kGreen).mask(baseProgress);
+    LEDPattern twoThirds = LEDPattern.solid(Color.kYellow).mask(twoThirdsOfProgress).overlayOn(base);
+    LEDPattern progress = LEDPattern.solid(Color.kRed).mask(oneThirdOfProgress).overlayOn(twoThirds);
+    progress.applyTo(ledBuffer);
+    led.setData(ledBuffer);
   }
 
   public void setBaseRobotState(BaseRobotState baseRobotState) {
