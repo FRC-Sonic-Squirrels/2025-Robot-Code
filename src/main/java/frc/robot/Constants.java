@@ -191,15 +191,23 @@ public final class Constants {
   }
 
   public static class IntakeConstants { // TODO: check all constants for new season
-    public static final double INTAKE_IDLE_PERCENT_OUT = 0.8;
-
-    public static final double INTAKE_INTAKING_PERCENT_OUT = 1.0;
+    public static final double INTAKING_PERCENT_OUT = 1.0;
 
     public static final double GEARING = 1.0;
     public static final double MOI = 0.05;
 
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
     public static final String ROOT_TABLE = "Intake";
+  }
+
+  public static class EndEffectorConstants { // TODO: check all constants for new season
+    public static final double INTAKING_PERCENT_OUT = 1.0;
+
+    public static final double GEARING = 1.0;
+    public static final double MOI = 0.05;
+
+    public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+    public static final String ROOT_TABLE = "EndEffector";
   }
 
   public static class ElevatorConstants { // TODO: check all constants for new season
