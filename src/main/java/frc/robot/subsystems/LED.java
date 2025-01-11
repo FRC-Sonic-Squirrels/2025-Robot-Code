@@ -81,6 +81,7 @@ public class LED extends SubsystemBase {
     if (robotStateTimer.get() > timeToResetToBaseState) robotState = RobotState.BASE;
 
     if (useTunableLEDs.get() == 0) {
+      System.out.print(getCurrentState());
       // This method will be called once per scheduler run
       // TODO: add condition for if elevator is not zeroed.
 
