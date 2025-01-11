@@ -41,20 +41,21 @@ public class VisionIOPhotonVision implements VisionIO {
         targetPoseSub,
         java.util.EnumSet.of(NetworkTableEvent.Kind.kValueAll),
         event -> {
-          PhotonPipelineResult result = camera.getLatestResult();
-          var timestamp = result.getTimestampSeconds();
-          var fpga = Timer.getFPGATimestamp();
-          var ctre = Utils.getCurrentTimeSeconds();
+          for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+            var timestamp = result.getTimestampSeconds();
+            var fpga = Timer.getFPGATimestamp();
+            var ctre = Utils.getCurrentTimeSeconds();
 
-          // we use CTRE time here because drivetrain odometry uses CTRE time NOT FPGA
-          timestamp -= fpga;
-          timestamp += ctre;
+            // we use CTRE time here because drivetrain odometry uses CTRE time NOT FPGA
+            timestamp -= fpga;
+            timestamp += ctre;
 
-          synchronized (VisionIOPhotonVision.this) {
-            updateTimeMedian(timestamp - lastTimestampCTRETime);
+            synchronized (VisionIOPhotonVision.this) {
+              updateTimeMedian(timestamp - lastTimestampCTRETime);
 
-            lastTimestampCTRETime = timestamp;
-            lastResult = result;
+              lastTimestampCTRETime = timestamp;
+              lastResult = result;
+            }
           }
         });
   }

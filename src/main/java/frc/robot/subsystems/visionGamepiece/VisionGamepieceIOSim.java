@@ -62,16 +62,16 @@ public class VisionGamepieceIOSim implements VisionGamepieceIO {
   public void updateInputs(Inputs inputs) {
     visionSim.update(this.poseSupplier.get());
 
-    var results = camera.getLatestResult();
+    for (var results : camera.getAllUnreadResults()) {
+      var aprilTagYaw = 0.0;
+      for (int i = 0;
+          i < results.getTargets().size();
+          i++) { // TODO: Add logic for which tags to detect
+        PhotonTrackedTarget target = results.targets.get(i);
+        aprilTagYaw = target.getYaw();
+      }
 
-    var aprilTagYaw = 0.0;
-    for (int i = 0;
-        i < results.getTargets().size();
-        i++) { // TODO: Add logic for which tags to detect
-      PhotonTrackedTarget target = results.targets.get(i);
-      aprilTagYaw = target.getYaw();
+      inputs.aprilTagYaw = aprilTagYaw;
     }
-
-    inputs.aprilTagYaw = aprilTagYaw;
   }
 }

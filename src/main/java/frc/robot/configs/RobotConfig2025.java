@@ -170,7 +170,7 @@ public class RobotConfig2025 extends RobotConfig {
   public static final String SHOOTER_SIDE_LEFT_CAMERA_NAME = "1_Shooter_Left_See3Cam";
   public static final String SHOOTER_SIDE_RIGHT_CAMERA_NAME = "2_Shooter_Right_See3Cam";
 
-  public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2024Crescendo;
+  public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025Reefscape;
 
   /*
    *
@@ -221,7 +221,7 @@ public class RobotConfig2025 extends RobotConfig {
 
   @Override
   public AprilTagFieldLayout getAprilTagFieldLayout() {
-    return APRIL_TAG_FIELD.loadAprilTagLayoutField();
+    return AprilTagFieldLayout.loadField(APRIL_TAG_FIELD);
   }
 
   @Override

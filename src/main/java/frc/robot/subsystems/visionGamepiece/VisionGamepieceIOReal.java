@@ -22,42 +22,44 @@ public class VisionGamepieceIOReal implements VisionGamepieceIO {
 
   @Override
   public void updateInputs(Inputs inputs) {
-    PhotonPipelineResult results = camera.getLatestResult();
     inputs.isConnected = camera.isConnected();
     inputs.pipelineIndex = camera.getPipelineIndex();
-    inputs.validTarget = results.hasTargets();
-    List<PhotonTrackedTarget> targets = results.targets;
-    inputs.pitch = new double[targets.size()];
-    inputs.yaw = new double[targets.size()];
-    inputs.area = new double[targets.size()];
-    for (int index = 0; index < targets.size(); index++) {
-      inputs.pitch[index] = targets.get(index).getPitch();
-      inputs.yaw[index] = targets.get(index).getYaw();
-      inputs.area[index] = targets.get(index).getArea();
+
+    for (PhotonPipelineResult results : camera.getAllUnreadResults()) {
+      inputs.validTarget = results.hasTargets();
+      List<PhotonTrackedTarget> targets = results.targets;
+      inputs.pitch = new double[targets.size()];
+      inputs.yaw = new double[targets.size()];
+      inputs.area = new double[targets.size()];
+      for (int index = 0; index < targets.size(); index++) {
+        inputs.pitch[index] = targets.get(index).getPitch();
+        inputs.yaw[index] = targets.get(index).getYaw();
+        inputs.area[index] = targets.get(index).getArea();
+      }
+      inputs.targetCount = targets.size();
+
+      var timestamp = results.getTimestampSeconds();
+      var fpga = Timer.getFPGATimestamp();
+      var ctre = Utils.getCurrentTimeSeconds();
+
+      // we use CTRE time here because drivetrain odometry uses CTRE time NOT FPGA
+      timestamp -= fpga;
+      timestamp += ctre;
+
+      inputs.timestamp = timestamp;
+
+      // April tag code (for if gamepiece camera is to be used for april tag detection)
+
+      var aprilTagYaw = 0.0;
+      for (int i = 0;
+          i < results.getTargets().size();
+          i++) { // TODO: implement logic for what april tags to detect if necessary
+        PhotonTrackedTarget target = results.targets.get(i);
+        aprilTagYaw = target.getYaw();
+      }
+
+      inputs.aprilTagYaw = aprilTagYaw;
     }
-    inputs.targetCount = targets.size();
-
-    var timestamp = results.getTimestampSeconds();
-    var fpga = Timer.getFPGATimestamp();
-    var ctre = Utils.getCurrentTimeSeconds();
-
-    // we use CTRE time here because drivetrain odometry uses CTRE time NOT FPGA
-    timestamp -= fpga;
-    timestamp += ctre;
-
-    inputs.timestamp = timestamp;
-
-    // April tag code (for if gamepiece camera is to be used for april tag detection)
-
-    var aprilTagYaw = 0.0;
-    for (int i = 0;
-        i < results.getTargets().size();
-        i++) { // TODO: implement logic for what april tags to detect if necessary
-      PhotonTrackedTarget target = results.targets.get(i);
-      aprilTagYaw = target.getYaw();
-    }
-
-    inputs.aprilTagYaw = aprilTagYaw;
   }
 
   @Override

@@ -74,11 +74,12 @@ public class VisionIOSim implements VisionIO {
         EnumSet.of(NetworkTableEvent.Kind.kValueAll),
         event -> {
           // FIXME Use CTRE TIME check what sim module does
-          PhotonPipelineResult result = camera.getLatestResult();
-          double timestamp = result.getTimestampSeconds();
-          synchronized (VisionIOSim.this) {
-            lastTimestamp = timestamp;
-            lastResult = result;
+          for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+            double timestamp = result.getTimestampSeconds();
+            synchronized (VisionIOSim.this) {
+              lastTimestamp = timestamp;
+              lastResult = result;
+            }
           }
         });
   }
