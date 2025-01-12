@@ -81,10 +81,6 @@ public class LED extends SubsystemBase {
     if (robotStateTimer.get() > timeToResetToBaseState) robotState = RobotState.BASE;
 
     if (useTunableLEDs.get() == 0) {
-      if (robotLoops % 20 == 0) {
-        System.out.println("LED BASE STATE " + getCurrentBaseState());
-        System.out.println("LED STATE " + getCurrentState());
-      }
       // This method will be called once per scheduler run
       // TODO: add condition for if elevator is not zeroed.
 
@@ -109,8 +105,7 @@ public class LED extends SubsystemBase {
                   } else if (DriverStation.isAutonomous()) {
                     setSeaLevelGraphic();
                   } else {
-                    // setSnake(squirrelOrange, new Color(1, 0.3, 0));
-                    setSeaLevelGraphic(); // TODO: REMOVE TEST CASES
+                    setSnake(squirrelOrange, new Color(1, 0.3, 0));
                   }
                 }
               }
