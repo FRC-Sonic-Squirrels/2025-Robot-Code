@@ -239,11 +239,12 @@ public class LED extends SubsystemBase {
     levelMeterCount += 1;
   }
 
+  /**
+   * setSeaLevelGraphic() - Looks like the side view of a changing sea level
+   */
   private void setSeaLevelGraphic() {
-    int speed = 8;
-    double theta = levelMeterCount * 0.02 * Math.PI * speed / 60.0;
-    double seaLevel = 1 + Math.abs(11.0 * Math.sin(theta)) + (3.0 * Math.sin(theta * 7.0)) + (1.0 * Math.sin(theta * 17.0));
-    double mappedSeaLevel = (seaLevel / 15) * 100;
+    double seaLevel = 2 + Math.sin(levelMeterCount*.01) + Math.sin(levelMeterCount*.02);
+    double mappedSeaLevel = (seaLevel / 4) * 100;
     LEDPattern seaMask = LEDPattern.progressMaskLayer(() -> (mappedSeaLevel) / 100);
     Color deepSea = new Color(0.0, 0.01, 0.025);
     Color shallowSea = new Color(0.0, 0.3, 0.4);
