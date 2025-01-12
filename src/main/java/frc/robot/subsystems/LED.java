@@ -44,7 +44,8 @@ public class LED extends SubsystemBase {
   // robot's led size
   private AddressableLEDBuffer previousBuffer = new AddressableLEDBuffer(13);
 
-  private int rainbowFirstPixelHue = 0;
+  private final Distance ledSpacing = Meters.of(1 / 120.0);
+
   private int levelMeterCount = 0;
   private RobotState robotState = RobotState.BASE;
   private BaseRobotState baseRobotState = BaseRobotState.GAMEPIECE_STATUS;
@@ -200,20 +201,17 @@ public class LED extends SubsystemBase {
 
   private void setSnake(Color color1, Color color2) {
     LEDPattern pattern = LEDPattern.progressMaskLayer(() -> 50 / 100);
-    // TODO: Measure properly instead of random number
-    Distance ledSpacing = Meters.of(1 / 120.0);
     LEDPattern absolute =
         pattern.scrollAtAbsoluteSpeed(Centimeters.per(Second).of(12.5), ledSpacing);
     LEDPattern layer1 = LEDPattern.solid(color1);
     LEDPattern layer2 = LEDPattern.solid(color2).mask(absolute).overlayOn(layer1);
+    //TODO: Investigate why overlays display solid color, rather than compounding layers.
     layer2.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
 
   private void setRainbow() {
     LEDPattern rainbow = LEDPattern.rainbow(255, 128);
-    // TODO: Measure properly instead of random number
-    Distance ledSpacing = Meters.of(1 / 120.0);
     LEDPattern scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), ledSpacing);
     scrollingRainbow.applyTo(ledBuffer);
     led.setData(ledBuffer);
@@ -224,10 +222,11 @@ public class LED extends SubsystemBase {
   }
 
   /**
-   * setAudioLevelMeter() - looks like an audio level meter
+   * setAudioLevelMeter() - looks like an audio level meter. 2024 themed.
    *
    * @param bpm beats per minute
    */
+  @SuppressWarnings("unused")
   private void setAudioLevelMeter(int bpm) {
     double theta = levelMeterCount * 0.02 * Math.PI * bpm / 60.0;
     double volume = 1 + Math.abs(11.0 * Math.sin(theta)) + (3.0 * Math.sin(theta * 7.0)) + (1.0 * Math.sin(theta * 17.0));
