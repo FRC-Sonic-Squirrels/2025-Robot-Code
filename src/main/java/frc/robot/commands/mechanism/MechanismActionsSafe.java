@@ -1,19 +1,15 @@
 package frc.robot.commands.mechanism;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class MechanismActionsSafe {
@@ -28,68 +24,6 @@ public class MechanismActionsSafe {
   private static final LoggerEntry.Decimal log_currentSafeHeight =
       logGroup.buildDecimal("currentSafeHeight");
 
-  public static Command loadingPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::loadingPosition);
-  }
-
-  public static Command ampFast(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::AmpFastPosition);
-  }
-
-  public static Command ampPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::ampPosition);
-  }
-
-  public static Command ampPositionToLoadPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::loadingPosition);
-  }
-
-  public static Command ampStage1Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::ampPosition);
-  }
-
-  public static Command ampStage2Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::ampStage2Position);
-  }
-
-  public static Command ampStage3Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::ampStage3Position);
-  }
-
-//   public static Command climbPrepUnderStagePosition(Elevator elevator, Arm arm) {
-//     return goToPositionParallel(elevator, arm, MechanismPositions::climbPrepUnderStagePosition);
-//   }
-
-//   public static Command climbPrepPosition(Elevator elevator, Arm arm) {
-//     return goToPositionParallel(elevator, arm, MechanismPositions::climbPrepPosition);
-//   }
-
-//   public static Command climbDownPosition(Elevator elevator, Arm arm) {
-//     return goToPositionParallelSetMotionConstraints(
-//         elevator,
-//         arm,
-//         MechanismPositions::climbDownPosition,
-//         () -> MechanismActions.climbDownElevatorVelocity.get(),
-//         () -> MechanismActions.climbDownElevatorAcceleration.get());
-//   }
-
-  public static Command climbTrapPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::climbTrapPosition);
-  }
-
-  public static Command climbChainCheck(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::climbChainCheck);
-  }
-
-  public static Command climbFinalRestPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::climbFinalRestPosition);
-  }
-
-  public static Command deployReactionArms(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::deployReactionArmsStep1)
-        .andThen(goToPositionParallel(elevator, arm, MechanismPositions::deployReactionArmsStep2));
-  }
-
   private static Command goToPositionParallel(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
 
@@ -100,7 +34,7 @@ public class MechanismActionsSafe {
       private double armLength;
       private double safeAngleIntakeDegrees;
 
-      //private Measure<Distance> targetElevatorHeight;
+      private Distance targetElevatorHeight;
       private double targetElevatorHeightInches;
       private double elevatorToleranceInches = 0.2;
 
@@ -111,8 +45,8 @@ public class MechanismActionsSafe {
       @Override
       public void initialize() {
         var targetPosition = position.get();
-        //targetElevatorHeight = targetPosition.elevatorHeight();
-       // targetElevatorHeightInches = targetElevatorHeight.in(Units.Inches);
+        targetElevatorHeight = targetPosition.elevatorHeight();
+        targetElevatorHeightInches = targetElevatorHeight.in(Units.Inches);
         targetArmAngle = targetPosition.armAngle();
         targetArmAngleDegrees = targetArmAngle.getDegrees();
 
@@ -173,7 +107,7 @@ public class MechanismActionsSafe {
             // Safe to move to target position directly
             //
             log_state.info("HomeDirectly");
-            //elevator.setHeight(targetElevatorHeight);
+            // elevator.setHeight(targetElevatorHeight);
             arm.setAngle(targetArmAngle);
             return;
           }
@@ -188,8 +122,7 @@ public class MechanismActionsSafe {
           actionName = "Target";
 
           if (targetArmAngleDegrees > 90 && currentArmAngleDegrees < 90) {
-            if (currentElevatorHeightInches
-                < MechanismPositions.ampStage3ElevatorHeightInches.get()) {
+            if (currentElevatorHeightInches < MechanismPositions.reefElevatorHeightInches.get()) {
               // Elevator too low to move arm all the way back.
               safeArmAngle = Rotation2d.fromDegrees(90);
             }
@@ -215,49 +148,11 @@ public class MechanismActionsSafe {
         elevator.setHeight(Units.Inches.of(currentSafeHeight));
       }
 
-     // @Override
-     // public boolean isFinished() {
-        //return elevator.isAtTarget(targetElevatorHeight)
-            //&& arm.isAtTargetAngle(targetArmAngle, armTolerance);
-      //}
+      @Override
+      public boolean isFinished() {
+        return elevator.isAtTarget(targetElevatorHeight)
+            && arm.isAtTargetAngle(targetArmAngle, armTolerance);
+      }
     };
   }
-
-//   private static Command goToPositionParallelSetMotionConstraints(
-//       Elevator elevator,
-//       Arm arm,
-//       Supplier<MechanismPosition> position,
-//       DoubleSupplier maxElevatorVelocity,
-//       DoubleSupplier maxElevatorAcceleration) {
-//    // return Commands.sequence(
-//      //   setElevatorMotionMagicCommand(elevator, maxElevatorVelocity, maxElevatorAcceleration),
-//        // goToPositionParallel(elevator, arm, position),
-// //         setElevatorMotionMagicCommand(
-// //             elevator,
-// //             () -> elevator.getDefaultMotionMagicConstraints().maxVelocity,
-// //             () -> elevator.getDefaultMotionMagicConstraints().maxAcceleration));
-//    // )
-   //}
-
-  private static Command setElevatorMotionMagicCommand(
-      Elevator elevator,
-      DoubleSupplier maxElevatorVelocity,
-      DoubleSupplier maxElevatorAcceleration) {
-    return Commands.runOnce(
-        () -> {
-          double vel = maxElevatorVelocity.getAsDouble();
-          double acc = maxElevatorAcceleration.getAsDouble();
-          
-
-         // if (vel != elevator.getCurrentMotionMagicConstraints().maxVelocity
-         //     || acc != elevator.getCurrentMotionMagicConstraints().maxAcceleration) {
-
-        //    // elevator.setMotionMagicConstraints(
-        //         new Constraints(
-        //             maxElevatorVelocity.getAsDouble(), maxElevatorAcceleration.getAsDouble()));
-        //   }
-        // },
-        // elevator);
-  }
-    );
-}}
+}

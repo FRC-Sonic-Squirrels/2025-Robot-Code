@@ -4,9 +4,8 @@
 
 package frc.robot.commands.mechanism;
 
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
