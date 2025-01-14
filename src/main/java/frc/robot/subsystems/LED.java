@@ -195,13 +195,8 @@ public class LED extends SubsystemBase {
   }
 
   private void setSnake(Color color1, Color color2) {
-    LEDPattern pattern = LEDPattern.progressMaskLayer(() -> 50 / 100);
-    LEDPattern absolute =
-        pattern.scrollAtAbsoluteSpeed(Centimeters.per(Second).of(12.5), ledSpacing);
-    LEDPattern layer1 = LEDPattern.solid(color1);
-    LEDPattern layer2 = LEDPattern.solid(color2).mask(absolute).overlayOn(layer1);
-    //TODO: Investigate why overlays display solid color, rather than compounding layers.
-    layer2.applyTo(ledBuffer);
+    LEDPattern gradient = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, color1, color2).scrollAtAbsoluteSpeed(Centimeters.per(Second).of(12.5), ledSpacing);
+    gradient.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
 
