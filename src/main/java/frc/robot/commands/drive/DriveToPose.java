@@ -113,6 +113,7 @@ public class DriveToPose extends Command {
     this(drive, slowMode, () -> pose, currentPose, true, () -> true, driveTolerance.get());
   }
 
+  /** Drives to the specified pose under full software control. */
   public DriveToPose(
       DrivetrainWrapper drive,
       Supplier<Pose2d> poseSupplier,
@@ -122,6 +123,7 @@ public class DriveToPose extends Command {
     this(drive, false, poseSupplier, currentRobotPose, true, move, driveTolerance);
   }
 
+  /** Drives to the specified pose under full software control. */
   public DriveToPose(
       DrivetrainWrapper drive,
       Supplier<Pose2d> poseSupplier,
@@ -145,6 +147,7 @@ public class DriveToPose extends Command {
     this(drive, false, poseSupplier, currentRobotPose, true, () -> true, driveTolerance.get());
   }
 
+  /** Drives to the specified pose under full software control. */
   public DriveToPose(
       DrivetrainWrapper drive,
       Supplier<Pose2d> poseSupplier,
@@ -311,9 +314,7 @@ public class DriveToPose extends Command {
 
   /** Checks if the robot is stopped at the final pose. */
   public boolean atGoal() {
-    return
-    // isScheduled() &&
-    withinTolerance.getAsBoolean();
+    return isScheduled() && withinTolerance.getAsBoolean();
   }
 
   /** Checks if the robot pose is within the allowed drive and theta tolerances. */

@@ -106,7 +106,7 @@ public class Vision extends SubsystemBase {
   private int useMaxDistanceAwayFromExistingEstimateCount;
   private int useGyroBasedFilteringForVisionCount;
 
-  private Translation2d[] tagOffsets;
+  private TagOffset[] tagOffsets;
 
   public Vision(
       AprilTagFieldLayout aprilTagLayout,
@@ -133,9 +133,9 @@ public class Vision extends SubsystemBase {
     }
     logAllAprilTags3D.info(allTagsArray);
 
-    tagOffsets = new Translation2d[visionModuleConfigs.length];
+    tagOffsets = new TagOffset[visionModuleConfigs.length];
     for (int i = 0; i < visionModuleConfigs.length; i++) {
-      tagOffsets[i] = frc.robot.Constants.zeroTranslation2d;
+      tagOffsets[i] = new TagOffset(-1, frc.robot.Constants.zeroTranslation2d);
     }
   }
 
@@ -169,7 +169,7 @@ public class Vision extends SubsystemBase {
       // log all vision module's logged fields
       var robotPose = new Pose3d(poseEstimatorPoseSupplier.get());
       for (VisionModule visionModule : visionModules) {
-        visionModule.log(robotPose, tagOffsets[visionModule.id]);
+        visionModule.log(robotPose, tagOffsets[visionModule.id].offset);
       }
 
       // activate alerts if camera is not connected
@@ -248,7 +248,9 @@ public class Vision extends SubsystemBase {
     if (numTargetsSeen == 1) {
       PhotonTrackedTarget singularTag = cameraResult.getTargets().get(0);
 
-      tagOffsets[visionModule.id] = new Translation2d(singularTag.yaw, singularTag.pitch);
+      tagOffsets[visionModule.id] =
+          new TagOffset(
+              singularTag.fiducialId, new Translation2d(singularTag.yaw, singularTag.pitch));
 
       if (!isValidTarget(singularTag)) {
         return (singularTag.getPoseAmbiguity() > maxSingleTargetAmbiguity.get())
@@ -262,7 +264,8 @@ public class Vision extends SubsystemBase {
         if (result.area > bestTarget.area) bestTarget = result;
       }
 
-      tagOffsets[visionModule.id] = new Translation2d(bestTarget.yaw, bestTarget.pitch);
+      tagOffsets[visionModule.id] =
+          new TagOffset(bestTarget.fiducialId, new Translation2d(bestTarget.yaw, bestTarget.pitch));
     }
 
     var photonPoseEstimatorOptionalResult = visionModule.photonPoseEstimator.update(cameraResult);
@@ -444,7 +447,9 @@ public class Vision extends SubsystemBase {
     }
   }
 
-  public Translation2d[] getTagOffsets() {
+  public TagOffset[] getTagOffsets() {
     return tagOffsets;
   }
+
+  public record TagOffset(int tagID, Translation2d offset) {}
 }
