@@ -193,6 +193,7 @@ public final class Constants {
             new Translation2d(
                 REEF_WIDTH
                     .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY())
+                    .div(2.0)
                     .in(Units.Meters),
                 angle.plus(Rotation2d.k180deg));
         poses[i] =
