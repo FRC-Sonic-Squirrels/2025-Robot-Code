@@ -28,12 +28,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.lib.team2930.RunStateMachineCommand;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
+import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.ScoreCoral.ScoringDirection;
+import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.SnapToReef;
 import frc.robot.commands.intake.IntakeGamepiece;
@@ -416,19 +421,63 @@ public class RobotContainer {
     driverController
         .leftTrigger()
         .whileTrue(
-            new SnapToReef(
-                vision::getTagOffsets,
-                drivetrainWrapper,
-                () -> elevator.getTimeOfFlightDistanceInches(),
-                0));
+            new RunStateMachineCommand(
+                () ->
+                    new ScoreCoral(
+                        drivetrainWrapper,
+                        vision::getTagOffsets,
+                        () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                        ScoringDirection.LEFT)));
+
     driverController
-        .leftTrigger()
+        .rightTrigger()
         .whileTrue(
-            new SnapToReef(
-                vision::getTagOffsets,
+            new RunStateMachineCommand(
+                () ->
+                    new ScoreCoral(
+                        drivetrainWrapper,
+                        vision::getTagOffsets,
+                        () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                        ScoringDirection.RIGHT)));
+
+    driverController
+        .a()
+        .whileTrue(
+            new DriveToPose(
                 drivetrainWrapper,
-                () -> elevator.getTimeOfFlightDistanceInches(),
-                1));
+                () -> new Pose2d(),
+                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
+
+    // Change scoring height
+
+    driverController
+        .y()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L4;
+                }));
+    driverController
+        .x()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L3;
+                }));
+    driverController
+        .a()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L2;
+                }));
+    driverController
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L1;
+                }));
 
     // ---------- OPERATOR CONTROLS -----------
 
@@ -437,6 +486,32 @@ public class RobotContainer {
 
     twenty_Second_Warning.onTrue(
         new LedSetStateForSeconds(led, RobotState.TWENTY_SECOND_WARNING, 0.5));
+
+    // Toggle clearing algae
+
+    operatorController
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.clearingAglae = true;
+                }));
+    operatorController
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.clearingAglae = false;
+                }));
+
+    // ---------- ON-ROBOT CONTROLS ------------
+
+    homeSensorsButtonTrigger.onTrue(
+        Commands.runOnce(
+            () -> {
+              elevator.resetSensorToHomePosition();
+              arm.resetSensorToHomePosition();
+            }));
 
     // Add Reset and Reboot buttons to SmartDashboard
     // TODO: add correct vision addresses

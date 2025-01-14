@@ -65,6 +65,8 @@ public class StateMachine {
   private double startTime;
   private double startTimeOfState;
   private EventState nextEvent;
+  private StateHandler interruptedState = () -> setDone();
+  private ArrayList<Command> commands = new ArrayList<Command>(0);
 
   protected StateMachine(String name) {
     this.name = name;
@@ -127,6 +129,10 @@ public class StateMachine {
     }
   }
 
+  protected void setInterruptedState(StateHandler interruptedState) {
+    this.interruptedState = interruptedState;
+  }
+
   public Command asCommand() {
     return new Command() {
       @Override
@@ -141,6 +147,15 @@ public class StateMachine {
 
       public boolean isFinished() {
         return !isRunning();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        for (int i = 0; i < commands.size(); i++) {
+          commands.get(i).cancel();
+        }
+
+        if (interrupted) setNextState(interruptedState);
       }
     };
   }
@@ -261,6 +276,8 @@ public class StateMachine {
                 return true;
               }
             });
+
+    commands.add(sequence);
 
     sequence.setName("substate_" + command.getName());
     sequence.schedule();

@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 public class RunStateMachineCommand extends Command {
   private final Supplier<StateMachine> supplier;
   private StateMachine stateMachine;
+  private Command command;
 
   public RunStateMachineCommand(
       Supplier<StateMachine> stateMachineSupplier, Subsystem... subsystems) {
@@ -24,18 +25,20 @@ public class RunStateMachineCommand extends Command {
   @Override
   public void initialize() {
     stateMachine = supplier.get();
+    command = stateMachine.asCommand();
+    command.schedule();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    stateMachine.advance();
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    command.cancel();
     stateMachine = null;
+    command = null;
   }
 
   // Returns true when the command should end.
