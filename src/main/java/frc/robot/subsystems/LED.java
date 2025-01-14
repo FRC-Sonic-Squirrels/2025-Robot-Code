@@ -171,22 +171,34 @@ public class LED extends SubsystemBase {
 
   // Setters
 
+  /**
+   * setSolidColor() - The LEDs will show a static color.
+   */
   private void setSolidColor(Color color) {
     LEDPattern solid = LEDPattern.solid(color);
     solid.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
 
+  /**
+   * setProgressBar() - A bottom-up progress bar will fill the LEDs with pure white at %100.
+   */
   private void setProgressBar(Color color, double percent) {
     LEDPattern progress = LEDPattern.progressMaskLayer(() -> (percent) / 100);
     progress.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
 
+  /**
+   * setBlinking() - The LEDs will blink a color at the predefined interval of 0.1s
+   */
   private void setBlinking(Color color) {
     setBlinking(color, 0.1);
   }
 
+  /**
+   * setBlinking() - The LEDs will blink a color at a specific interval
+   */
   private void setBlinking(Color color, double seconds) {
     LEDPattern solid = LEDPattern.solid(color);
     LEDPattern blink = solid.blink(Seconds.of(seconds));
@@ -194,12 +206,18 @@ public class LED extends SubsystemBase {
     led.setData(ledBuffer);
   }
 
+  /**
+   * setSnake() - Gradient of two colors that will scroll across the LEDs continously
+   */
   private void setSnake(Color color1, Color color2) {
     LEDPattern gradient = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, color1, color2).scrollAtAbsoluteSpeed(Centimeters.per(Second).of(12.5), ledSpacing);
     gradient.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
 
+  /**
+   * setRainbow() - Rainbow that will scroll across the LEDs continously
+   */
   private void setRainbow() {
     LEDPattern rainbow = LEDPattern.rainbow(255, 128);
     LEDPattern scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), ledSpacing);
@@ -207,6 +225,9 @@ public class LED extends SubsystemBase {
     led.setData(ledBuffer);
   }
 
+  /**
+   * setRobotState() - Set the LED robotState.
+   */
   public void setRobotState(RobotState robotState) {
     this.robotState = robotState;
   }
@@ -244,10 +265,18 @@ public class LED extends SubsystemBase {
     levelMeterCount += 1;
   }
 
+  /**
+   * setBaseRobotState() - Needs an educated description.
+   */
+  //FIXME: Needs an educated description.
   public void setBaseRobotState(BaseRobotState baseRobotState) {
     this.baseRobotState = baseRobotState;
   }
 
+  /**
+   * setGamepieceStatus() - Needs an educated description.
+   */
+  //FIXME: Needs an educated description.
   public void setGamepieceStatus(boolean gamepieceInRobot) {
     this.gamepieceInRobot = gamepieceInRobot;
   }
