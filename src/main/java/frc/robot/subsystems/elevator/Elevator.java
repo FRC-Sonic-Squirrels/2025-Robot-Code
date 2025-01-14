@@ -8,6 +8,8 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.ControlMode;
 import frc.lib.team2930.ExecutionTiming;
@@ -147,23 +149,27 @@ public class Elevator extends SubsystemBase {
   // Getters
 
   public boolean isAtTarget() {
-    return Math.abs(targetHeight.in(Units.Inches) - inputs.heightInches) <= tolerance.get();
+    return Math.abs(targetHeight.in(Units.Inches) - inputs.heightInches)
+        <= tolerance.get();
   }
 
   public boolean isAtTarget(Distance height) {
-    return Math.abs(height.in(Units.Inches) - inputs.heightInches) <= tolerance.get();
+    return Math.abs(height.in(Units.Inches) - inputs.heightInches)
+        <= tolerance.get();
   }
 
-  public double getHeightInches() {
-    return inputs.heightInches;
+  public Distance getHeight() {
+    return Units.Inches.of(inputs.heightInches);
   }
 
-  public double getVoltage() {
-    return inputs.appliedVolts;
+  public Voltage getVoltage() {
+    return Units.Volts.of(inputs.appliedVolts);
   }
 
   public double getVelocityInchesPerSecond() {
     return inputs.velocityInchesPerSecond;
+  public LinearVelocity getVelocity() {
+    return Units.InchesPerSecond.of(inputs.velocityInchesPerSecond);
   }
 
   public double getTimeOfFlightDistanceInches() {
