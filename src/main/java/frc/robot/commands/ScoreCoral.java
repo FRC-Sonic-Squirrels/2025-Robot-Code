@@ -28,7 +28,7 @@ public class ScoreCoral extends StateMachine {
 
   private final ScoringDirection scoringDirection;
   private final Supplier<ScoringSide> scoringSideSupplier;
-  private final Supplier<Pose2d> scoringSidePoseSupplier;
+  private final Supplier<ScoringSideWithPose> scoringSidePoseSupplier;
   private final Supplier<Pose2d> scoringPose;
   private final Supplier<TagOffset> tagOffset;
   private final Supplier<Distance> distToWall;
@@ -58,16 +58,14 @@ public class ScoreCoral extends StateMachine {
 
     this.scoringDirection = scoringDirection;
     tagOffset = () -> tagOffsets.get()[scoringDirection == ScoringDirection.LEFT ? 0 : 1];
-    scoringSidePoseSupplier = null;
-    //  () -> getClosestScoringSide(wrapper.getPoseEstimatorPose(true));
-    scoringPose = () -> getScoringLocation(scoringDirection);
+    scoringSidePoseSupplier = () -> getClosestScoringSide(wrapper.getPoseEstimatorPose(true));
+    scoringPose = () -> scoringSidePoseSupplier.get().pose();
     this.distToWall = distToWall;
     this.scoringSideSupplier =
         () ->
-            // usePoseForAlignment.get() == 1
-            // ? getScoringSide(scoringSidePoseSupplier.get())
-            // :
-            getScoringSide(tagOffset.get().tagID());
+            usePoseForAlignment.get() == 1
+                ? scoringSidePoseSupplier.get().side()
+                : getScoringSide(tagOffset.get().tagID());
 
     setInterruptedState(stateWithName("EndState", () -> end(true)));
     setInitialState(stateWithName("PrepAlignment", () -> prepForAlignment()));
@@ -164,7 +162,7 @@ public class ScoreCoral extends StateMachine {
     ScoringSideWithPose bestTarget =
         new ScoringSideWithPose(
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero), ScoringSide.FAR_LEFT);
-    for (ScoringSideWithPose pose : Constants.FieldConstants.SCORING_SIDES()) {
+    for (ScoringSideWithPose pose : getScoringLocations()) {
       if (GeometryUtil.getDist(robotPose, pose.pose())
           < GeometryUtil.getDist(robotPose, bestTarget.pose())) {
         bestTarget = pose;
@@ -173,28 +171,38 @@ public class ScoreCoral extends StateMachine {
     return bestTarget;
   }
 
-  private Pose2d getScoringLocation(ScoringDirection scoringDirection) {
+  private ScoringSideWithPose[] getScoringLocations() {
 
-    var scoringSidePose = scoringSidePoseSupplier.get();
+    var sides = Constants.FieldConstants.SCORING_SIDES();
 
-    var scoringSide = scoringSideSupplier.get();
+    var newSides = new ScoringSideWithPose[sides.length];
 
-    var objectiveScoringDirection =
-        scoringDirection == ScoringDirection.LEFT ? Rotation2d.kCCW_90deg : Rotation2d.kCW_90deg;
+    for (int i = 0; i < sides.length; i++) {
+      var scoringSidePose = sides[i].pose();
 
-    Translation2d offset =
-        new Translation2d(
-            Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters),
-            scoringSidePose
-                .getRotation()
-                .plus(
-                    scoringSide == ScoringSide.FAR_LEFT
-                            || scoringSide == ScoringSide.FAR_MID
-                            || scoringSide == ScoringSide.FAR_RIGHT
-                        ? objectiveScoringDirection.unaryMinus()
-                        : objectiveScoringDirection));
-    Translation2d translation = scoringSidePose.getTranslation().plus(offset);
-    return new Pose2d(translation, scoringSidePose.getRotation());
+      var scoringSide = sides[i].side();
+
+      var objectiveScoringDirection =
+          scoringDirection == ScoringDirection.LEFT ? Rotation2d.kCCW_90deg : Rotation2d.kCW_90deg;
+
+      Translation2d offset =
+          new Translation2d(
+              Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters),
+              scoringSidePose
+                  .getRotation()
+                  .plus(
+                      scoringSide == ScoringSide.FAR_LEFT
+                              || scoringSide == ScoringSide.FAR_MID
+                              || scoringSide == ScoringSide.FAR_RIGHT
+                          ? objectiveScoringDirection
+                          : objectiveScoringDirection.unaryMinus()));
+      Translation2d translation = scoringSidePose.getTranslation().plus(offset);
+      newSides[i] =
+          new ScoringSideWithPose(
+              new Pose2d(translation, scoringSidePose.getRotation()), scoringSide);
+    }
+
+    return newSides;
   }
 
   public enum ScoringDirection {
