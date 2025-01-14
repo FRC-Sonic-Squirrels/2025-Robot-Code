@@ -1,10 +1,8 @@
 package frc.robot.commands.mechanism;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -18,7 +16,6 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class MechanismActions {
@@ -42,10 +39,34 @@ public class MechanismActions {
   public static final LoggedTunableNumber tunableArmVoltage =
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
-//   private static Command goToPositionParallel(
-//       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
-//     return goToPositionParallel(elevator, arm, position, false);
-//   }
+  public static Command reefPosition(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::reefPosition);
+  }
+
+  public static Command ampStage1Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(
+        elevator,
+        arm,
+        () -> new MechanismPosition(Units.Inches.of(24.0), Rotation2d.fromDegrees(0.0)));
+  }
+
+  public static Command climbPrepPosition(
+      Elevator elevator, Arm arm, EndEffector endEffector, Intake intake) {
+    return new ConditionalCommand(
+            goToPositionParallel(
+                elevator,
+                arm,
+                () ->
+                    new MechanismPosition(Units.Inch.of(14), Constants.ArmConstants.MAX_ARM_ANGLE)),
+            Commands.none(),
+            () -> elevator.getHeightInches() < 14)
+        .andThen(goToPositionParallel(elevator, arm, MechanismPositions::climbPrepPosition));
+  }
+
+  private static Command goToPositionParallel(
+      Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
+    return goToPositionParallel(elevator, arm, position, false);
+  }
 
   private static Command goToPositionParallel(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position, boolean ignoreSafety) {
