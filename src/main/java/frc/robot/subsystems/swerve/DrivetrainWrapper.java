@@ -4,6 +4,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.team2930.LoggerEntry;
@@ -125,12 +127,12 @@ public class DrivetrainWrapper {
     return drivetrain.getVisionStaleness();
   }
 
-  public double getMaxLinearSpeedMetersPerSec() {
-    return drivetrain.getMaxLinearSpeedMetersPerSec();
+  public LinearVelocity getMaxLinearSpeedMetersPerSec() {
+    return Units.MetersPerSecond.of(drivetrain.getMaxLinearSpeedMetersPerSec());
   }
 
-  public double getMaxAngularSpeedRadPerSec() {
-    return drivetrain.getMaxAngularSpeedRadPerSec();
+  public AngularVelocity getMaxAngularSpeedRadPerSec() {
+    return Units.RadiansPerSecond.of(drivetrain.getMaxAngularSpeedRadPerSec());
   }
 
   public Pose2d getFieldRelativeVelocities() {

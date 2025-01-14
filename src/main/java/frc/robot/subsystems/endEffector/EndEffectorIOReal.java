@@ -76,7 +76,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     inputs.currentAmps = current.getValueAsDouble();
     inputs.tempCelsius = deviceTemp.getValueAsDouble();
     inputs.appliedVolts = appliedVoltage.getValueAsDouble();
-    inputs.velocityRPM = Units.RotationsPerSecond.of(velocity.getValueAsDouble()).in(Units.RPM);
+    inputs.velocityRPM = velocity.getValueAsDouble();
   }
 
   @Override

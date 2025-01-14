@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.team2930.TalonFXSim.ControlMode;
 import frc.robot.Constants;
@@ -70,8 +69,8 @@ public class TalonFXArmSim {
     return output;
   }
 
-  public AngularVelocity getVelocity() {
-    return Units.RadiansPerSecond.of(sim.getVelocityRadPerSec());
+  public double getVelocity() {
+    return sim.getVelocityRadPerSec();
   }
 
   public Angle getPosition() {
