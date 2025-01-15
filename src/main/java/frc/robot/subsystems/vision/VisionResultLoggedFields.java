@@ -12,13 +12,13 @@ public record VisionResultLoggedFields(
     double xyStandardDeviation,
     double thetaStandardDeviation,
     Pose3d robotPose3d,
-    Integer[] seenTags) {
+    Short[] seenTags) {
 
   public static VisionResultLoggedFields unsuccessfulResult(VisionResultStatus status) {
     return new VisionResultLoggedFields(status);
   }
 
   private VisionResultLoggedFields(VisionResultStatus status) {
-    this(status, -1, -1, -1, -1, -1, -1, Constants.zeroPose3d, new Integer[0]);
+    this(status, -1, -1, -1, -1, -1, -1, Constants.zeroPose3d, new Short[0]);
   }
 }

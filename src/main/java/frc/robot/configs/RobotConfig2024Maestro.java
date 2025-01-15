@@ -146,7 +146,7 @@ public class RobotConfig2024Maestro extends RobotConfig {
               Units.Inches.of(-6.625).in(Units.Meters),
               Units.Inches.of(12.25).in(Units.Meters),
               Units.Inches.of(10).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(180.0)));
+          new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(180.0)));
 
   public static final Transform3d INTAKE_SIDE_LEFT =
       new Transform3d(
