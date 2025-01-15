@@ -39,30 +39,27 @@ public class MechanismActions {
   public static final LoggedTunableNumber tunableArmVoltage =
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
-  public static Command reefPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::reefPosition);
+  public static Command reefL1Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::reefL1Position);
   }
 
-  public static Command ampStage1Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(
-        elevator,
-        arm,
-        () -> new MechanismPosition(Units.Inches.of(24.0), Rotation2d.fromDegrees(0.0)));
+  public static Command reefL2Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::reefL2Position);
   }
 
-  public static Command climbPrepPosition(
-      Elevator elevator, Arm arm, EndEffector endEffector, Intake intake) {
-    return new ConditionalCommand(
-            goToPositionParallel(
-                elevator,
-                arm,
-                () ->
-                    new MechanismPosition(Units.Inch.of(14), Constants.ArmConstants.MAX_ARM_ANGLE)),
-            Commands.none(),
-            () -> elevator.getHeightInches() < 14)
-        .andThen(goToPositionParallel(elevator, arm, MechanismPositions::climbPrepPosition));
+  public static Command reefL3Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::reefL3Position);
   }
 
+  public static Command reefL4Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::reefL4Position);
+  }
+
+  public static Command coralStationPosition(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition);
+  }
+
+//TODO: Change Logic for 2025 Robot Geometry
   private static Command goToPositionParallel(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
     return goToPositionParallel(elevator, arm, position, false);
