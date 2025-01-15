@@ -17,28 +17,33 @@ public class MechanismPositions {
       group.build("reef/Score/ArmAngleDegrees", 43); // 35.0
 
   private static final LoggedTunableNumber reefL2L3ArmAngleDegrees =
-      group.build("reef/Score/L2L3ArmAngleDegrees", 35);  
-      
-  private static final LoggedTunableNumber reefL4ArmAngleDegrees = 
-      group.build("reef/Score/L4ArmAngleDegrees", 90);      
+      group.build("reef/Score/L2L3ArmAngleDegrees", 35);
 
-  private static final LoggedTunableNumber reefL1ElevatorHeightInches = 
-      group.build("reef/Level1/ElevatorHeightInches", 20); //just above where game manual has it set
-  
-  private static final LoggedTunableNumber reefL2ElevatorHeightInches = 
-      group.build("reef/Level2/ElevatorHeightInches", 32); //just above where game manual has it set
+  private static final LoggedTunableNumber reefL4ArmAngleDegrees =
+      group.build("reef/Score/L4ArmAngleDegrees", 90);
+
+  private static final LoggedTunableNumber reefL1ElevatorHeightInches =
+      group.build(
+          "reef/Level1/ElevatorHeightInches", 20); // just above where game manual has it set
+
+  private static final LoggedTunableNumber reefL2ElevatorHeightInches =
+      group.build(
+          "reef/Level2/ElevatorHeightInches", 32); // just above where game manual has it set
 
   private static final LoggedTunableNumber reefL3ElevatorHeightInches =
-      group.build("reef/Level3/ElevatorHeightInches", 48); //just above where game manual has it set
-      
-  private static final LoggedTunableNumber reefL4ElevatorHeightInches = 
-      group.build("reef/Level4/ElevatorHeightInches", 72); //72 inches IS 6 feet, probably change this value      
+      group.build(
+          "reef/Level3/ElevatorHeightInches", 48); // just above where game manual has it set
 
-  private static final LoggedTunableNumber coralStationElevatorHeightInches = 
-      group.build("coralStation/ElevatorHeightInches", 38);    
-      
-  private static final LoggedTunableNumber coralStationArmAngleDegrees = 
-      group.build("coralStation/ArmAngleDegrees", 55);      
+  private static final LoggedTunableNumber reefL4ElevatorHeightInches =
+      group.build(
+          "reef/Level4/ElevatorHeightInches",
+          72); // 72 inches IS 6 feet, probably change this value
+
+  private static final LoggedTunableNumber coralStationElevatorHeightInches =
+      group.build("coralStation/ElevatorHeightInches", 38);
+
+  private static final LoggedTunableNumber coralStationArmAngleDegrees =
+      group.build("coralStation/ArmAngleDegrees", 55);
 
   private static final LoggedTunableNumber climbPrepArmAngleDegrees =
       group.build("climb/Prep/ArmAngleDegrees", Constants.ArmConstants.MAX_ARM_ANGLE.getDegrees());
@@ -54,25 +59,25 @@ public class MechanismPositions {
   public static MechanismPosition reefL1Position() {
     return new MechanismPosition(
         Units.Inches.of(reefL1ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefArmAngleDegrees.get())); 
+        Rotation2d.fromDegrees(reefArmAngleDegrees.get()));
   }
 
   public static MechanismPosition reefL2Position() {
     return new MechanismPosition(
         Units.Inches.of(reefL2ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get())); 
+        Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get()));
   }
 
   public static MechanismPosition reefL3Position() {
     return new MechanismPosition(
         Units.Inches.of(reefL3ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get())); 
+        Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get()));
   }
 
   public static MechanismPosition reefL4Position() {
     return new MechanismPosition(
         Units.Inches.of(reefL4ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL4ArmAngleDegrees.get())); 
+        Rotation2d.fromDegrees(reefL4ArmAngleDegrees.get()));
   }
 
   public static MechanismPosition coralStationPosition() {
