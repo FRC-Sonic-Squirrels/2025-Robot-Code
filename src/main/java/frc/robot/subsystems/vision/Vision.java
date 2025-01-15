@@ -220,10 +220,11 @@ public class Vision extends SubsystemBase {
       currentResultTimeStampCTRETime = visionModule.visionIOInputs.lastTimestampCTRETime;
     }
 
-    if (visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime
-        >= currentResultTimeStampCTRETime) {
-      return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.NOT_A_NEW_RESULT);
-    }
+    //TODO: fix and uncomment this!!!!!!!!!!!!
+    // if (visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime
+    //     >= currentResultTimeStampCTRETime) {
+    //   return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.NOT_A_NEW_RESULT);
+    // }
 
     visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime = currentResultTimeStampCTRETime;
 

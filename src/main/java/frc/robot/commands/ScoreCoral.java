@@ -37,7 +37,7 @@ public class ScoreCoral extends StateMachine {
 
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber usePoseForAlignment =
-      group.build("usePoseForAlignment", 0);
+      group.build("usePoseForAlignment", 1);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -183,7 +183,7 @@ public class ScoreCoral extends StateMachine {
       var scoringSide = sides[i].side();
 
       var objectiveScoringDirection =
-          scoringDirection == ScoringDirection.LEFT ? Rotation2d.kCCW_90deg : Rotation2d.kCW_90deg;
+          scoringDirection == ScoringDirection.LEFT ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg;
 
       Translation2d offset =
           new Translation2d(

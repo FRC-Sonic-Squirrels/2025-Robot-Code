@@ -85,7 +85,7 @@ public final class Constants {
         return RobotType.ROBOT_SIMBOT;
       }
 
-      if (ROBOT != RobotType.ROBOT_2024_RETIRED_MAESTRO || ROBOT != RobotType.ROBOT_2025) {
+      if (ROBOT != RobotType.ROBOT_2024_RETIRED_MAESTRO && ROBOT != RobotType.ROBOT_2025) {
         invalidRobotAlert.set(true);
         return RobotType.ROBOT_2025;
       }
@@ -123,7 +123,7 @@ public final class Constants {
   public static double MAX_VOLTAGE = 12.0;
 
   public static class RobotDimensions {
-    public static Distance BUMPER_THICKNESS = Units.Inches.of(2.25);
+    public static Distance BUMPER_THICKNESS = Units.Inches.of(5.25);
 
     /**
      * x = left to right
@@ -199,7 +199,7 @@ public final class Constants {
         poses[i] =
             new ScoringSideWithPose(
                 AllianceFlipUtil.flipPoseForAlliance(
-                    new Pose2d(BLUE_REEF_CENTER_POSE.plus(offset), angle)),
+                    new Pose2d(BLUE_REEF_CENTER_POSE.plus(offset), angle.plus(Rotation2d.k180deg))),
                 isRedAlliance() ? RED_SCORING_SIDE_ORDER[i] : BLUE_SCORING_SIDE_ORDER[i]);
       }
       return poses;

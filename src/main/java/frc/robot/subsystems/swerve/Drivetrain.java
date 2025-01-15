@@ -200,10 +200,10 @@ public class Drivetrain extends SubsystemBase {
     kinematics = config.getSwerveDriveKinematics();
 
     int[] tags = {
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
-    }; // TODO: change to new season's tag numbers
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+    }; // TODO: make seperate ones for reef and coral station
 
-    poseEstimator = new PoseEstimator(1.2, 1.2, 0.3, tags);
+    poseEstimator = new PoseEstimator(1.2, 1.2, 0.3, tags); // refine these numbers?
 
     var thread = new Thread(this::runOdometry);
     thread.setName("PhoenixOdometryThread");

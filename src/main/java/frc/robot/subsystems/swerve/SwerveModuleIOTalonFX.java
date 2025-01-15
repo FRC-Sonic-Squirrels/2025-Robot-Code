@@ -257,7 +257,7 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
 
     inputs.angle = angleRelative.plus(turnRelativeOffset);
 
-    var positionMeters = drivePositionRaw.in(Units.Rotations) * wheelRadius;
+    var positionMeters = drivePositionRaw.in(Units.Radians) * wheelRadius;
     var res = new SwerveModulePosition(positionMeters - lastPositionMeters, inputs.angle);
     lastPositionMeters = positionMeters;
 
