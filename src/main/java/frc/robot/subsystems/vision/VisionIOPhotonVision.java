@@ -2,9 +2,11 @@ package frc.robot.subsystems.vision;
 
 import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructSubscriber;
 import edu.wpi.first.wpilibj.Timer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.common.hardware.VisionLEDMode;
@@ -32,10 +34,10 @@ public class VisionIOPhotonVision implements VisionIO {
        * and
     https://github.com/Mechanical-Advantage/RobotCode2022/blob/main/src/main/java/frc/robot/subsystems/vision/VisionIOPhotonVision.java
        */
-    DoubleArraySubscriber targetPoseSub =
+    StructSubscriber targetPoseSub =
         inst.getTable("/photonvision/" + cameraName)
-            .getDoubleArrayTopic("targetPose")
-            .subscribe(new double[0]);
+            .getStructTopic("targetPose", Transform3d.struct)
+            .subscribe(null);
 
     inst.addListener(
         targetPoseSub,
