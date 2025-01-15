@@ -3,7 +3,6 @@ package frc.robot.subsystems.vision;
 import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructSubscriber;
