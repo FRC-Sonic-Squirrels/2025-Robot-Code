@@ -4,8 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -14,8 +12,6 @@ import frc.robot.Constants;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.endEffector.EndEffector;
-import frc.robot.subsystems.intake.Intake;
 import java.util.function.Supplier;
 
 public class MechanismActions {
@@ -59,7 +55,7 @@ public class MechanismActions {
     return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition);
   }
 
-//TODO: Change Logic for 2025 Robot Geometry
+  // TODO: Change Logic for 2025 Robot Geometry
   private static Command goToPositionParallel(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
     return goToPositionParallel(elevator, arm, position, false);
