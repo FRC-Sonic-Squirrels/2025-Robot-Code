@@ -137,18 +137,18 @@ public class RobotConfig2025 extends RobotConfig {
   public static final Transform3d SHOOTER_SIDE_LEFT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(-0.21682).in(Units.Meters),
-              Units.Inches.of(6.7949).in(Units.Meters),
-              Units.Inches.of(24.259267).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(180.0), Math.toRadians(-22.0), Math.toRadians(225.0)));
+              Units.Inches.of(-12.25).in(Units.Meters),
+              Units.Inches.of(6.625).in(Units.Meters),
+              Units.Inches.of(10).in(Units.Meters)),
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(180.0)));
 
   public static final Transform3d SHOOTER_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(-0.21682).in(Units.Meters),
-              Units.Inches.of(-6.7949).in(Units.Meters),
-              Units.Inches.of(24.259267).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(180.0), Math.toRadians(-22.0), Math.toRadians(135.0)));
+              Units.Inches.of(-12.25).in(Units.Meters),
+              Units.Inches.of(-6.625).in(Units.Meters),
+              Units.Inches.of(10).in(Units.Meters)),
+          new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(180.0)));
 
   public static final Transform3d INTAKE_SIDE_LEFT =
       new Transform3d(

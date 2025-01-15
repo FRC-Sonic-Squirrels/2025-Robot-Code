@@ -135,16 +135,16 @@ public class RobotConfig2024Maestro extends RobotConfig {
   public static final Transform3d SHOOTER_SIDE_LEFT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(6.625).in(Units.Meters),
-              Units.Inches.of(12.25).in(Units.Meters),
+              Units.Inches.of(-12.25).in(Units.Meters),
+              Units.Inches.of(-6.625).in(Units.Meters),
               Units.Inches.of(10).in(Units.Meters)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(180.0)));
 
   public static final Transform3d SHOOTER_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(-6.625).in(Units.Meters),
-              Units.Inches.of(12.25).in(Units.Meters),
+              Units.Inches.of(-12.25).in(Units.Meters),
+              Units.Inches.of(6.625).in(Units.Meters),
               Units.Inches.of(10).in(Units.Meters)),
           new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(180.0)));
 
@@ -165,8 +165,8 @@ public class RobotConfig2024Maestro extends RobotConfig {
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(-22.0), Math.toRadians(325.0)));
 
   public static final String OBJECT_DETECTION_CAMERA_NAME = "0_Object_Detection_ELP";
-  public static final String SHOOTER_SIDE_LEFT_CAMERA_NAME = "2_Shooter_Right_See3Cam";
-  public static final String SHOOTER_SIDE_RIGHT_CAMERA_NAME = "1_Shooter_Left_See3Cam";
+  public static final String SHOOTER_SIDE_LEFT_CAMERA_NAME = "1_Shooter_Left_See3Cam";
+  public static final String SHOOTER_SIDE_RIGHT_CAMERA_NAME = "2_Shooter_Right_See3Cam";
 
   public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025Reefscape;
 
@@ -204,7 +204,8 @@ public class RobotConfig2024Maestro extends RobotConfig {
   @Override
   public VisionModuleConfiguration[] getVisionModuleObjects() {
     return new VisionModuleConfiguration[] {
-      VisionModuleConfiguration.build(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT),
+      VisionModuleConfiguration.build(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT)
+      ,
       VisionModuleConfiguration.build(SHOOTER_SIDE_RIGHT_CAMERA_NAME, SHOOTER_SIDE_RIGHT)
     };
   }
@@ -212,7 +213,8 @@ public class RobotConfig2024Maestro extends RobotConfig {
   @Override
   public VisionModuleConfiguration[] getReplayVisionModules() {
     return new VisionModuleConfiguration[] {
-      VisionModuleConfiguration.buildReplayStub(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT),
+      VisionModuleConfiguration.buildReplayStub(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT)
+      ,
       VisionModuleConfiguration.buildReplayStub(SHOOTER_SIDE_RIGHT_CAMERA_NAME, SHOOTER_SIDE_RIGHT)
     };
   }
