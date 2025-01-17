@@ -9,6 +9,7 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
+import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
@@ -35,20 +36,8 @@ public class MechanismActions {
   public static final LoggedTunableNumber tunableArmVoltage =
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
-  public static Command reefL1Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::reefL1Position);
-  }
-
-  public static Command reefL2Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::reefL2Position);
-  }
-
-  public static Command reefL3Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::reefL3Position);
-  }
-
-  public static Command reefL4Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::reefL4Position);
+  public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
+    return goToPositionParallel(elevator, arm, () -> MechanismPositions.reefPosition(scoringLevel));
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {

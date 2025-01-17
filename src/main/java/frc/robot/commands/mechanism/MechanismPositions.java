@@ -6,6 +6,7 @@ import edu.wpi.first.units.measure.Distance;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
+import frc.robot.RobotStates.ScoringLevel;
 
 public class MechanismPositions {
   private static final TunableNumberGroup group = new TunableNumberGroup("MechanismPositions");
@@ -56,28 +57,29 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(reefArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition reefL1Position() {
-    return new MechanismPosition(
-        Units.Inches.of(reefL1ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefArmAngleDegrees.get()));
-  }
-
-  public static MechanismPosition reefL2Position() {
-    return new MechanismPosition(
-        Units.Inches.of(reefL2ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get()));
-  }
-
-  public static MechanismPosition reefL3Position() {
-    return new MechanismPosition(
-        Units.Inches.of(reefL3ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get()));
-  }
-
-  public static MechanismPosition reefL4Position() {
-    return new MechanismPosition(
-        Units.Inches.of(reefL4ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL4ArmAngleDegrees.get()));
+  public static MechanismPosition reefPosition(ScoringLevel scoringLevel) {
+    switch (scoringLevel) {
+        case L1:
+            return new MechanismPosition(
+                Units.Inches.of(reefL1ElevatorHeightInches.get()),
+                Rotation2d.fromDegrees(reefArmAngleDegrees.get()));
+        case L2:
+            return new MechanismPosition(
+                Units.Inches.of(reefL2ElevatorHeightInches.get()),
+                Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get()));
+        case L3:
+            return new MechanismPosition(
+                Units.Inches.of(reefL3ElevatorHeightInches.get()),
+                Rotation2d.fromDegrees(reefL2L3ArmAngleDegrees.get()));
+        case L4:
+            return new MechanismPosition(
+                Units.Inches.of(reefL4ElevatorHeightInches.get()),
+                Rotation2d.fromDegrees(reefL4ArmAngleDegrees.get()));
+        default:
+            return new MechanismPosition(
+                Units.Inches.of(reefL1ElevatorHeightInches.get()),
+                Rotation2d.fromDegrees(reefArmAngleDegrees.get()));
+    }
   }
 
   public static MechanismPosition coralStationPosition() {
