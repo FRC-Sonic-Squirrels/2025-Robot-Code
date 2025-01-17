@@ -37,11 +37,15 @@ public class MechanismActions {
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
   public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
-    return goToPositionParallel(elevator, arm, () -> MechanismPositions.reefPosition(scoringLevel));
+    return goToPositionParallel(elevator, arm, () -> MechanismPositions.reefScorePosition(scoringLevel));
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {
     return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition);
+  }
+
+  public static Command stowPosition(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::stowPosition);
   }
 
   // TODO: Change Logic for 2025 Robot Geometry
