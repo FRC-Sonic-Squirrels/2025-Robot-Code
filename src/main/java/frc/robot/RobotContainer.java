@@ -42,6 +42,7 @@ import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
+import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
@@ -440,12 +441,9 @@ public class RobotContainer {
                         ScoringDirection.RIGHT)));
 
     driverController
-        .a()
-        .whileTrue(
-            new DriveToPose(
-                drivetrainWrapper,
-                () -> new Pose2d(),
-                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
+    .a()
+    .whileTrue(
+        MechanismActions.stowPosition(elevator, arm));
 
     // Change scoring height
 

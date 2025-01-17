@@ -84,7 +84,6 @@ public class ScoreCoral extends StateMachine {
     log_scoringDirection.info(scoringDirection);
 
     if (usePoseForAlignment.get() == 1) log_scoringPose.info(scoringPose.get());
-    // TODO: prep mechanism
     return null;
   }
 
@@ -100,6 +99,7 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler end(boolean interrupted) {
     // TODO: reset mechanism to pickup position, turn off LEDs
+    spawnCommand(MechanismActions.stowPosition(elevator, arm), (command) -> null); // potentially change to coral station position
     return setDone();
   }
 
