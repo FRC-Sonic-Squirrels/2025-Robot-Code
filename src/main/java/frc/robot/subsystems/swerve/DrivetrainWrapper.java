@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -24,12 +26,15 @@ public class DrivetrainWrapper {
   private static final LoggerEntry.Decimal logGyroDrift = logGroup.buildDecimal("gyroDrift");
 
   private final Drivetrain drivetrain;
+  private final DoubleSupplier baseSpeedScalar;
+
   private ChassisSpeeds chassisSpeedsBase = new ChassisSpeeds();
   private ChassisSpeeds chassisSpeedsOverride;
   private double omegaOverride = Double.NaN;
 
-  public DrivetrainWrapper(Drivetrain drivetrain) {
+  public DrivetrainWrapper(Drivetrain drivetrain, DoubleSupplier baseSpeedScalar) {
     this.drivetrain = drivetrain;
+    this.baseSpeedScalar = baseSpeedScalar;
   }
 
   /** Updated periodically, updates swerve state. */
@@ -47,7 +52,7 @@ public class DrivetrainWrapper {
     if (chassisSpeedsOverride != null) {
       chassisSpeeds = chassisSpeedsOverride;
     } else {
-      chassisSpeeds = chassisSpeedsBase;
+      chassisSpeeds = chassisSpeedsBase.times(baseSpeedScalar.getAsDouble());
     }
 
     boolean prioritizeRotation;

@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -258,15 +259,20 @@ public final class Constants {
             / (Math.PI * Constants.ElevatorConstants.PULLEY_DIAMETER.in(Units.Inches));
 
     public static final Distance MAX_HEIGHT = Units.Inches.of(26.2);
-    public static final Distance MAX_LEGAL_HEIGHT = Units.Inches.of(26.2); // FIXME
     public static final Distance TRUE_TOP_HARD_STOP = Units.Inches.of(26.5);
 
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
     public static final Distance HOME_POSITION = Units.Inches.of(7.35);
-    public static final Distance LOADING_POSITION = Units.Inches.of(7.35); // was 7.5
     public static final String ROOT_TABLE = "Elevator";
+
+    public static final InterpolatingDoubleTreeMap SPEED_SCALAR_MAP = new InterpolatingDoubleTreeMap();;
+
+    static {
+      SPEED_SCALAR_MAP.put(HOME_POSITION.in(Units.Inch), 1.0);
+      SPEED_SCALAR_MAP.put(MAX_HEIGHT.in(Units.Inch), 0.5);
+    }
   }
 
   public static class LEDConstants { // TODO: check all constants for new season
