@@ -4,8 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -17,23 +15,22 @@ import frc.robot.Constants.FieldConstants.ScoringSideWithPose;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.drive.DriveToPose;
-import frc.robot.commands.drive.SnapToReef;
+import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
-import frc.robot.subsystems.vision.Vision.TagOffset;
 import java.util.function.Supplier;
 
 public class ScoreCoral extends StateMachine {
 
   private final DrivetrainWrapper wrapper;
+  private final Elevator elevator;
+  private final Arm arm;
 
   private final ScoringDirection scoringDirection;
   private final Supplier<ScoringSide> scoringSideSupplier;
   private final Supplier<ScoringSideWithPose> scoringSidePoseSupplier;
   private final Supplier<Pose2d> scoringPose;
-  private final Supplier<TagOffset> tagOffset;
-  private final Supplier<Distance> distToWall;
-
-  private Command snapToReef;
 
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber usePoseForAlignment =
@@ -49,38 +46,34 @@ public class ScoreCoral extends StateMachine {
 
   public ScoreCoral(
       DrivetrainWrapper wrapper,
-      Supplier<TagOffset[]> tagOffsets,
-      Supplier<Distance> distToWall,
+      Elevator elevator,
+      Arm arm,
       ScoringDirection scoringDirection) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
+    this.elevator = elevator;
+    this.arm = arm;
 
     this.scoringDirection = scoringDirection;
-    tagOffset = () -> tagOffsets.get()[scoringDirection == ScoringDirection.LEFT ? 0 : 1];
     scoringSidePoseSupplier = () -> getClosestScoringSide(wrapper.getPoseEstimatorPose(true));
     scoringPose = () -> scoringSidePoseSupplier.get().pose();
-    this.distToWall = distToWall;
     this.scoringSideSupplier =
-        () ->
-            usePoseForAlignment.get() == 1
-                ? scoringSidePoseSupplier.get().side()
-                : getScoringSide(tagOffset.get().tagID());
+        () -> scoringSidePoseSupplier.get().side();
 
     setInterruptedState(stateWithName("EndState", () -> end(true)));
     setInitialState(stateWithName("PrepAlignment", () -> prepForAlignment()));
   }
 
   private StateHandler prepForAlignment() {
-    spawnCommand(
-        usePoseForAlignment.get() == 1
-            ? new DriveToPose(wrapper, scoringPose, () -> wrapper.getPoseEstimatorPose(true))
-            : new SnapToReef(tagOffset, wrapper, distToWall),
+    spawnCommand(new DriveToPose(wrapper, scoringPose, () -> wrapper.getPoseEstimatorPose(true)),
         (command) -> {
           return algaeClearRequired()
               ? stateWithName("ClearAlgae", () -> clearAlgae())
               : stateWithName("Score", () -> score());
         });
+
+    spawnCommand(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel), (command) -> null);
 
     return stateWithName("Align", () -> align());
   }
@@ -128,34 +121,6 @@ public class ScoreCoral extends StateMachine {
     }
 
     return RobotStates.clearingAglae;
-  }
-
-  private ScoringSide getScoringSide(int tagID) {
-    if (tagID == 6) {
-      return ScoringSide.NEAR_LEFT;
-    } else if (tagID == 7) {
-      return ScoringSide.NEAR_MID;
-    } else if (tagID == 8) {
-      return ScoringSide.NEAR_RIGHT;
-    } else if (tagID == 9) {
-      return ScoringSide.FAR_RIGHT;
-    } else if (tagID == 10) {
-      return ScoringSide.FAR_MID;
-    } else if (tagID == 11) {
-      return ScoringSide.FAR_LEFT;
-    } else if (tagID == 17) {
-      return ScoringSide.NEAR_RIGHT;
-    } else if (tagID == 18) {
-      return ScoringSide.NEAR_MID;
-    } else if (tagID == 19) {
-      return ScoringSide.NEAR_LEFT;
-    } else if (tagID == 20) {
-      return ScoringSide.FAR_LEFT;
-    } else if (tagID == 21) {
-      return ScoringSide.FAR_MID;
-    } else {
-      return ScoringSide.FAR_RIGHT;
-    }
   }
 
   private ScoringSideWithPose getClosestScoringSide(Pose2d robotPose) {
