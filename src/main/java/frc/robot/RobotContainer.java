@@ -424,8 +424,8 @@ public class RobotContainer {
                 () ->
                     new ScoreCoral(
                         drivetrainWrapper,
-                        vision::getTagOffsets,
-                        () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                        elevator,
+                        arm,
                         ScoringDirection.LEFT)));
 
     driverController
@@ -435,8 +435,8 @@ public class RobotContainer {
                 () ->
                     new ScoreCoral(
                         drivetrainWrapper,
-                        vision::getTagOffsets,
-                        () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                        elevator,
+                        arm,
                         ScoringDirection.RIGHT)));
 
     driverController
