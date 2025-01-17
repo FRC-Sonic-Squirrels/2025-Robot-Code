@@ -89,7 +89,7 @@ public class Vision extends SubsystemBase {
   private final AprilTagFieldLayout aprilTagLayout;
 
   private boolean useVisionForPoseEstimation = true;
-  private boolean useMaxDistanceAwayFromExistingEstimate = false;
+  private boolean useMaxDistanceAwayFromExistingEstimate = true;
   private boolean useGyroBasedFilteringForVision = true;
 
   private final HashMap<Integer, Double> lastTagDetectionTimes = new HashMap<>();
@@ -309,9 +309,9 @@ public class Vision extends SubsystemBase {
       }
     }
 
-    // if (Math.abs(newCalculatedRobotPose.getZ()) >= zHeightToleranceMeters.get()) {
-    //   return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.Z_HEIGHT_BAD);
-    // }
+    if (Math.abs(newCalculatedRobotPose.getZ()) >= zHeightToleranceMeters.get()) {
+      return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.Z_HEIGHT_BAD);
+    }
 
     var pitchAndRollToleranceValue = pitchAndRollToleranceDegrees.get();
     if (Math.abs(poseRoll) >= pitchAndRollToleranceValue
