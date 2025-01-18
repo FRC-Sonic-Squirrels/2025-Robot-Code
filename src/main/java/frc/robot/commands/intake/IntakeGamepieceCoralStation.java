@@ -60,8 +60,7 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.setRollerVelocity(0.0);
-    endEffector.setVelocity(0.0);
+    // TODO: stop intaking
     intake.setVelocity(0.0);
     endEffector.setVelocity(0.0);
   }
