@@ -27,6 +27,7 @@ public class IntakeGamepieceCoralStation extends Command {
     // TODO: add subsystem requirements
     addRequirements(intake);
     addRequirements(intake);
+    addRequirements(intake);
     setName("IntakeGamepiece");
   }
 
