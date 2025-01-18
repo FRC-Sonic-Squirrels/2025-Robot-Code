@@ -18,12 +18,14 @@ public class IntakeGamepieceCoralStation extends Command {
   private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 2500);
   private final Intake intake;
   private final EndEffector endEffector;
+  private final Boolean intakeGround;
 
   /** Creates a new IntakeDefaultIdleRPM. */
   public IntakeGamepieceCoralStation(Intake intake, EndEffector endEffector) {
     // TODO: add subsystems
     this.intake = intake;
     this.endEffector = endEffector;
+    this.intakeGround = intakeGround;
     // TODO: add subsystem requirements
     addRequirements(intake);
     addRequirements(intake);
