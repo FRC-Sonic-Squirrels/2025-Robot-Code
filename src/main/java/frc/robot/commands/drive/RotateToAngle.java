@@ -44,10 +44,11 @@ public class RotateToAngle extends Command {
       new ProfiledPIDController(0, 0, 0, new Constraints(0.0, 0.0));
 
   /** Creates a new RotateToAngle. */
-  public RotateToAngle(DrivetrainWrapper wrapper, Supplier<Rotation2d> angle, Pose2d pose2d) {
+  public RotateToAngle(
+      DrivetrainWrapper wrapper, Supplier<Rotation2d> angle, Supplier<Pose2d> pose2d) {
     this.wrapper = wrapper;
     this.angle = angle;
-    this.currentPose = () -> pose2d;
+    this.currentPose = pose2d;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
