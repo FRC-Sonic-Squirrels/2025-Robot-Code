@@ -167,8 +167,4 @@ public class Elevator extends SubsystemBase {
   public LinearVelocity getVelocity() {
     return Units.InchesPerSecond.of(inputs.velocityInchesPerSecond);
   }
-
-  public Distance getTimeOfFlightDistanceInches() {
-    return Units.Inches.of(inputs.timeOfFlightDistInches);
-  }
 }
