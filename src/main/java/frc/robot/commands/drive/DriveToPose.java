@@ -72,11 +72,11 @@ public class DriveToPose extends Command {
   private static final LoggedTunableNumber ffMaxRadius = group.build("FFMaxRadius");
 
   static {
-    driveKp.initDefault(3.0);
-    driveKd.initDefault(0.0);
+    driveKp.initDefault(2.0);
+    driveKd.initDefault(0.01);
     thetaKp.initDefault(5.0);
     thetaKd.initDefault(0.0);
-    driveMaxVelocity.initDefault(Units.Inches.of(177.0).in(Units.Meters));
+    driveMaxVelocity.initDefault(5);
     driveMaxVelocitySlow.initDefault(Units.Inches.of(50.0).in(Units.Meters));
     driveMaxAcceleration.initDefault(Units.Inches.of(118.0).in(Units.Meters));
     thetaMaxVelocity.initDefault(Math.toRadians(360.0));
@@ -84,10 +84,10 @@ public class DriveToPose extends Command {
     thetaMaxAcceleration.initDefault(Math.toRadians(720.0));
     driveTolerance.initDefault(0.05);
     driveToleranceSlow.initDefault(0.05);
-    thetaTolerance.initDefault(Math.toRadians(1.0));
+    thetaTolerance.initDefault(0.005);
     thetaToleranceSlow.initDefault(Math.toRadians(3.0));
     ffMinRadius.initDefault(0.2);
-    ffMaxRadius.initDefault(0.4);
+    ffMaxRadius.initDefault(1);
   }
 
   private final DrivetrainWrapper drive;
@@ -113,6 +113,7 @@ public class DriveToPose extends Command {
     this(drive, slowMode, () -> pose, currentPose, true, () -> true, driveTolerance.get());
   }
 
+  /** Drives to the specified pose under full software control. */
   public DriveToPose(
       DrivetrainWrapper drive,
       Supplier<Pose2d> poseSupplier,
@@ -122,6 +123,7 @@ public class DriveToPose extends Command {
     this(drive, false, poseSupplier, currentRobotPose, true, move, driveTolerance);
   }
 
+  /** Drives to the specified pose under full software control. */
   public DriveToPose(
       DrivetrainWrapper drive,
       Supplier<Pose2d> poseSupplier,
@@ -145,6 +147,7 @@ public class DriveToPose extends Command {
     this(drive, false, poseSupplier, currentRobotPose, true, () -> true, driveTolerance.get());
   }
 
+  /** Drives to the specified pose under full software control. */
   public DriveToPose(
       DrivetrainWrapper drive,
       Supplier<Pose2d> poseSupplier,
@@ -311,9 +314,7 @@ public class DriveToPose extends Command {
 
   /** Checks if the robot is stopped at the final pose. */
   public boolean atGoal() {
-    return
-    // isScheduled() &&
-    withinTolerance.getAsBoolean();
+    return isScheduled() && withinTolerance.getAsBoolean();
   }
 
   /** Checks if the robot pose is within the allowed drive and theta tolerances. */

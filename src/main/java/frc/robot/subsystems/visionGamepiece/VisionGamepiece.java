@@ -7,6 +7,8 @@ package frc.robot.subsystems.visionGamepiece;
 import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
@@ -246,7 +248,7 @@ public class VisionGamepiece extends SubsystemBase {
                         .getY())));
   }
 
-  private double groundGamepieceDistance(
+  private Distance groundGamepieceDistance(
       Rotation2d targetPitch, Rotation2d cameraYaw, Rotation2d cameraPitch) {
     double fudgeFromYaw = yawFudgeFactor.get() * Math.sin(Math.abs(cameraYaw.getRadians()));
     double fudgeFromPitch = pitchFudgeFactor.get() * Math.sin(-cameraPitch.getRadians());
@@ -254,11 +256,12 @@ public class VisionGamepiece extends SubsystemBase {
     logFudgeFromYaw.info(fudgeFromYaw);
     logFudgeFromPitch.info(fudgeFromPitch);
 
-    return (Constants.VisionGamepieceConstants.GAMEPIECE_CAMERA_POSE.getZ()
-                - Constants.FieldConstants.Gamepieces.GAMEPIECE_HEIGHT.in(Units.Inch))
-            * Math.tan(targetPitch.getRadians())
-        + Units.Inches.of(fudgeFromYaw).in(Units.Meter)
-        + Units.Inches.of(fudgeFromPitch).in(Units.Meter);
+    return Units.Meters.of(
+        (Constants.VisionGamepieceConstants.GAMEPIECE_CAMERA_POSE.getZ()
+                    - Constants.FieldConstants.Gamepieces.GAMEPIECE_HEIGHT.in(Units.Meters))
+                * Math.tan(targetPitch.getRadians())
+            + Units.Inches.of(fudgeFromYaw).in(Units.Meter)
+            + Units.Inches.of(fudgeFromPitch).in(Units.Meter));
   }
 
   private Pose2d groundGamepiecePose(double distanceMeters, Rotation2d targetYaw) {
@@ -270,7 +273,8 @@ public class VisionGamepiece extends SubsystemBase {
     Rotation2d targetPitch = targetPitch(pitch);
     double distance =
         groundGamepieceDistance(
-            targetPitch, Rotation2d.fromDegrees(yaw), Rotation2d.fromDegrees(pitch));
+                targetPitch, Rotation2d.fromDegrees(yaw), Rotation2d.fromDegrees(pitch))
+            .in(Units.Meters);
     Pose2d pose = groundGamepiecePose(distance, targetYaw);
     Pose2d robotPose = robotPoseSupplier.apply(timestamp);
 
@@ -279,7 +283,7 @@ public class VisionGamepiece extends SubsystemBase {
         timestamp);
   }
 
-  public double getTagYaw() {
-    return inputs.aprilTagYaw;
+  public Angle getTagYaw() {
+    return Units.Degrees.of(inputs.aprilTagYaw);
   }
 }

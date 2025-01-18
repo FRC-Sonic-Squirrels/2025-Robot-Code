@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems.endEffector;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.ControlMode;
 import frc.lib.team2930.ExecutionTiming;
@@ -120,12 +123,11 @@ public class EndEffector extends SubsystemBase {
   }
 
   // Getters
-
-  public double getCurrentDraw() {
-    return inputs.currentAmps;
+  public Current getCurrentDraw() {
+    return Units.Amps.of(inputs.currentAmps);
   }
 
-  public double getRPM() {
-    return inputs.velocityRPM;
+  public AngularVelocity getVelocity() {
+    return Units.RPM.of(inputs.velocityRPM);
   }
 }

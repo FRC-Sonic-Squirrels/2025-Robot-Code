@@ -11,6 +11,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.team2930.TalonFXSim.ControlMode;
 import frc.robot.Constants;
@@ -66,8 +67,8 @@ public class TalonFXArmSim {
     control = ControlMode.POSITION;
   }
 
-  public double getVoltage() {
-    return output;
+  public Voltage getVoltage() {
+    return Units.Volts.of(output);
   }
 
   public AngularVelocity getVelocity() {

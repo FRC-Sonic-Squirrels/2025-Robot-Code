@@ -18,6 +18,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -222,31 +226,31 @@ public class SwerveModule {
   }
 
   /** Returns the current drive position of the module in meters. */
-  public double getPositionMeters() {
-    return inputs.drivePositionRad * wheelRadius;
+  public Distance getDrivePosition() {
+    return Units.Meters.of(inputs.drivePositionRad * wheelRadius);
   }
 
   /** Returns the current drive velocity of the module in meters per second. */
-  public double getVelocityMetersPerSec() {
-    return inputs.driveVelocityRadPerSec * wheelRadius;
+  public LinearVelocity getVelocity() {
+    return Units.MetersPerSecond.of(inputs.driveVelocityRadPerSec * wheelRadius);
   }
 
   /** Returns the module position (turn angle and drive position). */
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(getPositionMeters(), getAngle());
+    return new SwerveModulePosition(getDrivePosition(), getAngle());
   }
 
   /** Returns the module state (turn angle and drive velocity). */
   public SwerveModuleState getState() {
-    return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
+    return new SwerveModuleState(getVelocity(), getAngle());
   }
 
   /** Returns the drive velocity in radians/sec. */
-  public double getCharacterizationVelocity() {
-    return inputs.driveVelocityRadPerSec;
+  public AngularVelocity getCharacterizationVelocity() {
+    return Units.RadiansPerSecond.of(inputs.driveVelocityRadPerSec);
   }
 
-  public double getAppliedVoltage() {
-    return inputs.driveAppliedVolts;
+  public Voltage getAppliedVoltage() {
+    return Units.Volts.of(inputs.driveAppliedVolts);
   }
 }

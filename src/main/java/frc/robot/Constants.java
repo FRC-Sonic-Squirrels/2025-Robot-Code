@@ -18,7 +18,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team6328.Alert;
 import frc.lib.team6328.Alert.AlertType;
+import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.commands.ScoreCoral.ScoringSide;
 import frc.robot.configs.RobotConfig;
 import frc.robot.configs.RobotConfig2023Rober;
 import frc.robot.configs.RobotConfig2024Maestro;
@@ -54,7 +56,7 @@ public final class Constants {
   }
 
   public static class RobotMode {
-    private static final RobotType ROBOT = RobotType.ROBOT_2025;
+    private static final RobotType ROBOT = RobotType.ROBOT_2024_RETIRED_MAESTRO;
 
     private static final Alert invalidRobotAlert =
         new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -84,7 +86,7 @@ public final class Constants {
         return RobotType.ROBOT_SIMBOT;
       }
 
-      if (ROBOT != RobotType.ROBOT_2024_RETIRED_MAESTRO || ROBOT != RobotType.ROBOT_2025) {
+      if (ROBOT != RobotType.ROBOT_2024_RETIRED_MAESTRO && ROBOT != RobotType.ROBOT_2025) {
         invalidRobotAlert.set(true);
         return RobotType.ROBOT_2025;
       }
@@ -121,46 +123,90 @@ public final class Constants {
 
   public static double MAX_VOLTAGE = 12.0;
 
-  public static class FieldConstants { // TODO: check all constants for new season
-    // official Field dimensions
-    public static double FIELD_LENGTH = 16.541;
-    public static double FIELD_WIDTH = 8.211;
+  public static class RobotDimensions {
+    public static Distance BUMPER_THICKNESS = Units.Inches.of(5.25);
 
-    // FIXME: double check this number
-    public static final Distance TARGET_HEIGHT = Units.Inches.of(6 * 12.0 + 12.5);
-
-    // TODO: move to right
-    public static final Translation2d BLUE_TARGET_TRANSLATION = new Translation2d(0.0, 5.6);
-    public static final Translation2d RED_TARGET_TRANSLATION =
-        AllianceFlipUtil.mirrorTranslation2DOverCenterLine(BLUE_TARGET_TRANSLATION);
-
-    public static final Translation3d BLUE_TARGET_TRANSLATION_3D =
-        new Translation3d(
-            BLUE_TARGET_TRANSLATION.getX(),
-            BLUE_TARGET_TRANSLATION.getY(),
-            TARGET_HEIGHT.in(Units.Meters));
-
-    public static final Translation3d RED_TARGET_TRANSLATION_3D =
-        new Translation3d(
-            RED_TARGET_TRANSLATION.getX(),
-            RED_TARGET_TRANSLATION.getY(),
-            TARGET_HEIGHT.in(Units.Meters));
-
-    public static Translation2d getTargetTranslation() {
-      return isRedAlliance() ? RED_TARGET_TRANSLATION : BLUE_TARGET_TRANSLATION;
+    /**
+     * x = left to right
+     *
+     * <p>y = front to back
+     */
+    public static Translation2d ROBOT_DIMENSIONS_WITHOUT_BUMPERS() {
+      if (RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
+        return new Translation2d(Units.Inches.of(27.0), Units.Inches.of(27.0));
+      } else {
+        return new Translation2d(Units.Inches.of(28.0), Units.Inches.of(30.0));
+      }
     }
 
-    public static Translation3d getTargetTranslation3D() {
-      return isRedAlliance() ? RED_TARGET_TRANSLATION_3D : BLUE_TARGET_TRANSLATION_3D;
+    /**
+     * x = left to right
+     *
+     * <p>y = front to back
+     */
+    public static Translation2d ROBOT_DIMENSIONS_WITH_BUMPERS =
+        ROBOT_DIMENSIONS_WITHOUT_BUMPERS()
+            .plus(new Translation2d(BUMPER_THICKNESS.times(2.0), BUMPER_THICKNESS.times(2.0)));
+  }
+
+  public static class FieldConstants {
+    // official Field dimensions from game manual
+    public static Distance FIELD_LENGTH = Units.Inches.of(690.875);
+    public static Distance FIELD_WIDTH = Units.Inches.of(317.0);
+
+    public static Distance REEF_DIST_FROM_WALL = Units.Inches.of(144.0);
+
+    public static Distance REEF_WIDTH = Units.Inches.of(65.5);
+
+    public static Pose2d BLUE_NEAR_CENTER_SCORING_LOCATION =
+        new Pose2d(
+            REEF_DIST_FROM_WALL.minus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY()),
+            FIELD_WIDTH.div(2.0),
+            zeroRotation2d);
+
+    public static Translation2d BLUE_REEF_CENTER_POSE =
+        new Translation2d(REEF_DIST_FROM_WALL.plus(REEF_WIDTH.div(2.0)), FIELD_WIDTH.div(2.0));
+
+    public static Distance REEF_BRANCH_OFFSET = Units.Inches.of(6.5);
+
+    private static ScoringSide[] BLUE_SCORING_SIDE_ORDER = {
+      ScoringSide.NEAR_MID,
+      ScoringSide.NEAR_LEFT,
+      ScoringSide.FAR_LEFT,
+      ScoringSide.FAR_MID,
+      ScoringSide.FAR_RIGHT,
+      ScoringSide.NEAR_RIGHT
+    };
+    private static ScoringSide[] RED_SCORING_SIDE_ORDER = {
+      ScoringSide.FAR_MID,
+      ScoringSide.FAR_LEFT,
+      ScoringSide.NEAR_LEFT,
+      ScoringSide.NEAR_MID,
+      ScoringSide.NEAR_RIGHT,
+      ScoringSide.FAR_RIGHT
+    };
+
+    public static ScoringSideWithPose[] SCORING_SIDES() {
+      ScoringSideWithPose[] poses = new ScoringSideWithPose[6];
+      for (int i = 0; i < poses.length; i++) {
+        Rotation2d angle = Rotation2d.fromRotations(i / 6.0);
+        Translation2d offset =
+            new Translation2d(
+                REEF_WIDTH
+                    .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY())
+                    .div(2.0)
+                    .in(Units.Meters),
+                angle.plus(Rotation2d.k180deg));
+        poses[i] =
+            new ScoringSideWithPose(
+                AllianceFlipUtil.flipPoseForAlliance(
+                    new Pose2d(BLUE_REEF_CENTER_POSE.plus(offset), angle.plus(Rotation2d.k180deg))),
+                isRedAlliance() ? RED_SCORING_SIDE_ORDER[i] : BLUE_SCORING_SIDE_ORDER[i]);
+      }
+      return poses;
     }
 
-    public static Distance getDistanceToTarget(Pose2d pose) {
-      var targetTranslation = FieldConstants.getTargetTranslation();
-      var targetDx = targetTranslation.getX() - pose.getX();
-      var targetDy = targetTranslation.getY() - pose.getY();
-
-      return Units.Meters.of(Math.hypot(targetDx, targetDy));
-    }
+    public record ScoringSideWithPose(Pose2d pose, ScoringSide side) {}
 
     public static class Gamepieces {
       // TODO: add specific gamepiece dimensions for new season
@@ -169,13 +215,6 @@ public final class Constants {
       public static final Distance GAMEPIECE_TOLERANCE = Units.Inches.of(20.0);
       public static final double GAMEPIECE_PERSISTENCE = 0.5;
     }
-
-    public static final Distance TARGET_GOAL_LENGTH = Units.Inches.of(19);
-
-    /** distance from bottom of opening to bottom lip of the upper guard */
-    public static final Distance TARGET_GOAL_HEIGHT = Units.Inches.of(6.0);
-
-    public static final Distance TARGET_GOAL_WIDTH = Units.Inches.of(41);
   }
 
   public static class MotorConstants {
@@ -220,15 +259,21 @@ public final class Constants {
             / (Math.PI * Constants.ElevatorConstants.PULLEY_DIAMETER.in(Units.Inches));
 
     public static final Distance MAX_HEIGHT = Units.Inches.of(26.2);
-    public static final Distance MAX_LEGAL_HEIGHT = Units.Inches.of(26.2); // FIXME
     public static final Distance TRUE_TOP_HARD_STOP = Units.Inches.of(26.5);
 
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
     public static final Distance HOME_POSITION = Units.Inches.of(7.35);
-    public static final Distance LOADING_POSITION = Units.Inches.of(7.35); // was 7.5
     public static final String ROOT_TABLE = "Elevator";
+
+    public static final InterpolatingDoubleTreeMap SPEED_SCALAR_MAP =
+        new InterpolatingDoubleTreeMap();
+
+    static {
+      SPEED_SCALAR_MAP.put(HOME_POSITION.in(Units.Inch), 1.0);
+      SPEED_SCALAR_MAP.put(MAX_HEIGHT.in(Units.Inch), 0.5);
+    }
   }
 
   public static class LEDConstants { // TODO: check all constants for new season

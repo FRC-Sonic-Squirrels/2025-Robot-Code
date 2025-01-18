@@ -8,6 +8,9 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -167,11 +170,11 @@ public class Arm extends SubsystemBase {
     return isAtTargetAngle(target, Rotation2d.fromDegrees(toleranceDegrees.get()));
   }
 
-  public double getVoltage() {
-    return inputs.armAppliedVolts;
+  public Voltage getVoltage() {
+    return Units.Volts.of(inputs.armAppliedVolts);
   }
 
-  public double getVelocity() {
-    return inputs.armVelocityDegreesPerSecond;
+  public AngularVelocity getVelocity() {
+    return Units.DegreesPerSecond.of(inputs.armVelocityDegreesPerSecond);
   }
 }

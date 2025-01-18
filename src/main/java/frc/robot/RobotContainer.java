@@ -28,16 +28,21 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.lib.team2930.RunStateMachineCommand;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
+import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
-import frc.robot.commands.elevator.ElevatorSetHeight;
 import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
+import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -321,7 +326,12 @@ public class RobotContainer {
       }
     }
 
-    drivetrainWrapper = new DrivetrainWrapper(drivetrain);
+    drivetrainWrapper =
+        new DrivetrainWrapper(
+            drivetrain,
+            () ->
+                Constants.ElevatorConstants.SPEED_SCALAR_MAP.get(
+                    elevator.getHeight().in(Units.Inches)));
 
     // FIXME: uncomment and fix if we want to use path planner swerve
     // FIXME: remove once we are happy with path planner based swerve
@@ -412,6 +422,51 @@ public class RobotContainer {
                       led.setRobotState(RobotState.BASE);
                     }));
 
+    driverController
+        .leftTrigger()
+        .whileTrue(
+            new RunStateMachineCommand(
+                () -> new ScoreCoral(drivetrainWrapper, elevator, arm, ScoringDirection.LEFT)));
+
+    driverController
+        .rightTrigger()
+        .whileTrue(
+            new RunStateMachineCommand(
+                () -> new ScoreCoral(drivetrainWrapper, elevator, arm, ScoringDirection.RIGHT)));
+
+    driverController.a().whileTrue(MechanismActions.stowPosition(elevator, arm));
+
+    // Change scoring height
+
+    driverController
+        .y()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L4;
+                }));
+    driverController
+        .x()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L3;
+                }));
+    driverController
+        .a()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L2;
+                }));
+    driverController
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L1;
+                }));
+
     // ---------- OPERATOR CONTROLS -----------
 
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
@@ -419,6 +474,32 @@ public class RobotContainer {
 
     twenty_Second_Warning.onTrue(
         new LedSetStateForSeconds(led, RobotState.TWENTY_SECOND_WARNING, 0.5));
+
+    // Toggle clearing algae
+
+    operatorController
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.clearingAglae = true;
+                }));
+    operatorController
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.clearingAglae = false;
+                }));
+
+    // ---------- ON-ROBOT CONTROLS ------------
+
+    homeSensorsButtonTrigger.onTrue(
+        new RunsWhenDisabledInstantCommand(
+            () -> {
+              elevator.resetSensorToHomePosition();
+              arm.resetSensorToHomePosition();
+            }));
 
     // Add Reset and Reboot buttons to SmartDashboard
     // TODO: add correct vision addresses

@@ -36,7 +36,7 @@ public class ArmIOSim implements ArmIO {
     armSim.update(Constants.kDefaultPeriod);
 
     inputs.armPosition = new Rotation2d(armSim.getPosition().in(Units.Radian));
-    inputs.armAppliedVolts = armSim.getVoltage();
+    inputs.armAppliedVolts = armSim.getVoltage().in(Units.Volts);
     inputs.armVelocityDegreesPerSecond = armSim.getVelocity().in(Units.DegreesPerSecond);
   }
 

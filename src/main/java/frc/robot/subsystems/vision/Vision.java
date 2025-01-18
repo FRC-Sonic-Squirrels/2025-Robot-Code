@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
@@ -105,6 +106,8 @@ public class Vision extends SubsystemBase {
   private int useMaxDistanceAwayFromExistingEstimateCount;
   private int useGyroBasedFilteringForVisionCount;
 
+  private TagOffset[] tagOffsets;
+
   public Vision(
       AprilTagFieldLayout aprilTagLayout,
       Supplier<Pose2d> poseEstimatorPoseSupplier,
@@ -117,8 +120,8 @@ public class Vision extends SubsystemBase {
     this.currentGyroBasedRobotRotationSupplier = currentGyroBasedRobotRotationSupplier;
     this.aprilTagLayout = aprilTagLayout;
 
-    for (VisionModuleConfiguration config : visionModuleConfigs) {
-      visionModules.add(new VisionModule(logGroup, config, aprilTagLayout));
+    for (int i = 0; i < visionModuleConfigs.length; i++) {
+      visionModules.add(new VisionModule(logGroup, visionModuleConfigs[i], aprilTagLayout, i));
     }
 
     aprilTagLayout.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, -1.0));
@@ -129,6 +132,11 @@ public class Vision extends SubsystemBase {
       allTagsArray[i] = allTagsList.get(i).pose;
     }
     logAllAprilTags3D.info(allTagsArray);
+
+    tagOffsets = new TagOffset[visionModuleConfigs.length];
+    for (int i = 0; i < visionModuleConfigs.length; i++) {
+      tagOffsets[i] = new TagOffset(-1, frc.robot.Constants.zeroTranslation2d);
+    }
   }
 
   @Override
@@ -161,7 +169,7 @@ public class Vision extends SubsystemBase {
       // log all vision module's logged fields
       var robotPose = new Pose3d(poseEstimatorPoseSupplier.get());
       for (VisionModule visionModule : visionModules) {
-        visionModule.log(robotPose);
+        visionModule.log(robotPose, tagOffsets[visionModule.id].offset);
       }
 
       // activate alerts if camera is not connected
@@ -212,10 +220,11 @@ public class Vision extends SubsystemBase {
       currentResultTimeStampCTRETime = visionModule.visionIOInputs.lastTimestampCTRETime;
     }
 
-    if (visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime
-        >= currentResultTimeStampCTRETime) {
-      return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.NOT_A_NEW_RESULT);
-    }
+    // TODO: fix and uncomment this!!!!!!!!!!!!
+    // if (visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime
+    //     >= currentResultTimeStampCTRETime) {
+    //   return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.NOT_A_NEW_RESULT);
+    // }
 
     visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime = currentResultTimeStampCTRETime;
 
@@ -240,12 +249,24 @@ public class Vision extends SubsystemBase {
     if (numTargetsSeen == 1) {
       PhotonTrackedTarget singularTag = cameraResult.getTargets().get(0);
 
+      tagOffsets[visionModule.id] =
+          new TagOffset(
+              singularTag.fiducialId, new Translation2d(singularTag.yaw, singularTag.pitch));
+
       if (!isValidTarget(singularTag)) {
         return (singularTag.getPoseAmbiguity() > maxSingleTargetAmbiguity.get())
             ? VisionResultLoggedFields.unsuccessfulResult(
                 VisionResultStatus.INVALID_TAG_AMBIGUITY_TOO_HIGH)
             : VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.INVALID_TAG);
       }
+    } else {
+      PhotonTrackedTarget bestTarget = new PhotonTrackedTarget();
+      for (PhotonTrackedTarget result : cameraResult.getTargets()) {
+        if (result.area > bestTarget.area) bestTarget = result;
+      }
+
+      tagOffsets[visionModule.id] =
+          new TagOffset(bestTarget.fiducialId, new Translation2d(bestTarget.yaw, bestTarget.pitch));
     }
 
     var photonPoseEstimatorOptionalResult = visionModule.photonPoseEstimator.update(cameraResult);
@@ -374,7 +395,7 @@ public class Vision extends SubsystemBase {
         xyStandardDeviation,
         thetaStandardDeviation,
         newCalculatedRobotPose,
-        timestampedVisionUpdate.tags().toArray(new Integer[timestampedVisionUpdate.tags().size()]));
+        timestampedVisionUpdate.tags().toArray(new Short[timestampedVisionUpdate.tags().size()]));
   }
 
   public boolean isValidTarget(PhotonTrackedTarget target) {
@@ -426,4 +447,10 @@ public class Vision extends SubsystemBase {
     } catch (Exception ignored) {
     }
   }
+
+  public TagOffset[] getTagOffsets() {
+    return tagOffsets;
+  }
+
+  public record TagOffset(int tagID, Translation2d offset) {}
 }

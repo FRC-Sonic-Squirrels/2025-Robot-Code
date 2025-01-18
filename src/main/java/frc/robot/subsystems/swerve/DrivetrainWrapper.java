@@ -4,10 +4,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import java.util.function.DoubleSupplier;
 
 public class DrivetrainWrapper {
 
@@ -22,12 +25,15 @@ public class DrivetrainWrapper {
   private static final LoggerEntry.Decimal logGyroDrift = logGroup.buildDecimal("gyroDrift");
 
   private final Drivetrain drivetrain;
+  private final DoubleSupplier baseSpeedScalar;
+
   private ChassisSpeeds chassisSpeedsBase = new ChassisSpeeds();
   private ChassisSpeeds chassisSpeedsOverride;
   private double omegaOverride = Double.NaN;
 
-  public DrivetrainWrapper(Drivetrain drivetrain) {
+  public DrivetrainWrapper(Drivetrain drivetrain, DoubleSupplier baseSpeedScalar) {
     this.drivetrain = drivetrain;
+    this.baseSpeedScalar = baseSpeedScalar;
   }
 
   /** Updated periodically, updates swerve state. */
@@ -45,7 +51,7 @@ public class DrivetrainWrapper {
     if (chassisSpeedsOverride != null) {
       chassisSpeeds = chassisSpeedsOverride;
     } else {
-      chassisSpeeds = chassisSpeedsBase;
+      chassisSpeeds = chassisSpeedsBase.times(baseSpeedScalar.getAsDouble());
     }
 
     boolean prioritizeRotation;
@@ -125,12 +131,12 @@ public class DrivetrainWrapper {
     return drivetrain.getVisionStaleness();
   }
 
-  public double getMaxLinearSpeedMetersPerSec() {
-    return drivetrain.getMaxLinearSpeedMetersPerSec();
+  public LinearVelocity getMaxLinearSpeed() {
+    return Units.MetersPerSecond.of(drivetrain.getMaxLinearSpeedMetersPerSec());
   }
 
-  public double getMaxAngularSpeedRadPerSec() {
-    return drivetrain.getMaxAngularSpeedRadPerSec();
+  public AngularVelocity getMaxAngularSpeed() {
+    return Units.RadiansPerSecond.of(drivetrain.getMaxAngularSpeedRadPerSec());
   }
 
   public Pose2d getFieldRelativeVelocities() {

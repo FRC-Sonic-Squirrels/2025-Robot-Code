@@ -16,6 +16,7 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix6.BaseStatusSignal;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.AngularVelocity;
 import java.util.List;
 
 public class SwerveModules {
@@ -58,14 +59,15 @@ public class SwerveModules {
     back_right.runCharacterization(volts);
   }
 
-  public double getCharacterizationVelocity() {
-    double driveVelocityAverage =
-        front_left.getCharacterizationVelocity()
-            + front_right.getCharacterizationVelocity()
-            + back_left.getCharacterizationVelocity()
-            + back_right.getCharacterizationVelocity();
+  public AngularVelocity getCharacterizationVelocity() {
+    AngularVelocity driveVelocityAverage =
+        front_left
+            .getCharacterizationVelocity()
+            .plus(front_right.getCharacterizationVelocity())
+            .plus(back_left.getCharacterizationVelocity())
+            .plus(back_right.getCharacterizationVelocity());
 
-    return driveVelocityAverage / 4;
+    return driveVelocityAverage.div(4);
   }
 
   public void registerSignalForOdometry(List<BaseStatusSignal> signals) {
