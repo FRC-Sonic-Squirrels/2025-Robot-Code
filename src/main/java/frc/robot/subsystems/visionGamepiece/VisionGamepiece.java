@@ -258,7 +258,7 @@ public class VisionGamepiece extends SubsystemBase {
 
     return Units.Meters.of(
         (Constants.VisionGamepieceConstants.GAMEPIECE_CAMERA_POSE.getZ()
-                    - Constants.FieldConstants.Gamepieces.GAMEPIECE_HEIGHT.in(Units.Inch))
+                    - Constants.FieldConstants.Gamepieces.GAMEPIECE_HEIGHT.in(Units.Meters))
                 * Math.tan(targetPitch.getRadians())
             + Units.Inches.of(fudgeFromYaw).in(Units.Meter)
             + Units.Inches.of(fudgeFromPitch).in(Units.Meter));

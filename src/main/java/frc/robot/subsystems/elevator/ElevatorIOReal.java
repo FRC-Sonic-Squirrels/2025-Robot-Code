@@ -97,7 +97,7 @@ public class ElevatorIOReal implements ElevatorIO {
     inputs.refreshAll(refreshSet);
 
     inputs.heightInches =
-            rotorPosition.getValue().in(Units.Rotations) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
+        rotorPosition.getValue().in(Units.Rotations) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
     inputs.velocityInchesPerSecond =
         rotorVelocity.getValue().in(Units.RPM) / ElevatorConstants.INCHES_TO_MOTOR_ROT;
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);

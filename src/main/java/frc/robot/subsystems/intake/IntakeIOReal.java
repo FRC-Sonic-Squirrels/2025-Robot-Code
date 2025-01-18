@@ -73,10 +73,10 @@ public class IntakeIOReal implements IntakeIO {
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    inputs.currentAmps = current.getValueAsDouble();
-    inputs.tempCelsius = deviceTemp.getValueAsDouble();
-    inputs.appliedVolts = appliedVoltage.getValueAsDouble();
-    inputs.velocityRPM = velocity.getValueAsDouble();
+    inputs.currentAmps = current.getValue().in(Units.Amps);
+    inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
+    inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
+    inputs.velocityRPM = velocity.getValue().in(Units.RPM);
   }
 
   @Override

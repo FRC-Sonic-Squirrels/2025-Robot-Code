@@ -127,7 +127,7 @@ public class Intake extends SubsystemBase {
     return Units.Amps.of(inputs.currentAmps);
   }
 
-  public AngularVelocity getRPM() {
+  public AngularVelocity getVelocity() {
     return Units.RPM.of(inputs.velocityRPM);
   }
 }

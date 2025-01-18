@@ -17,7 +17,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.AngularVelocity;
-
 import java.util.List;
 
 public class SwerveModules {
@@ -62,10 +61,11 @@ public class SwerveModules {
 
   public AngularVelocity getCharacterizationVelocity() {
     AngularVelocity driveVelocityAverage =
-        front_left.getCharacterizationVelocity().plus(
-            front_right.getCharacterizationVelocity()).plus(
-            back_left.getCharacterizationVelocity()).plus(
-            back_right.getCharacterizationVelocity());
+        front_left
+            .getCharacterizationVelocity()
+            .plus(front_right.getCharacterizationVelocity())
+            .plus(back_left.getCharacterizationVelocity())
+            .plus(back_right.getCharacterizationVelocity());
 
     return driveVelocityAverage.div(4);
   }
