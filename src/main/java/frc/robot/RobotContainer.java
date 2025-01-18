@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -48,6 +49,7 @@ import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.intake.IntakeGamepiece;
+import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
 import frc.robot.configs.SimulatorRobotConfig;
@@ -431,7 +433,14 @@ public class RobotContainer {
 
     driverController
         .rightBumper()
-        .whileTrue(new IntakeGamepiece(intake, arm, elevator, endEffector))
+        .whileTrue(
+            new IntakeGamepiece(intake, arm, elevator, endEffector, true)
+                .finallyDo(
+                    (interrupted) -> {
+                      if (!interrupted)
+                        CommandScheduler.getInstance()
+                            .schedule(new LedSetStateForSeconds(led, RobotState.INTAKE_SUCCESS, 1));
+                    }))
         .whileTrue(
             Commands.run(
                     () -> {
