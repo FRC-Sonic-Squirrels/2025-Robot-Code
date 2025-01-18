@@ -4,6 +4,7 @@
 
 package frc.robot.commands.intake;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -21,14 +22,17 @@ public class IntakeGamepiece extends Command {
   private final Arm arm;
   private final Elevator elevator;
   private final EndEffector endEffector;
+  private final Boolean intakeGround;
 
   /** Creates a new IntakeDefaultIdleRPM. */
-  public IntakeGamepiece(Intake intake, Arm arm, Elevator elevator, EndEffector endEffector) {
+  public IntakeGamepiece(
+      Intake intake, Arm arm, Elevator elevator, EndEffector endEffector, Boolean intakeGround) {
     // TODO: add subsystems
     this.intake = intake;
     this.arm = arm;
     this.elevator = elevator;
     this.endEffector = endEffector;
+    this.intakeGround = intakeGround;
     // TODO: add subsystem requirements
     addRequirements(intake);
     addRequirements(intake);
@@ -45,8 +49,29 @@ public class IntakeGamepiece extends Command {
     var rumbleValue = rumbleIntensityPercent.get();
 
     // TODO: add logic to intake gamepiece
-    intake.setVelocity(intakingVelocity.get());
-    endEffector.setVelocity(intakingVelocity.get());
+    // TODO: add proper degrees for both human player and ground intake variants
+    if (!intakeGround) {
+      arm.setAngle(Rotation2d.fromDegrees(55));
+      if (!(arm.getAngle().getDegrees() > 53) && !(arm.getAngle().getDegrees() < 57)) {
+        intake.setVelocity(0.0);
+        endEffector.setVelocity(0.0);
+      } else {
+        intake.setVelocity(intakingVelocity.get());
+        arm.setAngle(Rotation2d.fromDegrees(135));
+        endEffector.setVelocity(intakingVelocity.get());
+      }
+
+    } else {
+      arm.setAngle(Rotation2d.fromDegrees(0));
+      if (!(arm.getAngle().getDegrees() < 3)) {
+        intake.setVelocity(0.0);
+        endEffector.setVelocity(0.0);
+      } else {
+        intake.setVelocity(intakingVelocity.get());
+        arm.setAngle(Rotation2d.fromDegrees(135));
+        endEffector.setVelocity(intakingVelocity.get());
+      }
+    }
   }
 
   // Called once the command ends or is interrupted.
