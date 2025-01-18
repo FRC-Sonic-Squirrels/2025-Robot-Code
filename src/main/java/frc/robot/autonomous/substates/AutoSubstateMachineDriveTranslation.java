@@ -43,6 +43,7 @@ public class AutoSubstateMachineDriveTranslation extends AutoSubstateMachine {
   }
 
   private StateHandler initDriveToGamepiece() {
+    intakeCommand = new IntakeGamepiece(null, null, null, null, true);
     intakeCommand = new IntakeGamepiece(null, null, null, null, false);
     intakeCommand.schedule();
 
