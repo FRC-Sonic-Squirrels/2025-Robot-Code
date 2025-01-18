@@ -840,7 +840,7 @@ public class RobotContainer {
     logL2State.info(level == ScoringLevel.L2);
     logL3State.info(level == ScoringLevel.L3);
     logL4State.info(level == ScoringLevel.L4);
-    logAlgaeClearingState.info(RobotStates.clearingAglae);
+    logAlgaeClearingState.info(RobotStates.clearingAlgae);
     logGamepieceInRobotState.info(RobotStates.coralInRobot);
     logGamepieceInIntakeState.info(RobotStates.coralInIntake);
     logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
