@@ -431,7 +431,7 @@ public class RobotContainer {
 
     driverController
         .rightBumper()
-        .whileTrue(new IntakeGamepiece())
+        .whileTrue(new IntakeGamepiece(intake, arm, elevator, endEffector))
         .whileTrue(
             Commands.run(
                     () -> {
