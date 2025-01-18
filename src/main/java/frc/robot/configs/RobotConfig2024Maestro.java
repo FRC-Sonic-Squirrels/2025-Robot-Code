@@ -136,17 +136,17 @@ public class RobotConfig2024Maestro extends RobotConfig {
       new Transform3d(
           new Translation3d(
               Units.Inches.of(-12.25).in(Units.Meters),
-              Units.Inches.of(-6.625).in(Units.Meters),
+              Units.Inches.of(-8.25).in(Units.Meters),
               Units.Inches.of(10).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(180.0)));
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(150.0)));
 
   public static final Transform3d SHOOTER_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
               Units.Inches.of(-12.25).in(Units.Meters),
-              Units.Inches.of(6.625).in(Units.Meters),
+              Units.Inches.of(8.25).in(Units.Meters),
               Units.Inches.of(10).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(180.0)));
+          new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(210.0)));
 
   public static final Transform3d INTAKE_SIDE_LEFT =
       new Transform3d(
