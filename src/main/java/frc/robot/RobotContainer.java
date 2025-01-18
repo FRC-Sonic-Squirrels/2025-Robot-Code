@@ -329,7 +329,9 @@ public class RobotContainer {
     drivetrainWrapper =
         new DrivetrainWrapper(
             drivetrain,
-            () -> Constants.ElevatorConstants.SPEED_SCALAR_MAP.get(elevator.getHeightInches()));
+            () ->
+                Constants.ElevatorConstants.SPEED_SCALAR_MAP.get(
+                    elevator.getHeight().in(Units.Inches)));
 
     // FIXME: uncomment and fix if we want to use path planner swerve
     // FIXME: remove once we are happy with path planner based swerve

@@ -54,8 +54,9 @@ public class HomeMechanism extends Command {
     if (armReset) {
       if (!elevatorReset) {
         elevator.setPercentOut(homingVoltageElevator.get());
-        if (Math.abs(elevator.getVoltage()) >= Math.abs(homingVoltageElevator.get()) / 2.0
-            && Math.abs(elevator.getVelocityInchesPerSecond())
+        if (Math.abs(elevator.getVoltage().in(Units.Volts))
+                >= Math.abs(homingVoltageElevator.get()) / 2.0
+            && Math.abs(elevator.getVelocity().in(Units.InchesPerSecond))
                 <= homingVelocityMaxToResetElevator.get()) {
           elevator.resetSensorToHomePosition();
           elevatorReset = true;
