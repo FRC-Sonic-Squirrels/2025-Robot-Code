@@ -74,7 +74,7 @@ public class MechanismActions {
             MechanismPosition targetPosition = position.get();
             Distance safeHeight = Constants.ElevatorConstants.SAFE_HEIGHT;
             boolean runningArm =
-                elevator.getHeightInches()
+                elevator.getHeight().in(Units.Inches)
                         >= safeHeight.minus(Units.Inches.of(1.0)).in(Units.Inches)
                     || (arm.getAngle().getRadians()
                             > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()

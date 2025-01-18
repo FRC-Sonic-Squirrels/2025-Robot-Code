@@ -54,8 +54,10 @@ public class HomeMechanism extends Command {
     if (armReset) {
       if (!elevatorReset) {
         elevator.setPercentOut(homingVoltageElevator.get());
-        if (Math.abs(elevator.getVoltage()) >= Math.abs(homingVoltageElevator.get()) / 2.0
-            && Math.abs(elevator.getVelocity()) <= homingVelocityMaxToResetElevator.get()) {
+        if (Math.abs(elevator.getVoltage().in(Units.Volts))
+                >= Math.abs(homingVoltageElevator.get()) / 2.0
+            && Math.abs(elevator.getVelocity().in(Units.InchesPerSecond))
+                <= homingVelocityMaxToResetElevator.get()) {
           elevator.resetSensorToHomePosition();
           elevatorReset = true;
         }
@@ -63,8 +65,9 @@ public class HomeMechanism extends Command {
     } else {
       if (beginHomingArm) {
         arm.setVoltage(homingVoltageArm.get());
-        if (Math.abs(arm.getVoltage()) >= Math.abs(homingVoltageArm.get()) / 2.0
-            && Math.abs(arm.getVelocity()) <= homingVelocityMaxToResetArm.get()) {
+        if (Math.abs(arm.getVoltage().in(Units.Volts)) >= Math.abs(homingVoltageArm.get()) / 2.0
+            && Math.abs(arm.getVelocity().in(Units.DegreesPerSecond))
+                <= homingVelocityMaxToResetArm.get()) {
           arm.resetSensorToHomePosition();
           armReset = true;
         }
