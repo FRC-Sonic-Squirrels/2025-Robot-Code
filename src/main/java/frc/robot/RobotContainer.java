@@ -15,6 +15,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -471,7 +472,7 @@ public class RobotContainer {
                         ScoringDirection.RIGHT,
                         (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
-    driverController.povRight().onTrue(MechanismActions.coralStationPosition(elevator, arm));
+    // driverController.povRight().onTrue(MechanismActions.coralStationPosition(elevator, arm));
     driverController
         .povLeft()
         .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
@@ -498,72 +499,38 @@ public class RobotContainer {
             new RotateToAngle(
                 drivetrainWrapper,
                 () -> {
-                  Pose2d currentRobotPose = new Pose2d(null, null, null);
-
-                  Pose2d aprilTag6 = new Pose2d(530.49, 130.17, Rotation2d.fromDegrees(300));
-                  Pose2d aprilTag7 = new Pose2d(546.87, 158.50, Rotation2d.fromDegrees(0));
-                  Pose2d aprilTag8 = new Pose2d(530.49, 186.83, Rotation2d.fromDegrees(60));
-                  Pose2d aprilTag9 = new Pose2d(497.77, 186.83, Rotation2d.fromDegrees(120));
-                  Pose2d aprilTag10 = new Pose2d(481.39, 158.50, Rotation2d.fromDegrees(180));
-                  Pose2d aprilTag11 = new Pose2d(497.77, 130.17, Rotation2d.fromDegrees(240));
-
-                  Pose2d aprilTag17 = new Pose2d(160.39, 130.17, Rotation2d.fromDegrees(240));
-                  Pose2d aprilTag18 = new Pose2d(144.00, 158.50, Rotation2d.fromDegrees(180));
-                  Pose2d aprilTag19 = new Pose2d(160.39, 186.83, Rotation2d.fromDegrees(120));
-                  Pose2d aprilTag20 = new Pose2d(193.10, 186.83, Rotation2d.fromDegrees(60));
-                  Pose2d aprilTag21 = new Pose2d(209.49, 158.50, Rotation2d.fromDegrees(0));
-                  Pose2d aprilTag22 = new Pose2d(193.10, 130.17, Rotation2d.fromDegrees(300));
+                  var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
                   Pose2d[] reefAprilTagPose = {
-                    aprilTag6,
-                    aprilTag7,
-                    aprilTag8,
-                    aprilTag9,
-                    aprilTag10,
-                    aprilTag11,
-                    aprilTag17,
-                    aprilTag18,
-                    aprilTag19,
-                    aprilTag20,
-                    aprilTag21,
-                    aprilTag22
+                    layout.getTagPose(6).get().toPose2d(),
+                    layout.getTagPose(7).get().toPose2d(),
+                    layout.getTagPose(8).get().toPose2d(),
+                    layout.getTagPose(9).get().toPose2d(),
+                    layout.getTagPose(10).get().toPose2d(),
+                    layout.getTagPose(11).get().toPose2d(),
+                    layout.getTagPose(17).get().toPose2d(),
+                    layout.getTagPose(18).get().toPose2d(),
+                    layout.getTagPose(19).get().toPose2d(),
+                    layout.getTagPose(20).get().toPose2d(),
+                    layout.getTagPose(21).get().toPose2d(),
+                    layout.getTagPose(22).get().toPose2d()
                   };
 
-                  double[] distanceToReef = new double[6];
-
-                  Translation2d robotTranslation =
-                      new Translation2d(currentRobotPose.getX(), currentRobotPose.getY());
+                  Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
 
                   Pose2d nearestAprilTag = null;
                   nearestAprilTag = FindNearestAprilTag(robotTranslation, reefAprilTagPose);
-                  /*if (Constants.isRedAlliance()) {
-                                      for (int i = 0; i < 6; i++) {
-                                        Translation2d aprilTag = reefAprilTagPose[i].getTranslation();
-                                        double distance = robotTranslation.getDistance(aprilTag);
-                                        if (distance < minDistance) {
-                                          minDistance = distance;
-                                          nearestAprilTag = reefAprilTagPose[i];
-                                        }
-                                      }
-
-                                    } else {
-                                      for (int i = 6; i < 12; i++) {
-                                        Translation2d aprilTag = reefAprilTagPose[i].getTranslation();
-                                        double distance = robotTranslation.getDistance(aprilTag);
-                                        if (distance < minDistance) {
-                                          minDistance = distance;
-                                          nearestAprilTag = reefAprilTagPose[i];
-                                        }
-                                      }
-                                    }
-                  */
 
                   Rotation2d finalRotationValue =
                       nearestAprilTag.getRotation().rotateBy(Rotation2d.k180deg);
 
+                  if (Constants.unusedCode) {
+                    System.out.printf("Angle: %f\n", finalRotationValue.getDegrees());
+                  }
+
                   return finalRotationValue;
                 },
-                drivetrainWrapper.getPoseEstimatorPose(true)));
+                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
 
     // Change clearing algae
 
@@ -676,21 +643,32 @@ public class RobotContainer {
   }
 
   //////// function for finding nearest april tag position.
-  public static Pose2d FindNearestAprilTag(
-      Translation2d robotTranslation, Pose2d[] reefAprilTagPose) {
+  public static Pose2d FindNearestAprilTag(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
     Pose2d nearestAprilTag = null;
-    int start = 0;
+    int start;
     double minDistance = 10000000000.0;
-    if (Constants.isRedAlliance() == false) {
+    if (Constants.isRedAlliance()) {
+      start = 0;
+    } else {
       start = 6;
+    }
+    if (Constants.unusedCode) {
+      System.out.printf("Robot: %s\n", robotTranslation);
     }
     for (int i = start; i < start + 6; i++) {
       Translation2d aprilTag = reefAprilTagPose[i].getTranslation();
-      double distance = robotTranslation.getDistance(aprilTag);
+      if (Constants.unusedCode) {
+        System.out.printf("Tag %d: %s\n", i, reefAprilTagPose[i]);
+      }
+
+      double distance = robotTranslation.getTranslation().getDistance(aprilTag);
       if (distance < minDistance) {
         minDistance = distance;
         nearestAprilTag = reefAprilTagPose[i];
       }
+    }
+    if (Constants.unusedCode) {
+      System.out.printf("Closest: %s\n", nearestAprilTag);
     }
 
     return nearestAprilTag;
