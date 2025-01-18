@@ -14,7 +14,6 @@ public interface ElevatorIO {
     public double appliedVolts;
     public double currentAmps;
     public double tempCelsius;
-    public double timeOfFlightDistInches;
 
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);
