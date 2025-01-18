@@ -45,10 +45,7 @@ public class ScoreCoral extends StateMachine {
       log_group.buildStruct(Pose2d.class, "ScoringPose");
 
   public ScoreCoral(
-      DrivetrainWrapper wrapper,
-      Elevator elevator,
-      Arm arm,
-      ScoringDirection scoringDirection) {
+      DrivetrainWrapper wrapper, Elevator elevator, Arm arm, ScoringDirection scoringDirection) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
@@ -58,22 +55,23 @@ public class ScoreCoral extends StateMachine {
     this.scoringDirection = scoringDirection;
     scoringSidePoseSupplier = () -> getClosestScoringSide(wrapper.getPoseEstimatorPose(true));
     scoringPose = () -> scoringSidePoseSupplier.get().pose();
-    this.scoringSideSupplier =
-        () -> scoringSidePoseSupplier.get().side();
+    this.scoringSideSupplier = () -> scoringSidePoseSupplier.get().side();
 
     setInterruptedState(stateWithName("EndState", () -> end(true)));
     setInitialState(stateWithName("PrepAlignment", () -> prepForAlignment()));
   }
 
   private StateHandler prepForAlignment() {
-    spawnCommand(new DriveToPose(wrapper, scoringPose, () -> wrapper.getPoseEstimatorPose(true)),
+    spawnCommand(
+        new DriveToPose(wrapper, scoringPose, () -> wrapper.getPoseEstimatorPose(true)),
         (command) -> {
           return algaeClearRequired()
               ? stateWithName("ClearAlgae", () -> clearAlgae())
               : stateWithName("Score", () -> score());
         });
 
-    spawnCommand(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel), (command) -> null);
+    spawnCommand(
+        MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel), (command) -> null);
 
     return stateWithName("Align", () -> align());
   }
@@ -99,7 +97,9 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler end(boolean interrupted) {
     // TODO: reset mechanism to pickup position, turn off LEDs
-    spawnCommand(MechanismActions.stowPosition(elevator, arm), (command) -> null); // potentially change to coral station position
+    spawnCommand(
+        MechanismActions.stowPosition(elevator, arm),
+        (command) -> null); // potentially change to coral station position
     return setDone();
   }
 

@@ -38,7 +38,6 @@ import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
-import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
@@ -327,7 +326,10 @@ public class RobotContainer {
       }
     }
 
-    drivetrainWrapper = new DrivetrainWrapper(drivetrain, () -> Constants.ElevatorConstants.SPEED_SCALAR_MAP.get(elevator.getHeightInches()));
+    drivetrainWrapper =
+        new DrivetrainWrapper(
+            drivetrain,
+            () -> Constants.ElevatorConstants.SPEED_SCALAR_MAP.get(elevator.getHeightInches()));
 
     // FIXME: uncomment and fix if we want to use path planner swerve
     // FIXME: remove once we are happy with path planner based swerve
@@ -422,28 +424,15 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new RunStateMachineCommand(
-                () ->
-                    new ScoreCoral(
-                        drivetrainWrapper,
-                        elevator,
-                        arm,
-                        ScoringDirection.LEFT)));
+                () -> new ScoreCoral(drivetrainWrapper, elevator, arm, ScoringDirection.LEFT)));
 
     driverController
         .rightTrigger()
         .whileTrue(
             new RunStateMachineCommand(
-                () ->
-                    new ScoreCoral(
-                        drivetrainWrapper,
-                        elevator,
-                        arm,
-                        ScoringDirection.RIGHT)));
+                () -> new ScoreCoral(drivetrainWrapper, elevator, arm, ScoringDirection.RIGHT)));
 
-    driverController
-    .a()
-    .whileTrue(
-        MechanismActions.stowPosition(elevator, arm));
+    driverController.a().whileTrue(MechanismActions.stowPosition(elevator, arm));
 
     // Change scoring height
 
@@ -504,7 +493,7 @@ public class RobotContainer {
     // ---------- ON-ROBOT CONTROLS ------------
 
     homeSensorsButtonTrigger.onTrue(
-        Commands.runOnce(
+        new RunsWhenDisabledInstantCommand(
             () -> {
               elevator.resetSensorToHomePosition();
               arm.resetSensorToHomePosition();

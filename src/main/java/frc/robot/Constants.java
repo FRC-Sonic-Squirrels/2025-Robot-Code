@@ -267,7 +267,8 @@ public final class Constants {
     public static final Distance HOME_POSITION = Units.Inches.of(7.35);
     public static final String ROOT_TABLE = "Elevator";
 
-    public static final InterpolatingDoubleTreeMap SPEED_SCALAR_MAP = new InterpolatingDoubleTreeMap();;
+    public static final InterpolatingDoubleTreeMap SPEED_SCALAR_MAP =
+        new InterpolatingDoubleTreeMap();
 
     static {
       SPEED_SCALAR_MAP.put(HOME_POSITION.in(Units.Inch), 1.0);

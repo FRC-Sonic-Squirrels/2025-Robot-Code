@@ -37,7 +37,8 @@ public class MechanismActions {
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
   public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
-    return goToPositionParallel(elevator, arm, () -> MechanismPositions.reefScorePosition(scoringLevel));
+    return goToPositionParallel(
+        elevator, arm, () -> MechanismPositions.reefScorePosition(scoringLevel));
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {
