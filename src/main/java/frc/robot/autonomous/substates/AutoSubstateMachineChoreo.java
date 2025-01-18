@@ -42,7 +42,7 @@ public class AutoSubstateMachineChoreo extends AutoSubstateMachine {
   }
 
   private StateHandler initFollowPathToGamePiece() {
-    super.intakeCommand = new IntakeGamepiece();
+    super.intakeCommand = new IntakeGamepiece(null, null, null, null);
     super.intakeCommand.schedule();
 
     if (trajToGamepiece != null) {
