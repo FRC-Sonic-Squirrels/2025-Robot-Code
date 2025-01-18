@@ -97,10 +97,10 @@ public class DrivetrainDefaultTeleopDrive extends Command {
     ChassisSpeeds chassisSpeeds =
         new ChassisSpeeds(
             correctedLinearVelocity.getX()
-                * drivetrain.getMaxLinearSpeedMetersPerSec().in(Units.MetersPerSecond),
+                * drivetrain.getMaxLinearSpeed().in(Units.MetersPerSecond),
             correctedLinearVelocity.getY()
-                * drivetrain.getMaxLinearSpeedMetersPerSec().in(Units.MetersPerSecond),
-            omega * drivetrain.getMaxAngularSpeedRadPerSec().in(Units.RadiansPerSecond));
+                * drivetrain.getMaxLinearSpeed().in(Units.MetersPerSecond),
+            omega * drivetrain.getMaxAngularSpeed().in(Units.RadiansPerSecond));
 
     drivetrain.setVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, drivetrain.getRotationGyroOnly()));

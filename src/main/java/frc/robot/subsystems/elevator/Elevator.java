@@ -149,13 +149,11 @@ public class Elevator extends SubsystemBase {
   // Getters
 
   public boolean isAtTarget() {
-    return Math.abs(targetHeight.in(Units.Inches) - inputs.heightInches)
-        <= tolerance.get();
+    return Math.abs(targetHeight.in(Units.Inches) - inputs.heightInches) <= tolerance.get();
   }
 
   public boolean isAtTarget(Distance height) {
-    return Math.abs(height.in(Units.Inches) - inputs.heightInches)
-        <= tolerance.get();
+    return Math.abs(height.in(Units.Inches) - inputs.heightInches) <= tolerance.get();
   }
 
   public Distance getHeight() {
@@ -166,8 +164,6 @@ public class Elevator extends SubsystemBase {
     return Units.Volts.of(inputs.appliedVolts);
   }
 
-  public double getVelocityInchesPerSecond() {
-    return inputs.velocityInchesPerSecond;
   public LinearVelocity getVelocity() {
     return Units.InchesPerSecond.of(inputs.velocityInchesPerSecond);
   }

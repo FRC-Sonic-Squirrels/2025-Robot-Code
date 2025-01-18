@@ -226,23 +226,23 @@ public class SwerveModule {
   }
 
   /** Returns the current drive position of the module in meters. */
-  public Distance getPositionMeters() {
+  public Distance getDrivePosition() {
     return Units.Meters.of(inputs.drivePositionRad * wheelRadius);
   }
 
   /** Returns the current drive velocity of the module in meters per second. */
-  public LinearVelocity getVelocityMetersPerSec() {
+  public LinearVelocity getVelocity() {
     return Units.MetersPerSecond.of(inputs.driveVelocityRadPerSec * wheelRadius);
   }
 
   /** Returns the module position (turn angle and drive position). */
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(getPositionMeters(), getAngle());
+    return new SwerveModulePosition(getDrivePosition(), getAngle());
   }
 
   /** Returns the module state (turn angle and drive velocity). */
   public SwerveModuleState getState() {
-    return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
+    return new SwerveModuleState(getVelocity(), getAngle());
   }
 
   /** Returns the drive velocity in radians/sec. */

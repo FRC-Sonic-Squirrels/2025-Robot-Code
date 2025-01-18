@@ -127,11 +127,11 @@ public class DrivetrainWrapper {
     return drivetrain.getVisionStaleness();
   }
 
-  public LinearVelocity getMaxLinearSpeedMetersPerSec() {
+  public LinearVelocity getMaxLinearSpeed() {
     return Units.MetersPerSecond.of(drivetrain.getMaxLinearSpeedMetersPerSec());
   }
 
-  public AngularVelocity getMaxAngularSpeedRadPerSec() {
+  public AngularVelocity getMaxAngularSpeed() {
     return Units.RadiansPerSecond.of(drivetrain.getMaxAngularSpeedRadPerSec());
   }
 
