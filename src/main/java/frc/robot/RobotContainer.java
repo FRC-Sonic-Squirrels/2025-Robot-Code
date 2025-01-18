@@ -419,7 +419,7 @@ public class RobotContainer {
             new SnapToReef(
                 vision::getTagOffsets,
                 drivetrainWrapper,
-                () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                () -> elevator.getTimeOfFlightDistanceInches(),
                 0));
     driverController
         .leftTrigger()
@@ -427,7 +427,7 @@ public class RobotContainer {
             new SnapToReef(
                 vision::getTagOffsets,
                 drivetrainWrapper,
-                () -> Units.Inches.of(elevator.getTimeOfFlightDistanceInches()),
+                () -> elevator.getTimeOfFlightDistanceInches(),
                 1));
 
     // ---------- OPERATOR CONTROLS -----------
