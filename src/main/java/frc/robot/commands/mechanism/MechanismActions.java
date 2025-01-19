@@ -38,7 +38,7 @@ public class MechanismActions {
 
   public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
     return goToPositionParallel(
-        elevator, arm, () -> MechanismPositions.reefScorePosition(scoringLevel));
+        elevator, arm, () -> MechanismPositions.reefPosition(scoringLevel));
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {
@@ -47,6 +47,22 @@ public class MechanismActions {
 
   public static Command stowPosition(Elevator elevator, Arm arm) {
     return goToPositionParallel(elevator, arm, MechanismPositions::stowPosition);
+  }
+
+  public static Command clearAlgaeLow1Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow1Position);
+  }
+
+  public static Command clearAlgaeLow2Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow2Position);
+  }
+
+  public static Command clearAlgaeHigh1Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh1Position);
+  }
+
+  public static Command clearAlgaeHigh2Position(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh2Position);
   }
 
   // TODO: Change Logic for 2025 Robot Geometry
