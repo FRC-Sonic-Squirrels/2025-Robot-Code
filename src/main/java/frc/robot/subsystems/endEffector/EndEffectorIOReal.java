@@ -57,6 +57,11 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
     motor.getConfigurator().apply(config);
 
+    // TODO: update values to reflect actual robot
+    tof.setRangeOfInterest(6, 6, 10, 10);
+
+    tof.setRangingMode(RangingMode.Short, 25);
+
     // Status signals
 
     current = motor.getStatorCurrent();
