@@ -25,6 +25,8 @@ import frc.robot.Constants.MotorConstants.KrakenConstants;
 public class EndEffectorIOReal implements EndEffectorIO {
   private TalonFX motor = new TalonFX(Constants.CanIDs.END_EFFECTOR_CAN_ID);
 
+  TimeOfFlight tof = new TimeOfFlight(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
+
   private final StatusSignal<Current> current;
   private final StatusSignal<Temperature> deviceTemp;
   private final StatusSignal<Voltage> appliedVoltage;
