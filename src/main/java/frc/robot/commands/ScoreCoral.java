@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -33,8 +34,8 @@ public class ScoreCoral extends StateMachine {
   private final Supplier<Pose2d> scoringPose;
 
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
-  private static final LoggedTunableNumber usePoseForAlignment =
-      group.build("usePoseForAlignment", 1);
+  private static final LoggedTunableNumber distToRaiseMech =
+      group.build("DistToRaiseMechMeters", 1);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -62,6 +63,10 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler prepForAlignment() {
+    if(!RobotStates.coralInEndEffector){
+      return stateWithName("End", () -> end(true));
+    }
+
     spawnCommand(
         new DriveToPose(wrapper, scoringPose, () -> wrapper.getPoseEstimatorPose(true)),
         (command) -> {
@@ -71,7 +76,7 @@ public class ScoreCoral extends StateMachine {
         });
 
     spawnCommand(
-        MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel), (command) -> null);
+        Commands.waitUntil(() -> GeometryUtil.getDist(wrapper.getPoseEstimatorPose(true), scoringPose.get()) < distToRaiseMech.get()).andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)), (command) -> null);
 
     return stateWithName("Align", () -> align());
   }
@@ -80,8 +85,8 @@ public class ScoreCoral extends StateMachine {
 
     log_scoringSide.info(scoringSideSupplier.get());
     log_scoringDirection.info(scoringDirection);
+    log_scoringPose.info(scoringPose.get());
 
-    if (usePoseForAlignment.get() == 1) log_scoringPose.info(scoringPose.get());
     return null;
   }
 
@@ -92,7 +97,7 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler score() {
     // TODO: add score logic, vibrate controller when note is released
-    return () -> end(false);
+    return stateWithName("End", () -> end(false));
   }
 
   private StateHandler end(boolean interrupted) {
