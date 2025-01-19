@@ -43,6 +43,13 @@ public class VisionIOPhotonVision implements VisionIO {
         java.util.EnumSet.of(NetworkTableEvent.Kind.kValueAll),
         event -> {
           for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+            for (var target : result.getTargets()) {
+              if (target.altCameraToTarget.getTranslation().getNorm() < 0.01) {
+                 target.altCameraToTarget = target.bestCameraToTarget;
+                // Reject results with no valid target translation.
+              }
+            }
+
             var timestamp = result.getTimestampSeconds();
             var fpga = Timer.getFPGATimestamp();
             var ctre = Utils.getCurrentTimeSeconds();

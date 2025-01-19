@@ -24,7 +24,7 @@ public class RobotConfig2024Maestro extends RobotConfig {
   private static final boolean PHOENIX_PRO_LICENSE = true;
 
   // ------------ SWERVE ---------------------
-  private static final Distance WHEEL_RADIUS = Units.Inches.of(1.957);
+  private static final Distance WHEEL_RADIUS = Units.Inches.of(1.929);
 
   // ------ SWERVE MODULE CONFIGURATIONS: CANID + OFFSET + INVERTS --------------
   // 0
@@ -135,18 +135,18 @@ public class RobotConfig2024Maestro extends RobotConfig {
   public static final Transform3d SHOOTER_SIDE_LEFT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(-12.25).in(Units.Meters),
-              Units.Inches.of(-8.25).in(Units.Meters),
+              Units.Inches.of(-11).in(Units.Meters),
+              Units.Inches.of(8.25).in(Units.Meters),
               Units.Inches.of(10).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(150.0)));
+          new Rotation3d(Math.toRadians(0), Math.toRadians(0.0), Math.toRadians(210.0)));
 
   public static final Transform3d SHOOTER_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(-12.25).in(Units.Meters),
-              Units.Inches.of(8.25).in(Units.Meters),
+              Units.Inches.of(-11).in(Units.Meters),
+              Units.Inches.of(-8.25).in(Units.Meters),
               Units.Inches.of(10).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(210.0)));
+          new Rotation3d(Math.toRadians(0), Math.toRadians(0.0), Math.toRadians(150.0)));
 
   public static final Transform3d INTAKE_SIDE_LEFT =
       new Transform3d(
@@ -204,8 +204,9 @@ public class RobotConfig2024Maestro extends RobotConfig {
   @Override
   public VisionModuleConfiguration[] getVisionModuleObjects() {
     return new VisionModuleConfiguration[] {
-      VisionModuleConfiguration.build(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT),
-      VisionModuleConfiguration.build(SHOOTER_SIDE_RIGHT_CAMERA_NAME, SHOOTER_SIDE_RIGHT)
+      VisionModuleConfiguration.build(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT)
+      // ,
+      // VisionModuleConfiguration.build(SHOOTER_SIDE_RIGHT_CAMERA_NAME, SHOOTER_SIDE_RIGHT)
     };
   }
 

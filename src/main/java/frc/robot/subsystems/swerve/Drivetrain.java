@@ -172,7 +172,7 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveDriveKinematics kinematics;
   private Pose2d rawOdometryPose = Constants.zeroPose2d;
 
-  private final PoseEstimator poseEstimator;
+  private final PoseEstimator reefPoseEstimator;
 
   private final Field2d field2d = new Field2d();
   private final Field2d rawOdometryField2d = new Field2d();
@@ -200,11 +200,10 @@ public class Drivetrain extends SubsystemBase {
 
     kinematics = config.getSwerveDriveKinematics();
 
-    int[] tags = {
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
-    }; // TODO: make seperate ones for reef and coral station
+    int[] reefTags = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+    int[] coralStationTags = {1, 2, 12, 13};
 
-    poseEstimator = new PoseEstimator(1.2, 1.2, 0.3, tags); // refine these numbers?
+    reefPoseEstimator = new PoseEstimator(0.6, 0.6, 0.3, reefTags); // refine these numbers?
 
     var thread = new Thread(this::runOdometry);
     thread.setName("PhoenixOdometryThread");
@@ -259,9 +258,9 @@ public class Drivetrain extends SubsystemBase {
       SmartDashboard.putData("Localization/rawOdometryField2d", rawOdometryField2d);
 
       logTimeSinceVision.info(visionStaleness);
-      logRejectionCutoff.info(poseEstimator.rejectionCutoff);
-      logRejectionInvalidTags.info(poseEstimator.rejectionInvalidTags);
-      logRejectionNoDriveData.info(poseEstimator.rejectionNoDriveData);
+      logRejectionCutoff.info(reefPoseEstimator.rejectionCutoff);
+      logRejectionInvalidTags.info(reefPoseEstimator.rejectionInvalidTags);
+      logRejectionNoDriveData.info(reefPoseEstimator.rejectionNoDriveData);
 
       if (useSecondGyro != null) {
         logGyro_usingSecondGyro.info(useSecondGyro);
@@ -408,7 +407,7 @@ public class Drivetrain extends SubsystemBase {
             // Apply the twist (change since last sample) to the current pose
             rawOdometryPose = rawOdometryPose.exp(twist);
 
-            poseEstimator.addDriveData(timestamp, twist);
+            reefPoseEstimator.addDriveData(timestamp, twist);
           }
         }
       } catch (Exception e) {
@@ -574,7 +573,7 @@ public class Drivetrain extends SubsystemBase {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
       try (var ignored2 = timing_vision.start()) {
-        poseEstimator.addVisionData(visionData);
+        reefPoseEstimator.addVisionData(visionData);
       }
     }
   }
@@ -591,7 +590,7 @@ public class Drivetrain extends SubsystemBase {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
       try (var ignored2 = timing_pose.start()) {
-        return poseEstimator.getLatestPose();
+        return reefPoseEstimator.getLatestPose();
       }
     }
   }
@@ -600,7 +599,7 @@ public class Drivetrain extends SubsystemBase {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
       try (var ignored2 = timing_pose.start()) {
-        return poseEstimator.getVisionStaleness();
+        return reefPoseEstimator.getVisionStaleness();
       }
     }
   }
@@ -608,7 +607,7 @@ public class Drivetrain extends SubsystemBase {
   public Pose2d getPoseEstimatorPoseAtTimestamp(double timestamp) {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
-      return poseEstimator.getPoseAtTime(timestamp);
+      return reefPoseEstimator.getPoseAtTime(timestamp);
     }
   }
 
@@ -624,7 +623,7 @@ public class Drivetrain extends SubsystemBase {
   public void setPose(Pose2d pose) {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
-      this.poseEstimator.resetPose(pose, Utils.getCurrentTimeSeconds() + 0.2);
+      this.reefPoseEstimator.resetPose(pose, Utils.getCurrentTimeSeconds() + 0.2);
 
       this.rawOdometryPose = pose;
     }

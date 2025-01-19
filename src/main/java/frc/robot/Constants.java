@@ -124,7 +124,7 @@ public final class Constants {
   public static double MAX_VOLTAGE = 12.0;
 
   public static class RobotDimensions {
-    public static Distance BUMPER_THICKNESS = Units.Inches.of(5.25);
+    public static Distance BUMPER_THICKNESS = Units.Inches.of(1.5);
 
     /**
      * x = left to right
@@ -133,7 +133,7 @@ public final class Constants {
      */
     public static Translation2d ROBOT_DIMENSIONS_WITHOUT_BUMPERS() {
       if (RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
-        return new Translation2d(Units.Inches.of(27.0), Units.Inches.of(27.0));
+        return new Translation2d(Units.Inches.of(27.0), Units.Inches.of(32.5));
       } else {
         return new Translation2d(Units.Inches.of(28.0), Units.Inches.of(30.0));
       }
@@ -157,12 +157,6 @@ public final class Constants {
     public static Distance REEF_DIST_FROM_WALL = Units.Inches.of(144.0);
 
     public static Distance REEF_WIDTH = Units.Inches.of(65.5);
-
-    public static Pose2d BLUE_NEAR_CENTER_SCORING_LOCATION =
-        new Pose2d(
-            REEF_DIST_FROM_WALL.minus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY()),
-            FIELD_WIDTH.div(2.0),
-            zeroRotation2d);
 
     public static Translation2d BLUE_REEF_CENTER_POSE =
         new Translation2d(REEF_DIST_FROM_WALL.plus(REEF_WIDTH.div(2.0)), FIELD_WIDTH.div(2.0));
