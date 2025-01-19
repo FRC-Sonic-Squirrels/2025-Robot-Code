@@ -5,6 +5,13 @@ public class RobotStates {
 
   public static ScoringLevel scoringLevel = ScoringLevel.L4;
 
+  // TODO: update these coral values
+  public static boolean coralInRobot = true;
+
+  public static boolean coralInEndEffector = true;
+
+  public static boolean coralInIntake = false;
+
   public enum ScoringLevel {
     L1,
     L2,
