@@ -436,6 +436,7 @@ public class RobotContainer {
                 () -> new ScoreCoral(drivetrainWrapper, elevator, arm, ScoringDirection.RIGHT)));
 
     driverController.a().whileTrue(MechanismActions.stowPosition(elevator, arm));
+    driverController.b().onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
 
     // Change scoring height
 
