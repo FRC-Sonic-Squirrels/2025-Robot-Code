@@ -120,7 +120,6 @@ public class ElevatorIOReal implements ElevatorIO {
     Slot0Configs pidConfig = new Slot0Configs();
 
     motor.getConfigurator().refresh(pidConfig);
-    motor.getConfigurator().refresh(mmConfigs);
 
     pidConfig.kP = kP;
     pidConfig.kD = kD;

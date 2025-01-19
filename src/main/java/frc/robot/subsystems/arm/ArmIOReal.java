@@ -106,7 +106,6 @@ public class ArmIOReal implements ArmIO {
     var slot0Configs = new Slot0Configs();
 
     motor.getConfigurator().refresh(slot0Configs);
-    motor.getConfigurator().refresh(mmConfigs);
 
     slot0Configs.kP = kP;
     slot0Configs.kD = kD;
