@@ -4,12 +4,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.StateMachine;
 import frc.lib.team2930.TunableNumberGroup;
+import frc.lib.team2930.lib.controller_rumble.ControllerRumbleForTime;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants.ScoringSideWithPose;
@@ -19,23 +22,36 @@ import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 public class ScoreCoral extends StateMachine {
 
   private final DrivetrainWrapper wrapper;
   private final Elevator elevator;
   private final Arm arm;
+  private final EndEffector endEffector;
 
   private final ScoringDirection scoringDirection;
-  private final Supplier<ScoringSide> scoringSideSupplier;
-  private final Supplier<ScoringSideWithPose> scoringSidePoseSupplier;
-  private final Supplier<Pose2d> scoringPose;
+  private final ScoringSide scoringSide;
+  private final ScoringSideWithPose scoringPoseAndSide;
+  private final Pose2d algaeClearPose;
+  private final Pose2d scoringPose;
+
+  private Command prepMechanismForAlgae;
+  private Command prepMechanismForScoring;
+
+  private Command clearAlgae1Position;
+  private Command clearAlgae2Position;
+
+  private final Consumer<Double> rumble;
 
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
       group.build("DistToRaiseMechMeters", 1);
+  private static final LoggedTunableNumber scoringVelocityRPM =
+      group.build("ScoringVelocityRPM", 1000);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -44,78 +60,154 @@ public class ScoreCoral extends StateMachine {
       log_group.buildEnum("ScoringDirection");
   private static final LoggerEntry.Struct<Pose2d> log_scoringPose =
       log_group.buildStruct(Pose2d.class, "ScoringPose");
+  private static final LoggerEntry.Struct<Pose2d> log_algaeClearPose =
+      log_group.buildStruct(Pose2d.class, "ScoringPose");
 
   public ScoreCoral(
-      DrivetrainWrapper wrapper, Elevator elevator, Arm arm, ScoringDirection scoringDirection) {
+      DrivetrainWrapper wrapper,
+      Elevator elevator,
+      Arm arm,
+      EndEffector endEffector,
+      ScoringDirection scoringDirection,
+      Consumer<Double> rumble) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
     this.elevator = elevator;
     this.arm = arm;
+    this.endEffector = endEffector;
 
     this.scoringDirection = scoringDirection;
-    scoringSidePoseSupplier = () -> getClosestScoringSide(wrapper.getPoseEstimatorPose(true));
-    scoringPose = () -> scoringSidePoseSupplier.get().pose();
-    this.scoringSideSupplier = () -> scoringSidePoseSupplier.get().side();
+    this.rumble = rumble;
 
-    setInterruptedState(stateWithName("EndState", () -> end(true)));
-    setInitialState(stateWithName("PrepAlignment", () -> prepForAlignment()));
+    Pose2d robotPose = wrapper.getPoseEstimatorPose(true);
+    algaeClearPose = getClosestAlgaeClearingSide(robotPose).pose();
+    scoringPoseAndSide = getClosestScoringSide(robotPose);
+    scoringPose = scoringPoseAndSide.pose();
+    this.scoringSide = scoringPoseAndSide.side();
+
+    log_scoringSide.info(scoringSide);
+    log_scoringDirection.info(scoringDirection);
+    log_scoringPose.info(scoringPose);
+    log_algaeClearPose.info(scoringPoseAndSide.pose());
+
+    setInterruptedState(stateWithName("End", () -> end(true)));
+    setInitialState(stateWithName("ChooseAlignment", () -> chooseAlignment()));
   }
 
-  private StateHandler prepForAlignment() {
-    if(!RobotStates.coralInEndEffector){
+  private StateHandler chooseAlignment() {
+    return algaeClearRequired()
+        ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
+        : stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment());
+  }
+
+  private StateHandler prepForAlgaeAlignment() {
+    // TODO: set LED base to Algae Clearing
+    boolean high =
+        scoringSide == ScoringSide.NEAR_MID
+            || scoringSide == ScoringSide.FAR_LEFT
+            || scoringSide == ScoringSide.FAR_RIGHT;
+
+    clearAlgae1Position =
+        high
+            ? MechanismActions.clearAlgaeHigh1Position(elevator, arm)
+            : MechanismActions.clearAlgaeLow1Position(elevator, arm);
+    clearAlgae2Position =
+        high
+            ? MechanismActions.clearAlgaeHigh2Position(elevator, arm)
+            : MechanismActions.clearAlgaeLow2Position(elevator, arm);
+
+    spawnCommand(
+        new DriveToPose(wrapper, () -> algaeClearPose, () -> wrapper.getPoseEstimatorPose(true)),
+        (command) -> stateWithName("ClearAlgae", () -> initializeClearAlgae()));
+
+    prepMechanismForAlgae =
+        spawnCommand(
+            Commands.waitUntil(
+                    () ->
+                        GeometryUtil.getDist(wrapper.getPoseEstimatorPose(true), scoringPose)
+                            < distToRaiseMech.get())
+                .andThen(clearAlgae1Position),
+            (command) -> null);
+
+    return stateWithName("AlignForAlgae", () -> waitState());
+  }
+
+  private StateHandler prepForScoringAlignment() {
+    // TODO: set LED base color to scoring
+    if (!RobotStates.coralInEndEffector) {
+      CommandScheduler.getInstance().schedule(new ControllerRumbleForTime(rumble, 0.25, 0.3));
       return stateWithName("End", () -> end(true));
+      // TODO: flash LEDs (score failure) to alert driver that there is no coral
+      // in robot
     }
 
     spawnCommand(
-        new DriveToPose(wrapper, scoringPose, () -> wrapper.getPoseEstimatorPose(true)),
+        new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getPoseEstimatorPose(true)),
         (command) -> {
-          return algaeClearRequired()
-              ? stateWithName("ClearAlgae", () -> clearAlgae())
-              : stateWithName("Score", () -> score());
+          return stateWithName("Score", () -> score());
         });
 
+    prepMechanismForScoring =
+        spawnCommand(
+            Commands.waitUntil(
+                    () ->
+                        GeometryUtil.getDist(wrapper.getPoseEstimatorPose(true), scoringPose)
+                            < distToRaiseMech.get())
+                .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
+            (command) -> null);
+
+    return stateWithName("AlignForScoring", () -> waitState());
+  }
+
+  private StateHandler initializeClearAlgae() {
+
     spawnCommand(
-        Commands.waitUntil(() -> GeometryUtil.getDist(wrapper.getPoseEstimatorPose(true), scoringPose.get()) < distToRaiseMech.get()).andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)), (command) -> null);
+        Commands.waitUntil(prepMechanismForAlgae::isFinished).andThen(clearAlgae2Position),
+        (command) -> stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
 
-    return stateWithName("Align", () -> align());
-  }
-
-  private StateHandler align() {
-
-    log_scoringSide.info(scoringSideSupplier.get());
-    log_scoringDirection.info(scoringDirection);
-    log_scoringPose.info(scoringPose.get());
-
-    return null;
-  }
-
-  private StateHandler clearAlgae() {
-    // TODO: add clear algae logic
-    return stateWithName("Score", () -> score());
+    return stateWithName("ClearAlgae", () -> waitState());
   }
 
   private StateHandler score() {
-    // TODO: add score logic, vibrate controller when note is released
+    // TODO: flash LEDs (score success) when note is
+    // released
+
+    if (prepMechanismForScoring.isFinished()) endEffector.setVelocity(scoringVelocityRPM.get());
+
+    if (RobotStates.coralInEndEffector) return null;
+
+    CommandScheduler.getInstance().schedule(new ControllerRumbleForTime(rumble, 0.25, 0.3));
+
     return stateWithName("End", () -> end(false));
   }
 
   private StateHandler end(boolean interrupted) {
-    // TODO: reset mechanism to pickup position, turn off LEDs
+    // TODO: set LED base state back to normal
     spawnCommand(
-        MechanismActions.stowPosition(elevator, arm),
-        (command) -> null); // potentially change to coral station position
+        MechanismActions.stowPosition(
+            elevator,
+            arm), // TODO: potentially change to coral station position TODO: this may cause end
+        // effector to hit the reef, potentially add intermediate position
+        (command) -> null);
+    endEffector.setPercentOut(0);
     return setDone();
   }
 
+  private StateHandler waitState() {
+    return null;
+  }
+
   private boolean algaeClearRequired() {
+    // TODO: potentially store locations where algae has been cleared, then return false if algae is
+    // already cleared. May want to add manual override for this in case algae clear fails.
     // L1 and L4 are clear of algae
     if (RobotStates.scoringLevel == ScoringLevel.L1
         || RobotStates.scoringLevel == ScoringLevel.L4) {
       return false;
     }
 
-    ScoringSide currentScoringSide = scoringSideSupplier.get();
+    ScoringSide currentScoringSide = scoringSide;
 
     // There are particular sides of L2 that are free
     if (RobotStates.scoringLevel == ScoringLevel.L2
@@ -133,6 +225,19 @@ public class ScoreCoral extends StateMachine {
         new ScoringSideWithPose(
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero), ScoringSide.FAR_LEFT);
     for (ScoringSideWithPose pose : getScoringLocations()) {
+      if (GeometryUtil.getDist(robotPose, pose.pose())
+          < GeometryUtil.getDist(robotPose, bestTarget.pose())) {
+        bestTarget = pose;
+      }
+    }
+    return bestTarget;
+  }
+
+  private ScoringSideWithPose getClosestAlgaeClearingSide(Pose2d robotPose) {
+    ScoringSideWithPose bestTarget =
+        new ScoringSideWithPose(
+            new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero), ScoringSide.FAR_LEFT);
+    for (ScoringSideWithPose pose : Constants.FieldConstants.SCORING_SIDES()) {
       if (GeometryUtil.getDist(robotPose, pose.pose())
           < GeometryUtil.getDist(robotPose, bestTarget.pose())) {
         bestTarget = pose;

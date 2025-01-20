@@ -259,7 +259,7 @@ public class StateMachine {
         });
   }
 
-  protected void spawnCommand(Command command, ResumeStateHandlerFromCommand handler) {
+  protected Command spawnCommand(Command command, ResumeStateHandlerFromCommand handler) {
     var sequence =
         command.andThen(
             new InstantCommand(
@@ -281,5 +281,7 @@ public class StateMachine {
 
     sequence.setName("substate_" + command.getName());
     sequence.schedule();
+
+    return sequence;
   }
 }

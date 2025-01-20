@@ -427,13 +427,27 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new RunStateMachineCommand(
-                () -> new ScoreCoral(drivetrainWrapper, elevator, arm, ScoringDirection.LEFT)));
+                () ->
+                    new ScoreCoral(
+                        drivetrainWrapper,
+                        elevator,
+                        arm,
+                        endEffector,
+                        ScoringDirection.LEFT,
+                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
     driverController
         .rightTrigger()
         .whileTrue(
             new RunStateMachineCommand(
-                () -> new ScoreCoral(drivetrainWrapper, elevator, arm, ScoringDirection.RIGHT)));
+                () ->
+                    new ScoreCoral(
+                        drivetrainWrapper,
+                        elevator,
+                        arm,
+                        endEffector,
+                        ScoringDirection.RIGHT,
+                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
     driverController.a().whileTrue(MechanismActions.stowPosition(elevator, arm));
     driverController.b().onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
@@ -468,6 +482,25 @@ public class RobotContainer {
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L1;
                 }));
+
+    // Change clearing algae
+
+    driverController
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.clearingAglae = true;
+                }));
+
+    driverController
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.clearingAglae = false;
+                }));
+
     // ---------- OPERATOR CONTROLS -----------
 
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
