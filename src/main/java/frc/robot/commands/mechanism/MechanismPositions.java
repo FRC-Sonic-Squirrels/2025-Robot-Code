@@ -157,27 +157,27 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(coralStationArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition clearAlgaeLow1Position(){
-        return new MechanismPosition(
-          Units.Inches.of(algaeClearingLow1ElevatorHeightInches.get()),
-          Rotation2d.fromDegrees(algaeClearingLow1ArmAngleDegrees.get()));
+  public static MechanismPosition clearAlgaeLow1Position() {
+    return new MechanismPosition(
+        Units.Inches.of(algaeClearingLow1ElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(algaeClearingLow1ArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition clearAlgaeLow2Position(){
+  public static MechanismPosition clearAlgaeLow2Position() {
     return new MechanismPosition(
-      Units.Inches.of(algaeClearingLow2ElevatorHeightInches.get()),
-      Rotation2d.fromDegrees(algaeClearingLow2ArmAngleDegrees.get()));
+        Units.Inches.of(algaeClearingLow2ElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(algaeClearingLow2ArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition clearAlgaeHigh1Position(){
+  public static MechanismPosition clearAlgaeHigh1Position() {
     return new MechanismPosition(
-      Units.Inches.of(algaeClearingHigh1ElevatorHeightInches.get()),
-      Rotation2d.fromDegrees(algaeClearingHigh1ArmAngleDegrees.get()));
+        Units.Inches.of(algaeClearingHigh1ElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(algaeClearingHigh1ArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition clearAlgaeHigh2Position(){
+  public static MechanismPosition clearAlgaeHigh2Position() {
     return new MechanismPosition(
-      Units.Inches.of(algaeClearingHigh2ElevatorHeightInches.get()),
-      Rotation2d.fromDegrees(algaeClearingHigh2ArmAngleDegrees.get()));
+        Units.Inches.of(algaeClearingHigh2ElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(algaeClearingHigh2ArmAngleDegrees.get()));
   }
 }

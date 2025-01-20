@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Units;
@@ -22,8 +23,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
@@ -41,7 +42,6 @@ import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.intake.IntakeGamepiece;
-import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
 import frc.robot.configs.SimulatorRobotConfig;
@@ -95,21 +95,16 @@ public class RobotContainer {
   private final HashMap<String, Supplier<Auto>> stringToAutoSupplierMap = new HashMap<>();
   private final AutosManager autoManager;
 
-  private Trigger gamepieceInRobot =
-      new Trigger(
-          () -> false); // TODO: move to constructor and add condition for gamepiece in robot
-  private final Trigger
-      twenty_Second_Warning; // TODO: decide whether this is necessary. If it is, make sure to test
-  // it.
+  private Trigger gamepieceInRobot = new Trigger(() -> RobotStates.coralInRobot);
 
-  public DigitalInput breakModeButton = new DigitalInput(0);
-  public DigitalInput homeSensorsButton = new DigitalInput(1);
+  public DigitalInput brakeModeButton = new DigitalInput(0);
+  public DigitalInput zeroSensorsButton = new DigitalInput(1);
 
-  private Trigger breakModeButtonTrigger =
-      new Trigger(() -> !breakModeButton.get() && !DriverStation.isEnabled());
+  private Trigger brakeModeButtonTrigger =
+      new Trigger(() -> !brakeModeButton.get() && !DriverStation.isEnabled());
 
-  private Trigger homeSensorsButtonTrigger =
-      new Trigger(() -> !homeSensorsButton.get() && !DriverStation.isEnabled());
+  private Trigger zeroSensorsButtonTrigger =
+      new Trigger(() -> !zeroSensorsButton.get() && !DriverStation.isEnabled());
 
   private boolean brakeModeTriggered = true;
 
@@ -154,7 +149,7 @@ public class RobotContainer {
       visionGamepiece =
           new VisionGamepiece(
               new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
-      led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
+      led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
     } else { // REAL and SIM robots HERE
       switch (robotType) {
         case ROBOT_SIMBOT_REAL_CAMERAS:
@@ -215,7 +210,8 @@ public class RobotContainer {
           elevator = new Elevator(new ElevatorIOSim());
           intake = new Intake(new IntakeIOSim());
           endEffector = new EndEffector(new EndEffectorIO() {});
-          led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
+          led =
+              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
           break;
 
         case ROBOT_2023_RETIRED_ROBER:
@@ -242,7 +238,8 @@ public class RobotContainer {
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
 
-          led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
+          led =
+              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
           break;
 
         case ROBOT_2024_RETIRED_MAESTRO:
@@ -269,7 +266,8 @@ public class RobotContainer {
               new VisionGamepiece(
                   new VisionGamepieceIOReal(), drivetrain::getPoseEstimatorPoseAtTimestamp);
 
-          led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
+          led =
+              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
           break;
 
         case ROBOT_2025:
@@ -296,7 +294,8 @@ public class RobotContainer {
               new VisionGamepiece(
                   new VisionGamepieceIOReal(), drivetrain::getPoseEstimatorPoseAtTimestamp);
 
-          led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
+          led =
+              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
           break;
 
         default:
@@ -322,7 +321,8 @@ public class RobotContainer {
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
 
-          led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected);
+          led =
+              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
           break;
       }
     }
@@ -369,8 +369,6 @@ public class RobotContainer {
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
-    twenty_Second_Warning = new Trigger(() -> DriverStation.getMatchTime() > 115);
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -397,30 +395,19 @@ public class RobotContainer {
 
     driverController
         .rightBumper()
-        .whileTrue(
-            new IntakeGamepiece()
-                .finallyDo(
-                    (interrupted) -> {
-                      if (!interrupted)
-                        CommandScheduler.getInstance()
-                            .schedule(new LedSetStateForSeconds(led, RobotState.INTAKE_SUCCESS, 1));
-                    }))
+        .whileTrue(new IntakeGamepiece())
         .whileTrue(
             Commands.run(
                     () -> {
-                      // TODO: change condition to if gamepiece is detected
-                      if (true) {
+                      if (RobotStates.coralInRobot) {
                         driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
-                        led.setRobotState(RobotState.INTAKE_SUCCESS);
-                      } else {
-                        driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-                        led.setRobotState(RobotState.BASE);
+                        led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
                       }
                     })
                 .finallyDo(
                     () -> {
                       driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-                      led.setRobotState(RobotState.BASE);
+                      led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
                     }));
 
     driverController
@@ -433,6 +420,7 @@ public class RobotContainer {
                         elevator,
                         arm,
                         endEffector,
+                        led,
                         ScoringDirection.LEFT,
                         (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
@@ -446,6 +434,7 @@ public class RobotContainer {
                         elevator,
                         arm,
                         endEffector,
+                        led,
                         ScoringDirection.RIGHT,
                         (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
@@ -506,9 +495,6 @@ public class RobotContainer {
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
     operatorController.b().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(18)));
 
-    twenty_Second_Warning.onTrue(
-        new LedSetStateForSeconds(led, RobotState.TWENTY_SECOND_WARNING, 0.5));
-
     // Toggle clearing algae
 
     operatorController
@@ -535,12 +521,42 @@ public class RobotContainer {
 
     // ---------- ON-ROBOT CONTROLS ------------
 
-    homeSensorsButtonTrigger.onTrue(
+    zeroSensorsButtonTrigger.onTrue(
         new RunsWhenDisabledInstantCommand(
             () -> {
               elevator.resetSensorToHomePosition();
               arm.resetSensorToHomePosition();
-            }));
+              led.setRobotState(RobotState.ZERO_SUBSYSTEMS);
+            })); // TODO: add climber?
+
+    brakeModeButtonTrigger.onTrue(
+        new ConditionalCommand(
+            new RunsWhenDisabledInstantCommand(
+                () -> {
+                  boolean armSuccess = arm.setNeutralMode(NeutralModeValue.Coast);
+                  boolean elevatorSuccess = elevator.setNeutralMode(NeutralModeValue.Coast);
+
+                  brakeModeFailure = !armSuccess || !elevatorSuccess;
+
+                  brakeModeTriggered = false;
+                  led.setRobotState(
+                      brakeModeFailure ? RobotState.BRAKE_MODE_FAILED : RobotState.BRAKE_MODE_OFF);
+                },
+                elevator,
+                arm),
+            new RunsWhenDisabledInstantCommand(
+                () -> {
+                  boolean armSuccess = arm.setNeutralMode(NeutralModeValue.Brake);
+                  boolean elevatorSuccess = elevator.setNeutralMode(NeutralModeValue.Brake);
+
+                  brakeModeFailure = !armSuccess || !elevatorSuccess;
+                  brakeModeTriggered = true;
+                  led.setRobotState(
+                      brakeModeFailure ? RobotState.BRAKE_MODE_FAILED : RobotState.BRAKE_MODE_ON);
+                },
+                elevator,
+                arm),
+            () -> brakeModeTriggered)); // TODO: add climber?
 
     // Add Reset and Reboot buttons to SmartDashboard
     // TODO: add correct vision addresses

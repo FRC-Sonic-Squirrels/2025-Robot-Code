@@ -45,7 +45,7 @@ public class VisionIOPhotonVision implements VisionIO {
           for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
             for (var target : result.getTargets()) {
               if (target.altCameraToTarget.getTranslation().getNorm() < 0.01) {
-                 target.altCameraToTarget = target.bestCameraToTarget;
+                target.altCameraToTarget = target.bestCameraToTarget;
                 // Reject results with no valid target translation.
               }
             }

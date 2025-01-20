@@ -20,6 +20,9 @@ import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.subsystems.LED;
+import frc.robot.subsystems.LED.BaseRobotState;
+import frc.robot.subsystems.LED.RobotState;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
@@ -32,6 +35,7 @@ public class ScoreCoral extends StateMachine {
   private final Elevator elevator;
   private final Arm arm;
   private final EndEffector endEffector;
+  private final LED led;
 
   private final ScoringDirection scoringDirection;
   private final ScoringSide scoringSide;
@@ -68,6 +72,7 @@ public class ScoreCoral extends StateMachine {
       Elevator elevator,
       Arm arm,
       EndEffector endEffector,
+      LED led,
       ScoringDirection scoringDirection,
       Consumer<Double> rumble) {
     super("ScoreCoral");
@@ -76,6 +81,7 @@ public class ScoreCoral extends StateMachine {
     this.elevator = elevator;
     this.arm = arm;
     this.endEffector = endEffector;
+    this.led = led;
 
     this.scoringDirection = scoringDirection;
     this.rumble = rumble;
@@ -102,7 +108,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler prepForAlgaeAlignment() {
-    // TODO: set LED base to Algae Clearing
+    led.setBaseRobotState(BaseRobotState.ALGAE_ALIGNMENT);
     boolean high =
         scoringSide == ScoringSide.NEAR_MID
             || scoringSide == ScoringSide.FAR_LEFT
@@ -134,12 +140,11 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler prepForScoringAlignment() {
-    // TODO: set LED base color to scoring
+    led.setBaseRobotState(BaseRobotState.SCORING_ALIGNMENT);
     if (!RobotStates.coralInEndEffector) {
       CommandScheduler.getInstance().schedule(new ControllerRumbleForTime(rumble, 0.25, 0.3));
+      led.setRobotState(RobotState.SCORE_FAILURE);
       return stateWithName("End", () -> end(true));
-      // TODO: flash LEDs (score failure) to alert driver that there is no coral
-      // in robot
     }
 
     spawnCommand(
@@ -170,8 +175,6 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler score() {
-    // TODO: flash LEDs (score success) when note is
-    // released
 
     if (prepMechanismForScoring.isFinished()) endEffector.setVelocity(scoringVelocityRPM.get());
 
@@ -179,11 +182,13 @@ public class ScoreCoral extends StateMachine {
 
     CommandScheduler.getInstance().schedule(new ControllerRumbleForTime(rumble, 0.25, 0.3));
 
+    led.setRobotState(RobotState.SCORE_SUCCESS);
+
     return stateWithName("End", () -> end(false));
   }
 
   private StateHandler end(boolean interrupted) {
-    // TODO: set LED base state back to normal
+    led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
     spawnCommand(
         MechanismActions.stowPosition(
             elevator,

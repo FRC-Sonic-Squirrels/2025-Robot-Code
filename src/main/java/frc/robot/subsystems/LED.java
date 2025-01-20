@@ -11,10 +11,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.LoggerEntry;
@@ -60,18 +57,28 @@ public class LED extends SubsystemBase {
   private final int robotLoopsTillReady = 20;
   private final Supplier<Boolean> brakeMode;
   private final Supplier<Boolean> gyroConnected;
+  private final Supplier<Boolean> motorsZeroed;
+  private final Timer robotStateTimer = new Timer();
+  private double timeToResetToBaseState = 0;
 
-  public LED(Supplier<Boolean> brakeMode, Supplier<Boolean> gyroConnected) {
+  public LED(
+      Supplier<Boolean> brakeMode,
+      Supplier<Boolean> gyroConnected,
+      Supplier<Boolean> motorsZeroed) {
     led.setLength(ledBuffer.getLength());
     led.setData(ledBuffer);
     led.start();
     this.brakeMode = brakeMode;
     this.gyroConnected = gyroConnected;
+    this.motorsZeroed = motorsZeroed;
+    robotStateTimer.start();
   }
 
   @Override
   public void periodic() {
     robotLoops++;
+
+    if (robotStateTimer.get() > timeToResetToBaseState) robotState = RobotState.BASE;
 
     if (useTunableLEDs.get() == 0) {
       // This method will be called once per scheduler run
@@ -85,6 +92,8 @@ public class LED extends SubsystemBase {
                 setProgressBar(Color.kGreen, (double) robotLoops / (double) robotLoopsTillReady);
               } else if (!brakeMode.get()) {
                 setSnake(Color.kGreen, Color.kCrimson);
+              } else if (!motorsZeroed.get()) {
+                setSnake(Color.kRed, Color.kPurple);
               } else if (!gyroConnected.get() && !Constants.RobotMode.isSimBot()) {
                 setBlinking(Color.kAquamarine);
               } else {
@@ -104,56 +113,43 @@ public class LED extends SubsystemBase {
             case AUTO_GAMEPIECE_PICKUP:
               setSolidColor(Color.kMagenta);
               break;
-
-            case AUTO_DRIVE_TO_POSE:
-              setSolidColor(Color.kYellow);
-
-            case GOAL_LINE_UP:
+            case SCORING_ALIGNMENT:
               setBlinking(Color.kWhite);
               break;
-
-            case SHOOTING_PREP:
-              setSolidColor(Color.kYellow);
+            case ALGAE_ALIGNMENT:
+              //  setBlinking(Color.kWhite, Color.kAqua);
+              setBlinking(Color.kAqua);
               break;
-            case SHOOTER_SUCCESS:
-              setSolidColor(Color.kBlueViolet);
+            case INTAKE_SUCCESS:
+              //  setBlinking(Color.kGreen, Color.kBlack);
+              setBlinking(Color.kGreen);
               break;
             default:
               setSeaLevelGraphic();
               break;
           }
           break;
-
-        case READY_TO_SCORE:
-          setSolidColor(Color.kGreen);
-          break;
-        case TWENTY_SECOND_WARNING:
-          setBlinking(Color.kMagenta);
-          break;
-        case HOME_SUBSYSTEMS:
+        case ZERO_SUBSYSTEMS:
           setBlinking(Color.kGreen);
           break;
-        case BREAK_MODE_ON:
+        case BRAKE_MODE_ON:
           setBlinking(Color.kRed);
           break;
-        case BREAK_MODE_OFF:
+        case BRAKE_MODE_OFF:
           setBlinking(Color.kBlue, 0.3);
-          break;
-        case TEST:
-          setSolidColor(Color.kCyan);
-          break;
-        case INTAKE_SUCCESS:
-          setBlinking(Color.kGreen);
           break;
         case BRAKE_MODE_FAILED:
           setSolidColor(Color.kPurple);
           break;
-        case NOT_ZEROED:
-          setRainbow();
+        case SCORE_SUCCESS:
+          setBlinking(Color.kGreen);
+          break;
+        case SCORE_FAILURE:
+          setBlinking(Color.kRed);
           break;
       }
     } else {
-      setSnake(new Color(tunableR.get(), tunableG.get(), tunableB.get()), Color.kRed);
+      setSolidColor(new Color(tunableR.get(), tunableG.get(), tunableB.get()));
     }
 
     log_robotState.info(robotState);
@@ -217,7 +213,12 @@ public class LED extends SubsystemBase {
 
   /** setRobotState() - Set the LED robotState. */
   public void setRobotState(RobotState robotState) {
+    setRobotState(robotState, 0.5);
+  }
+
+  public void setRobotState(RobotState robotState, double timeSeconds) {
     this.robotState = robotState;
+    timeToResetToBaseState = timeSeconds;
   }
 
   /**
@@ -294,24 +295,20 @@ public class LED extends SubsystemBase {
   }
 
   public enum RobotState {
-    TWENTY_SECOND_WARNING,
-    READY_TO_SCORE,
-    TEST,
-    HOME_SUBSYSTEMS,
-    BREAK_MODE_OFF,
-    BREAK_MODE_ON,
+    ZERO_SUBSYSTEMS,
+    BRAKE_MODE_OFF,
+    BRAKE_MODE_ON,
     BASE,
-    INTAKE_SUCCESS,
     BRAKE_MODE_FAILED,
-    NOT_ZEROED
+    SCORE_FAILURE,
+    SCORE_SUCCESS
   }
 
   public enum BaseRobotState {
     GAMEPIECE_STATUS,
     AUTO_GAMEPIECE_PICKUP,
-    AUTO_DRIVE_TO_POSE,
-    GOAL_LINE_UP,
-    SHOOTING_PREP,
-    SHOOTER_SUCCESS
+    SCORING_ALIGNMENT,
+    ALGAE_ALIGNMENT,
+    INTAKE_SUCCESS
   }
 }

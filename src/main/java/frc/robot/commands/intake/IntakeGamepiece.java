@@ -7,6 +7,7 @@ package frc.robot.commands.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
+import frc.robot.RobotStates;
 
 public class IntakeGamepiece extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
@@ -45,6 +46,6 @@ public class IntakeGamepiece extends Command {
   @Override
   public boolean isFinished() {
     // TODO: change to: if gamepiece is seen (debounced)
-    return false;
+    return RobotStates.coralInRobot;
   }
 }

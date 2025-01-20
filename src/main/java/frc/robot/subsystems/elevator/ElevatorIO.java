@@ -14,6 +14,7 @@ public interface ElevatorIO {
     public double appliedVolts;
     public double currentAmps;
     public double tempCelsius;
+    public boolean motorZeroed;
 
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);

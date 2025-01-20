@@ -54,7 +54,7 @@ public class AutoSubstateMachineDriveTranslation extends AutoSubstateMachine {
   }
 
   private StateHandler pickupGamepiece() {
-    led.setBaseRobotState(BaseRobotState.AUTO_DRIVE_TO_POSE);
+    // led.setBaseRobotState(BaseRobotState.AUTO_DRIVE_TO_POSE);
     ChassisSpeeds speeds =
         driveToGamepieceHelper.calculateChassisSpeeds(
             gamepieceTranslation, drive.getPoseEstimatorPose(true));

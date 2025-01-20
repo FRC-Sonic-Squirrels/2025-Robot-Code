@@ -245,8 +245,8 @@ public class Robot extends LoggedRobot {
       robotContainer.matchRawOdometryToPoseEstimatorValue();
     }
 
-    logBreakModeButton.info(robotContainer.breakModeButton.get());
-    logHomeSensorsButton.info(robotContainer.homeSensorsButton.get());
+    logBreakModeButton.info(robotContainer.brakeModeButton.get());
+    logHomeSensorsButton.info(robotContainer.zeroSensorsButton.get());
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
