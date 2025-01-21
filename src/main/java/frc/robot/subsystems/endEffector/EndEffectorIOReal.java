@@ -99,7 +99,6 @@ public class EndEffectorIOReal implements EndEffectorIO {
     var config = motor.getConfigurator();
 
     config.refresh(pidConfig);
-    config.refresh(mmConfig);
 
     pidConfig.kP = kP;
     pidConfig.kV = kV;

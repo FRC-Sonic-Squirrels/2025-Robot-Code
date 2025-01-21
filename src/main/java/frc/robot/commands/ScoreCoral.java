@@ -190,9 +190,7 @@ public class ScoreCoral extends StateMachine {
   private StateHandler end(boolean interrupted) {
     led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
     spawnCommand(
-        MechanismActions.stowPosition(
-            elevator,
-            arm), // TODO: potentially change to coral station position TODO: this may cause end
+        MechanismActions.coralStationPosition(elevator, arm), // TODO: this may cause end
         // effector to hit the reef, potentially add intermediate position
         (command) -> null);
     endEffector.setPercentOut(0);

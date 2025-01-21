@@ -38,13 +38,9 @@ public class ElevatorIOReal implements ElevatorIO {
   private StatusSignal<Current> current;
   private StatusSignal<Temperature> temp;
 
-  private boolean motorZeroed = false;
-
   private final BaseStatusSignal[] refreshSet;
 
   public ElevatorIOReal() {
-    motorZeroed = motor.hasResetOccurred();
-
     // Motor config
     TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -98,7 +94,6 @@ public class ElevatorIOReal implements ElevatorIO {
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.currentAmps = current.getValue().in(Units.Amps);
     inputs.tempCelsius = temp.getValue().in(Units.Celsius);
-    inputs.motorZeroed = motorZeroed;
   }
 
   @Override
@@ -115,7 +110,6 @@ public class ElevatorIOReal implements ElevatorIO {
 
   @Override
   public void setSensorPosition(Distance position) {
-    motorZeroed = true;
     motor.setPosition(position.in(Units.Inches) * ElevatorConstants.INCHES_TO_MOTOR_ROT);
   }
 

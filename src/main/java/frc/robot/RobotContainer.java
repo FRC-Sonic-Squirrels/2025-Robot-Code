@@ -149,7 +149,11 @@ public class RobotContainer {
       visionGamepiece =
           new VisionGamepiece(
               new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
-      led = new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
+      led =
+          new LED(
+              () -> brakeModeTriggered,
+              drivetrain::isGyroConnected,
+              () -> elevator.getHeight().in(Units.Inches) < 0.1);
     } else { // REAL and SIM robots HERE
       switch (robotType) {
         case ROBOT_SIMBOT_REAL_CAMERAS:
@@ -211,7 +215,10 @@ public class RobotContainer {
           intake = new Intake(new IntakeIOSim());
           endEffector = new EndEffector(new EndEffectorIO() {});
           led =
-              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
+              new LED(
+                  () -> brakeModeTriggered,
+                  drivetrain::isGyroConnected,
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         case ROBOT_2023_RETIRED_ROBER:
@@ -239,7 +246,10 @@ public class RobotContainer {
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
 
           led =
-              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
+              new LED(
+                  () -> brakeModeTriggered,
+                  drivetrain::isGyroConnected,
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         case ROBOT_2024_RETIRED_MAESTRO:
@@ -267,7 +277,10 @@ public class RobotContainer {
                   new VisionGamepieceIOReal(), drivetrain::getPoseEstimatorPoseAtTimestamp);
 
           led =
-              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
+              new LED(
+                  () -> brakeModeTriggered,
+                  drivetrain::isGyroConnected,
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         case ROBOT_2025:
@@ -295,7 +308,10 @@ public class RobotContainer {
                   new VisionGamepieceIOReal(), drivetrain::getPoseEstimatorPoseAtTimestamp);
 
           led =
-              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
+              new LED(
+                  () -> brakeModeTriggered,
+                  drivetrain::isGyroConnected,
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         default:
@@ -322,7 +338,10 @@ public class RobotContainer {
                   new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
 
           led =
-              new LED(() -> brakeModeTriggered, drivetrain::isGyroConnected, elevator::motorZeroed);
+              new LED(
+                  () -> brakeModeTriggered,
+                  drivetrain::isGyroConnected,
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
       }
     }
@@ -438,7 +457,7 @@ public class RobotContainer {
                         ScoringDirection.RIGHT,
                         (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
-    driverController.a().whileTrue(MechanismActions.stowPosition(elevator, arm));
+    driverController.a().whileTrue(MechanismActions.coralStationPosition(elevator, arm));
     driverController.b().onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
 
     // Change scoring height

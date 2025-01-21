@@ -92,7 +92,7 @@ public class LED extends SubsystemBase {
                 setProgressBar(Color.kGreen, (double) robotLoops / (double) robotLoopsTillReady);
               } else if (!brakeMode.get()) {
                 setSnake(Color.kGreen, Color.kCrimson);
-              } else if (!motorsZeroed.get()) {
+              } else if (!motorsZeroed.get() && DriverStation.isDisabled()) {
                 setSnake(Color.kRed, Color.kPurple);
               } else if (!gyroConnected.get() && !Constants.RobotMode.isSimBot()) {
                 setBlinking(Color.kAquamarine);
