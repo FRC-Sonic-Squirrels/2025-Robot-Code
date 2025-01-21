@@ -20,21 +20,10 @@ public class WheelRadiusCharacterization extends Command {
 
   private static final LoggerEntry.Decimal loggerCurrentEstimatedRadius =
       loggerGroup.buildDecimal("CurrentEstimatedRadius");
-  private static final LoggerEntry.Decimal loggerCurrentEstimatedRadius0 =
-      loggerGroup.buildDecimal("CurrentEstimatedRadius0");
-  private static final LoggerEntry.Decimal loggerCurrentEstimatedRadius1 =
-      loggerGroup.buildDecimal("CurrentEstimatedRadius1");
-  private static final LoggerEntry.Decimal loggerCurrentEstimatedRadius2 =
-      loggerGroup.buildDecimal("CurrentEstimatedRadius2");
-  private static final LoggerEntry.Decimal loggerCurrentEstimatedRadius3 =
-      loggerGroup.buildDecimal("CurrentEstimatedRadius3");
-  private static final LoggerEntry.Decimal loggerCurrentYaw =
-      loggerGroup.buildDecimal("CurrentYaw");
-  private static final LoggerEntry.Decimal loggerCurrentAverageWheelPos =
-      loggerGroup.buildDecimal("CurrentAverageWheelPos");
+
   private final DrivetrainWrapper drivetrainWrapper;
   // radians per second
-  private final double characterizationSpeed = 0.5;
+  private final double characterizationSpeed;
   // inches
   private final double driveBaseRadius;
   // inches
@@ -46,11 +35,15 @@ public class WheelRadiusCharacterization extends Command {
   // radians
   private Angle[] initialWheelRotations;
 
-  public WheelRadiusCharacterization(DrivetrainWrapper drivetrainWrapper, RobotConfig config) {
-    // Use addRequirements() here to declare subsystem dependencies.
+  // rotates the robot in place at characterizationSpeed rads/sec
+  // and outputs the radius of the wheels in inches
+  public WheelRadiusCharacterization(
+      DrivetrainWrapper drivetrainWrapper, RobotConfig config, double characterizationSpeed) {
+    this.characterizationSpeed = characterizationSpeed;
     this.drivetrainWrapper = drivetrainWrapper;
     driveBaseRadius = Units.Meters.of(config.getDriveBaseRadius()).in(Units.Inches);
-    // addRequirements(drivetrainWrapper.drivetrain);
+    // Use addRequirements() here to declare subsystem dependencies.
+    // addRequirements();
   }
 
   // Called when the command is initially scheduled.
@@ -76,32 +69,13 @@ public class WheelRadiusCharacterization extends Command {
     Angle[] wheelRotations = drivetrainWrapper.getModuleRotations();
     for (int i = 0; i < 4; i++) {
       averageWheelRotation +=
-          wheelRotations[i].in(Units.Radians) - initialWheelRotations[i].in(Units.Radians);
+          Math.abs(
+              wheelRotations[i].in(Units.Radians) - initialWheelRotations[i].in(Units.Radians));
     }
-    // TODO: wheel rotation slows down after a bit? makes the radius go up to an incorrect value
     averageWheelRotation /= 4;
     double currentEstimatedRadius = (totalYaw * driveBaseRadius) / averageWheelRotation;
 
-    double currentEstimatedRadius0 =
-        (totalYaw * driveBaseRadius)
-            / (wheelRotations[0].in(Units.Radians) - initialWheelRotations[0].in(Units.Radians));
-    double currentEstimatedRadius1 =
-        (totalYaw * driveBaseRadius)
-            / (wheelRotations[1].in(Units.Radians) - initialWheelRotations[1].in(Units.Radians));
-    double currentEstimatedRadius2 =
-        (totalYaw * driveBaseRadius)
-            / (wheelRotations[2].in(Units.Radians) - initialWheelRotations[2].in(Units.Radians));
-    double currentEstimatedRadius3 =
-        (totalYaw * driveBaseRadius)
-            / (wheelRotations[3].in(Units.Radians) - initialWheelRotations[3].in(Units.Radians));
-
     loggerCurrentEstimatedRadius.info(currentEstimatedRadius);
-    loggerCurrentEstimatedRadius0.info(currentEstimatedRadius0);
-    loggerCurrentEstimatedRadius1.info(currentEstimatedRadius1);
-    loggerCurrentEstimatedRadius2.info(currentEstimatedRadius2);
-    loggerCurrentEstimatedRadius3.info(currentEstimatedRadius3);
-    loggerCurrentYaw.info(totalYaw);
-    loggerCurrentAverageWheelPos.info(averageWheelRotation);
   }
 
   // Called once the command ends or is interrupted.

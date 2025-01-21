@@ -44,7 +44,6 @@ import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
-import frc.robot.configs.RobotConfig2024Maestro;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -472,7 +471,8 @@ public class RobotContainer {
       driverController
           .povDown()
           .whileTrue(
-              new WheelRadiusCharacterization(drivetrainWrapper, new RobotConfig2024Maestro()));
+              new WheelRadiusCharacterization(
+                  drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
     // ---------- OPERATOR CONTROLS -----------
 
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
