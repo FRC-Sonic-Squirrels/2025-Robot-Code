@@ -498,7 +498,7 @@ public class RobotContainer {
           .whileTrue(
               new WheelRadiusCharacterization(
                   drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
-      
+
     // ---------- ON-ROBOT CONTROLS ------------
 
     homeSensorsButtonTrigger.onTrue(
