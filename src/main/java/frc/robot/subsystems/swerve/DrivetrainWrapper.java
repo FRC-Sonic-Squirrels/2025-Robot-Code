@@ -47,13 +47,7 @@ public class DrivetrainWrapper {
     }
     logOmegaOverride.info(omegaOverride);
 
-    ChassisSpeeds chassisSpeeds;
-
-    if (chassisSpeedsOverride != null) {
-      chassisSpeeds = chassisSpeedsOverride;
-    } else {
-      chassisSpeeds = chassisSpeedsBase.times(baseSpeedScalar.getAsDouble());
-    }
+    ChassisSpeeds chassisSpeeds = chassisSpeedsBase.times(baseSpeedScalar.getAsDouble());
 
     boolean prioritizeRotation;
 
@@ -64,6 +58,9 @@ public class DrivetrainWrapper {
               chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, omegaOverride);
     } else {
       prioritizeRotation = false;
+    }
+    if (chassisSpeedsOverride != null) {
+      chassisSpeeds = chassisSpeedsOverride;
     }
 
     drivetrain.runVelocity(chassisSpeeds, prioritizeRotation);
