@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -539,6 +540,10 @@ public class Drivetrain extends SubsystemBase {
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
   private SwerveModuleState[] getModuleStates() {
     return modules.getModuleStates();
+  }
+
+  public Angle[] getModuleDriveRotations() {
+    return modules.getRawModuleDrivePosition();
   }
 
   public ChassisSpeeds getChassisSpeeds() {

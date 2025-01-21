@@ -16,6 +16,7 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix6.BaseStatusSignal;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import java.util.List;
 
@@ -39,6 +40,15 @@ public class SwerveModules {
   public SwerveModuleState[] getModuleStates() {
     return new SwerveModuleState[] {
       front_left.getState(), front_right.getState(), back_left.getState(), back_right.getState()
+    };
+  }
+
+  public Angle[] getRawModuleDrivePosition() {
+    return new Angle[] {
+      front_left.getRawDrivePosition(),
+      front_right.getRawDrivePosition(),
+      back_left.getRawDrivePosition(),
+      back_right.getRawDrivePosition()
     };
   }
 

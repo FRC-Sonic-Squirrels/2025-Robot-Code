@@ -39,10 +39,12 @@ import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
+import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
+import frc.robot.configs.RobotConfig2024Maestro;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -466,7 +468,11 @@ public class RobotContainer {
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L1;
                 }));
-
+    if (!DriverStation.isFMSAttached())
+      driverController
+          .povDown()
+          .whileTrue(
+              new WheelRadiusCharacterization(drivetrainWrapper, new RobotConfig2024Maestro()));
     // ---------- OPERATOR CONTROLS -----------
 
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
