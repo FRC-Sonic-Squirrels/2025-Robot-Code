@@ -50,26 +50,34 @@ public class IntakeGamepiece extends Command {
 
     // TODO: add logic to intake gamepiece
     // TODO: add proper degrees for both human player and ground intake variants
-    if (!intakeGround) {
-      arm.setAngle(Rotation2d.fromDegrees(55));
-      if (!(arm.getAngle().getDegrees() > 53) && !(arm.getAngle().getDegrees() < 57)) {
-        intake.setVelocity(0.0);
-        endEffector.setVelocity(0.0);
-      } else {
-        intake.setVelocity(intakingVelocity.get());
-        arm.setAngle(Rotation2d.fromDegrees(135));
-        endEffector.setVelocity(intakingVelocity.get());
-      }
+    if (!endEffector.tofSeenGamepiece()) {
+      intake.setVelocity(0);
+      endEffector.setVelocity(0);
 
     } else {
-      arm.setAngle(Rotation2d.fromDegrees(0));
-      if (!(arm.getAngle().getDegrees() < 3)) {
-        intake.setVelocity(0.0);
-        endEffector.setVelocity(0.0);
+      if (!intakeGround) {
+        arm.setAngle(Rotation2d.fromDegrees(55));
+        if (!(arm.getAngle().getDegrees() > 53) && !(arm.getAngle().getDegrees() < 57)) {
+          intake.setVelocity(0.0);
+          endEffector.setVelocity(0.0);
+
+        } else {
+          intake.setVelocity(intakingVelocity.get());
+          arm.setAngle(Rotation2d.fromDegrees(135));
+          endEffector.setVelocity(intakingVelocity.get());
+        }
+
       } else {
-        intake.setVelocity(intakingVelocity.get());
-        arm.setAngle(Rotation2d.fromDegrees(135));
-        endEffector.setVelocity(intakingVelocity.get());
+        arm.setAngle(Rotation2d.fromDegrees(0));
+        if (!(arm.getAngle().getDegrees() < 3)) {
+          intake.setVelocity(0.0);
+          endEffector.setVelocity(0.0);
+
+        } else {
+          intake.setVelocity(intakingVelocity.get());
+          arm.setAngle(Rotation2d.fromDegrees(135));
+          endEffector.setVelocity(intakingVelocity.get());
+        }
       }
     }
   }
