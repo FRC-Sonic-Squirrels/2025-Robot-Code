@@ -629,8 +629,6 @@ public class RobotContainer {
   }
 
   public void enterDisabled() {
-    // FIXME: need to remove max distance away from current estimate restriction for
-    // vision
     resetSubsystems();
     vision.useMaxDistanceAwayFromExistingEstimate(false);
     vision.useGyroBasedFilteringForVision(false);
