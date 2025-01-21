@@ -312,7 +312,7 @@ public final class Constants {
 
     public static final int SHOOTER_CAN_ID = 33;
     public static final int SHOOTER_PIVOT_CAN_ID = 32;
-    public static final int SHOOTER_TOF_CAN_ID = 38;
+    public static final int END_EFFECTOR_TOF_CAN_ID = 38;
 
     public static final int ARM_CAN_ID = 17;
 
