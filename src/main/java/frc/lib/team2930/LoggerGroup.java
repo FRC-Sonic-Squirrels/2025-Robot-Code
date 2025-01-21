@@ -258,7 +258,7 @@ public class LoggerGroup {
 
     // Create new log
     try {
-      dataLog_handle = new DataLogWriter(logFile.toString(), logWriter_extraHeader);
+      dataLog_handle = new DataLogWriter(logFile.getAbsolutePath(), logWriter_extraHeader);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

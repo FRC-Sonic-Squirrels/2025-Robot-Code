@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -149,5 +150,9 @@ public class DrivetrainWrapper {
 
   public Rotation2d getRotationGyroOnly() {
     return drivetrain.getRotationGyroOnly();
+  }
+
+  public Angle[] getModuleRotations() {
+    return drivetrain.getModuleDriveRotations();
   }
 }

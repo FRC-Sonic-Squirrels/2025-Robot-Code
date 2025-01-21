@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -228,6 +229,10 @@ public class SwerveModule {
   /** Returns the current drive position of the module in meters. */
   public Distance getDrivePosition() {
     return Units.Meters.of(inputs.drivePositionRad * wheelRadius);
+  }
+
+  public Angle getRawDrivePosition() {
+    return Units.Radians.of(inputs.drivePositionRad);
   }
 
   /** Returns the current drive velocity of the module in meters per second. */
