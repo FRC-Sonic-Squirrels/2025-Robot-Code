@@ -478,6 +478,22 @@ public class RobotContainer {
         .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
 
     // Change scoring height
+    var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+
+    Pose2d[] reefAprilTagPose = {
+      layout.getTagPose(6).get().toPose2d(),
+      layout.getTagPose(7).get().toPose2d(),
+      layout.getTagPose(8).get().toPose2d(),
+      layout.getTagPose(9).get().toPose2d(),
+      layout.getTagPose(10).get().toPose2d(),
+      layout.getTagPose(11).get().toPose2d(),
+      layout.getTagPose(17).get().toPose2d(),
+      layout.getTagPose(18).get().toPose2d(),
+      layout.getTagPose(19).get().toPose2d(),
+      layout.getTagPose(20).get().toPose2d(),
+      layout.getTagPose(21).get().toPose2d(),
+      layout.getTagPose(22).get().toPose2d()
+    };
 
     driverController
         .y()
@@ -499,34 +515,12 @@ public class RobotContainer {
             new RotateToAngle(
                 drivetrainWrapper,
                 () -> {
-                  var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
-
-                  Pose2d[] reefAprilTagPose = {
-                    layout.getTagPose(6).get().toPose2d(),
-                    layout.getTagPose(7).get().toPose2d(),
-                    layout.getTagPose(8).get().toPose2d(),
-                    layout.getTagPose(9).get().toPose2d(),
-                    layout.getTagPose(10).get().toPose2d(),
-                    layout.getTagPose(11).get().toPose2d(),
-                    layout.getTagPose(17).get().toPose2d(),
-                    layout.getTagPose(18).get().toPose2d(),
-                    layout.getTagPose(19).get().toPose2d(),
-                    layout.getTagPose(20).get().toPose2d(),
-                    layout.getTagPose(21).get().toPose2d(),
-                    layout.getTagPose(22).get().toPose2d()
-                  };
-
                   Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
 
                   Pose2d nearestAprilTag = null;
                   nearestAprilTag = FindNearestAprilTag(robotTranslation, reefAprilTagPose);
 
-                  Rotation2d finalRotationValue =
-                      nearestAprilTag.getRotation().rotateBy(Rotation2d.k180deg);
-
-                  if (Constants.unusedCode) {
-                    System.out.printf("Angle: %f\n", finalRotationValue.getDegrees());
-                  }
+                  Rotation2d finalRotationValue = nearestAprilTag.getRotation();
 
                   return finalRotationValue;
                 },
@@ -549,6 +543,18 @@ public class RobotContainer {
                 () -> {
                   RobotStates.clearingAglae = false;
                 }));
+
+    driverController
+        .b()
+        .toggleOnTrue(
+            new RotateToAngle(
+                drivetrainWrapper,
+                () -> {
+                  Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
+
+                  return FaceTowardsCenter(robotTranslation, reefAprilTagPose);
+                },
+                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
 
     // ---------- OPERATOR CONTROLS -----------
 
@@ -674,7 +680,39 @@ public class RobotContainer {
     return nearestAprilTag;
   }
 
-  ///////
+  /////// function to make robot always face towards the center
+  public static Rotation2d FaceTowardsCenter(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
+    Pose2d tag1;
+    Pose2d tag2;
+    if (Constants.isRedAlliance()) {
+      tag1 = reefAprilTagPose[1];
+      tag2 = reefAprilTagPose[4];
+    } else {
+      tag1 = reefAprilTagPose[8];
+      tag2 = reefAprilTagPose[11];
+    }
+    var distance = tag2.minus(tag1);
+    var halfway = distance.times(0.5);
+    var center = tag1.plus(halfway);
+
+    double targetX = center.getX();
+    double targetY = center.getY();
+
+    double robotX = robotTranslation.getX();
+    double robotY = robotTranslation.getY();
+
+    double angleToCenter = Math.atan2(targetY - robotY, targetX - robotX);
+
+    double robotAngle = robotTranslation.getRotation().getRadians();
+    double angularError = angleToCenter - robotAngle;
+    double normalizedAngleToCenter = Math.atan2(Math.sin(angleToCenter), Math.cos(angleToCenter));
+
+    var offset = center.minus(robotTranslation);
+
+    Rotation2d finalRotation = new Rotation2d(normalizedAngleToCenter);
+    return finalRotation.rotateBy(Rotation2d.k180deg);
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
