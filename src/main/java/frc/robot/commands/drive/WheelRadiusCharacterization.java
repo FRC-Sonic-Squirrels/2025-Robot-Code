@@ -26,8 +26,6 @@ public class WheelRadiusCharacterization extends Command {
   private final double characterizationSpeed;
   // inches
   private final double driveBaseRadius;
-  // inches
-  private double currentEstimatedRadius;
   // radians
   private double lastYaw;
   // radians
@@ -42,8 +40,6 @@ public class WheelRadiusCharacterization extends Command {
     this.characterizationSpeed = characterizationSpeed;
     this.drivetrainWrapper = drivetrainWrapper;
     driveBaseRadius = Units.Meters.of(config.getDriveBaseRadius()).in(Units.Inches);
-    // Use addRequirements() here to declare subsystem dependencies.
-    // addRequirements();
   }
 
   // Called when the command is initially scheduled.
@@ -54,7 +50,6 @@ public class WheelRadiusCharacterization extends Command {
     initialWheelRotations = drivetrainWrapper.getModuleRotations();
 
     drivetrainWrapper.setRotationOverride(characterizationSpeed);
-    drivetrainWrapper.apply();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
