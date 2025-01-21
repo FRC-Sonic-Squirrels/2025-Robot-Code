@@ -467,12 +467,6 @@ public class RobotContainer {
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L1;
                 }));
-    if (!DriverStation.isFMSAttached())
-      driverController
-          .povDown()
-          .whileTrue(
-              new WheelRadiusCharacterization(
-                  drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
     // ---------- OPERATOR CONTROLS -----------
 
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
@@ -498,6 +492,13 @@ public class RobotContainer {
                   RobotStates.clearingAglae = false;
                 }));
 
+    if (!DriverStation.isFMSAttached())
+      operatorController
+          .povDown()
+          .whileTrue(
+              new WheelRadiusCharacterization(
+                  drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
+      
     // ---------- ON-ROBOT CONTROLS ------------
 
     homeSensorsButtonTrigger.onTrue(

@@ -27,7 +27,7 @@ public class WheelRadiusCharacterization extends Command {
   // inches
   private final double driveBaseRadius;
   // inches
-  public double currentEstimatedRadius;
+  private double currentEstimatedRadius;
   // radians
   private double lastYaw;
   // radians
@@ -52,13 +52,14 @@ public class WheelRadiusCharacterization extends Command {
     lastYaw = drivetrainWrapper.getPoseEstimatorPose(true).getRotation().getRadians();
     totalYaw = 0.0;
     initialWheelRotations = drivetrainWrapper.getModuleRotations();
+
+    drivetrainWrapper.setRotationOverride(characterizationSpeed);
+    drivetrainWrapper.apply();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrainWrapper.setRotationOverride(characterizationSpeed);
-    drivetrainWrapper.apply();
 
     totalYaw +=
         MathUtil.angleModulus(
