@@ -457,8 +457,10 @@ public class RobotContainer {
                         ScoringDirection.RIGHT,
                         (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
-    driverController.a().whileTrue(MechanismActions.coralStationPosition(elevator, arm));
-    driverController.b().onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
+    driverController.povRight().onTrue(MechanismActions.coralStationPosition(elevator, arm));
+    driverController
+        .povLeft()
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
 
     // Change scoring height
 

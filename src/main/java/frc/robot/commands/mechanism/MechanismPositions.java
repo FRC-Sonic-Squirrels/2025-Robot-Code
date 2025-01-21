@@ -74,9 +74,9 @@ public class MechanismPositions {
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
-      stowElevatorHeightInches.initDefault(12);
-      stowArmAngleDegrees.initDefault(0);
-      reefL1ElevatorHeightInches.initDefault(20);
+      stowElevatorHeightInches.initDefault(2);
+      stowArmAngleDegrees.initDefault(80);
+      reefL1ElevatorHeightInches.initDefault(16);
       reefL1ArmAngleDegrees.initDefault(43);
       reefL2ElevatorHeightInches.initDefault(16);
       reefL2ArmAngleDegrees.initDefault(0);
@@ -86,14 +86,14 @@ public class MechanismPositions {
       reefL4ArmAngleDegrees.initDefault(120);
       coralStationElevatorHeightInches.initDefault(16);
       coralStationArmAngleDegrees.initDefault(-45);
-      algaeClearingLow1ElevatorHeightInches.initDefault(0);
-      algaeClearingLow1ArmAngleDegrees.initDefault(0);
-      algaeClearingLow2ElevatorHeightInches.initDefault(0);
-      algaeClearingLow2ArmAngleDegrees.initDefault(0);
-      algaeClearingHigh1ElevatorHeightInches.initDefault(0);
-      algaeClearingHigh1ArmAngleDegrees.initDefault(0);
-      algaeClearingHigh2ElevatorHeightInches.initDefault(0);
-      algaeClearingHigh2ArmAngleDegrees.initDefault(0);
+      algaeClearingLow1ElevatorHeightInches.initDefault(16);
+      algaeClearingLow1ArmAngleDegrees.initDefault(120);
+      algaeClearingLow2ElevatorHeightInches.initDefault(20);
+      algaeClearingLow2ArmAngleDegrees.initDefault(110);
+      algaeClearingHigh1ElevatorHeightInches.initDefault(20);
+      algaeClearingHigh1ArmAngleDegrees.initDefault(120);
+      algaeClearingHigh2ElevatorHeightInches.initDefault(24);
+      algaeClearingHigh2ArmAngleDegrees.initDefault(110);
     } else {
       stowElevatorHeightInches.initDefault(11.6);
       stowArmAngleDegrees.initDefault(11.6);
