@@ -11,6 +11,8 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -34,6 +36,8 @@ public class EndEffectorIOReal implements EndEffectorIO {
       new MotionMagicVelocityVoltage(0).withEnableFOC(true);
 
   private final BaseStatusSignal[] refreshSet;
+
+  private final TimeOfFlight tof = new TimeOfFlight(Constants.CanIDs.ELEVATOR_CAN_ID);
 
   public EndEffectorIOReal() {
     // Motor config
@@ -67,6 +71,12 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
     motor.optimizeBusUtilization();
     refreshSet = new BaseStatusSignal[] {current, deviceTemp, appliedVoltage, velocity};
+
+    // Time of Flight
+
+    tof.setRangeOfInterest(6, 6, 10, 10);
+
+    tof.setRangingMode(RangingMode.Short, 25);
   }
 
   @Override
@@ -77,6 +87,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.velocityRPM = velocity.getValue().in(Units.RPM);
+    inputs.tofDistInches = Units.Millimeters.of(tof.getRange()).in(Units.Inches);
   }
 
   @Override

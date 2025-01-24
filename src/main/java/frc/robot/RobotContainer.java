@@ -680,10 +680,13 @@ public class RobotContainer {
     brakeModeTriggered = true;
   }
 
-  public void updateLedGamepieceState() {
+  public void updateGamepieceState() {
+    RobotStates.coralInEndEffector = endEffector.tofDistance().in(Units.Inches) < 11.0;
+
     if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
     }
+
     if (!gamepieceInRobot.getAsBoolean() && led.getGamepieceStatus()) {
       led.setGamepieceStatus(false);
     }

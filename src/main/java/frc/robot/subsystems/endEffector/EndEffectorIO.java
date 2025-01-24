@@ -10,6 +10,7 @@ public interface EndEffectorIO {
     public double currentAmps;
     public double tempCelsius;
     public double appliedVolts;
+    public double tofDistInches;
 
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);

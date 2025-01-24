@@ -7,6 +7,7 @@ package frc.robot.subsystems.endEffector;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.ControlMode;
 import frc.lib.team2930.ExecutionTiming;
@@ -33,6 +34,8 @@ public class EndEffector extends SubsystemBase {
       logGroup.buildDecimal("TempCelsius");
   private static final LoggerEntry.Decimal logInputs_appliedVolts =
       logGroup.buildDecimal("AppliedVolts");
+  private static final LoggerEntry.Decimal logInputs_tofDist =
+      logGroup.buildDecimal("tofDistInches");
 
   private static final LoggerEntry.Decimal logTargetVelocityRPM =
       logGroup.buildDecimal("TargetVelocityRPM");
@@ -89,6 +92,7 @@ public class EndEffector extends SubsystemBase {
       logInputs_currentAmps.info(inputs.currentAmps);
       logInputs_tempCelsius.info(inputs.tempCelsius);
       logInputs_appliedVolts.info(inputs.appliedVolts);
+      logInputs_tofDist.info(inputs.tofDistInches);
 
       logControlMode.info(controlMode);
 
@@ -129,5 +133,9 @@ public class EndEffector extends SubsystemBase {
 
   public AngularVelocity getVelocity() {
     return Units.RPM.of(inputs.velocityRPM);
+  }
+
+  public Distance tofDistance() {
+    return Units.Inches.of(inputs.tofDistInches);
   }
 }
