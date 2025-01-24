@@ -49,6 +49,8 @@ public class ScoreCoral extends StateMachine {
   private Command clearAlgae1Position;
   private Command clearAlgae2Position;
 
+  private final Command driveToPose;
+
   private final Consumer<Double> rumble;
 
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
@@ -91,6 +93,8 @@ public class ScoreCoral extends StateMachine {
     scoringPoseAndSide = getClosestScoringSide(robotPose);
     scoringPose = scoringPoseAndSide.pose();
     this.scoringSide = scoringPoseAndSide.side();
+    driveToPose =
+        new DriveToPose(wrapper, () -> algaeClearPose, () -> wrapper.getPoseEstimatorPose(true));
 
     log_scoringSide.info(scoringSide);
     log_scoringDirection.info(scoringDirection);
@@ -124,8 +128,7 @@ public class ScoreCoral extends StateMachine {
             : MechanismActions.clearAlgaeLow2Position(elevator, arm);
 
     spawnCommand(
-        new DriveToPose(wrapper, () -> algaeClearPose, () -> wrapper.getPoseEstimatorPose(true)),
-        (command) -> stateWithName("ClearAlgae", () -> initializeClearAlgae()));
+        driveToPose, (command) -> stateWithName("ClearAlgae", () -> initializeClearAlgae()));
 
     prepMechanismForAlgae =
         spawnCommand(

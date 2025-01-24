@@ -56,7 +56,7 @@ public final class Constants {
   }
 
   public static class RobotMode {
-    private static final RobotType ROBOT = RobotType.ROBOT_2024_RETIRED_MAESTRO;
+    private static final RobotType ROBOT = RobotType.ROBOT_2025;
 
     private static final Alert invalidRobotAlert =
         new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -244,15 +244,18 @@ public final class Constants {
   }
 
   public static class ElevatorConstants { // TODO: check all constants for new season
-    public static final double GEAR_RATIO = 23.05;
+    public static final double GEAR_RATIO = 4;
     public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.256);
-    public static final double CARRIAGE_MASS = 10.0; // arbitrary
+    public static final double CARRIAGE_MASS = 1.0; // arbitrary
 
     public static final double INCHES_TO_MOTOR_ROT =
         Constants.ElevatorConstants.GEAR_RATIO
             / (Math.PI * Constants.ElevatorConstants.PULLEY_DIAMETER.in(Units.Inches));
 
-    public static final Distance MAX_HEIGHT = Units.Inches.of(26.2);
+    public static final Distance MAX_HEIGHT =
+        RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
+            ? Units.Inches.of(26.2)
+            : Units.Inches.of(55);
     public static final Distance TRUE_TOP_HARD_STOP = Units.Inches.of(26.5);
 
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
@@ -323,7 +326,10 @@ public final class Constants {
 
     public static final Rotation2d TRAP_SCORE_ANGLE = Rotation2d.fromDegrees(15.0);
 
-    public static final Distance ARM_LENGTH = Units.Inches.of(14);
+    public static final Distance ARM_LENGTH =
+        RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
+            ? Units.Inches.of(14)
+            : Units.Inches.of(22.080109);
 
     public static final String ROOT_TABLE = "Arm";
   }

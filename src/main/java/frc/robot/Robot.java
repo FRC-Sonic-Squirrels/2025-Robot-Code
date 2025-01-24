@@ -178,7 +178,7 @@ public class Robot extends LoggedRobot {
 
     robotContainer.applyToDrivetrain();
     robotContainer.updateVisualization();
-    robotContainer.updateGamepieceState();
+    robotContainer.updateRobotState();
 
     LoggerGroup.publish();
   }

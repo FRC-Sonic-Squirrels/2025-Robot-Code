@@ -97,16 +97,16 @@ public class MechanismPositions {
     } else {
       stowElevatorHeightInches.initDefault(11.6);
       stowArmAngleDegrees.initDefault(11.6);
-      reefL1ElevatorHeightInches.initDefault(20); // just above where game manual has it set
-      reefL1ArmAngleDegrees.initDefault(43);
-      reefL2ElevatorHeightInches.initDefault(32); // just above where game manual has it set
-      reefL2ArmAngleDegrees.initDefault(35);
-      reefL3ElevatorHeightInches.initDefault(48); // just above where game manual has it set
-      reefL3ArmAngleDegrees.initDefault(35);
-      reefL4ElevatorHeightInches.initDefault(72); // 72 inches IS 6 feet, probably change this value
-      reefL4ArmAngleDegrees.initDefault(90);
-      coralStationElevatorHeightInches.initDefault(38);
-      coralStationArmAngleDegrees.initDefault(55);
+      reefL1ElevatorHeightInches.initDefault(1);
+      reefL1ArmAngleDegrees.initDefault(140);
+      reefL2ElevatorHeightInches.initDefault(15);
+      reefL2ArmAngleDegrees.initDefault(150);
+      reefL3ElevatorHeightInches.initDefault(30);
+      reefL3ArmAngleDegrees.initDefault(150);
+      reefL4ElevatorHeightInches.initDefault(55);
+      reefL4ArmAngleDegrees.initDefault(150);
+      coralStationElevatorHeightInches.initDefault(32);
+      coralStationArmAngleDegrees.initDefault(-40);
       algaeClearingLow1ElevatorHeightInches.initDefault(0);
       algaeClearingLow1ArmAngleDegrees.initDefault(0);
       algaeClearingLow2ElevatorHeightInches.initDefault(0);

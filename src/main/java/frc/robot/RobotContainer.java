@@ -60,6 +60,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionModuleConfiguration;
 import frc.robot.subsystems.visionGamepiece.*;
 import frc.robot.visualization.MechanismVisualization;
+import frc.robot.visualization.SimpleMechanismVisualization;
 import java.util.HashMap;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -112,6 +113,16 @@ public class RobotContainer {
   private boolean is_autonomous;
 
   private boolean brakeModeFailure = false;
+
+  private static LoggerGroup robotStateLogGroup = LoggerGroup.build("RobotState");
+  private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
+      robotStateLogGroup.buildEnum("Levels/Level");
+  private static LoggerEntry.Bool logL1State = robotStateLogGroup.buildBoolean("Levels/L1");
+  private static LoggerEntry.Bool logL2State = robotStateLogGroup.buildBoolean("Levels/L2");
+  private static LoggerEntry.Bool logL3State = robotStateLogGroup.buildBoolean("Levels/L3");
+  private static LoggerEntry.Bool logL4State = robotStateLogGroup.buildBoolean("Levels/L4");
+  private static LoggerEntry.Bool logAlgaeClearingState =
+      robotStateLogGroup.buildBoolean("AlgaeClearing");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -672,6 +683,8 @@ public class RobotContainer {
     if (Robot.isReal()) return;
 
     MechanismVisualization.logMechanism();
+    SimpleMechanismVisualization.updateVisualization(elevator.getHeight(), arm.getAngle());
+    SimpleMechanismVisualization.logMechanism();
   }
 
   public void resetSubsystems() {}
@@ -680,8 +693,16 @@ public class RobotContainer {
     brakeModeTriggered = true;
   }
 
-  public void updateGamepieceState() {
+  public void updateRobotState() {
     RobotStates.coralInEndEffector = endEffector.tofDistance().in(Units.Inches) < 11.0;
+
+    ScoringLevel level = RobotStates.scoringLevel;
+    logScoringLevelState.info(level);
+    logL1State.info(level == ScoringLevel.L1);
+    logL2State.info(level == ScoringLevel.L2);
+    logL3State.info(level == ScoringLevel.L3);
+    logL4State.info(level == ScoringLevel.L4);
+    logAlgaeClearingState.info(RobotStates.clearingAglae);
 
     if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);

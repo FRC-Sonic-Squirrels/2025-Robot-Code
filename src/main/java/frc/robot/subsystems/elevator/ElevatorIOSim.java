@@ -23,7 +23,7 @@ public class ElevatorIOSim implements ElevatorIO {
               Constants.ElevatorConstants.PULLEY_DIAMETER.in(Units.Meters) / 2.0,
               0.0,
               Constants.ElevatorConstants.MAX_HEIGHT.in(Units.Meter),
-              true,
+              false,
               0));
 
   private VoltageOut openLoopControl = new VoltageOut(0);

@@ -16,6 +16,7 @@ public class RunStateMachineCommand extends Command {
   public RunStateMachineCommand(
       Supplier<StateMachine> stateMachineSupplier, Subsystem... subsystems) {
     this.supplier = stateMachineSupplier;
+    stateMachine = supplier.get();
 
     addRequirements(subsystems);
     // Use addRequirements() here to declare subsystem dependencies.
