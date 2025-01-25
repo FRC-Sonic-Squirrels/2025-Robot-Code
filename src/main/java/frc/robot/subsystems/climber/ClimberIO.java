@@ -2,14 +2,13 @@ package frc.robot.subsystems.climber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants;
 import frc.robot.subsystems.BaseInputs;
 
 public interface ClimberIO {
-    class Inputs extends BaseInputs {
+  class Inputs extends BaseInputs {
     public Rotation2d climberPosition = Constants.zeroRotation2d;
     public double climberAppliedVolts;
     public double climberCurrentAmps;
@@ -36,5 +35,4 @@ public interface ClimberIO {
   public default boolean setNeutralMode(NeutralModeValue value) {
     return false;
   }
-
 }

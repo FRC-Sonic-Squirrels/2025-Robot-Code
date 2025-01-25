@@ -15,7 +15,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 
 public class Climber extends SubsystemBase {
-    // Execution timing
+  // Execution timing
   private static final ExecutionTiming timing = new ExecutionTiming(ClimberConstants.ROOT_TABLE);
 
   // Logging
@@ -35,7 +35,8 @@ public class Climber extends SubsystemBase {
       logGroup.buildDecimal("targetAngleDegrees");
 
   // Tunable Numbers
-  private static final TunableNumberGroup group = new TunableNumberGroup(ClimberConstants.ROOT_TABLE);
+  private static final TunableNumberGroup group =
+      new TunableNumberGroup(ClimberConstants.ROOT_TABLE);
 
   private static final LoggedTunableNumber kP = group.build("kP");
   private static final LoggedTunableNumber kD = group.build("kD");
@@ -66,7 +67,7 @@ public class Climber extends SubsystemBase {
     }
   }
 
-    private final ClimberIO io;
+  private final ClimberIO io;
   private final ClimberIO.Inputs inputs = new ClimberIO.Inputs(logGroup);
 
   private ControlMode controlMode = ControlMode.OPEN_LOOP;
@@ -74,7 +75,7 @@ public class Climber extends SubsystemBase {
 
   /** Creates a new ClimberSubsystem. */
   public Climber(ClimberIO io) {
-    this.io = io; 
+    this.io = io;
 
     io.setVoltage(0.0);
 
@@ -171,6 +172,4 @@ public class Climber extends SubsystemBase {
   public AngularVelocity getVelocity() {
     return Units.DegreesPerSecond.of(inputs.climberVelocityDegreesPerSecond);
   }
-
-
 }
