@@ -512,6 +512,21 @@ public class RobotContainer {
                   RobotStates.scoringLevel = ScoringLevel.L3;
                 }));
     driverController
+        .a()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L2;
+                }));
+    driverController
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  RobotStates.scoringLevel = ScoringLevel.L1;
+                }));
+
+    driverController
         .rightStick()
         .toggleOnTrue(
             new RotateToAngle(
@@ -528,7 +543,7 @@ public class RobotContainer {
                 },
                 () -> drivetrainWrapper.getPoseEstimatorPose(true)));
     driverController
-        .b()
+        .leftStick()
         .toggleOnTrue(
             new RotateToAngle(
                 drivetrainWrapper,
@@ -556,18 +571,6 @@ public class RobotContainer {
                 () -> {
                   RobotStates.clearingAglae = false;
                 }));
-
-    driverController
-        .b()
-        .toggleOnTrue(
-            new RotateToAngle(
-                drivetrainWrapper,
-                () -> {
-                  Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
-
-                  return faceTowardsCenter(robotTranslation, reefAprilTagPose);
-                },
-                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
 
     // ---------- OPERATOR CONTROLS -----------
 
