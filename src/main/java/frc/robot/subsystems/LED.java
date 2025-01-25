@@ -172,7 +172,7 @@ public class LED extends SubsystemBase {
 
   /** setProgressBar() - A bottom-up progress bar will fill the LEDs with pure white at %100. */
   private void setProgressBar(Color color, double percent) {
-    LEDPattern progress = LEDPattern.progressMaskLayer(() -> (percent) / 100);
+    LEDPattern progress = LEDPattern.progressMaskLayer(() -> percent);
     progress.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
