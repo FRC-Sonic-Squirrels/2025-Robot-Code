@@ -21,7 +21,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
 
 public class ClimberIOReal implements ClimberIO{
@@ -43,7 +43,7 @@ public class ClimberIOReal implements ClimberIO{
         // Motor config
         TalonFXConfiguration config = new TalonFXConfiguration();
     
-        config.CurrentLimits.SupplyCurrentLimit = ClimberConstantsConstants.SUPPLY_CURRENT_LIMIT;
+        config.CurrentLimits.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
     
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -53,11 +53,11 @@ public class ClimberIOReal implements ClimberIO{
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-            Constants.ArmConstants.MAX_CLIMBER_ANGLE.getRotations();
+            Constants.ClimberConstants.MAX_CLIMBER_ANGLE.getRotations();
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-            Constants.ArmConstants.MIN_ARM_ANGLE.minus(Rotation2d.fromDegrees(2.0)).getRotations();
+            Constants.ClimberConstants.MIN_CLIMBER_ANGLE.minus(Rotation2d.fromDegrees(2.0)).getRotations();
     
-        config.Feedback.SensorToMechanismRatio = Constants.ArmConstants.GEAR_RATIO;
+        config.Feedback.SensorToMechanismRatio = Constants.ClimberConstants.GEAR_RATIO;
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     
         config.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
@@ -87,7 +87,7 @@ public class ClimberIOReal implements ClimberIO{
       public void updateInputs(Inputs inputs) {
         inputs.refreshAll(refreshSet);
     
-        inputs.climberPositionPosition = Rotation2d.fromRotations(position.getValue().in(Units.Rotations));
+        inputs.climberPosition = Rotation2d.fromRotations(position.getValue().in(Units.Rotations));
         inputs.climberAppliedVolts = appliedVoltage.getValue().in(Units.Volts);
         inputs.climberCurrentAmps = current.getValue().in(Units.Amps);
         inputs.climberTempCelsius = temp.getValue().in(Units.Celsius);
