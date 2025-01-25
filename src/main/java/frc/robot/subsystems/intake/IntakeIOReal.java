@@ -24,7 +24,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.IntakePivotConstants;
+import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
 
 public class IntakeIOReal implements IntakeIO {
@@ -89,7 +89,7 @@ public class IntakeIOReal implements IntakeIO {
 
     TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
 
-    pivotConfig.CurrentLimits.SupplyCurrentLimit = IntakePivotConstants.SUPPLY_CURRENT_LIMIT;
+    pivotConfig.CurrentLimits.SupplyCurrentLimit = PivotConstants.SUPPLY_CURRENT_LIMIT;
     pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -99,11 +99,11 @@ public class IntakeIOReal implements IntakeIO {
     pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
     pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        IntakePivotConstants.MAX_PIVOT_ANGLE.getRotations();
+        PivotConstants.MAX_PIVOT_ANGLE.getRotations();
     pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        IntakePivotConstants.MIN_PIVOT_ANGLE.minus(Rotation2d.fromDegrees(2.0)).getRotations();
+        PivotConstants.MIN_PIVOT_ANGLE.minus(Rotation2d.fromDegrees(2.0)).getRotations();
 
-    pivotConfig.Feedback.SensorToMechanismRatio = IntakePivotConstants.GEAR_RATIO;
+    pivotConfig.Feedback.SensorToMechanismRatio = PivotConstants.GEAR_RATIO;
     pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
     pivotConfig.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;

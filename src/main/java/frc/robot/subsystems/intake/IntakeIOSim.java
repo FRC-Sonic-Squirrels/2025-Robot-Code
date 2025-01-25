@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.team2930.TalonFXArmSim;
 import frc.lib.team2930.TalonFXSim;
 import frc.robot.Constants;
-import frc.robot.Constants.IntakePivotConstants;
+import frc.robot.Constants.IntakeConstants.PivotConstants;
 
 public class IntakeIOSim implements IntakeIO {
 
@@ -27,11 +27,11 @@ public class IntakeIOSim implements IntakeIO {
       new TalonFXArmSim(
           new SingleJointedArmSim(
               DCMotor.getFalcon500Foc(1),
-              IntakePivotConstants.GEAR_RATIO,
-              IntakePivotConstants.MOI,
-              IntakePivotConstants.PIVOT_LENGTH.in(Units.Meters),
-              IntakePivotConstants.MIN_PIVOT_ANGLE.getRadians(),
-              IntakePivotConstants.MAX_PIVOT_ANGLE.getRadians(),
+              frc.robot.Constants.IntakeConstants.PivotConstants.GEAR_RATIO,
+              PivotConstants.MOI,
+              PivotConstants.PIVOT_LENGTH.in(Units.Meters),
+              PivotConstants.MIN_PIVOT_ANGLE.getRadians(),
+              PivotConstants.MAX_PIVOT_ANGLE.getRadians(),
               false,
               Math.PI));
 
