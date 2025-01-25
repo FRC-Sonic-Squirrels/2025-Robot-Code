@@ -336,7 +336,7 @@ public final class Constants {
     public static final String ROOT_TABLE = "Arm";
   }
 
-  public static class ClimberConstants{
+  public static class ClimberConstants {
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
     // TODO: update constants and dimensions for new robot design
     public static final double GEAR_RATIO = (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0);
@@ -352,7 +352,6 @@ public final class Constants {
     public static final Distance CLIMBER_LENGTH = Units.Inches.of(14);
 
     public static final String ROOT_TABLE = "Climber";
-
   }
 
   public static class VisionGamepieceConstants { // TODO: check all constants for new season
