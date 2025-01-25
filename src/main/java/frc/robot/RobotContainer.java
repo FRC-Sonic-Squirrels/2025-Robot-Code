@@ -49,7 +49,6 @@ import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.intake.IntakeEject;
-import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
@@ -440,13 +439,17 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(
-            new IntakeGamepiece(intake, arm, elevator, endEffector, true)
-                .finallyDo(
-                    (interrupted) -> {
-                      if (!interrupted)
-                        CommandScheduler.getInstance()
-                            .schedule(new LedSetStateForSeconds(led, RobotState.INTAKE_SUCCESS, 1));
-                    }))
+            MechanismActions.coralStationPosition(elevator, arm)
+                .andThen(
+                    new IntakeGamepieceCoralStation(intake, endEffector)
+                        .finallyDo(
+                            (interrupted) -> {
+                              if (!interrupted)
+                                CommandScheduler.getInstance()
+                                    .schedule(
+                                        new LedSetStateForSeconds(
+                                            led, RobotState.INTAKE_SUCCESS, 1));
+                            })))
         .whileTrue(
             Commands.run(
                     () -> {
@@ -576,7 +579,7 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.clearingAglae = true;
+                  RobotStates.clearingAlgae = true;
                 }));
 
     driverController
@@ -584,7 +587,7 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.clearingAglae = false;
+                  RobotStates.clearingAlgae = false;
                 }));
 
     // ---------- OPERATOR CONTROLS -----------
@@ -600,14 +603,14 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.clearingAglae = true;
+                  RobotStates.clearingAlgae = true;
                 }));
     operatorController
         .povDown()
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.clearingAglae = false;
+                  RobotStates.clearingAlgae = false;
                 }));
 
     if (!DriverStation.isFMSAttached())
@@ -839,10 +842,7 @@ public class RobotContainer {
     logL2State.info(level == ScoringLevel.L2);
     logL3State.info(level == ScoringLevel.L3);
     logL4State.info(level == ScoringLevel.L4);
-    logAlgaeClearingState.info(RobotStates.clearingAglae);
-    logGamepieceInRobotState.info(RobotStates.coralInRobot);
-    logGamepieceInIntakeState.info(RobotStates.coralInIntake);
-    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
+    logAlgaeClearingState.info(RobotStates.clearingAlgae);
 
     if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
