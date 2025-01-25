@@ -1,12 +1,20 @@
 package frc.robot.subsystems.climber;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
+import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.Constants.RobotMode.RobotType;
 
 public class Climber extends SubsystemBase {
-  // Execution timing
   // Execution timing
   private static final ExecutionTiming timing = new ExecutionTiming(ClimberConstants.ROOT_TABLE);
 
