@@ -179,7 +179,7 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler score() {
 
-    if (prepMechanismForScoring.isFinished()) endEffector.setVelocity(scoringVelocityRPM.get());
+    if (!prepMechanismForScoring.isScheduled()) endEffector.setVelocity(scoringVelocityRPM.get());
 
     if (RobotStates.coralInEndEffector) return null;
 
@@ -195,9 +195,9 @@ public class ScoreCoral extends StateMachine {
     spawnCommand(
         MechanismActions.coralStationPosition(elevator, arm), // TODO: this may cause end
         // effector to hit the reef, potentially add intermediate position
-        (command) -> null);
+        (command) -> setDone());
     endEffector.setPercentOut(0);
-    return setDone();
+    return stateWithName("ResetMechanismToCoralPosition", () -> waitState());
   }
 
   private StateHandler waitState() {

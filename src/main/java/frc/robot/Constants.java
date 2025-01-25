@@ -265,7 +265,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants { // TODO: check all constants for new season
-    public static final double GEAR_RATIO = 4;
+    public static final double GEAR_RATIO = 23.05;
     public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.256);
     public static final double CARRIAGE_MASS = 1.0; // arbitrary
 

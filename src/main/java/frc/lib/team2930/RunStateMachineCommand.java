@@ -38,8 +38,6 @@ public class RunStateMachineCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     command.cancel();
-    stateMachine = null;
-    command = null;
   }
 
   // Returns true when the command should end.

@@ -43,6 +43,7 @@ public class DriveToPose extends Command {
       logGroup.buildBoolean("DriveControllerIsAtGoal");
   private static final LoggerEntry.Bool log_ThetaControllerIsAtGoal =
       logGroup.buildBoolean("ThetaControllerIsAtGoal");
+  private static final LoggerEntry.Bool log_IsAtGoal = logGroup.buildBoolean("IsAtGoal");
   private static final LoggerEntry.Struct<Pose2d> log_Setpoint =
       logGroup.buildStruct(Pose2d.class, "Setpoint");
   private static final LoggerEntry.Struct<Pose2d> log_Goal =
@@ -298,6 +299,7 @@ public class DriveToPose extends Command {
     log_isScheduled.info(isScheduled());
     log_DriveControllerIsAtGoal.info(driveController.atGoal());
     log_ThetaControllerIsAtGoal.info(thetaController.atGoal());
+    log_IsAtGoal.info(atGoal());
   }
 
   @Override
@@ -314,7 +316,9 @@ public class DriveToPose extends Command {
 
   /** Checks if the robot is stopped at the final pose. */
   public boolean atGoal() {
-    return isScheduled() && withinTolerance.getAsBoolean();
+    return
+    // isScheduled() &&
+    withinTolerance.getAsBoolean();
   }
 
   /** Checks if the robot pose is within the allowed drive and theta tolerances. */
