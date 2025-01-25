@@ -6,31 +6,31 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.intakePivot.IntakePivot;
+import frc.robot.subsystems.intake.Intake;
 import java.util.function.Supplier;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PivotIntakeToAngle extends Command {
   /** Creates a new PivotIntake. */
-  private IntakePivot intakePivot;
+  private Intake intake;
 
   private Supplier<Rotation2d> angleSupplier;
 
-  public PivotIntakeToAngle(IntakePivot intakePivot, Rotation2d angle) {
-    this(intakePivot, () -> angle);
+  public PivotIntakeToAngle(Intake intake, Rotation2d angle) {
+    this(intake, () -> angle);
   }
 
-  public PivotIntakeToAngle(IntakePivot intakePivot, Supplier<Rotation2d> angleSupplier) {
-    this.intakePivot = intakePivot;
+  public PivotIntakeToAngle(Intake intake, Supplier<Rotation2d> angleSupplier) {
+    this.intake = intake;
     this.angleSupplier = angleSupplier;
 
-    addRequirements(intakePivot);
+    addRequirements(intake);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intakePivot.setAngle(angleSupplier.get());
+    intake.setPivotAngle(angleSupplier.get());
   }
 
   // Returns true when the command should end.
