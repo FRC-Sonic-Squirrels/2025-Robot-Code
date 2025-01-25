@@ -35,7 +35,7 @@ public class PivotIOReal implements PivotIO {
       new MotionMagicVoltage(0.0).withEnableFOC(true);
   private final VoltageOut openLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
-  private final TalonFX motor = new TalonFX(Constants.CanIDs.ARM_CAN_ID);
+  private final TalonFX motor = new TalonFX(Constants.CanIDs.PIVOT_CAN_ID);
 
   private final BaseStatusSignal[] refreshSet;
 

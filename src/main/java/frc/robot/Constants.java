@@ -322,6 +322,8 @@ public final class Constants {
     public static final int END_EFFECTOR_TOF_CAN_ID = 39;
 
     public static final int GYRO_2_CAN_ID = 41;
+    // TODO: make proper canID
+    public static final int PIVOT_CAN_ID = 1000;
 
     public static final int CLIMBER_ARM_CAN_ID = 40;
   }
