@@ -123,13 +123,13 @@ public class Intake extends SubsystemBase {
   public Intake(IntakeIO io) {
     this.io = io;
 
-    setPivotConstants();
-
     io.setPivotVoltage(0.0);
 
-    setRollerConstants();
+    setPivotConstants();
 
     io.setRollerVoltage(0.0);
+
+    setRollerConstants();
   }
 
   @Override
@@ -179,12 +179,12 @@ public class Intake extends SubsystemBase {
         rKP.get(), rKV.get(), rKS.get(), rollerTargetAccelerationConfig.get());
   }
 
-  public void setPercentOut(double percent) {
+  public void setRollerPercentOut(double percent) {
     io.setRollerVoltage(percent * Constants.MAX_VOLTAGE);
     rollerControlMode = ControlMode.OPEN_LOOP;
   }
 
-  public void setVelocity(double revPerMin) {
+  public void setRollerVelocity(double revPerMin) {
     io.setRollerVelocity(revPerMin);
     rollerTargetRPM = revPerMin;
     logRollerTargetVelocityRPM.info(rollerTargetRPM);
