@@ -21,7 +21,7 @@ import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.IntakePivotConstants;
+import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 
 public class Intake extends SubsystemBase {
@@ -203,8 +203,8 @@ public class Intake extends SubsystemBase {
         Rotation2d.fromRadians(
             MathUtil.clamp(
                 angle.getRadians(),
-                IntakePivotConstants.MIN_PIVOT_ANGLE.getRadians(),
-                IntakePivotConstants.MAX_PIVOT_ANGLE.getRadians()));
+                PivotConstants.MIN_PIVOT_ANGLE.getRadians(),
+                PivotConstants.MAX_PIVOT_ANGLE.getRadians()));
 
     pivotControlMode = ControlMode.CLOSED_LOOP;
     pivotTargetAngleDegrees = angle;
@@ -223,7 +223,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void resetPivotSensorToHomePosition() {
-    io.resetPivotSensorPosition(Constants.IntakePivotConstants.MIN_PIVOT_ANGLE);
+    io.resetPivotSensorPosition(PivotConstants.MIN_PIVOT_ANGLE);
   }
 
   public boolean setPivotNeutralMode(NeutralModeValue value) {

@@ -231,27 +231,27 @@ public final class Constants {
 
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
     public static final String ROOT_TABLE = "Intake";
-  }
 
-  public static class IntakePivotConstants { // TODO: check all constants
-    public static final double SUPPLY_CURRENT_LIMIT = 0;
+    public static class PivotConstants { // TODO: check all constants
+      public static final double SUPPLY_CURRENT_LIMIT = 0;
 
-    public static final double GEAR_RATIO = (16 / 42) * (16 / 56);
+      public static final double GEAR_RATIO = (16 / 42) * (16 / 56);
 
-    public static final double MOI = 0;
+      public static final double MOI = 0;
 
-    public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(180);
-    public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(0);
-    public static final Rotation2d HOME_POSITION = MIN_PIVOT_ANGLE;
+      public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(180);
+      public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(0);
+      public static final Rotation2d HOME_POSITION = MIN_PIVOT_ANGLE;
 
-    public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
+      public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
 
-    public static final Rotation2d INTERNAL_ANGLE = Rotation2d.fromDegrees(0);
-    public static final Rotation2d EXTERNAL_ANGLE = Rotation2d.fromDegrees(180);
+      public static final Rotation2d INTERNAL_ANGLE = Rotation2d.fromDegrees(0);
+      public static final Rotation2d EXTERNAL_ANGLE = Rotation2d.fromDegrees(180);
 
-    public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
+      public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
 
-    public static final String ROOT_TABLE = "IntakePivot";
+      public static final String ROOT_TABLE = "IntakePivot";
+    }
   }
 
   public static class EndEffectorConstants { // TODO: check all constants for new season
