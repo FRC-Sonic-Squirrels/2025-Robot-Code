@@ -34,13 +34,13 @@ public class IntakeSetRPM extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intake.setVelocity(RPM.getAsDouble());
+    intake.setRollerVelocity(RPM.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.setPercentOut(0);
+    intake.setRollerPercentOut(0);
   }
 
   // Returns true when the command should end.
