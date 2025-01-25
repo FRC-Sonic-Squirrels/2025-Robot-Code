@@ -29,6 +29,7 @@ public class IntakeEject extends Command {
   public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
+  // TODO: test on 2025 bot
   @Override
   public void execute() {
     intake.setPivotAngle(PivotConstants.EXTERNAL_ANGLE);
