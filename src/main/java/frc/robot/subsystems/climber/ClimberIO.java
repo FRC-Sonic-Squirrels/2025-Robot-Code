@@ -10,10 +10,10 @@ import frc.robot.subsystems.BaseInputs;
 public interface ClimberIO {
   class Inputs extends BaseInputs {
     public Rotation2d climberPosition = Constants.zeroRotation2d;
-    public double climberAppliedVolts;
-    public double climberCurrentAmps;
-    public double climberTempCelsius;
-    public double climberVelocityDegreesPerSecond;
+    public double armAppliedVolts;
+    public double armCurrentAmps;
+    public double armTempCelsius;
+    public double armVelocityDegreesPerSecond;
 
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);
