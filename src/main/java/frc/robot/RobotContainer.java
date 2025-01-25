@@ -41,6 +41,7 @@ import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
+import frc.robot.commands.intake.IntakeEject;
 import frc.robot.commands.intake.IntakeGamepiece;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
@@ -422,7 +423,6 @@ public class RobotContainer {
                       new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
                 },
                 drivetrain));
-
     driverController
         .rightBumper()
         .whileTrue(new IntakeGamepiece())
@@ -527,6 +527,7 @@ public class RobotContainer {
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
     operatorController.b().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(18)));
 
+    operatorController.leftBumper().whileTrue(new IntakeEject(intake));
     // Toggle clearing algae
 
     operatorController
