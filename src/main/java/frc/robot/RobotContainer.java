@@ -132,6 +132,12 @@ public class RobotContainer {
   private static LoggerEntry.Bool logL4State = robotStateLogGroup.buildBoolean("Levels/L4");
   private static LoggerEntry.Bool logAlgaeClearingState =
       robotStateLogGroup.buildBoolean("AlgaeClearing");
+  private static LoggerEntry.Bool logGamepieceInRobotState =
+      robotStateLogGroup.buildBoolean("GamepieceInRobotState");
+  private static LoggerEntry.Bool logGamepieceInEndEffectorState =
+      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorState");
+  private static LoggerEntry.Bool logGamepieceInIntakeState =
+      robotStateLogGroup.buildBoolean("GamepieceInIntakeState");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -834,7 +840,10 @@ public class RobotContainer {
     logL2State.info(level == ScoringLevel.L2);
     logL3State.info(level == ScoringLevel.L3);
     logL4State.info(level == ScoringLevel.L4);
-    logAlgaeClearingState.info(RobotStates.clearingAlgae);
+    logAlgaeClearingState.info(RobotStates.clearingAglae);
+    logGamepieceInRobotState.info(RobotStates.coralInRobot);
+    logGamepieceInIntakeState.info(RobotStates.coralInIntake);
+    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
 
     if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
