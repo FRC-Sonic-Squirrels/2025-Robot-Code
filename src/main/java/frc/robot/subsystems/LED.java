@@ -58,7 +58,6 @@ public class LED extends SubsystemBase {
   private final Supplier<Boolean> brakeMode;
   private final Supplier<Boolean> gyroConnected;
   private final Supplier<Boolean> motorsZeroed;
-  private final Timer robotStateTimer = new Timer();
   private double timeToResetToBaseState = 0;
 
   public LED(
@@ -71,14 +70,11 @@ public class LED extends SubsystemBase {
     this.brakeMode = brakeMode;
     this.gyroConnected = gyroConnected;
     this.motorsZeroed = motorsZeroed;
-    robotStateTimer.start();
   }
 
   @Override
   public void periodic() {
     robotLoops++;
-
-    if (robotStateTimer.get() > timeToResetToBaseState) robotState = RobotState.BASE;
 
     if (useTunableLEDs.get() == 0) {
       // This method will be called once per scheduler run
@@ -301,7 +297,13 @@ public class LED extends SubsystemBase {
     BASE,
     BRAKE_MODE_FAILED,
     SCORE_FAILURE,
-    SCORE_SUCCESS
+    SCORE_SUCCESS,
+    TEST,
+    TWENTY_SECOND_WARNING,
+    HOME_SUBSYSTEMS,
+    BREAK_MODE_ON,
+    BREAK_MODE_OFF,
+    INTAKE_SUCCESS
   }
 
   public enum BaseRobotState {
@@ -309,6 +311,8 @@ public class LED extends SubsystemBase {
     AUTO_GAMEPIECE_PICKUP,
     SCORING_ALIGNMENT,
     ALGAE_ALIGNMENT,
-    INTAKE_SUCCESS
+    INTAKE_SUCCESS,
+    AUTO_DRIVE_TO_POSE,
+    GOAL_LINE_UP
   }
 }
