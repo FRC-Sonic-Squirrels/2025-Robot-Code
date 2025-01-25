@@ -132,6 +132,12 @@ public class LED extends SubsystemBase {
         case ZERO_SUBSYSTEMS:
           setBlinking(Color.kGreen);
           break;
+        case TWENTY_SECOND_WARNING:
+          setBlinking(Color.kMagenta);
+          break;
+        case HOME_SUBSYSTEMS:
+          setBlinking(Color.kGreen);
+          break;
         case BRAKE_MODE_ON:
           setBlinking(Color.kRed);
           break;
