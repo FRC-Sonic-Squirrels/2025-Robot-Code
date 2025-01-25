@@ -73,8 +73,6 @@ public class IntakeIOReal implements IntakeIO {
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
 
-    System.out.println(motor.hasResetOccurred());
-
     inputs.currentAmps = current.getValue().in(Units.Amps);
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
