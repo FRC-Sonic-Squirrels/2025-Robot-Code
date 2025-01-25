@@ -843,7 +843,10 @@ public class RobotContainer {
     logL2State.info(level == ScoringLevel.L2);
     logL3State.info(level == ScoringLevel.L3);
     logL4State.info(level == ScoringLevel.L4);
-    logAlgaeClearingState.info(RobotStates.clearingAlgae);
+    logAlgaeClearingState.info(RobotStates.clearingAglae);
+    logGamepieceInRobotState.info(RobotStates.coralInRobot);
+    logGamepieceInIntakeState.info(RobotStates.coralInIntake);
+    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
 
     if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
