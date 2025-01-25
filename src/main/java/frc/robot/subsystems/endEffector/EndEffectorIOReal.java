@@ -39,7 +39,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
   private final BaseStatusSignal[] refreshSet;
 
-  private final TimeOfFlight tof = new TimeOfFlight(Constants.CanIDs.ELEVATOR_CAN_ID);
+  private final TimeOfFlight tof = new TimeOfFlight(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
 
   public EndEffectorIOReal() {
     // Motor config
