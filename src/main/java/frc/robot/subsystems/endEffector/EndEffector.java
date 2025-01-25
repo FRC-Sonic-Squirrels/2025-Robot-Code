@@ -147,6 +147,6 @@ public class EndEffector extends SubsystemBase {
   }
 
   public boolean tofSeenGamepiece() {
-    return inputs.tofDistInches <= distanceToTriggerCoralDetection.get();
+    return tofDistance().magnitude() <= distanceToTriggerCoralDetection.get();
   }
 }
