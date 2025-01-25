@@ -2,7 +2,6 @@ package frc.robot.autonomous;
 
 import choreo.Choreo;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants;
+import frc.robot.autonomous.records.PathDescriptor;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.ArrayList;
@@ -94,9 +94,9 @@ public class AutosManager {
 
   private Auto portableAuto() {
     List<PathDescriptor> paths = new ArrayList<>();
-    paths.add(new PathDescriptor("TestPortable1", "TestPortable2", true, false));
-    paths.add(new PathDescriptor("TestPortable3", "TestPortable4", true, false));
-    var state = new AutoStateMachine(subsystems, config, paths);
+    paths.add(new PathDescriptor(null, null));
+    paths.add(new PathDescriptor(null, null));
+    var state = new AutoStateMachine(subsystems, paths);
     // TODO: add throw message?
     return new Auto(
         "TestPortable",
@@ -169,90 +169,7 @@ public class AutosManager {
 
   /* Copy these to get waypoints for choreo. If pasted in choreo, they will automatically be turned into waypoints
 
-  G1: {
-  "dataType":"choreo/waypoint","x":8.273,"y":7.474,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":17
-  }
-  G2: {
-  "dataType":"choreo/waypoint","x":8.273,"y":5.792,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40
-  }
-  G3: {
-  "dataType":"choreo/waypoint","x":8.273,"y":4.11,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40
-  }
-  G4: {
-  "dataType":"choreo/waypoint","x":8.273,"y":2.428,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40
-  }
-  G5: {
-  "dataType":"choreo/waypoint","x":8.273,"y":0.746,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40
-  }
-
-  S1: {
-  "dataType":"choreo/waypoint","x":4.241,"y":6.103,"heading":0.185,
-  "isInitialGuess":false,"translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40
-  }
-  S2: {
-  "dataType":"choreo/waypoint","x":4.609,"y":4.741,"heading":-0.159,
-  "isInitialGuess":false,"translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40
-  }
-  S3: {
-  "dataType":"choreo/waypoint","x":3.259,"y":2.545,"heading":-0.583,
-  "isInitialGuess":false,"translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40
-  }
-
-  CG1: {"dataType":"choreo/waypoint","x":2.89,"y":7.02,"heading":0.611,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40}
-  CG2: {"dataType":"choreo/waypoint","x":2.89,"y":5.56,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40}
-  CG3: {"dataType":"choreo/waypoint","x":2.89,"y":4.1,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":12}
-
-  CS1: {"dataType":"choreo/waypoint","x":2.055,"y":6.613,"heading":0.463,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40}
-  CS2: {"dataType":"choreo/waypoint","x":1.913,"y":5.569,"heading":0,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40}
-  CS3: {"dataType":"choreo/waypoint","x":2.110,"y":4.438,"heading":-0.390,"isInitialGuess":false,
-  "translationConstrained":true,"headingConstrained":true,"controlIntervalCount":40}
   */
-  public static Pose2d getPoseFromString(String string) {
-    if (string.charAt(0) == 'G') {
-      double y = string.charAt(1) * (-841.0 / 500.0) + (2289.0 / 250.0);
-      return new Pose2d(8.273, y, new Rotation2d());
-    }
-    if (string.charAt(0) == 'C' && string.charAt(1) == 'G') {
-      int index = string.charAt(2);
-      double y = index * (-73.0 / 50.0) + (212.0 / 25.0);
-      return new Pose2d(2.89, y, Rotation2d.fromRadians(index == 1 ? 0.611 : 0.0));
-    }
-    if (string.charAt(0) == 'S') {
-      int index = string.charAt(1);
-      if (index == 1) {
-        return new Pose2d(4.241, 6.103, Rotation2d.fromRadians(0.185));
-      }
-      if (index == 2) {
-        return new Pose2d(4.609, 4.741, Rotation2d.fromRadians(-0.159));
-      }
-      if (index == 3) {
-        return new Pose2d(3.259, 2.545, Rotation2d.fromRadians(-0.583));
-      }
-    }
-    if (string.charAt(0) == 'C' && string.charAt(1) == 'S') {
-      int index = string.charAt(2);
-      if (index == 1) {
-        return new Pose2d(2.055, 6.613, Rotation2d.fromRadians(0.463));
-      }
-      if (index == 2) {
-        return new Pose2d(1.913, 5.569, Rotation2d.fromRadians(0.0));
-      }
-      if (index == 3) {
-        return new Pose2d(2.110, 4.438, Rotation2d.fromRadians(-0.390));
-      }
-    }
-    return null;
-  }
 
   public Auto swerveCharacterization() {
     var sysidConfig =
