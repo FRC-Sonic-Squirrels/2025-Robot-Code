@@ -5,7 +5,7 @@ import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.autonomous.ChoreoHelper;
 import frc.robot.autonomous.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.DriveToGamepieceHelper;
-import frc.robot.commands.intake.IntakeGamepiece;
+import frc.robot.commands.intake.IntakeGamepieceCoralStation;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.visionGamepiece.ProcessedGamepieceData;
 import java.util.function.Supplier;
@@ -42,7 +42,7 @@ public class AutoSubstateMachineChoreo extends AutoSubstateMachine {
   }
 
   private StateHandler initFollowPathToGamePiece() {
-    super.intakeCommand = new IntakeGamepiece(null, null, null, null, true);
+    super.intakeCommand = new IntakeGamepieceCoralStation(null, null);
     super.intakeCommand.schedule();
 
     if (trajToGamepiece != null) {

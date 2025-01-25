@@ -20,7 +20,7 @@ import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.autonomous.ChoreoHelper;
 import frc.robot.autonomous.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.DriveToGamepieceHelper;
-import frc.robot.commands.intake.IntakeGamepiece;
+import frc.robot.commands.intake.IntakeGamepieceCoralStation;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -39,7 +39,7 @@ public abstract class AutoSubstateMachine extends StateMachine {
   protected ChoreoHelper choreoHelper;
   protected DriveToGamepieceHelper driveToGamepieceHelper;
   public Command score;
-  protected IntakeGamepiece intakeCommand;
+  protected IntakeGamepieceCoralStation intakeCommand;
   protected Translation2d gamepieceTranslation;
   private Translation2d lastSeenGamepiece;
 

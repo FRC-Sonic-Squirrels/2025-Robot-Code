@@ -5,7 +5,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.autonomous.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.DriveToGamepieceHelper;
-import frc.robot.commands.intake.IntakeGamepiece;
+import frc.robot.commands.intake.IntakeGamepieceCoralStation;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED.BaseRobotState;
 import frc.robot.subsystems.visionGamepiece.ProcessedGamepieceData;
@@ -43,7 +43,7 @@ public class AutoSubstateMachineDriveTranslation extends AutoSubstateMachine {
   }
 
   private StateHandler initDriveToGamepiece() {
-    intakeCommand = new IntakeGamepiece(null, null, null, null, true);
+    intakeCommand = new IntakeGamepieceCoralStation(null, null);
     intakeCommand.schedule();
 
     driveToGamepieceHelper =
