@@ -49,6 +49,10 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
 import frc.robot.subsystems.LED.RobotState;
 import frc.robot.subsystems.arm.*;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOReal;
+import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.endEffector.*;
 import frc.robot.subsystems.intake.*;
@@ -86,6 +90,7 @@ public class RobotContainer {
   private final EndEffector endEffector;
   private final VisionGamepiece visionGamepiece;
   private final LED led;
+  private final Climber climber;
 
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandXboxController operatorController = new CommandXboxController(1);
@@ -151,6 +156,7 @@ public class RobotContainer {
       elevator = new Elevator(new ElevatorIO() {});
       intake = new Intake(new IntakeIO() {});
       endEffector = new EndEffector(new EndEffectorIO() {});
+      climber = new Climber(new ClimberIO() {});
       visionGamepiece =
           new VisionGamepiece(
               new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
@@ -210,7 +216,7 @@ public class RobotContainer {
                     new VisionGamepieceIOSim(config, drivetrain::getPoseEstimatorPose),
                     drivetrain::getPoseEstimatorPoseAtTimestamp);
           }
-
+          climber = new Climber(new ClimberIOSim() {});
           arm = new Arm(new ArmIOSim());
           elevator = new Elevator(new ElevatorIOSim());
           intake = new Intake(new IntakeIOSim());
@@ -234,6 +240,7 @@ public class RobotContainer {
                   drivetrain::getRotationGyroOnly,
                   drivetrain::addVisionEstimate,
                   config.getReplayVisionModules());
+          climber = new Climber(new ClimberIO() {});
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
@@ -253,6 +260,7 @@ public class RobotContainer {
                   new GyroIOPigeon2(config, Constants.CanIDs.GYRO_2_CAN_ID),
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
+          climber = new Climber(new ClimberIOReal() {});
           intake = new Intake(new IntakeIOReal());
           endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
@@ -273,6 +281,7 @@ public class RobotContainer {
           break;
 
         case ROBOT_2025:
+          climber = new Climber(new ClimberIOReal() {});
           drivetrain =
               new Drivetrain(
                   config,
@@ -315,6 +324,7 @@ public class RobotContainer {
                   drivetrain::addVisionEstimate,
                   config.getReplayVisionModules());
           arm = new Arm(new ArmIO() {});
+          climber = new Climber(new ClimberIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
