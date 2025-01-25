@@ -564,6 +564,12 @@ public class RobotContainer {
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
+    driverController.povUp().whileTrue(MechanismActions.clearAlgaeHigh1Position(elevator, arm));
+    driverController.povUp().onFalse(MechanismActions.clearAlgaeHigh2Position(elevator, arm));
+
+    driverController.povDown().whileTrue(MechanismActions.clearAlgaeLow1Position(elevator, arm));
+    driverController.povDown().onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
+
     // Change clearing algae
 
     driverController
