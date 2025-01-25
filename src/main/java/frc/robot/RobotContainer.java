@@ -30,10 +30,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.RunStateMachineCommand;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
@@ -510,7 +512,7 @@ public class RobotContainer {
                   RobotStates.scoringLevel = ScoringLevel.L3;
                 }));
     driverController
-        .a()
+        .rightStick()
         .toggleOnTrue(
             new RotateToAngle(
                 drivetrainWrapper,
@@ -518,11 +520,22 @@ public class RobotContainer {
                   Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
 
                   Pose2d nearestAprilTag = null;
-                  nearestAprilTag = FindNearestAprilTag(robotTranslation, reefAprilTagPose);
+                  nearestAprilTag = findNearestAprilTag(robotTranslation, reefAprilTagPose);
 
                   Rotation2d finalRotationValue = nearestAprilTag.getRotation();
 
                   return finalRotationValue;
+                },
+                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
+    driverController
+        .b()
+        .toggleOnTrue(
+            new RotateToAngle(
+                drivetrainWrapper,
+                () -> {
+                  Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
+
+                  return faceTowardsCenter(robotTranslation, reefAprilTagPose);
                 },
                 () -> drivetrainWrapper.getPoseEstimatorPose(true)));
 
@@ -552,7 +565,7 @@ public class RobotContainer {
                 () -> {
                   Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
 
-                  return FaceTowardsCenter(robotTranslation, reefAprilTagPose);
+                  return faceTowardsCenter(robotTranslation, reefAprilTagPose);
                 },
                 () -> drivetrainWrapper.getPoseEstimatorPose(true)));
 
@@ -648,19 +661,20 @@ public class RobotContainer {
         "USE GYRO 2", new RunsWhenDisabledInstantCommand(() -> drivetrain.chooseWhichGyro(true)));
   }
 
-  //////// function for finding nearest april tag position.
-  public static Pose2d FindNearestAprilTag(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
+  /**
+   * Finds the nearest april tag position relative to the current robot translation
+   *
+   * @param robotTranslation - Current robot translation
+   * @param reefAprilTagPose - List of all april tag positions
+   * @return Nearest april tag
+   */
+  public static Pose2d findNearestAprilTag(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
     Pose2d nearestAprilTag = null;
     int start;
     double minDistance = 10000000000.0;
-    if (Constants.isRedAlliance()) {
-      start = 0;
-    } else {
-      start = 6;
-    }
-    if (Constants.unusedCode) {
-      System.out.printf("Robot: %s\n", robotTranslation);
-    }
+
+    start = Constants.isRedAlliance() ? 0 : 6;
+
     for (int i = start; i < start + 6; i++) {
       Translation2d aprilTag = reefAprilTagPose[i].getTranslation();
       if (Constants.unusedCode) {
@@ -680,20 +694,22 @@ public class RobotContainer {
     return nearestAprilTag;
   }
 
-  /////// function to make robot always face towards the center
-  public static Rotation2d FaceTowardsCenter(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
+  /**
+   * Makes the robot always face towards the center of the reef
+   *
+   * @param robotTranslation - Current robot translation
+   * @param reefAprilTagPose - List of all april tag positions
+   * @return Rotates robot to face center
+   */
+  public static Rotation2d faceTowardsCenter(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
     Pose2d tag1;
-    Pose2d tag2;
-    if (Constants.isRedAlliance()) {
-      tag1 = reefAprilTagPose[1];
-      tag2 = reefAprilTagPose[4];
-    } else {
-      tag1 = reefAprilTagPose[8];
-      tag2 = reefAprilTagPose[11];
-    }
-    var distance = tag2.minus(tag1);
-    var halfway = distance.times(0.5);
-    var center = tag1.plus(halfway);
+
+    tag1 = Constants.isRedAlliance() ? reefAprilTagPose[1] : reefAprilTagPose[8];
+
+    var center = FieldConstants.BLUE_REEF_CENTER_POSE;
+    Pose2d centerPose = new Pose2d();
+
+    AllianceFlipUtil.flipPoseForAlliance(centerPose);
 
     double targetX = center.getX();
     double targetY = center.getY();
@@ -707,7 +723,7 @@ public class RobotContainer {
     double angularError = angleToCenter - robotAngle;
     double normalizedAngleToCenter = Math.atan2(Math.sin(angleToCenter), Math.cos(angleToCenter));
 
-    var offset = center.minus(robotTranslation);
+    var offset = centerPose.minus(robotTranslation);
 
     Rotation2d finalRotation = new Rotation2d(normalizedAngleToCenter);
     return finalRotation.rotateBy(Rotation2d.k180deg);
