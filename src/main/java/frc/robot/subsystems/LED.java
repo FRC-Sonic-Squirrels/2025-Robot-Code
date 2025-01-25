@@ -12,6 +12,10 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.LoggerEntry;
@@ -301,8 +305,6 @@ public class LED extends SubsystemBase {
     TEST,
     TWENTY_SECOND_WARNING,
     HOME_SUBSYSTEMS,
-    BREAK_MODE_ON,
-    BREAK_MODE_OFF,
     INTAKE_SUCCESS
   }
 
