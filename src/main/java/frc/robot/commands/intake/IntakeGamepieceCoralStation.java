@@ -4,35 +4,26 @@
 
 package frc.robot.commands.intake;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.RobotStates;
 import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 
-public class IntakeGamepiece extends Command {
+public class IntakeGamepieceCoralStation extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
   private static final LoggedTunableNumber rumbleIntensityPercent =
       group.build("rumbleIntensityPercent", 0.5);
   private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 2500);
   private final Intake intake;
-  private final Arm arm;
-  private final Elevator elevator;
   private final EndEffector endEffector;
-  private final Boolean intakeGround;
 
   /** Creates a new IntakeDefaultIdleRPM. */
-  public IntakeGamepiece(
-      Intake intake, Arm arm, Elevator elevator, EndEffector endEffector, Boolean intakeGround) {
+  public IntakeGamepieceCoralStation(Intake intake, EndEffector endEffector) {
     // TODO: add subsystems
     this.intake = intake;
-    this.arm = arm;
-    this.elevator = elevator;
     this.endEffector = endEffector;
-    this.intakeGround = intakeGround;
     // TODO: add subsystem requirements
     addRequirements(intake);
     addRequirements(intake);
@@ -49,35 +40,18 @@ public class IntakeGamepiece extends Command {
     var rumbleValue = rumbleIntensityPercent.get();
 
     // TODO: add logic to intake gamepiece
-    // TODO: add proper degrees for both human player and ground intake variants
-    if (!endEffector.tofSeenGamepiece()) {
+    if (RobotStates.coralInEndEffector) {
       intake.setVelocity(0);
       endEffector.setVelocity(0);
 
     } else {
-      if (!intakeGround) {
-        arm.setAngle(Rotation2d.fromDegrees(55));
-        if (!(arm.getAngle().getDegrees() > 53) && !(arm.getAngle().getDegrees() < 57)) {
-          intake.setVelocity(0.0);
-          endEffector.setVelocity(0.0);
-
-        } else {
-          intake.setVelocity(intakingVelocity.get());
-          arm.setAngle(Rotation2d.fromDegrees(135));
-          endEffector.setVelocity(intakingVelocity.get());
-        }
+      if (RobotStates.coralInIntake) {
+        intake.setVelocity(0);
+        endEffector.setVelocity(0);
 
       } else {
-        arm.setAngle(Rotation2d.fromDegrees(0));
-        if (!(arm.getAngle().getDegrees() < 3)) {
-          intake.setVelocity(0.0);
-          endEffector.setVelocity(0.0);
-
-        } else {
-          intake.setVelocity(intakingVelocity.get());
-          arm.setAngle(Rotation2d.fromDegrees(135));
-          endEffector.setVelocity(intakingVelocity.get());
-        }
+        intake.setVelocity(intakingVelocity.get());
+        endEffector.setVelocity(intakingVelocity.get());
       }
     }
   }
@@ -85,9 +59,6 @@ public class IntakeGamepiece extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // TODO: stop intaking
-    intake.setVelocity(0.0);
-    endEffector.setVelocity(0.0);
     intake.setVelocity(0.0);
     endEffector.setVelocity(0.0);
   }

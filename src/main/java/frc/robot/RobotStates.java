@@ -1,7 +1,7 @@
 package frc.robot;
 
 public class RobotStates {
-  public static boolean clearingAglae = false;
+  public static boolean clearingAlgae = false;
 
   public static ScoringLevel scoringLevel = ScoringLevel.L4;
 

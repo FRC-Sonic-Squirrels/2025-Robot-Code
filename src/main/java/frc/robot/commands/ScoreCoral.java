@@ -223,7 +223,7 @@ public class ScoreCoral extends StateMachine {
       return false;
     }
 
-    return RobotStates.clearingAglae;
+    return RobotStates.clearingAlgae;
   }
 
   private ScoringSideWithPose getClosestScoringSide(Pose2d robotPose) {
