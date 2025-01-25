@@ -52,9 +52,6 @@ import frc.robot.subsystems.arm.*;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.endEffector.*;
 import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.intakePivot.IntakePivot;
-import frc.robot.subsystems.intakePivot.PivotIO;
-import frc.robot.subsystems.intakePivot.PivotIOReal;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
@@ -87,7 +84,6 @@ public class RobotContainer {
   private final Arm arm;
   private final Elevator elevator;
   private final Intake intake;
-  private final IntakePivot intakePivot;
   private final EndEffector endEffector;
   private final VisionGamepiece visionGamepiece;
   private final LED led;
@@ -160,7 +156,6 @@ public class RobotContainer {
       arm = new Arm(new ArmIO() {});
       elevator = new Elevator(new ElevatorIO() {});
       intake = new Intake(new IntakeIO() {});
-      intakePivot = new IntakePivot(new PivotIO() {});
       endEffector = new EndEffector(new EndEffectorIO() {});
       visionGamepiece =
           new VisionGamepiece(
@@ -229,7 +224,6 @@ public class RobotContainer {
           arm = new Arm(new ArmIOSim());
           elevator = new Elevator(new ElevatorIOSim());
           intake = new Intake(new IntakeIOSim());
-          intakePivot = new IntakePivot(new PivotIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
           led =
               new LED(
@@ -257,7 +251,6 @@ public class RobotContainer {
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
-          intakePivot = new IntakePivot(new PivotIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
           visionGamepiece =
               new VisionGamepiece(
@@ -279,7 +272,6 @@ public class RobotContainer {
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
           intake = new Intake(new IntakeIOReal());
-          intakePivot = new IntakePivot(new PivotIO() {});
           endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
@@ -311,7 +303,6 @@ public class RobotContainer {
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
           intake = new Intake(new IntakeIOReal());
-          intakePivot = new IntakePivot(new PivotIOReal() {});
           endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
@@ -352,7 +343,6 @@ public class RobotContainer {
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
-          intakePivot = new IntakePivot(new PivotIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
           visionGamepiece =
               new VisionGamepiece(
