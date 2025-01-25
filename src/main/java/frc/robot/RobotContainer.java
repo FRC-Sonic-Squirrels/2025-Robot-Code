@@ -49,6 +49,7 @@ import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.intake.IntakeEject;
+import frc.robot.commands.intake.IntakeGamepieceCoralStation;
 import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
