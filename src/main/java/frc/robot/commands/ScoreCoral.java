@@ -271,11 +271,13 @@ public class ScoreCoral extends StateMachine {
               scoringSidePose
                   .getRotation()
                   .plus(
-                      scoringSide == ScoringSide.FAR_LEFT
-                              || scoringSide == ScoringSide.FAR_MID
-                              || scoringSide == ScoringSide.FAR_RIGHT
-                          ? objectiveScoringDirection
-                          : objectiveScoringDirection.unaryMinus()));
+                      // scoringSide == ScoringSide.FAR_LEFT
+                      //         || scoringSide == ScoringSide.FAR_MID
+                      //         || scoringSide == ScoringSide.FAR_RIGHT
+                      //     ?
+                      objectiveScoringDirection
+                      // : objectiveScoringDirection.unaryMinus()
+                      ));
       Translation2d translation = scoringSidePose.getTranslation().plus(offset);
       newSides[i] =
           new ScoringSideWithPose(
