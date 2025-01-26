@@ -63,6 +63,7 @@ public class LED extends SubsystemBase {
   private final Supplier<Boolean> gyroConnected;
   private final Supplier<Boolean> motorsZeroed;
   private double timeToResetToBaseState = 0;
+  private Timer resetToBaseStateTimer = new Timer();
 
   public LED(
       Supplier<Boolean> brakeMode,
@@ -79,6 +80,8 @@ public class LED extends SubsystemBase {
   @Override
   public void periodic() {
     robotLoops++;
+
+    if (resetToBaseStateTimer.get() > timeToResetToBaseState) robotState = RobotState.BASE;
 
     if (useTunableLEDs.get() == 0) {
       // This method will be called once per scheduler run
@@ -153,6 +156,9 @@ public class LED extends SubsystemBase {
         case SCORE_FAILURE:
           setBlinking(Color.kRed);
           break;
+        case INTAKE_SUCCESS:
+          setBlinking(Color.kGreen);
+          break;
       }
     } else {
       setSolidColor(new Color(tunableR.get(), tunableG.get(), tunableB.get()));
@@ -222,9 +228,10 @@ public class LED extends SubsystemBase {
     setRobotState(robotState, 0.5);
   }
 
-  public void setRobotState(RobotState robotState, double timeSeconds) {
-    this.robotState = robotState;
+  public void setRobotState(RobotState newRobotState, double timeSeconds) {
+    this.robotState = newRobotState;
     timeToResetToBaseState = timeSeconds;
+    resetToBaseStateTimer.restart();
   }
 
   /**
@@ -308,7 +315,6 @@ public class LED extends SubsystemBase {
     BRAKE_MODE_FAILED,
     SCORE_FAILURE,
     SCORE_SUCCESS,
-    TEST,
     TWENTY_SECOND_WARNING,
     HOME_SUBSYSTEMS,
     INTAKE_SUCCESS
