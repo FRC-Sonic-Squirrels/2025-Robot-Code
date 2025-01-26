@@ -41,16 +41,16 @@ public class IntakeGamepieceCoralStation extends Command {
 
     // TODO: add logic to intake gamepiece
     if (RobotStates.coralInEndEffector) {
-      intake.setVelocity(0);
+      intake.setRollerVelocity(0);
       endEffector.setVelocity(0);
 
     } else {
       if (RobotStates.coralInIntake) {
-        intake.setVelocity(0);
+        intake.setRollerVelocity(0);
         endEffector.setVelocity(0);
 
       } else {
-        intake.setVelocity(intakingVelocity.get());
+        intake.setRollerVelocity(intakingVelocity.get());
         endEffector.setVelocity(intakingVelocity.get());
       }
     }
@@ -59,7 +59,7 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.setVelocity(0.0);
+    intake.setRollerVelocity(0.0);
     endEffector.setVelocity(0.0);
   }
 
