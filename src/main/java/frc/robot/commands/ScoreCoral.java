@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
@@ -145,7 +144,7 @@ public class ScoreCoral extends StateMachine {
   private StateHandler prepForScoringAlignment() {
     led.setBaseRobotState(BaseRobotState.SCORING_ALIGNMENT);
     if (!RobotStates.coralInEndEffector) {
-      CommandScheduler.getInstance().schedule(new ControllerRumbleForTime(rumble, 0.25, 0.3));
+      spawnCommand(new ControllerRumbleForTime(rumble, 0.25, 0.3), (c) -> null);
       led.setRobotState(RobotState.SCORE_FAILURE);
       return stateWithName("End", () -> end(true));
     }
@@ -183,7 +182,7 @@ public class ScoreCoral extends StateMachine {
 
     if (RobotStates.coralInEndEffector) return null;
 
-    CommandScheduler.getInstance().schedule(new ControllerRumbleForTime(rumble, 0.25, 0.3));
+    spawnCommand(new ControllerRumbleForTime(rumble, 0.25, 0.3), (c) -> null);
 
     led.setRobotState(RobotState.SCORE_SUCCESS);
 
