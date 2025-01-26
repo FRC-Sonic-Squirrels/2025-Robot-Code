@@ -5,13 +5,12 @@
 package frc.robot.autonomous;
 
 import frc.lib.team2930.StateMachine;
-import frc.robot.autonomous.records.PathDescriptor;
-import java.util.List;
+import frc.robot.autonomous.records.AutoDescriptor;
 
 public class AutoStateMachine extends StateMachine {
 
   /** Creates a new AutoSubstateMachine. */
-  public AutoStateMachine(AutosSubsystems subsystems, List<PathDescriptor> descriptors) {
+  public AutoStateMachine(AutosSubsystems subsystems, AutoDescriptor descriptors) {
     super("Auto");
   }
 }

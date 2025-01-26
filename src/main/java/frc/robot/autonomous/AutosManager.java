@@ -12,7 +12,14 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants;
-import frc.robot.autonomous.records.PathDescriptor;
+import frc.robot.RobotStates.ScoringLevel;
+import frc.robot.autonomous.records.AutoDescriptor;
+import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.CoralStationLocation.CoralStation;
+import frc.robot.autonomous.records.CoralStationLocation.CoralStationSide;
+import frc.robot.autonomous.records.ScoringLocation;
+import frc.robot.commands.ScoreCoral.ScoringDirection;
+import frc.robot.commands.ScoreCoral.ScoringSide;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.ArrayList;
@@ -50,7 +57,7 @@ public class AutosManager {
     list.add(this::doNothing);
 
     if (includeDebugPaths) {
-      list.add(this::portableAuto);
+      list.add(this::auto_IKLA);
       list.add(this::swerveCharacterization);
       list.add(() -> testPath("TestDrive1Meter", true));
       list.add(() -> testPath("TestDrive10Meter", true));
@@ -92,16 +99,34 @@ public class AutosManager {
     return new Auto("doNothing", new InstantCommand(), Constants.zeroPose2d);
   }
 
-  private Auto portableAuto() {
-    List<PathDescriptor> paths = new ArrayList<>();
-    paths.add(new PathDescriptor(null, null));
-    paths.add(new PathDescriptor(null, null));
-    var state = new AutoStateMachine(subsystems, paths);
-    // TODO: add throw message?
+  private Auto auto_IKLA() {
+    List<ScoringLocation> scoringLocations = new ArrayList<>();
+    List<CoralStationLocation> coralStationLocations = new ArrayList<>();
+
+    scoringLocations.add(
+        new ScoringLocation(ScoringSide.FAR_LEFT, ScoringDirection.RIGHT, ScoringLevel.L4));
+    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.LEFT));
+
+    scoringLocations.add(
+        new ScoringLocation(ScoringSide.NEAR_LEFT, ScoringDirection.LEFT, ScoringLevel.L4));
+    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.LEFT));
+
+    scoringLocations.add(
+        new ScoringLocation(ScoringSide.NEAR_LEFT, ScoringDirection.RIGHT, ScoringLevel.L4));
+    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.RIGHT));
+
+    scoringLocations.add(
+        new ScoringLocation(ScoringSide.NEAR_MID, ScoringDirection.LEFT, ScoringLevel.L4));
+    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.RIGHT));
+
+    var state =
+        new AutoStateMachine(
+            subsystems, new AutoDescriptor(scoringLocations, coralStationLocations));
+
     return new Auto(
-        "TestPortable",
+        "IKLA",
         state.asCommand(),
-        Choreo.loadTrajectory("TestPortable1")
+        Choreo.loadTrajectory("S1_I") // TODO: make this a call to the state
             .orElseThrow()
             .getInitialPose(Constants.isRedAlliance())
             .get());
@@ -169,6 +194,54 @@ public class AutosManager {
 
   /* Copy these to get waypoints for choreo. If pasted in choreo, they will automatically be turned into waypoints
 
+    A:
+    {"dataType":"choreo/waypoint","x":{"exp":"3.238499 m","val":3.238499},"y":{"exp":"4.191 m","val":4.191},"heading":{"exp":"180 deg","val":3.141592653589793},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    B:
+    {"dataType":"choreo/waypoint","x":{"exp":"3.238499 m","val":3.238499},"y":{"exp":"3.8608 m","val":3.8608},"heading":{"exp":"180 deg","val":3.141592653589793},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    C:
+    {"dataType":"choreo/waypoint","x":{"exp":"3.720994 m","val":3.720994},"y":{"exp":"3.025095 m","val":3.025095},"heading":{"exp":"-120 deg","val":-2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    D:
+    {"dataType":"choreo/waypoint","x":{"exp":"4.006955 m","val":4.006955},"y":{"exp":"2.859995 m","val":2.859995},"heading":{"exp":"-120 deg","val":-2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    E:
+    {"dataType":"choreo/waypoint","x":{"exp":"4.971944 m","val":4.971944},"y":{"exp":"2.859995 m","val":2.859995},"heading":{"exp":"-60 deg","val":-1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    F:
+    {"dataType":"choreo/waypoint","x":{"exp":"5.257905 m","val":5.257905},"y":{"exp":"3.025095 m","val":3.025095},"heading":{"exp":"-60 deg","val":-1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    G:
+    {"dataType":"choreo/waypoint","x":{"exp":"5.740399 m","val":5.740399},"y":{"exp":"3.8608 m","val":3.8608},"heading":{"exp":"0 deg","val":0},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    H:
+    {"dataType":"choreo/waypoint","x":{"exp":"5.740399 m","val":5.740399},"y":{"exp":"4.191 m","val":4.191},"heading":{"exp":"0 deg","val":0},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    I:
+    {"dataType":"choreo/waypoint","x":{"exp":"5.257905 m","val":5.257905},"y":{"exp":"5.026704 m","val":5.026704},"heading":{"exp":"60 deg","val":1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    J:
+    {"dataType":"choreo/waypoint","x":{"exp":"4.971944 m","val":4.971944},"y":{"exp":"5.191804 m","val":5.191804},"heading":{"exp":"60 deg","val":1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    K:
+    {"dataType":"choreo/waypoint","x":{"exp":"4.006955 m","val":4.006955},"y":{"exp":"5.191804 m","val":5.191804},"heading":{"exp":"120 deg","val":2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    L:
+    {"dataType":"choreo/waypoint","x":{"exp":"3.720994 m","val":3.720994},"y":{"exp":"5.026704 m","val":5.026704},"heading":{"exp":"120 deg","val":2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
+
+    A: x 3.238499 y 4.191000 r 180
+    B: x 3.238499 y 3.860800 r 180
+    C: x 3.720994 y 3.025095 r -120
+    D: x 4.006955 y 2.859995 r -120
+    E: x 4.971944 y 2.859995 r -60
+    F: x 5.257905 y 3.025095 r -60
+    G: x 5.740399 y 3.860800 r 0
+    H: x 5.740399 y 4.191000 r 0
+    I: x 5.257905 y 5.026704 r 60
+    J: x 4.971944 y 5.191804 r 60
+    K: x 4.006955 y 5.191804 r 120
+    L: x 3.720994 y 5.026704 r 120
   */
 
   public Auto swerveCharacterization() {
