@@ -223,7 +223,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void resetPivotSensorToHomePosition() {
-    io.resetPivotSensorPosition(PivotConstants.MIN_PIVOT_ANGLE);
+    io.resetPivotSensorPosition(PivotConstants.MAX_PIVOT_ANGLE);
   }
 
   public boolean setPivotNeutralMode(NeutralModeValue value) {

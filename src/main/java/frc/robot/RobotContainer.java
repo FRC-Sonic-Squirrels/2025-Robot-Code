@@ -615,6 +615,7 @@ public class RobotContainer {
             () -> {
               elevator.resetSensorToHomePosition();
               arm.resetSensorToHomePosition();
+              intake.resetPivotSensorToHomePosition();
               led.setRobotState(RobotState.ZERO_SUBSYSTEMS);
             })); // TODO: add climber?
 
@@ -624,8 +625,9 @@ public class RobotContainer {
                 () -> {
                   boolean armSuccess = arm.setNeutralMode(NeutralModeValue.Coast);
                   boolean elevatorSuccess = elevator.setNeutralMode(NeutralModeValue.Coast);
+                  boolean intakePivotSuccess = intake.setPivotNeutralMode(NeutralModeValue.Coast);
 
-                  brakeModeFailure = !armSuccess || !elevatorSuccess;
+                  brakeModeFailure = !armSuccess || !elevatorSuccess || !intakePivotSuccess;
 
                   brakeModeTriggered = false;
                   led.setRobotState(
@@ -637,8 +639,9 @@ public class RobotContainer {
                 () -> {
                   boolean armSuccess = arm.setNeutralMode(NeutralModeValue.Brake);
                   boolean elevatorSuccess = elevator.setNeutralMode(NeutralModeValue.Brake);
+                  boolean intakePivotSuccess = intake.setPivotNeutralMode(NeutralModeValue.Brake);
 
-                  brakeModeFailure = !armSuccess || !elevatorSuccess;
+                  brakeModeFailure = !armSuccess || !elevatorSuccess || !intakePivotSuccess;
                   brakeModeTriggered = true;
                   led.setRobotState(
                       brakeModeFailure ? RobotState.BRAKE_MODE_FAILED : RobotState.BRAKE_MODE_ON);
