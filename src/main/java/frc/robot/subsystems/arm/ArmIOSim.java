@@ -24,7 +24,7 @@ public class ArmIOSim implements ArmIO {
               Constants.ArmConstants.MIN_ARM_ANGLE.getRadians(),
               Constants.ArmConstants.MAX_ARM_ANGLE.getRadians(),
               false,
-              Math.PI));
+              Math.toRadians(85)));
 
   private VoltageOut openLoopControl = new VoltageOut(0);
   private MotionMagicVoltage closedLoopControl = new MotionMagicVoltage(0);
