@@ -599,6 +599,13 @@ public class RobotContainer {
                   RobotStates.clearingAlgae = false;
                 }));
 
+    if (Constants.RobotMode.isSimBot()) {
+      operatorController
+          .x()
+          .onTrue(Commands.runOnce(() -> RobotStates.coralInRobot = true))
+          .onFalse(Commands.runOnce(() -> RobotStates.coralInRobot = false));
+    }
+
     if (!DriverStation.isFMSAttached())
       operatorController
           .povDown()
