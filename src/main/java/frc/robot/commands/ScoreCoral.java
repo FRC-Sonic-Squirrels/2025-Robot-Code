@@ -330,7 +330,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private static ScoringDirection reefSideToScoringDirection(ReefSide side) {
-    return (side.ordinal() % 2 == 0) ? ScoringDirection.RIGHT : ScoringDirection.LEFT;
+    return (side.ordinal() % 2 == 0) ? ScoringDirection.LEFT : ScoringDirection.RIGHT;
   }
 
   private static ScoringSide reefSideToScoringSide(ReefSide side) {

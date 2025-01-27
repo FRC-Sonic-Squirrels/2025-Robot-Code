@@ -186,7 +186,7 @@ public final class Constants {
         poses[i] =
             new ScoringSideWithPose(
                 AllianceFlipUtil.flipPoseForAlliance(
-                    new Pose2d(BLUE_REEF_CENTER_POSE.plus(offset), angle.plus(Rotation2d.k180deg))),
+                    new Pose2d(BLUE_REEF_CENTER_POSE.plus(offset), angle)),
                 SCORING_SIDE_ORDER[i]);
       }
       return poses;
@@ -259,7 +259,7 @@ public final class Constants {
   public static class ElevatorConstants { // TODO: check all constants for new season
     public static final double GEAR_RATIO = 23.05;
     public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.256);
-    public static final double CARRIAGE_MASS = 1.0; // arbitrary
+    public static final double CARRIAGE_MASS = 0.2; // arbitrary
 
     public static final double INCHES_TO_MOTOR_ROT =
         Constants.ElevatorConstants.GEAR_RATIO

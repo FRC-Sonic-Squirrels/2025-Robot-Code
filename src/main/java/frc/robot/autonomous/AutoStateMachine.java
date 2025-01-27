@@ -76,7 +76,7 @@ public class AutoStateMachine extends StateMachine {
                   descriptor.scoringLocations().get(i))
               .flipOnAlliance(flipAuto));
 
-    for (int i = 1; i < descriptor.coralStationLocations().size(); i++)
+    for (int i = 0; i < descriptor.coralStationLocations().size(); i++)
       coralStationPaths.add(
           locationsToPath(
                   descriptor.scoringLocations().get(i), descriptor.coralStationLocations().get(i))
@@ -90,6 +90,9 @@ public class AutoStateMachine extends StateMachine {
   // CORAL SCORING STATES
 
   private StateHandler prepScoreCoralPathing() {
+    if (scoringIndex == scoringPaths.size()) {
+      return stateWithName("Done", setDone());
+    }
     ChoreoTrajectoryWithName traj = scoringPaths.get(scoringIndex);
     choreoHelper =
         new ChoreoHelper(
@@ -115,7 +118,8 @@ public class AutoStateMachine extends StateMachine {
 
   private StateHandler prepScoreCoral() {
     RobotStates.scoringLevel = scoringLocations.get(scoringIndex).level();
-    return suspendForSubStateMachine(
+
+    spawnStateMachine(
         new ScoreCoral(
             wrapper,
             elevator,
@@ -124,15 +128,26 @@ public class AutoStateMachine extends StateMachine {
             led,
             scoringLocations.get(scoringIndex).side(),
             (r) -> {}),
-        (s) -> {
-          scoringIndex++;
-          return stateWithName("PrepIntakeCoral", () -> prepIntakeCoral());
-        });
+        (s) -> null);
+
+    return stateWithName("ScoreCoral", () -> scoreCoral());
+  }
+
+  private StateHandler scoreCoral() {
+    if (RobotStates.coralInEndEffector == false) {
+      scoringIndex++;
+      return stateWithName("PrepIntakeCoral", () -> prepIntakeCoral());
+    }
+
+    return null;
   }
 
   // CORAL INTAKING STATES
 
   private StateHandler prepIntakeCoral() {
+    if (intakingIndex == coralStationPaths.size()) {
+      return stateWithName("Done", setDone());
+    }
     ChoreoTrajectoryWithName traj = coralStationPaths.get(intakingIndex);
     choreoHelper =
         new ChoreoHelper(
