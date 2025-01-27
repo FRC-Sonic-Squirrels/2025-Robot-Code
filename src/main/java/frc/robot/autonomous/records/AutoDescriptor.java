@@ -1,5 +1,7 @@
 package frc.robot.autonomous.records;
 
+import frc.robot.autonomous.records.ScoringLocation.ReefSide;
+import java.util.ArrayList;
 import java.util.List;
 
 public record AutoDescriptor(
@@ -8,5 +10,63 @@ public record AutoDescriptor(
     StartingLocation startingLocation) {
   public enum StartingLocation {
     S1
+  }
+
+  public List<ScoringLocation> flippedScoringLocations() {
+    List<ScoringLocation> newLocations = new ArrayList<>();
+
+    for (ScoringLocation scoringLocation : scoringLocations) {
+      newLocations.add(flipScoringLocation(scoringLocation));
+    }
+
+    return newLocations;
+  }
+
+  private ScoringLocation flipScoringLocation(ScoringLocation location) {
+    ReefSide side = location.side();
+    ReefSide newSide;
+
+    switch (side) {
+      case CA:
+        newSide = ReefSide.CB;
+        break;
+      case CB:
+        newSide = ReefSide.CA;
+        break;
+      case CC:
+        newSide = ReefSide.CL;
+        break;
+      case CD:
+        newSide = ReefSide.CK;
+        break;
+      case CE:
+        newSide = ReefSide.CJ;
+        break;
+      case CF:
+        newSide = ReefSide.CI;
+        break;
+      case CG:
+        newSide = ReefSide.CH;
+        break;
+      case CH:
+        newSide = ReefSide.CG;
+        break;
+      case CI:
+        newSide = ReefSide.CF;
+        break;
+      case CJ:
+        newSide = ReefSide.CE;
+        break;
+      case CK:
+        newSide = ReefSide.CD;
+        break;
+      case CL:
+        newSide = ReefSide.CC;
+        break;
+      default:
+        newSide = null;
+        break;
+    }
+    return new ScoringLocation(newSide, location.level());
   }
 }

@@ -53,7 +53,7 @@ public class AutoStateMachine extends StateMachine {
 
   /** Creates a new AutoSubstateMachine. */
   public AutoStateMachine(
-      AutosSubsystems subsystems, AutoDescriptor descriptor, RobotConfig config) {
+      AutosSubsystems subsystems, AutoDescriptor descriptor, RobotConfig config, boolean flipAuto) {
     super("Auto");
 
     wrapper = subsystems.drivetrain();
@@ -61,20 +61,25 @@ public class AutoStateMachine extends StateMachine {
     arm = subsystems.arm();
     endEffector = subsystems.endEffector();
     led = subsystems.led();
-    scoringLocations = descriptor.scoringLocations();
+    scoringLocations =
+        flipAuto ? descriptor.flippedScoringLocations() : descriptor.scoringLocations();
 
     scoringPaths.add(
-        locationsToPath(descriptor.startingLocation(), descriptor.scoringLocations().get(0)));
+        locationsToPath(descriptor.startingLocation(), descriptor.scoringLocations().get(0))
+            .flipOnAlliance(flipAuto));
 
     for (int i = 1; i < descriptor.scoringLocations().size(); i++)
       scoringPaths.add(
           locationsToPath(
-              descriptor.coralStationLocations().get(i - 1), descriptor.scoringLocations().get(i)));
+                  descriptor.coralStationLocations().get(i - 1),
+                  descriptor.scoringLocations().get(i))
+              .flipOnAlliance(flipAuto));
 
     for (int i = 1; i < descriptor.coralStationLocations().size(); i++)
       coralStationPaths.add(
           locationsToPath(
-              descriptor.scoringLocations().get(i), descriptor.coralStationLocations().get(i)));
+                  descriptor.scoringLocations().get(i), descriptor.coralStationLocations().get(i))
+              .flipOnAlliance(flipAuto));
 
     this.config = config;
 

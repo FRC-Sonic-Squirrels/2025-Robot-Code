@@ -24,6 +24,7 @@ import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -34,6 +35,7 @@ public class AutosManager {
 
   private final AutosSubsystems subsystems;
   private final RobotConfig config;
+  private final BooleanSupplier flipAuto;
 
   public final boolean includeDebugPaths = false;
 
@@ -43,9 +45,11 @@ public class AutosManager {
       AutosSubsystems subsystems,
       RobotConfig config,
       LoggedDashboardChooser<String> chooser,
-      HashMap<String, Supplier<Auto>> stringToAutoSupplierMap) {
+      HashMap<String, Supplier<Auto>> stringToAutoSupplierMap,
+      BooleanSupplier flipAuto) {
     this.subsystems = subsystems;
     this.config = config;
+    this.flipAuto = flipAuto;
 
     fillChooserAndMap(chooser, stringToAutoSupplierMap);
   }
@@ -115,7 +119,8 @@ public class AutosManager {
         new AutoStateMachine(
             subsystems,
             new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S1),
-            config);
+            config,
+            flipAuto.getAsBoolean());
 
     return stateToAuto("IKLJ", state);
   }

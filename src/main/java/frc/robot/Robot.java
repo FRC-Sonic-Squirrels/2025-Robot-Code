@@ -64,6 +64,7 @@ public class Robot extends LoggedRobot {
   private LoggedDashboardChooser<String> autonomousChooser = null;
   private Auto selectedAuto;
   private String selectedAutoName;
+  private boolean selectedAutoFlipped;
   private Command autoCommand;
   private Pose2d selectedInitialPose;
   private Pose2d desiredInitialPose;
@@ -194,7 +195,9 @@ public class Robot extends LoggedRobot {
     }
 
     var autoName = autonomousChooser.get();
-    if (autoName != null && !autoName.equals(selectedAutoName)) {
+    var autoFlipped = robotContainer.autoFlipped();
+    if (autoName != null
+        && (!autoName.equals(selectedAutoName) || !(autoFlipped == selectedAutoFlipped))) {
       Pose2d initialPose;
 
       selectedAuto = robotContainer.getAutoSupplierForString(autoName).get();
@@ -212,6 +215,7 @@ public class Robot extends LoggedRobot {
 
       desiredInitialPose = initialPose;
       selectedAutoName = autoName;
+      selectedAutoFlipped = autoFlipped;
     }
 
     if (desiredInitialPose != null && !desiredInitialPose.equals(selectedInitialPose)) {

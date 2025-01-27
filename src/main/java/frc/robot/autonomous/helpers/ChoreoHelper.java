@@ -1,12 +1,12 @@
 package frc.robot.autonomous.helpers;
 
-import choreo.trajectory.EventMarker;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.Units;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -284,15 +284,39 @@ public class ChoreoHelper {
               state.vx / speedScaling,
               state.vy / speedScaling,
               state.omega / speedScaling,
-              state.ax,
-              state.ay,
-              state.alpha,
+              state.ax / speedScaling,
+              state.ay / speedScaling,
+              state.alpha / speedScaling,
               state.moduleForcesX(),
               state.moduleForcesY()));
     }
 
     // TODO: check instantiation for Trajectory object
-    return new Trajectory("", newStates, new ArrayList<Integer>(), new ArrayList<EventMarker>());
+    return new Trajectory(traj.name(), newStates, traj.splits(), traj.events());
+  }
+
+  public static Trajectory<SwerveSample> flipOnAlliance(Trajectory<SwerveSample> states) {
+    var newStates = new ArrayList<SwerveSample>();
+
+    for (var state : getStates(states)) {
+      newStates.add(
+          new SwerveSample(
+              state.t,
+              state.x,
+              Constants.FieldConstants.FIELD_WIDTH.in(Units.Meter) - state.y,
+              -state.heading,
+              state.vx,
+              -state.vy,
+              -state.omega,
+              state.ax,
+              -state.ay,
+              -state.alpha,
+              state.moduleForcesX(),
+              state.moduleForcesY()));
+    }
+
+    // TODO: check instantiation for Trajectory object
+    return new Trajectory(states.name(), newStates, states.splits(), states.events());
   }
 
   private static List<SwerveSample> getStates(Trajectory<SwerveSample> traj) {
