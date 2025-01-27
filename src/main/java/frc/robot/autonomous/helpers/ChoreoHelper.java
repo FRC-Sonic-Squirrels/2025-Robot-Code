@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -123,7 +124,7 @@ public class ChoreoHelper {
     }
 
     this.initialTime = initialTime;
-    log_path.info(trajWithName.states().getPoses());
+    log_path.info(AllianceFlipUtil.flipPoseArrayForAlliance(trajWithName.states().getPoses()));
   }
 
   public boolean isPaused() {

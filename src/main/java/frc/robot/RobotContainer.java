@@ -609,13 +609,6 @@ public class RobotContainer {
                   RobotStates.clearingAlgae = false;
                 }));
 
-    if (Constants.RobotMode.isSimBot()) {
-      operatorController
-          .x()
-          .onTrue(Commands.runOnce(() -> RobotStates.coralInRobot = true))
-          .onFalse(Commands.runOnce(() -> RobotStates.coralInRobot = false));
-    }
-
     if (!DriverStation.isFMSAttached())
       operatorController
           .povDown()
@@ -689,6 +682,23 @@ public class RobotContainer {
         "USE GYRO 2", new RunsWhenDisabledInstantCommand(() -> drivetrain.chooseWhichGyro(true)));
 
     SmartDashboard.putData("Confirm Auto", new RunsWhenDisabledInstantCommand(led::confirmAuto));
+
+    if (Constants.RobotMode.isSimBot()) {
+      SmartDashboard.putData(
+          "SIM Coral in End Effector",
+          new RunsWhenDisabledInstantCommand(
+              () -> {
+                RobotStates.coralInRobot = true;
+                RobotStates.coralInEndEffector = true;
+              }));
+      SmartDashboard.putData(
+          "SIM NO Coral in End Effector",
+          new RunsWhenDisabledInstantCommand(
+              () -> {
+                RobotStates.coralInRobot = false;
+                RobotStates.coralInEndEffector = false;
+              }));
+    }
   }
 
   /**

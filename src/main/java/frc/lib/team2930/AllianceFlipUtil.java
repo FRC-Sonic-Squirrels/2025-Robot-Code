@@ -25,11 +25,25 @@ public class AllianceFlipUtil {
         originalPose.getRotation().plus(Rotation2d.k180deg));
   }
 
+  public static Pose2d[] rotatePose2DArrayAroundCenterPoint(Pose2d[] originalPoses) {
+    Pose2d[] newPoses = new Pose2d[originalPoses.length];
+    for (int i = 0; i < originalPoses.length; i++) {
+      newPoses[i] = flipPoseForAlliance(originalPoses[i]);
+    }
+    return newPoses;
+  }
+
   /**
    * @return blue alliance reference pose
    */
   public static Pose2d flipPoseForAlliance(Pose2d originalPose) {
     return Constants.isRedAlliance() ? rotatePose2DAroundCenterPoint(originalPose) : originalPose;
+  }
+
+  public static Pose2d[] flipPoseArrayForAlliance(Pose2d[] originalPose) {
+    return Constants.isRedAlliance()
+        ? rotatePose2DArrayAroundCenterPoint(originalPose)
+        : originalPose;
   }
 
   /**

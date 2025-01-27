@@ -239,6 +239,21 @@ public class StateMachine {
         });
   }
 
+  protected StateMachine spawnStateMachine(
+      StateMachine subStateMachine, ResumeStateHandler handler) {
+    Thread subStateThread =
+        new Thread(
+            () -> {
+              var nextState = handler.advance(subStateMachine);
+              while (subStateMachine.isRunning()) {
+                subStateMachine.advance();
+              }
+              if (nextState != null) setNextState(nextState);
+            });
+    subStateThread.start();
+    return subStateMachine;
+  }
+
   protected StateHandler suspendForCommand(Command command, ResumeStateHandlerFromCommand handler) {
     AtomicBoolean done = new AtomicBoolean();
 
