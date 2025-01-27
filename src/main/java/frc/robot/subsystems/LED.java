@@ -64,6 +64,7 @@ public class LED extends SubsystemBase {
   private final Supplier<Boolean> motorsZeroed;
   private double timeToResetToBaseState = 0;
   private Timer resetToBaseStateTimer = new Timer();
+  private boolean autoConfirmed = false;
 
   public LED(
       Supplier<Boolean> brakeMode,
@@ -99,6 +100,10 @@ public class LED extends SubsystemBase {
                 setSnake(Color.kRed, Color.kPurple);
               } else if (!gyroConnected.get() && !Constants.RobotMode.isSimBot()) {
                 setBlinking(Color.kAquamarine);
+              } else if (!autoConfirmed
+                  && DriverStation.isFMSAttached()
+                  && DriverStation.isDisabled()) {
+                setBlinking(Color.kDarkViolet);
               } else {
                 if (gamepieceInRobot) {
                   setSolidColor(squirrelOrange);
@@ -305,6 +310,10 @@ public class LED extends SubsystemBase {
     }
 
     return true;
+  }
+
+  public void confirmAuto() {
+    autoConfirmed = true;
   }
 
   public enum RobotState {

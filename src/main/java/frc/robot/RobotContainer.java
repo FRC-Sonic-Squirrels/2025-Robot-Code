@@ -413,6 +413,7 @@ public class RobotContainer {
                       new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
                 },
                 drivetrain));
+
     driverController
         .rightBumper()
         .whileTrue(
@@ -661,6 +662,8 @@ public class RobotContainer {
         "USE GYRO 1", new RunsWhenDisabledInstantCommand(() -> drivetrain.chooseWhichGyro(false)));
     SmartDashboard.putData(
         "USE GYRO 2", new RunsWhenDisabledInstantCommand(() -> drivetrain.chooseWhichGyro(true)));
+
+    SmartDashboard.putData("Confirm Auto", new RunsWhenDisabledInstantCommand(led::confirmAuto));
   }
 
   /**
