@@ -6,6 +6,8 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.lib.team2930.TunableNumberGroup;
+import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.ArmConstants;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -14,6 +16,10 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 public class SimpleMechanismVisualization { // TODO: vizualize mech on other side of robot
   private static final LoggerGroup logGroup = LoggerGroup.build("Mechanism");
   private static final LoggerEntry.Mechanism logMech = logGroup.buildMechanism2d("SimpleMechanism");
+
+  private static final TunableNumberGroup tunableGroup =
+      new TunableNumberGroup("SimpleMechanismVisualization");
+  private static final LoggedTunableNumber testTunable = tunableGroup.build("ArmAngleDeg", 0);
 
   static LoggedMechanism2d mechanism2d =
       new LoggedMechanism2d(
@@ -39,7 +45,7 @@ public class SimpleMechanismVisualization { // TODO: vizualize mech on other sid
   public static void updateVisualization(Distance elevatorHeight, Rotation2d armAngle) {
     if (elevatorHeight.in(Units.Inch) != 0.0)
       elevatorLigament.setLength(elevatorHeight.in(Units.Meters));
-    armLigament.setAngle(armAngle.unaryMinus().plus(Rotation2d.k180deg));
+    armLigament.setAngle(armAngle.minus(Rotation2d.kCCW_90deg));
   }
 
   public static void logMechanism() {
