@@ -12,24 +12,24 @@ public class AllianceFlipUtil {
     return Constants.isRedAlliance() ? originalVelocity.unaryMinus() : originalVelocity;
   }
 
-  public static Translation2d mirrorTranslation2DOverCenterLine(Translation2d originalTranslation) {
+  public static Translation2d rotateTranslation2DAroundCenterPoint(
+      Translation2d originalTranslation) {
     return new Translation2d(
         Constants.FieldConstants.FIELD_LENGTH.in(Units.Meters) - originalTranslation.getX(),
-        originalTranslation.getY());
+        Constants.FieldConstants.FIELD_WIDTH.in(Units.Meters) - originalTranslation.getY());
   }
 
-  public static Pose2d mirrorPose2DOverCenterLine(Pose2d originalPose) {
+  public static Pose2d rotatePose2DAroundCenterPoint(Pose2d originalPose) {
     return new Pose2d(
-        Constants.FieldConstants.FIELD_LENGTH.in(Units.Meters) - originalPose.getX(),
-        originalPose.getY(),
-        new Rotation2d(-originalPose.getRotation().getCos(), originalPose.getRotation().getSin()));
+        rotateTranslation2DAroundCenterPoint(originalPose.getTranslation()),
+        originalPose.getRotation().plus(Rotation2d.k180deg));
   }
 
   /**
    * @return blue alliance reference pose
    */
   public static Pose2d flipPoseForAlliance(Pose2d originalPose) {
-    return Constants.isRedAlliance() ? mirrorPose2DOverCenterLine(originalPose) : originalPose;
+    return Constants.isRedAlliance() ? rotatePose2DAroundCenterPoint(originalPose) : originalPose;
   }
 
   /**
@@ -37,7 +37,7 @@ public class AllianceFlipUtil {
    */
   public static Translation2d flipTranslationForAlliance(Translation2d originalTranslation) {
     return Constants.isRedAlliance()
-        ? mirrorTranslation2DOverCenterLine(originalTranslation)
+        ? rotateTranslation2DAroundCenterPoint(originalTranslation)
         : originalTranslation;
   }
 }

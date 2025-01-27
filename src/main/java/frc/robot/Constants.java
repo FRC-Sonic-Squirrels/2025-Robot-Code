@@ -56,7 +56,7 @@ public final class Constants {
   }
 
   public static class RobotMode {
-    private static final RobotType ROBOT = RobotType.ROBOT_2024_RETIRED_MAESTRO;
+    private static final RobotType ROBOT = RobotType.ROBOT_2025;
 
     private static final Alert invalidRobotAlert =
         new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -163,15 +163,7 @@ public final class Constants {
 
     public static Distance REEF_BRANCH_OFFSET = Units.Inches.of(6.5);
 
-    private static ScoringSide[] BLUE_SCORING_SIDE_ORDER = {
-      ScoringSide.NEAR_MID,
-      ScoringSide.NEAR_LEFT,
-      ScoringSide.FAR_LEFT,
-      ScoringSide.FAR_MID,
-      ScoringSide.FAR_RIGHT,
-      ScoringSide.NEAR_RIGHT
-    };
-    private static ScoringSide[] RED_SCORING_SIDE_ORDER = {
+    private static ScoringSide[] SCORING_SIDE_ORDER = {
       ScoringSide.FAR_MID,
       ScoringSide.FAR_LEFT,
       ScoringSide.NEAR_LEFT,
@@ -190,12 +182,12 @@ public final class Constants {
                     .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY())
                     .div(2.0)
                     .in(Units.Meters),
-                angle.plus(Rotation2d.k180deg));
+                angle);
         poses[i] =
             new ScoringSideWithPose(
                 AllianceFlipUtil.flipPoseForAlliance(
                     new Pose2d(BLUE_REEF_CENTER_POSE.plus(offset), angle.plus(Rotation2d.k180deg))),
-                isRedAlliance() ? RED_SCORING_SIDE_ORDER[i] : BLUE_SCORING_SIDE_ORDER[i]);
+                SCORING_SIDE_ORDER[i]);
       }
       return poses;
     }

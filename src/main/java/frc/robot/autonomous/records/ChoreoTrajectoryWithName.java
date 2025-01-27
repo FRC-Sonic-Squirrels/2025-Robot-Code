@@ -22,7 +22,7 @@ public record ChoreoTrajectoryWithName(String name, Trajectory<SwerveSample> sta
   }
 
   public ChoreoTrajectoryWithName flipOnAlliance(boolean flip) {
-    return flip ? this : new ChoreoTrajectoryWithName(name, ChoreoHelper.flipOnAlliance(states));
+    return flip ? new ChoreoTrajectoryWithName(name, ChoreoHelper.flipOnAlliance(states)) : this;
   }
 
   public Pose2d getInitialPose(boolean flipForAlliance) {

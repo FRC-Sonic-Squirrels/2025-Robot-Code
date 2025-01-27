@@ -11,7 +11,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
-public class SimpleMechanismVisualization {
+public class SimpleMechanismVisualization { // TODO: vizualize mech on other side of robot
   private static final LoggerGroup logGroup = LoggerGroup.build("Mechanism");
   private static final LoggerEntry.Mechanism logMech = logGroup.buildMechanism2d("SimpleMechanism");
 

@@ -58,19 +58,19 @@ public class AutosManager {
     var list = new ArrayList<Supplier<Auto>>();
 
     list.add(this::doNothing);
+    list.add(this::auto_IKLJ);
 
     if (includeDebugPaths) {
-      list.add(this::auto_IKLJ);
       list.add(this::swerveCharacterization);
-      list.add(() -> testPath("TestDrive1Meter", true));
-      list.add(() -> testPath("TestDrive10Meter", true));
-      list.add(() -> testPath("TestDrive2Meters", true));
-      list.add(() -> testPath("TestDrive2MetersRotating", true));
-      list.add(() -> testPath("TestDrive2MetersThenLeft", true));
-      list.add(() -> testPath("TestDrive2MetersThenLeftRotating", true));
-      list.add(() -> testPath("TestCircle", true));
-      list.add(() -> testPath("TestCircle", false, "TestCircleDontResetPose"));
-      list.add(() -> testPath("TestZigZag", false));
+      // list.add(() -> testPath("TestDrive1Meter", true));
+      // list.add(() -> testPath("TestDrive10Meter", true));
+      // list.add(() -> testPath("TestDrive2Meters", true));
+      // list.add(() -> testPath("TestDrive2MetersRotating", true));
+      // list.add(() -> testPath("TestDrive2MetersThenLeft", true));
+      // list.add(() -> testPath("TestDrive2MetersThenLeftRotating", true));
+      // list.add(() -> testPath("TestCircle", true));
+      // list.add(() -> testPath("TestCircle", false, "TestCircleDontResetPose"));
+      // list.add(() -> testPath("TestZigZag", false));
     }
 
     return list;
@@ -79,7 +79,7 @@ public class AutosManager {
   private void fillChooserAndMap(
       LoggedDashboardChooser<String> chooser,
       HashMap<String, Supplier<Auto>> stringToAutoSupplierMap) {
-    var compAutos = this.allCompetitionAutos();
+    var compAutos = allCompetitionAutos();
 
     for (int i = 0; i < compAutos.size(); i++) {
       var supplier = compAutos.get(i);
