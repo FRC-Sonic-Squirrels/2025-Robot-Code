@@ -45,7 +45,7 @@ public class WheelRadiusCharacterization extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    lastYaw = drivetrainWrapper.getPoseEstimatorPose(true).getRotation().getRadians();
+    lastYaw = drivetrainWrapper.getReefPoseEstimatorPose(true).getRotation().getRadians();
     totalYaw = 0.0;
     initialWheelRotations = drivetrainWrapper.getModuleRotations();
 
@@ -58,8 +58,8 @@ public class WheelRadiusCharacterization extends Command {
 
     totalYaw +=
         MathUtil.angleModulus(
-            drivetrainWrapper.getPoseEstimatorPose(true).getRotation().getRadians() - lastYaw);
-    lastYaw = drivetrainWrapper.getPoseEstimatorPose(true).getRotation().getRadians();
+            drivetrainWrapper.getReefPoseEstimatorPose(true).getRotation().getRadians() - lastYaw);
+    lastYaw = drivetrainWrapper.getReefPoseEstimatorPose(true).getRotation().getRadians();
 
     double averageWheelRotation = 0.0;
     Angle[] wheelRotations = drivetrainWrapper.getModuleRotations();

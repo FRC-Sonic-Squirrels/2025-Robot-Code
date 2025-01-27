@@ -50,7 +50,7 @@ public class DriveToGamepiece extends Command {
   public void initialize() {
     helper =
         new DriveToGamepieceHelper(
-            wrapper.getPoseEstimatorPose(true), wrapper.getFieldRelativeVelocities());
+            wrapper.getReefPoseEstimatorPose(true), wrapper.getFieldRelativeVelocities());
   }
 
   // Called every time the scheduler runs while the command is scheduled.

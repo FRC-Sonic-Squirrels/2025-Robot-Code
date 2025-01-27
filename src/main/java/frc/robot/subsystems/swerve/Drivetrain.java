@@ -173,6 +173,7 @@ public class Drivetrain extends SubsystemBase {
   private Pose2d rawOdometryPose = Constants.zeroPose2d;
 
   private final PoseEstimator reefPoseEstimator;
+  private final PoseEstimator coralStationPoseEstimator;
 
   private final Field2d field2d = new Field2d();
   private final Field2d rawOdometryField2d = new Field2d();
@@ -204,6 +205,8 @@ public class Drivetrain extends SubsystemBase {
     int[] coralStationTags = {1, 2, 12, 13};
 
     reefPoseEstimator = new PoseEstimator(0.6, 0.6, 0.3, reefTags); // refine these numbers?
+    coralStationPoseEstimator =
+        new PoseEstimator(0.6, 0.6, 0.3, coralStationTags); // refine these numbers?
 
     var thread = new Thread(this::runOdometry);
     thread.setName("PhoenixOdometryThread");
@@ -246,8 +249,8 @@ public class Drivetrain extends SubsystemBase {
 
       prevVel = getFieldRelativeVelocities();
 
-      var poseEstimatorPose = getPoseEstimatorPose();
-      var visionStaleness = getVisionStaleness();
+      var poseEstimatorPose = getReefPoseEstimatorPose();
+      var visionStaleness = getReefVisionStaleness();
       logLocalization_RobotPosition.info(poseEstimatorPose);
 
       field2d.setRobotPose(poseEstimatorPose);
@@ -408,6 +411,7 @@ public class Drivetrain extends SubsystemBase {
             rawOdometryPose = rawOdometryPose.exp(twist);
 
             reefPoseEstimator.addDriveData(timestamp, twist);
+            coralStationPoseEstimator.addDriveData(timestamp, twist);
           }
         }
       } catch (Exception e) {
@@ -574,6 +578,7 @@ public class Drivetrain extends SubsystemBase {
     {
       try (var ignored2 = timing_vision.start()) {
         reefPoseEstimator.addVisionData(visionData);
+        coralStationPoseEstimator.addVisionData(visionData);
       }
     }
   }
@@ -586,7 +591,7 @@ public class Drivetrain extends SubsystemBase {
     return rawOdometryPose;
   }
 
-  public Pose2d getPoseEstimatorPose() {
+  public Pose2d getReefPoseEstimatorPose() {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
       try (var ignored2 = timing_pose.start()) {
@@ -595,7 +600,16 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
-  public double getVisionStaleness() {
+  public Pose2d getCoralStationPoseEstimatorPose() {
+    try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
+    {
+      try (var ignored2 = timing_pose.start()) {
+        return coralStationPoseEstimator.getLatestPose();
+      }
+    }
+  }
+
+  public double getReefVisionStaleness() {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
       try (var ignored2 = timing_pose.start()) {
@@ -604,16 +618,28 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
-  public Pose2d getPoseEstimatorPoseAtTimestamp(double timestamp) {
+  public double getCoralStationVisionStaleness() {
+    try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
+    {
+      try (var ignored2 = timing_pose.start()) {
+        return coralStationPoseEstimator.getVisionStaleness();
+      }
+    }
+  }
+
+  public Pose2d getReefPoseEstimatorPoseAtTimestamp(double timestamp) {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
       return reefPoseEstimator.getPoseAtTime(timestamp);
     }
   }
 
-  // public Rotation2d getRotation() {
-  //   return getPoseEstimatorPose().getRotation();
-  // }
+  public Pose2d getCoralStationPoseEstimatorPoseAtTimestamp(double timestamp) {
+    try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
+    {
+      return coralStationPoseEstimator.getPoseAtTime(timestamp);
+    }
+  }
 
   public Rotation2d getRotationGyroOnly() {
     return rawOdometryPose.getRotation();
@@ -624,6 +650,7 @@ public class Drivetrain extends SubsystemBase {
     try (var ignored = odometryLock.lock()) // Prevents odometry updates while reading data
     {
       this.reefPoseEstimator.resetPose(pose, Utils.getCurrentTimeSeconds() + 0.2);
+      this.coralStationPoseEstimator.resetPose(pose, Utils.getCurrentTimeSeconds() + 0.2);
 
       this.rawOdometryPose = pose;
     }
