@@ -5,6 +5,7 @@
 package frc.robot.autonomous;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.StateMachine;
 import frc.lib.team2930.TunableNumberGroup;
@@ -143,7 +144,7 @@ public class AutoStateMachine extends StateMachine {
             config.getAutoTranslationPidController(),
             config.getAutoThetaPidController());
     spawnCommand(
-        null,
+        Commands.none(), // TODO: put intaking actual command here
         (c) -> {
           intakingIndex++;
           return stateWithName("PrepScoreCoralPathing", () -> prepScoreCoralPathing());
