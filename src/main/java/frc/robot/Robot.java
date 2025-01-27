@@ -56,8 +56,6 @@ public class Robot extends LoggedRobot {
   private static final LoggerEntry.Text logSelectedAuto = logGroupAuto.buildString("SelectedAuto");
 
   private static final LoggerGroup logGroupSimulatedRobot = LoggerGroup.build("SimulatedRobot");
-  private static final LoggerEntry.DecimalArray logCurrentDraws =
-      logGroupSimulatedRobot.buildDecimalArray("currentDraws");
   private static final LoggerEntry.Decimal logBatteryVoltage =
       logGroupSimulatedRobot.buildDecimal("batteryVoltage");
 
@@ -72,7 +70,6 @@ public class Robot extends LoggedRobot {
   private boolean hasEnteredTeleAtSomePoint = false;
   private boolean hasEnteredAutoAtSomePoint = false;
 
-  private boolean isAutonomousPrev = false;
   private boolean teleopPrepped = false;
 
   // Enables power distribution logging

@@ -379,31 +379,7 @@ public class RobotContainer {
                 Constants.ElevatorConstants.SPEED_SCALAR_MAP.get(
                     elevator.getHeight().in(Units.Inches)));
 
-    // FIXME: uncomment and fix if we want to use path planner swerve
-    // FIXME: remove once we are happy with path planner based swerve
-    // characterization
-    // AutoBuilder.configureHolonomic(
-    //     drivetrain::getPoseEstimatorPose,
-    //     drivetrain::setPose,
-    //     drivetrain::getChassisSpeeds,
-    //     drivetrainWrapper::setVelocityOverride,
-    //     new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live
-    // in
-    //         // your Constants class
-    //         new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
-    //         new PIDConstants(0.0, 0.0, 0.0), // Rotation PID constants
-    //         4.5, // Max module speed, in m/s
-    //         config.getDriveBaseRadius(), // Drive base radius in meters.
-    //         // Distance from robot center to
-    //         // furthest module.
-    //         new ReplanningConfig() // Default path replanning config. See the
-    //         // API for the options
-    //         // here
-    //         ),
-    //     () -> false,
-    //     drivetrain);
-
-    var subsystems = new AutosSubsystems(drivetrainWrapper, visionGamepiece, led);
+    var subsystems = new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led);
 
     autoManager = new AutosManager(subsystems, config, autoChooser, stringToAutoSupplierMap);
 

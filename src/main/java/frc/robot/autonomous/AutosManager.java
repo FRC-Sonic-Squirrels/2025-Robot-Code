@@ -1,6 +1,5 @@
 package frc.robot.autonomous;
 
-import choreo.Choreo;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
@@ -13,13 +12,13 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants;
 import frc.robot.RobotStates.ScoringLevel;
+import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.records.AutoDescriptor;
+import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
+import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.records.CoralStationLocation;
-import frc.robot.autonomous.records.CoralStationLocation.CoralStation;
-import frc.robot.autonomous.records.CoralStationLocation.CoralStationSide;
 import frc.robot.autonomous.records.ScoringLocation;
-import frc.robot.commands.ScoreCoral.ScoringDirection;
-import frc.robot.commands.ScoreCoral.ScoringSide;
+import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class AutosManager {
     list.add(this::doNothing);
 
     if (includeDebugPaths) {
-      list.add(this::auto_IKLA);
+      list.add(this::auto_IKLJ);
       list.add(this::swerveCharacterization);
       list.add(() -> testPath("TestDrive1Meter", true));
       list.add(() -> testPath("TestDrive10Meter", true));
@@ -68,7 +67,6 @@ public class AutosManager {
       list.add(() -> testPath("TestCircle", true));
       list.add(() -> testPath("TestCircle", false, "TestCircleDontResetPose"));
       list.add(() -> testPath("TestZigZag", false));
-      // list.add(this::characterization);
     }
 
     return list;
@@ -83,8 +81,6 @@ public class AutosManager {
       var supplier = compAutos.get(i);
       var name = supplier.get().name;
       if (i == 0) {
-        // FIXME: maybe we dont want do nothing as our default auto? maybe shoot and mobility as
-        // default?
         // Do nothing command must be first in list.
         chooser.addDefaultOption(name, name);
       } else {
@@ -99,37 +95,29 @@ public class AutosManager {
     return new Auto("doNothing", new InstantCommand(), Constants.zeroPose2d);
   }
 
-  private Auto auto_IKLA() {
+  private Auto auto_IKLJ() {
     List<ScoringLocation> scoringLocations = new ArrayList<>();
     List<CoralStationLocation> coralStationLocations = new ArrayList<>();
 
-    scoringLocations.add(
-        new ScoringLocation(ScoringSide.FAR_LEFT, ScoringDirection.RIGHT, ScoringLevel.L4));
-    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.LEFT));
+    scoringLocations.add(new ScoringLocation(ReefSide.CI, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
 
-    scoringLocations.add(
-        new ScoringLocation(ScoringSide.NEAR_LEFT, ScoringDirection.LEFT, ScoringLevel.L4));
-    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.LEFT));
+    scoringLocations.add(new ScoringLocation(ReefSide.CK, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
 
-    scoringLocations.add(
-        new ScoringLocation(ScoringSide.NEAR_LEFT, ScoringDirection.RIGHT, ScoringLevel.L4));
-    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.RIGHT));
+    scoringLocations.add(new ScoringLocation(ReefSide.CL, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
 
-    scoringLocations.add(
-        new ScoringLocation(ScoringSide.NEAR_MID, ScoringDirection.LEFT, ScoringLevel.L4));
-    coralStationLocations.add(new CoralStationLocation(CoralStation.LEFT, CoralStationSide.RIGHT));
+    scoringLocations.add(new ScoringLocation(ReefSide.CJ, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
 
     var state =
         new AutoStateMachine(
-            subsystems, new AutoDescriptor(scoringLocations, coralStationLocations));
+            subsystems,
+            new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S1),
+            config);
 
-    return new Auto(
-        "IKLA",
-        state.asCommand(),
-        Choreo.loadTrajectory("S1_I") // TODO: make this a call to the state
-            .orElseThrow()
-            .getInitialPose(Constants.isRedAlliance())
-            .get());
+    return stateToAuto("IKLJ", state);
   }
 
   private Auto testPath(String pathName, boolean useInitialPose) {
@@ -154,7 +142,6 @@ public class AutosManager {
                     drivetrain.getPoseEstimatorPose(true),
                     traj,
                     config.getDriveBaseRadius() / 2,
-                    1.0,
                     config.getAutoTranslationPidController(),
                     config.getAutoTranslationPidController(),
                     config.getAutoThetaPidController());
@@ -182,66 +169,91 @@ public class AutosManager {
         useInitialPose ? traj.getInitialPose(true) : null);
   }
 
-  // private Auto characterization() {
-  //   PathPlannerPath path = PathPlannerPath.fromPathFile("Characterization");
-  //   return new Auto(
-  //       "Characterization",
-  //       Commands.runOnce(() -> subsystems.drivetrain().setPose(Constants.zeroPose2d))
-  //           .andThen(AutoBuilder.followPath(path))
-  //           .finallyDo(subsystems.drivetrain()::resetVelocityOverride),
-  //       Constants.zeroPose2d);
-  // }
+  /*
+    Naming Convention:
 
-  /* Copy these to get waypoints for choreo. If pasted in choreo, they will automatically be turned into waypoints
+    Starting locations
 
-    A:
+    S1 ("S" for "Starting", 2nd letter indicates order from non processor side to processor side of starting line)
+
+    Scoring locations
+
+    CA - CL ("C" for "Coral", 2nd letter is based on diagram on page 24 of game manual : https://firstfrc.blob.core.windows.net/frc2025/Manual/2025GameManual.pdf)
+
+
+
+    Copy these to get waypoints for choreo. If pasted in choreo, they will automatically be turned into waypoints
+
+    CA:
     {"dataType":"choreo/waypoint","x":{"exp":"3.238499 m","val":3.238499},"y":{"exp":"4.191 m","val":4.191},"heading":{"exp":"180 deg","val":3.141592653589793},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    B:
+    CB:
     {"dataType":"choreo/waypoint","x":{"exp":"3.238499 m","val":3.238499},"y":{"exp":"3.8608 m","val":3.8608},"heading":{"exp":"180 deg","val":3.141592653589793},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    C:
+    CC:
     {"dataType":"choreo/waypoint","x":{"exp":"3.720994 m","val":3.720994},"y":{"exp":"3.025095 m","val":3.025095},"heading":{"exp":"-120 deg","val":-2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    D:
+    CD:
     {"dataType":"choreo/waypoint","x":{"exp":"4.006955 m","val":4.006955},"y":{"exp":"2.859995 m","val":2.859995},"heading":{"exp":"-120 deg","val":-2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    E:
+    CE:
     {"dataType":"choreo/waypoint","x":{"exp":"4.971944 m","val":4.971944},"y":{"exp":"2.859995 m","val":2.859995},"heading":{"exp":"-60 deg","val":-1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    F:
+    CF:
     {"dataType":"choreo/waypoint","x":{"exp":"5.257905 m","val":5.257905},"y":{"exp":"3.025095 m","val":3.025095},"heading":{"exp":"-60 deg","val":-1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    G:
+    CG:
     {"dataType":"choreo/waypoint","x":{"exp":"5.740399 m","val":5.740399},"y":{"exp":"3.8608 m","val":3.8608},"heading":{"exp":"0 deg","val":0},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    H:
+    CH:
     {"dataType":"choreo/waypoint","x":{"exp":"5.740399 m","val":5.740399},"y":{"exp":"4.191 m","val":4.191},"heading":{"exp":"0 deg","val":0},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    I:
+    CI:
     {"dataType":"choreo/waypoint","x":{"exp":"5.257905 m","val":5.257905},"y":{"exp":"5.026704 m","val":5.026704},"heading":{"exp":"60 deg","val":1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    J:
+    CJ:
     {"dataType":"choreo/waypoint","x":{"exp":"4.971944 m","val":4.971944},"y":{"exp":"5.191804 m","val":5.191804},"heading":{"exp":"60 deg","val":1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    K:
+    CK:
     {"dataType":"choreo/waypoint","x":{"exp":"4.006955 m","val":4.006955},"y":{"exp":"5.191804 m","val":5.191804},"heading":{"exp":"120 deg","val":2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    L:
+    CL:
     {"dataType":"choreo/waypoint","x":{"exp":"3.720994 m","val":3.720994},"y":{"exp":"5.026704 m","val":5.026704},"heading":{"exp":"120 deg","val":2.0943951023931953},"fixTranslation":true,"fixHeading":true,"intervals":40,"overrideIntervals":false,"split":false}
 
-    A: x 3.238499 y 4.191000 r 180
-    B: x 3.238499 y 3.860800 r 180
-    C: x 3.720994 y 3.025095 r -120
-    D: x 4.006955 y 2.859995 r -120
-    E: x 4.971944 y 2.859995 r -60
-    F: x 5.257905 y 3.025095 r -60
-    G: x 5.740399 y 3.860800 r 0
-    H: x 5.740399 y 4.191000 r 0
-    I: x 5.257905 y 5.026704 r 60
-    J: x 4.971944 y 5.191804 r 60
-    K: x 4.006955 y 5.191804 r 120
-    L: x 3.720994 y 5.026704 r 120
+    IA:
+    {"dataType":"choreo/waypoint","x":{"exp":"1.487926 m","val":1.487926},"y":{"exp":"7.341086 m","val":7.341086},"heading":{"exp":"126 deg","val":2.199114857512855},"fixTranslation":true,"fixHeading":true,"intervals":28,"overrideIntervals":false,"split":false}
+
+    IB:
+
+
+    IC:
+
+
+    ID:
+
+    S1:
+    {"dataType":"choreo/waypoint","x":{"exp":"7.1 m","val":7.1},"y":{"exp":"5.026704 m","val":5.026704},"heading":{"exp":"60 deg","val":1.0471975511965976},"fixTranslation":true,"fixHeading":true,"intervals":19,"overrideIntervals":false,"split":false}
+
+
+    CA: x 3.238499 y 4.191000 r 180
+    CB: x 3.238499 y 3.860800 r 180
+    CC: x 3.720994 y 3.025095 r -120
+    CD: x 4.006955 y 2.859995 r -120
+    CE: x 4.971944 y 2.859995 r -60
+    CF: x 5.257905 y 3.025095 r -60
+    CG: x 5.740399 y 3.860800 r 0
+    CH: x 5.740399 y 4.191000 r 0
+    CI: x 5.257905 y 5.026704 r 60
+    CJ: x 4.971944 y 5.191804 r 60
+    CK: x 4.006955 y 5.191804 r 120
+    CL: x 3.720994 y 5.026704 r 120
+
+    IA: x 1.487926 y 7.341086 r 126
+    IB: x 0.707063 y 6.773755 r 126
+    IC: x 0.707063 y 1.278044 r -126
+    ID: x 1.487926 y 0.710713 r -126
+
+    S1: x 7.100000 y 5.026704 r 60
   */
 
   public Auto swerveCharacterization() {
@@ -274,5 +286,9 @@ public class AutosManager {
             .andThen(Commands.runOnce(() -> logSwerveSysidState.info(SysIdRoutineLog.State.kNone)));
 
     return new Auto("swerveCharacterization", finalCommand, Constants.zeroPose2d);
+  }
+
+  private Auto stateToAuto(String name, AutoStateMachine state) {
+    return new Auto(name, state.asCommand(), state.initPose());
   }
 }
