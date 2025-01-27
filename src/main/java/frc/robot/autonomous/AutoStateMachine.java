@@ -144,7 +144,8 @@ public class AutoStateMachine extends StateMachine {
             config.getAutoTranslationPidController(),
             config.getAutoThetaPidController());
     spawnCommand(
-        Commands.none(), // TODO: put intaking actual command here
+        Commands.waitUntil(
+            () -> RobotStates.coralInRobot), // TODO: put intaking actual command here
         (c) -> {
           intakingIndex++;
           return stateWithName("PrepScoreCoralPathing", () -> prepScoreCoralPathing());
