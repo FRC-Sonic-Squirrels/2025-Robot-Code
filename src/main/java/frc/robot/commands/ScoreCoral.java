@@ -337,22 +337,22 @@ public class ScoreCoral extends StateMachine {
     switch (side) {
       case CA:
       case CB:
-        return ScoringSide.FAR_MID;
+        return ScoringSide.NEAR_MID;
       case CC:
       case CD:
-        return ScoringSide.FAR_RIGHT;
+        return ScoringSide.NEAR_RIGHT;
       case CE:
       case CF:
-        return ScoringSide.NEAR_RIGHT;
+        return ScoringSide.FAR_RIGHT;
       case CG:
       case CH:
-        return ScoringSide.NEAR_MID;
+        return ScoringSide.FAR_MID;
       case CI:
       case CJ:
-        return ScoringSide.NEAR_LEFT;
+        return ScoringSide.FAR_LEFT;
       case CK:
       case CL:
-        return ScoringSide.FAR_LEFT;
+        return ScoringSide.NEAR_LEFT;
       default:
         return null;
     }

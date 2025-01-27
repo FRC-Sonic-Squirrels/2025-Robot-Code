@@ -165,17 +165,17 @@ public class AutoStateMachine extends StateMachine {
 
   private ChoreoTrajectoryWithName locationsToPath(
       ScoringLocation scoring, CoralStationLocation coralStation) {
-    return StringsToPath(scoring.toString(), coralStation.toString());
+    return StringsToPath(scoring.side().toString(), coralStation.toString());
   }
 
   private ChoreoTrajectoryWithName locationsToPath(
       CoralStationLocation coralStation, ScoringLocation scoring) {
-    return StringsToPath(coralStation.toString(), scoring.toString());
+    return StringsToPath(coralStation.toString(), scoring.side().toString());
   }
 
   private ChoreoTrajectoryWithName locationsToPath(
       StartingLocation starting, ScoringLocation scoring) {
-    return StringsToPath(starting.toString(), scoring.toString());
+    return StringsToPath(starting.toString(), scoring.side().toString());
   }
 
   private ChoreoTrajectoryWithName StringsToPath(String startString, String endString) {
@@ -184,6 +184,6 @@ public class AutoStateMachine extends StateMachine {
   }
 
   public Pose2d initPose() {
-    return scoringPaths.get(0).getInitialPose(Constants.isRedAlliance());
+    return scoringPaths.get(0).getInitialPose(false);
   }
 }

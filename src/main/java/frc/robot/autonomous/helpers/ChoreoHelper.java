@@ -45,6 +45,8 @@ public class ChoreoHelper {
   private static final LoggerEntry.Decimal log_pidYVelEffort =
       logGroup.buildDecimal("pidYVelEffort");
   private static final LoggerEntry.Decimal log_pidVelEffort = logGroup.buildDecimal("pidVelEffort");
+  private static final LoggerEntry.StructArray<Pose2d> log_path =
+      logGroup.buildStructArray(Pose2d.class, "Path");
 
   private static final LoggerEntry.Bool log_isPaused = logGroup.buildBoolean("isPaused");
 
@@ -121,6 +123,7 @@ public class ChoreoHelper {
     }
 
     this.initialTime = initialTime;
+    log_path.info(trajWithName.states().getPoses());
   }
 
   public boolean isPaused() {

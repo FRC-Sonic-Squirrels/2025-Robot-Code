@@ -389,7 +389,17 @@ public class RobotContainer {
 
     autoManager =
         new AutosManager(
-            subsystems, config, autoChooser, stringToAutoSupplierMap, flipAutoChooser::get);
+            subsystems,
+            config,
+            autoChooser,
+            stringToAutoSupplierMap,
+            () -> {
+              var result = flipAutoChooser.get();
+              if (result != null) {
+                return result;
+              }
+              return false;
+            });
 
     drivetrain.setDefaultCommand(
         new DrivetrainDefaultTeleopDrive(
