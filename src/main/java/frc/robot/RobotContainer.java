@@ -102,6 +102,9 @@ public class RobotContainer {
 
   private final LoggedDashboardChooser<String> autoChooser =
       new LoggedDashboardChooser<>("Auto Routine");
+  private final LoggedDashboardChooser<Boolean> flipAutoChooser =
+      new LoggedDashboardChooser<>("Flip Auto?");
+
   private final HashMap<String, Supplier<Auto>> stringToAutoSupplierMap = new HashMap<>();
   private final AutosManager autoManager;
 
@@ -379,9 +382,14 @@ public class RobotContainer {
                 Constants.ElevatorConstants.SPEED_SCALAR_MAP.get(
                     elevator.getHeight().in(Units.Inches)));
 
+    flipAutoChooser.addDefaultOption("No", false);
+    flipAutoChooser.addOption("Yes", true);
+
     var subsystems = new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led);
 
-    autoManager = new AutosManager(subsystems, config, autoChooser, stringToAutoSupplierMap);
+    autoManager =
+        new AutosManager(
+            subsystems, config, autoChooser, stringToAutoSupplierMap, flipAutoChooser::get);
 
     drivetrain.setDefaultCommand(
         new DrivetrainDefaultTeleopDrive(
@@ -745,6 +753,10 @@ public class RobotContainer {
 
   public Supplier<Auto> getAutoSupplierForString(String string) {
     return stringToAutoSupplierMap.getOrDefault(string, autoManager::doNothing);
+  }
+
+  public boolean autoFlipped() {
+    return flipAutoChooser.get();
   }
 
   public void setPose(Pose2d pose) {

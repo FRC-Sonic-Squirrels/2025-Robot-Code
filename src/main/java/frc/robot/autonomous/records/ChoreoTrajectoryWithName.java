@@ -21,6 +21,10 @@ public record ChoreoTrajectoryWithName(String name, Trajectory<SwerveSample> sta
     return new ChoreoTrajectoryWithName(name, ChoreoHelper.rescale(states, speedScaling));
   }
 
+  public ChoreoTrajectoryWithName flipOnAlliance(boolean flip) {
+    return flip ? this : new ChoreoTrajectoryWithName(name, ChoreoHelper.flipOnAlliance(states));
+  }
+
   public Pose2d getInitialPose(boolean flipForAlliance) {
     return states.getInitialPose(flipForAlliance).orElseThrow();
   }
