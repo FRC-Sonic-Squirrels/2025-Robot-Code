@@ -1,15 +1,14 @@
-package frc.robot.autonomous;
+package frc.robot.autonomous.records;
 
 import choreo.Choreo;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.autonomous.helpers.ChoreoHelper;
 
 public record ChoreoTrajectoryWithName(String name, Trajectory<SwerveSample> states) {
   public static ChoreoTrajectoryWithName getTrajectory(String name) {
     if (name == null) return null;
-    // TODO: add throw message?
-    // TODO: check whether this cast is okay:
     return new ChoreoTrajectoryWithName(
         name, (Trajectory<SwerveSample>) Choreo.loadTrajectory(name).orElseThrow());
   }
@@ -23,12 +22,10 @@ public record ChoreoTrajectoryWithName(String name, Trajectory<SwerveSample> sta
   }
 
   public Pose2d getInitialPose(boolean flipForAlliance) {
-    // TODO: add throw message?
     return states.getInitialPose(flipForAlliance).orElseThrow();
   }
 
   public Pose2d getFinalPose(boolean flipForAlliance) {
-    // TODO: add throw message?
     return states.getFinalPose(flipForAlliance).orElseThrow();
   }
 }

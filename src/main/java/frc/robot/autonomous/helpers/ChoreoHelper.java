@@ -1,4 +1,4 @@
-package frc.robot.autonomous;
+package frc.robot.autonomous.helpers;
 
 import choreo.trajectory.EventMarker;
 import choreo.trajectory.SwerveSample;
@@ -13,6 +13,7 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
+import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,7 @@ public class ChoreoHelper {
 
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
   private static final LoggedTunableNumber useCorrection = group.build("useCorrection", 1);
+  private static final LoggedTunableNumber minVelToPause = group.build("MinVelToPause_m/s", 2.0);
 
   private final Trajectory<SwerveSample> traj;
   private final PIDController xFeedback;
@@ -56,7 +58,6 @@ public class ChoreoHelper {
   private final PIDController rotationalFeedback;
   private final double initialTime;
   private final double lagThreshold;
-  private final double minVelToPause;
 
   private double timeOffset;
   private double pausedTime = Double.NaN;
@@ -67,7 +68,10 @@ public class ChoreoHelper {
   /**
    * Helper class to go from timestamps of path to desired chassis speeds
    *
+   * @param initialTime timestamp of path starting
+   * @param initialPose initial pose of robot
    * @param trajWithName trajectory to follow
+   * @param lagThreshold distance meters before pausing path (for PID to catch up)
    * @param translationalFeedbackX pid in x directions
    * @param translationalFeedbackY pid in y directions
    * @param rotationalFeedback pid for angular velocity
@@ -77,13 +81,11 @@ public class ChoreoHelper {
       Pose2d initialPose,
       ChoreoTrajectoryWithName trajWithName,
       double lagThreshold,
-      double minVelToPause,
       PIDController translationalFeedbackX,
       PIDController translationalFeedbackY,
       PIDController rotationalFeedback) {
     this.traj = trajWithName.states();
     this.lagThreshold = lagThreshold;
-    this.minVelToPause = minVelToPause;
     this.xFeedback = translationalFeedbackX;
     this.yFeedback = translationalFeedbackY;
     this.rotationalFeedback = rotationalFeedback;
@@ -195,7 +197,7 @@ public class ChoreoHelper {
         }
       } else {
         var velMagnitude = Math.hypot(state.vx, state.vy);
-        if (stateTooBehind == null && velMagnitude >= minVelToPause && state.t > 0.25) {
+        if (stateTooBehind == null && velMagnitude >= minVelToPause.get() && state.t > 0.25) {
           stateTooBehind = state;
           pause(timestamp);
         }

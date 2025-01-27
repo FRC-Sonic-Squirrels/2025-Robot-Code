@@ -17,6 +17,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants.ScoringSideWithPose;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
+import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.subsystems.LED;
@@ -74,7 +75,38 @@ public class ScoreCoral extends StateMachine {
       Arm arm,
       EndEffector endEffector,
       LED led,
+      ReefSide side,
+      Consumer<Double> rumble) {
+    this(
+        wrapper,
+        elevator,
+        arm,
+        endEffector,
+        led,
+        reefSideToScoringDirection(side),
+        reefSideToScoringSide(side),
+        rumble);
+  }
+
+  public ScoreCoral(
+      DrivetrainWrapper wrapper,
+      Elevator elevator,
+      Arm arm,
+      EndEffector endEffector,
+      LED led,
       ScoringDirection scoringDirection,
+      Consumer<Double> rumble) {
+    this(wrapper, elevator, arm, endEffector, led, scoringDirection, null, rumble);
+  }
+
+  public ScoreCoral(
+      DrivetrainWrapper wrapper,
+      Elevator elevator,
+      Arm arm,
+      EndEffector endEffector,
+      LED led,
+      ScoringDirection scoringDirection,
+      ScoringSide side,
       Consumer<Double> rumble) {
     super("ScoreCoral");
 
@@ -89,7 +121,7 @@ public class ScoreCoral extends StateMachine {
 
     Pose2d robotPose = wrapper.getPoseEstimatorPose(true);
     algaeClearPose = getClosestAlgaeClearingSide(robotPose).pose();
-    scoringPoseAndSide = getClosestScoringSide(robotPose);
+    scoringPoseAndSide = side == null ? getClosestScoringSide(robotPose) : getScoringSide(side);
     scoringPose = scoringPoseAndSide.pose();
     this.scoringSide = scoringPoseAndSide.side();
     driveToPose =
@@ -126,6 +158,7 @@ public class ScoreCoral extends StateMachine {
             ? MechanismActions.clearAlgaeHigh2Position(elevator, arm)
             : MechanismActions.clearAlgaeLow2Position(elevator, arm);
 
+    // TODO: potentially use suspend for command instead of spawn?
     spawnCommand(
         driveToPose, (command) -> stateWithName("ClearAlgae", () -> initializeClearAlgae()));
 
@@ -225,6 +258,15 @@ public class ScoreCoral extends StateMachine {
     return RobotStates.clearingAlgae;
   }
 
+  private ScoringSideWithPose getScoringSide(ScoringSide side) {
+    for (ScoringSideWithPose scoringLocation : getScoringLocations()) {
+      if (scoringLocation.side() == side) {
+        return scoringLocation;
+      }
+    }
+    return null;
+  }
+
   private ScoringSideWithPose getClosestScoringSide(Pose2d robotPose) {
     ScoringSideWithPose bestTarget =
         new ScoringSideWithPose(
@@ -285,6 +327,35 @@ public class ScoreCoral extends StateMachine {
     }
 
     return newSides;
+  }
+
+  private static ScoringDirection reefSideToScoringDirection(ReefSide side) {
+    return (side.ordinal() % 2 == 0) ? ScoringDirection.RIGHT : ScoringDirection.LEFT;
+  }
+
+  private static ScoringSide reefSideToScoringSide(ReefSide side) {
+    switch (side) {
+      case CA:
+      case CB:
+        return ScoringSide.FAR_MID;
+      case CC:
+      case CD:
+        return ScoringSide.FAR_RIGHT;
+      case CE:
+      case CF:
+        return ScoringSide.NEAR_RIGHT;
+      case CG:
+      case CH:
+        return ScoringSide.NEAR_MID;
+      case CI:
+      case CJ:
+        return ScoringSide.NEAR_LEFT;
+      case CK:
+      case CL:
+        return ScoringSide.FAR_LEFT;
+      default:
+        return null;
+    }
   }
 
   public enum ScoringDirection {
