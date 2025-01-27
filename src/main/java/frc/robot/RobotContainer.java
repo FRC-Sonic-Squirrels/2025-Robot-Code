@@ -166,7 +166,7 @@ public class RobotContainer {
       vision =
           new Vision(
               aprilTagLayout,
-              drivetrain::getPoseEstimatorPose,
+              drivetrain::getReefPoseEstimatorPose,
               drivetrain::getRotationGyroOnly,
               drivetrain::addVisionEstimate,
               config.getReplayVisionModules());
@@ -177,7 +177,7 @@ public class RobotContainer {
       endEffector = new EndEffector(new EndEffectorIO() {});
       visionGamepiece =
           new VisionGamepiece(
-              new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
+              new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
       led =
           new LED(
               () -> brakeModeTriggered,
@@ -202,14 +202,14 @@ public class RobotContainer {
             vision =
                 new Vision(
                     aprilTagLayout,
-                    drivetrain::getPoseEstimatorPose,
+                    drivetrain::getReefPoseEstimatorPose,
                     drivetrain::getRotationGyroOnly,
                     drivetrain::addVisionEstimate,
                     config.getVisionModuleObjects());
 
             visionGamepiece =
                 new VisionGamepiece(
-                    new VisionGamepieceIOReal(), drivetrain::getPoseEstimatorPoseAtTimestamp);
+                    new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
 
           } else {
             VisionModuleConfiguration[] visionModules = {
@@ -217,26 +217,26 @@ public class RobotContainer {
                   SimulatorRobotConfig.SHOOTER_SIDE_LEFT_CAMERA_NAME,
                   SimulatorRobotConfig.SHOOTER_SIDE_LEFT,
                   config,
-                  drivetrain::getPoseEstimatorPose),
+                  drivetrain::getReefPoseEstimatorPose),
               VisionModuleConfiguration.buildSim(
                   SimulatorRobotConfig.SHOOTER_SIDE_RIGHT_CAMERA_NAME,
                   SimulatorRobotConfig.SHOOTER_SIDE_RIGHT,
                   config,
-                  drivetrain::getPoseEstimatorPose),
+                  drivetrain::getReefPoseEstimatorPose),
             };
 
             vision =
                 new Vision(
                     aprilTagLayout,
-                    drivetrain::getPoseEstimatorPose,
+                    drivetrain::getReefPoseEstimatorPose,
                     drivetrain::getRotationGyroOnly,
                     drivetrain::addVisionEstimate,
                     visionModules);
 
             visionGamepiece =
                 new VisionGamepiece(
-                    new VisionGamepieceIOSim(config, drivetrain::getPoseEstimatorPose),
-                    drivetrain::getPoseEstimatorPoseAtTimestamp);
+                    new VisionGamepieceIOSim(config, drivetrain::getReefPoseEstimatorPose),
+                    drivetrain::getReefPoseEstimatorPoseAtTimestamp);
           }
 
           arm = new Arm(new ArmIOSim());
@@ -262,7 +262,7 @@ public class RobotContainer {
           vision =
               new Vision(
                   aprilTagLayout,
-                  drivetrain::getPoseEstimatorPose,
+                  drivetrain::getReefPoseEstimatorPose,
                   drivetrain::getRotationGyroOnly,
                   drivetrain::addVisionEstimate,
                   config.getReplayVisionModules());
@@ -272,7 +272,7 @@ public class RobotContainer {
           endEffector = new EndEffector(new EndEffectorIO() {});
           visionGamepiece =
               new VisionGamepiece(
-                  new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
+                  new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
 
           led =
               new LED(
@@ -296,14 +296,14 @@ public class RobotContainer {
           vision =
               new Vision(
                   aprilTagLayout,
-                  drivetrain::getPoseEstimatorPose,
+                  drivetrain::getReefPoseEstimatorPose,
                   drivetrain::getRotationGyroOnly,
                   drivetrain::addVisionEstimate,
                   config.getVisionModuleObjects());
 
           visionGamepiece =
               new VisionGamepiece(
-                  new VisionGamepieceIOReal(), drivetrain::getPoseEstimatorPoseAtTimestamp);
+                  new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
 
           led =
               new LED(
@@ -327,14 +327,14 @@ public class RobotContainer {
           vision =
               new Vision(
                   aprilTagLayout,
-                  drivetrain::getPoseEstimatorPose,
+                  drivetrain::getReefPoseEstimatorPose,
                   drivetrain::getRotationGyroOnly,
                   drivetrain::addVisionEstimate,
                   config.getVisionModuleObjects());
 
           visionGamepiece =
               new VisionGamepiece(
-                  new VisionGamepieceIOReal(), drivetrain::getPoseEstimatorPoseAtTimestamp);
+                  new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
 
           led =
               new LED(
@@ -354,7 +354,7 @@ public class RobotContainer {
           vision =
               new Vision(
                   aprilTagLayout,
-                  drivetrain::getPoseEstimatorPose,
+                  drivetrain::getReefPoseEstimatorPose,
                   drivetrain::getRotationGyroOnly,
                   drivetrain::addVisionEstimate,
                   config.getReplayVisionModules());
@@ -364,7 +364,7 @@ public class RobotContainer {
           endEffector = new EndEffector(new EndEffectorIO() {});
           visionGamepiece =
               new VisionGamepiece(
-                  new VisionGamepieceIO() {}, drivetrain::getPoseEstimatorPoseAtTimestamp);
+                  new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
 
           led =
               new LED(
@@ -426,7 +426,7 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  Pose2d pose = drivetrain.getPoseEstimatorPose();
+                  Pose2d pose = drivetrain.getReefPoseEstimatorPose();
                   drivetrain.setPose(
                       new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
                 },
@@ -546,7 +546,7 @@ public class RobotContainer {
             new RotateToAngle(
                 drivetrainWrapper,
                 () -> {
-                  Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
+                  Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
                   Pose2d nearestAprilTag = null;
                   nearestAprilTag = findNearestAprilTag(robotTranslation, reefAprilTagPose);
@@ -555,18 +555,18 @@ public class RobotContainer {
 
                   return finalRotationValue;
                 },
-                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
+                () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
     driverController
         .leftStick()
         .toggleOnTrue(
             new RotateToAngle(
                 drivetrainWrapper,
                 () -> {
-                  Pose2d robotTranslation = drivetrainWrapper.getPoseEstimatorPose(true);
+                  Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
                   return faceTowardsCenter(robotTranslation, reefAprilTagPose);
                 },
-                () -> drivetrainWrapper.getPoseEstimatorPose(true)));
+                () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
     // Change clearing algae
 
@@ -791,7 +791,7 @@ public class RobotContainer {
   }
 
   public void matchRawOdometryToPoseEstimatorValue() {
-    drivetrain.setRawOdometryPose(drivetrain.getPoseEstimatorPose());
+    drivetrain.setRawOdometryPose(drivetrain.getReefPoseEstimatorPose());
   }
 
   public void applyToDrivetrain() {

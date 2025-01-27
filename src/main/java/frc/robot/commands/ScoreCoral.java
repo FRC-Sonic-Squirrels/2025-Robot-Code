@@ -119,13 +119,14 @@ public class ScoreCoral extends StateMachine {
     this.scoringDirection = scoringDirection;
     this.rumble = rumble;
 
-    Pose2d robotPose = wrapper.getPoseEstimatorPose(true);
+    Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
     algaeClearPose = getClosestAlgaeClearingSide(robotPose).pose();
     scoringPoseAndSide = side == null ? getClosestScoringSide(robotPose) : getScoringSide(side);
     scoringPose = scoringPoseAndSide.pose();
     this.scoringSide = scoringPoseAndSide.side();
     driveToPose =
-        new DriveToPose(wrapper, () -> algaeClearPose, () -> wrapper.getPoseEstimatorPose(true));
+        new DriveToPose(
+            wrapper, () -> algaeClearPose, () -> wrapper.getReefPoseEstimatorPose(true));
 
     log_scoringSide.info(scoringSide);
     log_scoringDirection.info(scoringDirection);
@@ -166,7 +167,7 @@ public class ScoreCoral extends StateMachine {
         spawnCommand(
             Commands.waitUntil(
                     () ->
-                        GeometryUtil.getDist(wrapper.getPoseEstimatorPose(true), scoringPose)
+                        GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
                             < distToRaiseMech.get())
                 .andThen(clearAlgae1Position),
             (command) -> null);
@@ -183,7 +184,7 @@ public class ScoreCoral extends StateMachine {
     }
 
     spawnCommand(
-        new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getPoseEstimatorPose(true)),
+        new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true)),
         (command) -> {
           return stateWithName("Score", () -> score());
         });
@@ -192,7 +193,7 @@ public class ScoreCoral extends StateMachine {
         spawnCommand(
             Commands.waitUntil(
                     () ->
-                        GeometryUtil.getDist(wrapper.getPoseEstimatorPose(true), scoringPose)
+                        GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
                             < distToRaiseMech.get())
                 .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
             (command) -> null);

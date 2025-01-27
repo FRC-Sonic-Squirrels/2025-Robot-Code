@@ -97,7 +97,7 @@ public class AutoStateMachine extends StateMachine {
     choreoHelper =
         new ChoreoHelper(
             timeFromStart(),
-            wrapper.getPoseEstimatorPose(true),
+            wrapper.getReefPoseEstimatorPose(true),
             traj,
             config.getDriveBaseRadius() / 2,
             config.getAutoTranslationPidController(),
@@ -108,7 +108,7 @@ public class AutoStateMachine extends StateMachine {
   }
 
   private StateHandler scoreCoralPathing() {
-    Pose2d currentPose = wrapper.getPoseEstimatorPose(true);
+    Pose2d currentPose = wrapper.getReefPoseEstimatorPose(true);
     wrapper.setVelocityOverride(
         choreoHelper.calculateChassisSpeeds(currentPose, timeFromStart()).chassisSpeeds());
     if (GeometryUtil.getDist(currentPose, scoringEndPose) < distBeforeScoringMeters.get())
@@ -152,7 +152,7 @@ public class AutoStateMachine extends StateMachine {
     choreoHelper =
         new ChoreoHelper(
             timeFromStart(),
-            wrapper.getPoseEstimatorPose(true),
+            wrapper.getCoralStationPoseEstimatorPose(true),
             traj,
             config.getDriveBaseRadius() / 2,
             config.getAutoTranslationPidController(),
@@ -171,7 +171,7 @@ public class AutoStateMachine extends StateMachine {
   private StateHandler intakeCoral() {
     wrapper.setVelocityOverride(
         choreoHelper
-            .calculateChassisSpeeds(wrapper.getPoseEstimatorPose(true), timeFromStart())
+            .calculateChassisSpeeds(wrapper.getReefPoseEstimatorPose(true), timeFromStart())
             .chassisSpeeds());
     return null;
   }
