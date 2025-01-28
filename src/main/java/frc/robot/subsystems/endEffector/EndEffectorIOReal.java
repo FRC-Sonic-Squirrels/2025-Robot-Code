@@ -39,7 +39,8 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
   private final BaseStatusSignal[] refreshSet;
 
-  private final TimeOfFlight tof = new TimeOfFlight(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
+  private final TimeOfFlight endEffectorTOF =
+      new TimeOfFlight(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
 
   public EndEffectorIOReal() {
     // Motor config
@@ -59,11 +60,6 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
     motor.getConfigurator().apply(config);
 
-    // TODO: update values to reflect actual robot
-    tof.setRangeOfInterest(6, 6, 10, 10);
-
-    tof.setRangingMode(RangingMode.Short, 25);
-
     // Status signals
 
     current = motor.getStatorCurrent();
@@ -81,9 +77,9 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
     // Time of Flight
 
-    tof.setRangeOfInterest(6, 6, 10, 10);
+    endEffectorTOF.setRangeOfInterest(6, 6, 10, 10);
 
-    tof.setRangingMode(RangingMode.Short, 25);
+    endEffectorTOF.setRangingMode(RangingMode.Short, 25);
   }
 
   @Override
