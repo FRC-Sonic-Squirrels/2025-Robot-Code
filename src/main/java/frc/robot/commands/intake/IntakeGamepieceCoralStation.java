@@ -61,8 +61,6 @@ public class IntakeGamepieceCoralStation extends Command {
     // TODO: stop intaking
     intake.setRollerVelocity(0.0);
     endEffector.setVelocity(0.0);
-    intake.setVelocity(0.0);
-    endEffector.setVelocity(0.0);
   }
 
   // Returns true when the command should end.
