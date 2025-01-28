@@ -40,13 +40,12 @@ public class IntakeGamepieceCoralStation extends Command {
 
     // TODO: add logic to intake gamepiece
     if (RobotStates.coralInEndEffector || RobotStates.coralInIntake) {
-      intake.setVoltage(0);
+      intake.setRollerVelocity(0.0);
       endEffector.setVelocity(0);
 
     } else {
-        intake.setRollerVelocity(intakingVelocity.get());
-        endEffector.setVelocity(intakingVelocity.get());
-      }
+      intake.setRollerVelocity(intakingVelocity.get());
+      endEffector.setVelocity(intakingVelocity.get());
     }
   }
 
