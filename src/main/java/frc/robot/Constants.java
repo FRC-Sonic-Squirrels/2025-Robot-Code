@@ -235,9 +235,9 @@ public final class Constants {
     public static class PivotConstants { // TODO: check all constants
       public static final double SUPPLY_CURRENT_LIMIT = 0;
 
-      public static final double GEAR_RATIO = (16 / 42) * (16 / 56);
+      public static final double GEAR_RATIO = (16.0 / 42.0) * (16.0 / 56.0);
 
-      public static final double MOI = 0;
+      public static final double MOI = 1.0;
 
       public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(180);
       public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(0);
