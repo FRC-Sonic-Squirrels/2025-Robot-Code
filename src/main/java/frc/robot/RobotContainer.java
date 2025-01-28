@@ -444,9 +444,13 @@ public class RobotContainer {
                 .andThen(
                     new IntakeGamepieceCoralStation(intake, endEffector)
                         .finallyDo(
-                           new LedSetStateForSeconds(
-                              led, RobotState.INTAKE_SUCCESS, 1));
-                           ))}
+                            (interrupted) -> {
+                              if (!interrupted)
+                                CommandScheduler.getInstance()
+                                    .schedule(
+                                        new LedSetStateForSeconds(
+                                            led, RobotState.INTAKE_SUCCESS, 1));
+                            })))
         .whileTrue(
             Commands.run(
                     () -> {

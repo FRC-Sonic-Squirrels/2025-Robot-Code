@@ -88,7 +88,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.velocityRPM = velocity.getValue().in(Units.RPM);
-    inputs.tofDistInches = Units.Millimeters.of(tof.getRange()).in(Units.Inches);
+    inputs.tofDistInches = Units.Millimeters.of(endEffectorTOF.getRange()).in(Units.Inches);
   }
 
   @Override
