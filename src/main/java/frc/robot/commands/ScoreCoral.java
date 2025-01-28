@@ -159,10 +159,6 @@ public class ScoreCoral extends StateMachine {
             ? MechanismActions.clearAlgaeHigh2Position(elevator, arm)
             : MechanismActions.clearAlgaeLow2Position(elevator, arm);
 
-    // TODO: potentially use suspend for command instead of spawn?
-    spawnCommand(
-        driveToPose, (command) -> stateWithName("ClearAlgae", () -> initializeClearAlgae()));
-
     prepMechanismForAlgae =
         spawnCommand(
             Commands.waitUntil(
@@ -172,7 +168,12 @@ public class ScoreCoral extends StateMachine {
                 .andThen(clearAlgae1Position),
             (command) -> null);
 
-    return stateWithName("AlignForAlgae", () -> waitState());
+    return suspendForCommand(
+        driveToPose,
+        (command) ->
+            suspendForCommand(
+                Commands.waitUntil(prepMechanismForAlgae::isFinished).andThen(clearAlgae2Position),
+                (c) -> stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment())));
   }
 
   private StateHandler prepForScoringAlignment() {
@@ -183,12 +184,6 @@ public class ScoreCoral extends StateMachine {
       return stateWithName("End", () -> end(true));
     }
 
-    spawnCommand(
-        new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true)),
-        (command) -> {
-          return stateWithName("Score", () -> score());
-        });
-
     prepMechanismForScoring =
         spawnCommand(
             Commands.waitUntil(
@@ -198,16 +193,9 @@ public class ScoreCoral extends StateMachine {
                 .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
             (command) -> null);
 
-    return stateWithName("AlignForScoring", () -> waitState());
-  }
-
-  private StateHandler initializeClearAlgae() {
-
-    spawnCommand(
-        Commands.waitUntil(prepMechanismForAlgae::isFinished).andThen(clearAlgae2Position),
-        (command) -> stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
-
-    return stateWithName("ClearAlgae", () -> waitState());
+    return suspendForCommand(
+        new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true)),
+        (command) -> stateWithName("Score", () -> score()));
   }
 
   private StateHandler score() {
