@@ -40,6 +40,9 @@ public class EndEffectorIOReal implements EndEffectorIO {
   private final TimeOfFlight endEffectorTOF =
       new TimeOfFlight(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
 
+  private final TimeOfFlight secondTOF =
+      new TimeOfFlight(Constants.CanIDs.SECOND_END_EFFECTOR_TOF_CAN_ID);
+
   public EndEffectorIOReal() {
     // Motor config
     TalonFXConfiguration config = new TalonFXConfiguration();
@@ -76,8 +79,10 @@ public class EndEffectorIOReal implements EndEffectorIO {
     // Time of Flight
 
     endEffectorTOF.setRangeOfInterest(6, 6, 10, 10);
+    secondTOF.setRangeOfInterest(6, 6, 10, 10);
 
     endEffectorTOF.setRangingMode(RangingMode.Short, 25);
+    secondTOF.setRangingMode(RangingMode.Short, 25);
   }
 
   @Override
@@ -89,6 +94,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.velocityRPM = velocity.getValue().in(Units.RPM);
     inputs.tofDistInches = Units.Millimeters.of(endEffectorTOF.getRange()).in(Units.Inches);
+    inputs.secondTOFDistInches = Units.Millimeters.of(secondTOF.getRange()).in(Units.Inches);
   }
 
   @Override
