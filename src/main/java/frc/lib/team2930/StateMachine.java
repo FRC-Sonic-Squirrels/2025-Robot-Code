@@ -239,18 +239,9 @@ public class StateMachine {
         });
   }
 
-  protected StateMachine spawnStateMachine(
-      StateMachine subStateMachine, ResumeStateHandler handler) {
-    Thread subStateThread =
-        new Thread(
-            () -> {
-              var nextState = handler.advance(subStateMachine);
-              while (subStateMachine.isRunning()) {
-                subStateMachine.advance();
-              }
-              if (nextState != null) setNextState(nextState);
-            });
-    subStateThread.start();
+  protected StateMachine spawnStateMachineAsCommand(
+      StateMachine subStateMachine, ResumeStateHandlerFromCommand handler) {
+    spawnCommand(subStateMachine.asCommand(), handler);
     return subStateMachine;
   }
 

@@ -119,7 +119,7 @@ public class AutoStateMachine extends StateMachine {
   private StateHandler prepScoreCoral() {
     RobotStates.scoringLevel = scoringLocations.get(scoringIndex).level();
 
-    spawnStateMachine(
+    spawnStateMachineAsCommand(
         new ScoreCoral(
             wrapper,
             elevator,
