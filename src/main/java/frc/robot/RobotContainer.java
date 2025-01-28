@@ -484,11 +484,6 @@ public class RobotContainer {
                         ScoringDirection.RIGHT,
                         (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
-    // driverController.povRight().onTrue(MechanismActions.coralStationPosition(elevator, arm));
-    driverController
-        .povLeft()
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
-
     // Change scoring height
     var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
@@ -592,24 +587,46 @@ public class RobotContainer {
 
     operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
     operatorController.b().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(18)));
+    // Move mechanism to:
+
+    // Stowed
+    operatorController.povDown().onTrue(MechanismActions.stowPosition(elevator, arm));
+
+    // L4 scoring position
+    operatorController
+        .povLeft()
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
+
+    // L3 scoring position
+    operatorController
+        .povUp()
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L3));
+
+    // L2 scoring position
+    operatorController
+        .povRight()
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L2));
+
+    // Coral station position
+    operatorController.povCenter().onTrue(MechanismActions.coralStationPosition(elevator, arm));
 
     operatorController.leftBumper().whileTrue(new IntakeEject(intake));
     // Toggle clearing algae
 
+    /*operatorController
+         .povUp()
+         .onTrue(
+             Commands.runOnce(
+                 () -> {
+                   RobotStates.clearingAlgae = true;
+                 }));
     operatorController
-        .povUp()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  RobotStates.clearingAlgae = true;
-                }));
-    operatorController
-        .povDown()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  RobotStates.clearingAlgae = false;
-                }));
+         .povDown()
+         .onTrue(
+             Commands.runOnce(
+                 () -> {
+                   RobotStates.clearingAlgae = false;
+                 }));*/
 
     if (!DriverStation.isFMSAttached())
       operatorController
