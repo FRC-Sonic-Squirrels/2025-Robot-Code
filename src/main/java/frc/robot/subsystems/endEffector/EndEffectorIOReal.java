@@ -75,7 +75,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     motor.optimizeBusUtilization();
     refreshSet = new BaseStatusSignal[] {current, deviceTemp, appliedVoltage, velocity};
 
-    // Time of Flight
+    // Time of Flight, make sure to update
 
     endEffectorTOF.setRangeOfInterest(6, 6, 10, 10);
 
