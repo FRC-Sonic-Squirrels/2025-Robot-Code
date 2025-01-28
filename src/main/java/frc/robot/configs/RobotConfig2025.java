@@ -75,9 +75,9 @@ public class RobotConfig2025 extends RobotConfig {
 
   // --------- SWERVE GEAR RATIO ---------
   public static final double SWERVE_DRIVE_GEAR_RATIO =
-      SwerveModuleConstants.MK4I.LEVEL_3_GEARING_DRIVE_GEAR_RATIO_PLUS_SPEED_KIT;
+      SwerveModuleConstants.MK4n.LEVEL_2_GEARING_DRIVE_GEAR_RATIO_PLUS_SPEED_KIT;
   public static final double SWERVE_STEER_GEAR_RATIO =
-      SwerveModuleConstants.MK4I.GEARING_TURN_GEAR_RATIO;
+      SwerveModuleConstants.MK4n.GEARING_TURN_GEAR_RATIO;
 
   // ---------- SWERVE STEERING MOTOR PID CONSTANTS -----------
   // FIXE: RN copied from Mechanical advantage (6328) 2023 codebase. Should learn to tune
@@ -100,30 +100,31 @@ public class RobotConfig2025 extends RobotConfig {
 
   private static final double GYRO_MOUNTING_PITCH = 0.0;
 
-  private static final double GYRO_MOUNTING_ROLL = -180.0;
+  private static final double GYRO_MOUNTING_ROLL = 0.0;
 
-  private static final double GYRO_MOUNTING_YAW = 90.0;
+  private static final double GYRO_MOUNTING_YAW = 0.0;
 
   // -------- CAN BUS NAME -----------
   private static final String CAN_BUS_NAME = "CANivore";
 
   // -------- ROBOT DIMENSIONS -----------
+  // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
   // front to back
-  private static final Distance TRACK_WIDTH_X = Units.Inches.of(21.75);
+  private static final Distance TRACK_WIDTH_X = Units.Inches.of(24.75);
   // left to right
-  private static final Distance TRACK_WIDTH_Y = Units.Inches.of(21.75);
+  private static final Distance TRACK_WIDTH_Y = Units.Inches.of(22.750005);
 
   // ------- ROBOT MAX SPEED --------
   private static final double MAX_VELOCITY_METERS_PER_SECOND = 5.0;
-  private static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05;
+  private static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05; // unused currently
 
   // ------- AUTONOMOUS CONSTANTS -------
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
-      group.build("AUTO_MAX_SPEED", 2.0);
+      group.build("AUTO_MAX_SPEED", 2.0); // unused currently
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 2.0);
+      group.build("AUTO_MAX_ACCEL", 2.0); // unused currently
 
-  private static final LoggedTunableNumber AUTO_TRANSLATION_KP =
+  private static final LoggedTunableNumber AUTO_TRANSLATION_KP = // TODO: tune these
       group.build("AUTO_TRANSLATION_KP", 2.4);
   private static final LoggedTunableNumber AUTO_TRANSLATION_KI =
       group.build("AUTO_TRANSLATION_KI", 0.0);
@@ -134,7 +135,7 @@ public class RobotConfig2025 extends RobotConfig {
   private static final LoggedTunableNumber AUTO_THETA_KD = group.build("AUTO_THETA_KD", 0.0);
 
   // ---- VISION  -------
-  public static final Transform3d SHOOTER_SIDE_LEFT =
+  public static final Transform3d REEF_SIDE_LEFT = // TODO: input new cam positions
       new Transform3d(
           new Translation3d(
               Units.Inches.of(-12.25).in(Units.Meters),
@@ -142,7 +143,7 @@ public class RobotConfig2025 extends RobotConfig {
               Units.Inches.of(10).in(Units.Meters)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(180.0)));
 
-  public static final Transform3d SHOOTER_SIDE_RIGHT =
+  public static final Transform3d REEF_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
               Units.Inches.of(-12.25).in(Units.Meters),
@@ -150,7 +151,7 @@ public class RobotConfig2025 extends RobotConfig {
               Units.Inches.of(10).in(Units.Meters)),
           new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(180.0)));
 
-  public static final Transform3d INTAKE_SIDE_LEFT =
+  public static final Transform3d CORAL_STATION_SIDE_LEFT =
       new Transform3d(
           new Translation3d(
               Units.Inches.of(2.143069).in(Units.Meters),
@@ -158,7 +159,7 @@ public class RobotConfig2025 extends RobotConfig {
               Units.Inches.of(24.990728).in(Units.Meters)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(-22.0), Math.toRadians(35.0)));
 
-  public static final Transform3d INTAKE_SIDE_RIGHT =
+  public static final Transform3d CORAL_STATION_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
               Units.Inches.of(2.143069).in(Units.Meters),
@@ -166,9 +167,12 @@ public class RobotConfig2025 extends RobotConfig {
               Units.Inches.of(24.990728).in(Units.Meters)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(-22.0), Math.toRadians(325.0)));
 
-  public static final String OBJECT_DETECTION_CAMERA_NAME = "0_Object_Detection_ELP";
-  public static final String SHOOTER_SIDE_LEFT_CAMERA_NAME = "1_Shooter_Left_See3Cam";
-  public static final String SHOOTER_SIDE_RIGHT_CAMERA_NAME = "2_Shooter_Right_See3Cam";
+  public static final String OBJECT_DETECTION_CAMERA_NAME =
+      "0_Object_Detection_ELP"; // TODO: input new cam names
+  public static final String REEF_SIDE_LEFT_CAMERA_NAME = "1_Reef_Left_See3Cam";
+  public static final String REEF_SIDE_RIGHT_CAMERA_NAME = "2_Reef_Right_See3Cam";
+  public static final String CORAL_STATION_SIDE_LEFT_CAMERA_NAME = "3_Coral_Left_See3Cam";
+  public static final String CORAL_STATION_SIDE_RIGHT_CAMERA_NAME = "4_Coral_Right_See3Cam";
 
   public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025Reefscape;
 
@@ -206,16 +210,23 @@ public class RobotConfig2025 extends RobotConfig {
   @Override
   public VisionModuleConfiguration[] getVisionModuleObjects() {
     return new VisionModuleConfiguration[] {
-      VisionModuleConfiguration.build(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT),
-      VisionModuleConfiguration.build(SHOOTER_SIDE_RIGHT_CAMERA_NAME, SHOOTER_SIDE_RIGHT)
+      VisionModuleConfiguration.build(REEF_SIDE_LEFT_CAMERA_NAME, REEF_SIDE_LEFT),
+      VisionModuleConfiguration.build(REEF_SIDE_RIGHT_CAMERA_NAME, REEF_SIDE_RIGHT),
+      VisionModuleConfiguration.build(CORAL_STATION_SIDE_LEFT_CAMERA_NAME, CORAL_STATION_SIDE_LEFT),
+      VisionModuleConfiguration.build(
+          CORAL_STATION_SIDE_RIGHT_CAMERA_NAME, CORAL_STATION_SIDE_RIGHT)
     };
   }
 
   @Override
   public VisionModuleConfiguration[] getReplayVisionModules() {
     return new VisionModuleConfiguration[] {
-      VisionModuleConfiguration.buildReplayStub(SHOOTER_SIDE_LEFT_CAMERA_NAME, SHOOTER_SIDE_LEFT),
-      VisionModuleConfiguration.buildReplayStub(SHOOTER_SIDE_RIGHT_CAMERA_NAME, SHOOTER_SIDE_RIGHT)
+      VisionModuleConfiguration.buildReplayStub(REEF_SIDE_LEFT_CAMERA_NAME, REEF_SIDE_LEFT),
+      VisionModuleConfiguration.buildReplayStub(REEF_SIDE_RIGHT_CAMERA_NAME, REEF_SIDE_RIGHT),
+      VisionModuleConfiguration.buildReplayStub(
+          CORAL_STATION_SIDE_LEFT_CAMERA_NAME, CORAL_STATION_SIDE_LEFT),
+      VisionModuleConfiguration.buildReplayStub(
+          CORAL_STATION_SIDE_RIGHT_CAMERA_NAME, CORAL_STATION_SIDE_RIGHT)
     };
   }
 
