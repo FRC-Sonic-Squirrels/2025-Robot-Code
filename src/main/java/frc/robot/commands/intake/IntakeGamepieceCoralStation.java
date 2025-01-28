@@ -39,16 +39,11 @@ public class IntakeGamepieceCoralStation extends Command {
     var rumbleValue = rumbleIntensityPercent.get();
 
     // TODO: add logic to intake gamepiece
-    if (RobotStates.coralInEndEffector) {
-      intake.setRollerVelocity(0);
+    if (RobotStates.coralInEndEffector || RobotStates.coralInIntake) {
+      intake.setVoltage(0);
       endEffector.setVelocity(0);
 
     } else {
-      if (RobotStates.coralInIntake) {
-        intake.setRollerVelocity(0);
-        endEffector.setVelocity(0);
-
-      } else {
         intake.setRollerVelocity(intakingVelocity.get());
         endEffector.setVelocity(intakingVelocity.get());
       }
