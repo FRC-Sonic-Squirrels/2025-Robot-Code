@@ -59,7 +59,7 @@ public class EndEffector extends SubsystemBase {
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       kS.initDefault(0);
-      kP.initDefault(0.8);
+      kP.initDefault(0.4);
       kV.initDefault(0.15);
       targetAccelerationConfig.initDefault(300.0);
     } else if (Constants.RobotMode.isSimBot()) {

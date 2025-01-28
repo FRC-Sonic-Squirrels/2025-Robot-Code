@@ -84,8 +84,8 @@ public class MechanismPositions {
       reefL3ArmAngleDegrees.initDefault(0);
       reefL4ElevatorHeightInches.initDefault(26.2);
       reefL4ArmAngleDegrees.initDefault(120);
-      coralStationElevatorHeightInches.initDefault(25);
-      coralStationArmAngleDegrees.initDefault(-45);
+      coralStationElevatorHeightInches.initDefault(25.451);
+      coralStationArmAngleDegrees.initDefault(-22.324);
       algaeClearingLow1ElevatorHeightInches.initDefault(16);
       algaeClearingLow1ArmAngleDegrees.initDefault(120);
       algaeClearingLow2ElevatorHeightInches.initDefault(20);

@@ -5,6 +5,7 @@
 package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.RobotStates;
@@ -15,9 +16,12 @@ public class IntakeGamepieceCoralStation extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
   private static final LoggedTunableNumber rumbleIntensityPercent =
       group.build("rumbleIntensityPercent", 0.5);
-  private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 2500);
+  private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", -500);
   private final Intake intake;
   private final EndEffector endEffector;
+  private final Trigger gamepieceInRobot =
+      new Trigger((() -> RobotStates.coralInEndEffector || RobotStates.coralInIntake))
+          .debounce(0.5);
 
   /** Creates a new IntakeDefaultIdleRPM. */
   public IntakeGamepieceCoralStation(Intake intake, EndEffector endEffector) {
@@ -40,11 +44,11 @@ public class IntakeGamepieceCoralStation extends Command {
 
     // TODO: add logic to intake gamepiece
     if (RobotStates.coralInEndEffector || RobotStates.coralInIntake) {
-      intake.setRollerVelocity(0.0);
-      endEffector.setVelocity(0);
+      // intake.setRollerVelocity(0.0);
+      endEffector.setPercentOut(0);
 
     } else {
-      intake.setRollerVelocity(intakingVelocity.get());
+      // intake.setRollerVelocity(intakingVelocity.get());
       endEffector.setVelocity(intakingVelocity.get());
     }
   }
@@ -53,7 +57,7 @@ public class IntakeGamepieceCoralStation extends Command {
   @Override
   public void end(boolean interrupted) {
     // TODO: stop intaking
-    intake.setRollerVelocity(0.0);
+    // intake.setRollerVelocity(0.0);
     endEffector.setVelocity(0.0);
   }
 
@@ -61,6 +65,6 @@ public class IntakeGamepieceCoralStation extends Command {
   @Override
   public boolean isFinished() {
     // TODO: change to: if gamepiece is seen (debounced)
-    return RobotStates.coralInRobot;
+    return gamepieceInRobot.getAsBoolean();
   }
 }
