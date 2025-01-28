@@ -853,7 +853,8 @@ public class RobotContainer {
   }
 
   public void updateRobotState() {
-    RobotStates.coralInEndEffector = endEffector.tofDistance().in(Units.Inches) < 11.0;
+    RobotStates.coralInEndEffector =
+        ((endEffector.tofSeenGamepiece()) && (endEffector.secondTOFSeenGamepiece()));
 
     ScoringLevel level = RobotStates.scoringLevel;
     logScoringLevelState.info(level);
