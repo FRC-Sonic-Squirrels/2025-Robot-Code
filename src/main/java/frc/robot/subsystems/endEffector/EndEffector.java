@@ -36,6 +36,8 @@ public class EndEffector extends SubsystemBase {
       logGroup.buildDecimal("AppliedVolts");
   private static final LoggerEntry.Decimal logInputs_tofDist =
       logGroup.buildDecimal("tofDistInches");
+  private static final LoggerEntry.Decimal logInputs_secondTOFDist =
+      logGroup.buildDecimal("secondTOFDistInches");
 
   private static final LoggerEntry.Decimal logTargetVelocityRPM =
       logGroup.buildDecimal("TargetVelocityRPM");
@@ -96,6 +98,7 @@ public class EndEffector extends SubsystemBase {
       logInputs_tempCelsius.info(inputs.tempCelsius);
       logInputs_appliedVolts.info(inputs.appliedVolts);
       logInputs_tofDist.info(inputs.tofDistInches);
+      logInputs_secondTOFDist.info(inputs.secondTOFDistInches);
 
       logControlMode.info(controlMode);
 
@@ -142,7 +145,15 @@ public class EndEffector extends SubsystemBase {
     return Units.Inches.of(inputs.tofDistInches);
   }
 
+  public Distance secondTOFDistance() {
+    return Units.Inches.of(inputs.secondTOFDistInches);
+  }
+
   public boolean tofSeenGamepiece() {
     return inputs.tofDistInches <= distanceToTriggerCoralDetection.get();
+  }
+
+  public boolean secondTOFSeenGamepiece() {
+    return inputs.secondTOFDistInches <= distanceToTriggerCoralDetection.get();
   }
 }

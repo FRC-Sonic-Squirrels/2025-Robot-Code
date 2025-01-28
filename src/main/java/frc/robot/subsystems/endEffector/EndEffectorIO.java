@@ -11,6 +11,7 @@ public interface EndEffectorIO {
     public double tempCelsius;
     public double appliedVolts;
     public double tofDistInches;
+    public double secondTOFDistInches;
 
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);
