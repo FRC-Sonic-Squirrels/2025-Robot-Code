@@ -2,6 +2,7 @@ package frc.robot.configs;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.pathplanner.lib.config.ModuleConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
@@ -9,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import frc.lib.constants.SwerveModuleConstants;
@@ -110,9 +112,14 @@ public class RobotConfig2023Rober extends RobotConfig {
 
   // ------- AUTONOMOUS CONSTANTS -------
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
-      group.build("AUTO_MAX_SPEED", 2.0);
+      group.build("AUTO_MAX_SPEED_METERS_PER_SECOND", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 2.0);
+      group.build("AUTO_MAX_ACCEL_METERS_PER_SECOND_SQUARED", 2.0);
+  private static final LoggedTunableNumber AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND =
+      group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 2);
+  private static final LoggedTunableNumber
+      AUTO_MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED =
+          group.build("AUTO_MAX_ANGULAR_ACCEL_RAD_PER_SECOND_SQUARED", Math.PI * 4);
 
   private static final LoggedTunableNumber AUTO_TRANSLATION_KP =
       group.build("AUTO_TRANSLATION_KP", 6.0);
@@ -123,6 +130,20 @@ public class RobotConfig2023Rober extends RobotConfig {
   private static final LoggedTunableNumber AUTO_THETA_KP = group.build("AUTO_THETA_KP", 4.9);
   private static final LoggedTunableNumber AUTO_THETA_KI = group.build("AUTO_THETA_KI", 0.0);
   private static final LoggedTunableNumber AUTO_THETA_KD = group.build("AUTO_THETA_KD", 0.0);
+
+  private final com.pathplanner.lib.config.RobotConfig PATH_PLANNER_CONFIG =
+      new com.pathplanner.lib.config.RobotConfig(
+          Units.Kilogram.of(1),
+          Units.KilogramSquareMeters.of(1),
+          new ModuleConfig(
+              WHEEL_RADIUS,
+              Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND),
+              0.65,
+              DCMotor.getKrakenX60Foc(4),
+              SWERVE_DRIVE_GEAR_RATIO,
+              Units.Amps.of(DRIVE_TALON_CURRENT_LIMIT_CONFIGS.SupplyCurrentLimit),
+              1),
+          getModuleTranslations());
 
   // ---- VISION CAMERA TRANSFORM3d's -------
 
@@ -295,12 +316,12 @@ public class RobotConfig2023Rober extends RobotConfig {
   }
 
   @Override
-  public LoggedTunableNumber getAutoMaxSpeed() {
+  public LoggedTunableNumber getPathingMaxSpeedMPS() {
     return AUTO_MAX_SPEED_METERS_PER_SECOND;
   }
 
   @Override
-  public LoggedTunableNumber getAutoMaxAcceleration() {
+  public LoggedTunableNumber getPathingMaxAccelerationMPSPS() {
     return AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED;
   }
 
@@ -313,6 +334,16 @@ public class RobotConfig2023Rober extends RobotConfig {
   @Override
   public PIDController getAutoThetaPidController() {
     return new PIDController(AUTO_THETA_KP.get(), AUTO_THETA_KI.get(), AUTO_THETA_KD.get());
+  }
+
+  @Override
+  public LoggedTunableNumber getPathingMaxAngularVelocityRadPerSecond() {
+    return AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND;
+  }
+
+  @Override
+  public LoggedTunableNumber getPathingMaxAngularAccelerationRadPerSecondSquared() {
+    return AUTO_MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED;
   }
 
   @Override
@@ -353,5 +384,10 @@ public class RobotConfig2023Rober extends RobotConfig {
   @Override
   public double getGyroMountingYaw() {
     return GYRO_MOUNTING_YAW;
+  }
+
+  @Override
+  public com.pathplanner.lib.config.RobotConfig pathPlannerConfig() {
+    return PATH_PLANNER_CONFIG;
   }
 }
