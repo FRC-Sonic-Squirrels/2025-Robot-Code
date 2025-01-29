@@ -117,7 +117,7 @@ public class EndEffector extends SubsystemBase {
 
   // Setters
 
-  public void setGamepieceInRobot(boolean value){
+  public void setGamepieceInRobot(boolean value) {
     gamepieceInRobot = value;
   }
 
