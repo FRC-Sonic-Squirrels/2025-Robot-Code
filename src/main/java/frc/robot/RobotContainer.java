@@ -477,7 +477,8 @@ public class RobotContainer {
                         endEffector,
                         led,
                         ScoringDirection.LEFT,
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
+                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                        Constants.RobotMode.getRobot().config.get())));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Score Coral")
@@ -491,7 +492,8 @@ public class RobotContainer {
                         endEffector,
                         led,
                         ScoringDirection.RIGHT,
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
+                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                        Constants.RobotMode.getRobot().config.get())));
 
     // Change scoring height
     var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);

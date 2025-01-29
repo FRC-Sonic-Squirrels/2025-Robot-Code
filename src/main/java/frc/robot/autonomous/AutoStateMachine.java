@@ -127,7 +127,8 @@ public class AutoStateMachine extends StateMachine {
             endEffector,
             led,
             scoringLocations.get(scoringIndex).side(),
-            (r) -> {}),
+            (r) -> {},
+            config),
         (s) -> null);
 
     return stateWithName("ScoreCoral", () -> scoreCoral());

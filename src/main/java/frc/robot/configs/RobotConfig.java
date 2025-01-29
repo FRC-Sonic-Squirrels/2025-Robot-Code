@@ -64,9 +64,13 @@ public abstract class RobotConfig {
   // -------------AUTONOMOUS-------------
 
   // Robot auto speeds
-  public abstract LoggedTunableNumber getAutoMaxSpeed();
+  public abstract LoggedTunableNumber getPathingMaxSpeedMPS();
 
-  public abstract LoggedTunableNumber getAutoMaxAcceleration();
+  public abstract LoggedTunableNumber getPathingMaxAccelerationMPSPS();
+
+  public abstract LoggedTunableNumber getPathingMaxAngularVelocityRadPerSecond();
+
+  public abstract LoggedTunableNumber getPathingMaxAngularAccelerationRadPerSecondSquared();
 
   // auto translation PID
   public abstract PIDController getAutoTranslationPidController();
@@ -152,4 +156,6 @@ public abstract class RobotConfig {
   public abstract VisionModuleConfiguration[] getReplayVisionModules();
 
   public abstract AprilTagFieldLayout getAprilTagFieldLayout();
+
+  public abstract com.pathplanner.lib.config.RobotConfig pathPlannerConfig();
 }

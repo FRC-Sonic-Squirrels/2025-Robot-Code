@@ -161,4 +161,8 @@ public class DrivetrainWrapper {
   public Angle[] getModuleRotations() {
     return drivetrain.getModuleDriveRotations();
   }
+
+  public ChassisSpeeds getCurrentRobotRelativeChassisSpeeds() {
+    return drivetrain.getChassisSpeeds();
+  }
 }
