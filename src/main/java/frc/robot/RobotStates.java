@@ -10,6 +10,10 @@ public class RobotStates {
 
   public static boolean coralInEndEffector = true;
 
+  public static boolean coralInEndEffectorScoringSide = true;
+
+  public static boolean coralInEndEffectorNonScoringSide = true;
+
   public static boolean coralInIntake = false;
 
   public enum ScoringLevel {

@@ -20,7 +20,11 @@ public class IntakeGamepieceCoralStation extends Command {
   private final Intake intake;
   private final EndEffector endEffector;
   private final Trigger gamepieceInRobot =
-      new Trigger((() -> RobotStates.coralInEndEffector || RobotStates.coralInIntake))
+      new Trigger(
+              () ->
+                  ((RobotStates.coralInEndEffectorScoringSide
+                          && RobotStates.coralInEndEffectorNonScoringSide))
+                      || RobotStates.coralInIntake)
           .debounce(0.5);
 
   /** Creates a new IntakeDefaultIdleRPM. */
@@ -43,7 +47,8 @@ public class IntakeGamepieceCoralStation extends Command {
     var rumbleValue = rumbleIntensityPercent.get();
 
     // TODO: add logic to intake gamepiece
-    if (RobotStates.coralInEndEffector || RobotStates.coralInIntake) {
+    if ((RobotStates.coralInEndEffectorScoringSide && RobotStates.coralInEndEffectorNonScoringSide)
+        || RobotStates.coralInIntake) {
       // intake.setRollerVelocity(0.0);
       endEffector.setPercentOut(0);
 
