@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -50,7 +49,6 @@ import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.intake.IntakeEject;
 import frc.robot.commands.intake.IntakeGamepieceCoralStation;
-import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
 import frc.robot.configs.SimulatorRobotConfig;
@@ -439,15 +437,15 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(
-          MechanismActions.coralStationPosition(elevator, arm)
-          .andThen(
-              new IntakeGamepieceCoralStation(intake, endEffector)
-          ))
+            MechanismActions.coralStationPosition(elevator, arm)
+                .andThen(new IntakeGamepieceCoralStation(intake, endEffector)))
         .whileTrue(
             Commands.run(
                     () -> {
-                      //System.out.println("in robot? " + endEffector.isGamepieceInRobot()); // testing scenario
-                      if (endEffector.isGamepieceInRobot()) { // If the gamepiece is in robot, set rumble
+                      // System.out.println("in robot? " + endEffector.isGamepieceInRobot()); //
+                      // testing scenario
+                      if (endEffector
+                          .isGamepieceInRobot()) { // If the gamepiece is in robot, set rumble
                         driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
                         led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
                       }
