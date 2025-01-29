@@ -439,22 +439,15 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(
-            MechanismActions.coralStationPosition(elevator, arm)
-                .andThen(
-                    new IntakeGamepieceCoralStation(intake, endEffector)
-                        .finallyDo(
-                            (interrupted) -> {
-                              if (!interrupted) {
-                                CommandScheduler.getInstance()
-                                    .schedule(
-                                        new LedSetStateForSeconds(
-                                            led, RobotState.INTAKE_SUCCESS, 1));
-                              }
-                            })))
+          MechanismActions.coralStationPosition(elevator, arm)
+          .andThen(
+              new IntakeGamepieceCoralStation(intake, endEffector)
+          ))
         .whileTrue(
             Commands.run(
                     () -> {
-                      if (RobotStates.coralInRobot) {
+                      //System.out.println("in robot? " + endEffector.isGamepieceInRobot()); // testing scenario
+                      if (endEffector.isGamepieceInRobot()) { // If the gamepiece is in robot, set rumble
                         driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
                         led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
                       }

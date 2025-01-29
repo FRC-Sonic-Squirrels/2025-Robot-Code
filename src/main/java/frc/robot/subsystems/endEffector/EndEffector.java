@@ -43,6 +43,7 @@ public class EndEffector extends SubsystemBase {
       logGroup.buildDecimal("TargetVelocityRPM");
   private static final LoggerEntry.EnumValue<ControlMode> logControlMode =
       logGroup.buildEnum("ControlMode");
+  private boolean gamepieceInRobot = false;
 
   // Tunable numbers
 
@@ -116,6 +117,10 @@ public class EndEffector extends SubsystemBase {
 
   // Setters
 
+  public void setGamepieceInRobot(boolean value){
+    gamepieceInRobot = value;
+  }
+
   private void setConstants() {
     io.setClosedLoopConstants(kP.get(), kV.get(), kS.get(), targetAccelerationConfig.get());
   }
@@ -155,5 +160,9 @@ public class EndEffector extends SubsystemBase {
 
   public boolean secondTOFSeenGamepiece() {
     return inputs.secondTOFDistInches <= distanceToTriggerCoralDetection.get();
+  }
+
+  public boolean isGamepieceInRobot() {
+    return gamepieceInRobot;
   }
 }

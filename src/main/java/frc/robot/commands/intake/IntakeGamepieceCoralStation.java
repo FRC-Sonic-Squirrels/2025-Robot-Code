@@ -51,10 +51,11 @@ public class IntakeGamepieceCoralStation extends Command {
         || RobotStates.coralInIntake) {
       // intake.setRollerVelocity(0.0);
       endEffector.setPercentOut(0);
-
+      endEffector.setGamepieceInRobot(true);
     } else {
       // intake.setRollerVelocity(intakingVelocity.get());
       endEffector.setVelocity(intakingVelocity.get());
+      endEffector.setGamepieceInRobot(false);
     }
   }
 
