@@ -21,7 +21,9 @@ import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.drive.DriveToPose;
+import frc.robot.commands.drive.DriveToPosePathing;
 import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
 import frc.robot.subsystems.LED.RobotState;
@@ -39,6 +41,7 @@ public class ScoreCoral extends StateMachine {
   private final Arm arm;
   private final EndEffector endEffector;
   private final LED led;
+  private final RobotConfig config;
 
   private final ScoringDirection scoringDirection;
   private ScoringSide scoringSide;
@@ -92,7 +95,8 @@ public class ScoreCoral extends StateMachine {
       EndEffector endEffector,
       LED led,
       ReefSide side,
-      Consumer<Double> rumble) {
+      Consumer<Double> rumble,
+      RobotConfig config) {
     this(
         wrapper,
         elevator,
@@ -101,7 +105,8 @@ public class ScoreCoral extends StateMachine {
         led,
         reefSideToScoringDirection(side),
         Optional.of(reefSideToScoringSide(side)),
-        rumble);
+        rumble,
+        config);
   }
 
   public ScoreCoral(
@@ -111,8 +116,18 @@ public class ScoreCoral extends StateMachine {
       EndEffector endEffector,
       LED led,
       ScoringDirection scoringDirection,
-      Consumer<Double> rumble) {
-    this(wrapper, elevator, arm, endEffector, led, scoringDirection, Optional.empty(), rumble);
+      Consumer<Double> rumble,
+      RobotConfig config) {
+    this(
+        wrapper,
+        elevator,
+        arm,
+        endEffector,
+        led,
+        scoringDirection,
+        Optional.empty(),
+        rumble,
+        config);
   }
 
   public ScoreCoral(
@@ -123,7 +138,8 @@ public class ScoreCoral extends StateMachine {
       LED led,
       ScoringDirection scoringDirection,
       Optional<ScoringSide> side,
-      Consumer<Double> rumble) {
+      Consumer<Double> rumble,
+      RobotConfig config) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
@@ -131,6 +147,7 @@ public class ScoreCoral extends StateMachine {
     this.arm = arm;
     this.endEffector = endEffector;
     this.led = led;
+    this.config = config;
 
     this.scoringDirection = scoringDirection;
     this.rumble = rumble;
@@ -158,7 +175,9 @@ public class ScoreCoral extends StateMachine {
 
     driveToPose =
         new DriveToPose(
-            wrapper, () -> algaeClearPose, () -> wrapper.getReefPoseEstimatorPose(true));
+            wrapper,
+            () -> algaeClearPose,
+            () -> wrapper.getReefPoseEstimatorPose(true)); // change to path based alignment
 
     return algaeClearRequired()
         ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
@@ -219,7 +238,13 @@ public class ScoreCoral extends StateMachine {
             (command) -> null);
 
     return suspendForCommand(
-        new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true)),
+        // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
+        new DriveToPosePathing(
+            wrapper,
+            config,
+            () -> wrapper.getReefPoseEstimatorPose(true),
+            () -> scoringPose,
+            scoringPose.getRotation().plus(Rotation2d.k180deg)),
         (command) -> stateWithName("Score", () -> score()));
   }
 
