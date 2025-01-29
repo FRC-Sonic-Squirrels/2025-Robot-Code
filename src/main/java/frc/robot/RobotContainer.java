@@ -139,6 +139,10 @@ public class RobotContainer {
       robotStateLogGroup.buildBoolean("GamepieceInRobotState");
   private static LoggerEntry.Bool logGamepieceInEndEffectorState =
       robotStateLogGroup.buildBoolean("GamepieceInEndEffectorState");
+  private static LoggerEntry.Bool logGamepieceInEndEffectorScoringSideState =
+      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorScoringSideState");
+  private static LoggerEntry.Bool logGamepieceInEndEffectorNonScoringSideState =
+      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorNonScoringSideState");
   private static LoggerEntry.Bool logGamepieceInIntakeState =
       robotStateLogGroup.buildBoolean("GamepieceInIntakeState");
 
@@ -440,11 +444,12 @@ public class RobotContainer {
                     new IntakeGamepieceCoralStation(intake, endEffector)
                         .finallyDo(
                             (interrupted) -> {
-                              if (!interrupted)
+                              if (!interrupted) {
                                 CommandScheduler.getInstance()
                                     .schedule(
                                         new LedSetStateForSeconds(
                                             led, RobotState.INTAKE_SUCCESS, 1));
+                              }
                             })))
         .whileTrue(
             Commands.run(
@@ -853,8 +858,12 @@ public class RobotContainer {
   }
 
   public void updateRobotState() {
+    RobotStates.coralInEndEffectorNonScoringSide = ((endEffector.tofSeenGamepiece()));
+
+    RobotStates.coralInEndEffectorScoringSide = (endEffector.secondTOFSeenGamepiece());
+
     RobotStates.coralInEndEffector =
-        ((endEffector.tofSeenGamepiece()) && (endEffector.secondTOFSeenGamepiece()));
+        (RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide);
 
     ScoringLevel level = RobotStates.scoringLevel;
     logScoringLevelState.info(level);
@@ -865,7 +874,10 @@ public class RobotContainer {
     logAlgaeClearingState.info(RobotStates.clearingAlgae);
     logGamepieceInRobotState.info(RobotStates.coralInRobot);
     logGamepieceInIntakeState.info(RobotStates.coralInIntake);
-    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
+    logGamepieceInEndEffectorState.info(
+        RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide);
+    logGamepieceInEndEffectorScoringSideState.info(RobotStates.coralInEndEffectorScoringSide);
+    logGamepieceInEndEffectorNonScoringSideState.info(RobotStates.coralInEndEffectorNonScoringSide);
 
     if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
