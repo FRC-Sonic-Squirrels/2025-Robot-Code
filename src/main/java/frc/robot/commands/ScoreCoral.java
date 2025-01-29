@@ -6,12 +6,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.StateMachine;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team2930.lib.controller_rumble.ControllerRumbleForTime;
+import frc.lib.team6328.GeomUtil;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants.ScoringSideWithPose;
@@ -27,6 +29,7 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ScoreCoral extends StateMachine {
@@ -38,10 +41,11 @@ public class ScoreCoral extends StateMachine {
   private final LED led;
 
   private final ScoringDirection scoringDirection;
-  private final ScoringSide scoringSide;
-  private final ScoringSideWithPose scoringPoseAndSide;
-  private final Pose2d algaeClearPose;
-  private final Pose2d scoringPose;
+  private ScoringSide scoringSide;
+  private final Optional<ScoringSide> optionalScoringSide;
+  private ScoringSideWithPose scoringPoseAndSide;
+  private Pose2d algaeClearPose;
+  private Pose2d scoringPose;
 
   private Command prepMechanismForAlgae;
   private Command prepMechanismForScoring;
@@ -49,7 +53,7 @@ public class ScoreCoral extends StateMachine {
   private Command clearAlgae1Position;
   private Command clearAlgae2Position;
 
-  private final Command driveToPose;
+  private Command driveToPose;
 
   private final Consumer<Double> rumble;
 
@@ -58,6 +62,8 @@ public class ScoreCoral extends StateMachine {
       group.build("DistToRaiseMechMeters", 1);
   private static final LoggedTunableNumber scoringVelocityRPM =
       group.build("ScoringVelocityRPM", 1000);
+  private static final LoggedTunableNumber predictiveTime =
+      group.build("PredictiveTimeSeconds", 0.5);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -68,6 +74,16 @@ public class ScoreCoral extends StateMachine {
       log_group.buildStruct(Pose2d.class, "ScoringPose");
   private static final LoggerEntry.Struct<Pose2d> log_algaeClearPose =
       log_group.buildStruct(Pose2d.class, "ScoringPose");
+  private static final LoggerEntry.Struct<Pose2d> log_predictedPose =
+      log_group.buildStruct(Pose2d.class, "PosePrediction/PredictedPose");
+  private static final LoggerEntry.Struct<Translation2d> log_inputVel =
+      log_group.buildStruct(Translation2d.class, "PosePrediction/InputVel");
+  private static final LoggerEntry.Struct<Translation2d> log_adjustedVel =
+      log_group.buildStruct(Translation2d.class, "PosePrediction/AdjustedVel");
+  private static final LoggerEntry.Decimal log_headingToReef =
+      log_group.buildDecimal("PosePrediction/HeadingToReef");
+  private static final LoggerEntry.Decimal log_deltaTheta =
+      log_group.buildDecimal("PosePrediction/DeltaTheta");
 
   public ScoreCoral(
       DrivetrainWrapper wrapper,
@@ -84,7 +100,7 @@ public class ScoreCoral extends StateMachine {
         endEffector,
         led,
         reefSideToScoringDirection(side),
-        reefSideToScoringSide(side),
+        Optional.of(reefSideToScoringSide(side)),
         rumble);
   }
 
@@ -96,7 +112,7 @@ public class ScoreCoral extends StateMachine {
       LED led,
       ScoringDirection scoringDirection,
       Consumer<Double> rumble) {
-    this(wrapper, elevator, arm, endEffector, led, scoringDirection, null, rumble);
+    this(wrapper, elevator, arm, endEffector, led, scoringDirection, Optional.empty(), rumble);
   }
 
   public ScoreCoral(
@@ -106,7 +122,7 @@ public class ScoreCoral extends StateMachine {
       EndEffector endEffector,
       LED led,
       ScoringDirection scoringDirection,
-      ScoringSide side,
+      Optional<ScoringSide> side,
       Consumer<Double> rumble) {
     super("ScoreCoral");
 
@@ -118,26 +134,32 @@ public class ScoreCoral extends StateMachine {
 
     this.scoringDirection = scoringDirection;
     this.rumble = rumble;
-
-    Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
-    algaeClearPose = getClosestAlgaeClearingSide(robotPose).pose();
-    scoringPoseAndSide = side == null ? getClosestScoringSide(robotPose) : getScoringSide(side);
-    scoringPose = scoringPoseAndSide.pose();
-    this.scoringSide = scoringPoseAndSide.side();
-    driveToPose =
-        new DriveToPose(
-            wrapper, () -> algaeClearPose, () -> wrapper.getReefPoseEstimatorPose(true));
-
-    log_scoringSide.info(scoringSide);
-    log_scoringDirection.info(scoringDirection);
-    log_scoringPose.info(scoringPose);
-    log_algaeClearPose.info(scoringPoseAndSide.pose());
+    this.optionalScoringSide = side;
 
     setInterruptedState(stateWithName("End", () -> end(true)));
     setInitialState(stateWithName("ChooseAlignment", () -> chooseAlignment()));
   }
 
   private StateHandler chooseAlignment() {
+    Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
+    algaeClearPose = getClosestAlgaeClearingSide(robotPose).pose();
+    scoringPoseAndSide =
+        optionalScoringSide.isEmpty()
+            ? getOptimalScoringSide(
+                robotPose, wrapper.getFieldRelativeVelocities().getTranslation())
+            : getScoringSide(optionalScoringSide.get());
+    scoringPose = scoringPoseAndSide.pose();
+    scoringSide = scoringPoseAndSide.side();
+
+    log_scoringSide.info(scoringSide);
+    log_scoringDirection.info(scoringDirection);
+    log_scoringPose.info(scoringPose);
+    log_algaeClearPose.info(scoringPoseAndSide.pose());
+
+    driveToPose =
+        new DriveToPose(
+            wrapper, () -> algaeClearPose, () -> wrapper.getReefPoseEstimatorPose(true));
+
     return algaeClearRequired()
         ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
         : stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment());
@@ -173,7 +195,10 @@ public class ScoreCoral extends StateMachine {
         (command) ->
             suspendForCommand(
                 Commands.waitUntil(prepMechanismForAlgae::isFinished).andThen(clearAlgae2Position),
-                (c) -> stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment())));
+                (c) ->
+                    stateWithName(
+                        "PrepForScoringAlignment",
+                        () -> prepForScoringAlignment()))); // TODO: make algae clearing happen last
   }
 
   private StateHandler prepForScoringAlignment() {
@@ -256,13 +281,46 @@ public class ScoreCoral extends StateMachine {
     return null;
   }
 
-  private ScoringSideWithPose getClosestScoringSide(Pose2d robotPose) {
+  private ScoringSideWithPose getOptimalScoringSide(Pose2d robotPose, Translation2d vel) {
+    log_inputVel.info(vel);
+    Translation2d flippedReef =
+        AllianceFlipUtil.flipTranslationForAlliance(Constants.FieldConstants.BLUE_REEF_CENTER_POSE);
+    Rotation2d headingToReef =
+        GeometryUtil.getHeading(robotPose.getTranslation(), flippedReef).unaryMinus();
+    log_headingToReef.info(headingToReef);
+    // y' y * cos(t) + x * sin(t)
+    // x' y * sin(t) + x * cos(t)
+    // distToReef = dist(curr, reef)
+    // distToReef + x' * time = newDistToReef
+    // ravg = (distToReef + newDistToReef) / 2.0
+    // deltaTheta = y' / ravg
+    Translation2d adjustedVel = vel.rotateBy(headingToReef);
+    log_adjustedVel.info(adjustedVel);
+    Translation2d deltaPos = adjustedVel.times(predictiveTime.get());
+    double distToReef = GeometryUtil.getDist(robotPose.getTranslation(), flippedReef);
+    double newDistToReef =
+        Math.max(
+            distToReef - deltaPos.getX(),
+            Constants.FieldConstants.REEF_WIDTH.in(Units.Meter) / 2.0);
+    double avgRadius = (distToReef + newDistToReef) / 2.0;
+    Rotation2d deltaTheta = Rotation2d.fromRadians(-deltaPos.getY() / avgRadius);
+    Translation2d newTranslation =
+        flippedReef.plus(
+            new Translation2d(
+                newDistToReef,
+                GeometryUtil.getHeading(flippedReef, robotPose.getTranslation()).plus(deltaTheta)));
+    log_predictedPose.info(GeomUtil.translationToPose(newTranslation));
+    log_deltaTheta.info(deltaTheta);
+    return getClosestScoringSide(newTranslation);
+  }
+
+  private ScoringSideWithPose getClosestScoringSide(Translation2d robotTranslation) {
     ScoringSideWithPose bestTarget =
         new ScoringSideWithPose(
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero), ScoringSide.FAR_LEFT);
     for (ScoringSideWithPose pose : getScoringLocations()) {
-      if (GeometryUtil.getDist(robotPose, pose.pose())
-          < GeometryUtil.getDist(robotPose, bestTarget.pose())) {
+      if (GeometryUtil.getDist(robotTranslation, pose.pose().getTranslation())
+          < GeometryUtil.getDist(robotTranslation, bestTarget.pose().getTranslation())) {
         bestTarget = pose;
       }
     }
@@ -299,16 +357,7 @@ public class ScoreCoral extends StateMachine {
       Translation2d offset =
           new Translation2d(
               Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters),
-              scoringSidePose
-                  .getRotation()
-                  .plus(
-                      // scoringSide == ScoringSide.FAR_LEFT
-                      //         || scoringSide == ScoringSide.FAR_MID
-                      //         || scoringSide == ScoringSide.FAR_RIGHT
-                      //     ?
-                      objectiveScoringDirection
-                      // : objectiveScoringDirection.unaryMinus()
-                      ));
+              scoringSidePose.getRotation().plus(objectiveScoringDirection));
       Translation2d translation = scoringSidePose.getTranslation().plus(offset);
       newSides[i] =
           new ScoringSideWithPose(
