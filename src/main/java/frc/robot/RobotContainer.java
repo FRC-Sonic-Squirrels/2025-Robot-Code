@@ -28,13 +28,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.team2930.AllianceFlipUtil;
-import frc.lib.team2930.GeometryUtil;
-import frc.lib.team2930.LoggerEntry;
-import frc.lib.team2930.LoggerGroup;
-import frc.lib.team2930.RunStateMachineCommand;
+import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode.Mode;
@@ -48,25 +43,37 @@ import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
-import frc.robot.commands.intake.IntakeEject;
 import frc.robot.commands.intake.IntakeGamepieceCoralStation;
 import frc.robot.commands.mechanism.MechanismActions;
-import frc.robot.commands.mechanism.elevator.ElevatorSetHeight;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
 import frc.robot.subsystems.LED.RobotState;
-import frc.robot.subsystems.arm.*;
-import frc.robot.subsystems.elevator.*;
-import frc.robot.subsystems.endEffector.*;
-import frc.robot.subsystems.intake.*;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIO;
+import frc.robot.subsystems.arm.ArmIOReal;
+import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.endEffector.EndEffectorIO;
+import frc.robot.subsystems.endEffector.EndEffectorIOReal;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOReal;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionModuleConfiguration;
-import frc.robot.subsystems.visionGamepiece.*;
+import frc.robot.subsystems.visionGamepiece.VisionGamepiece;
+import frc.robot.subsystems.visionGamepiece.VisionGamepieceIO;
+import frc.robot.subsystems.visionGamepiece.VisionGamepieceIOReal;
+import frc.robot.subsystems.visionGamepiece.VisionGamepieceIOSim;
 import frc.robot.visualization.MechanismVisualization;
 import frc.robot.visualization.SimpleMechanismVisualization;
 import java.util.HashMap;
@@ -96,8 +103,8 @@ public class RobotContainer {
   private final VisionGamepiece visionGamepiece;
   private final LED led;
 
-  private final CommandXboxController driverController = new CommandXboxController(0);
-  private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final XboxControllerWrapper driverController = new XboxControllerWrapper(0);
+  private final XboxControllerWrapper operatorController = new XboxControllerWrapper(1);
 
   private final LoggedDashboardChooser<String> autoChooser =
       new LoggedDashboardChooser<>("Auto Routine");
@@ -425,7 +432,7 @@ public class RobotContainer {
     // ----------- DRIVER CONTROLS ------------
 
     driverController
-        .back()
+        .registerTrigger(XboxControllerWrapper.Button.back, "Zero Robot")
         .onTrue(
             Commands.runOnce(
                 () -> {
@@ -436,14 +443,15 @@ public class RobotContainer {
                 drivetrain));
 
     driverController
-        .rightBumper()
+        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             MechanismActions.coralStationPosition(elevator, arm)
                 .andThen(new IntakeGamepieceCoralStation(intake, endEffector)))
         .whileTrue(
             Commands.run(
                     () -> {
-                      // System.out.println("in robot? " + endEffector.isGamepieceInRobot()); //
+                      // System.out.println("in robot? " + endEffector
+                      // .isGamepieceInRobot()); //
                       // testing scenario
                       if (endEffector
                           .isGamepieceInRobot()) { // If the gamepiece is in robot, set rumble
@@ -458,7 +466,7 @@ public class RobotContainer {
                     }));
 
     driverController
-        .leftTrigger()
+        .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Score Coral")
         .whileTrue(
             new RunStateMachineCommand(
                 () ->
@@ -472,7 +480,7 @@ public class RobotContainer {
                         (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
     driverController
-        .rightTrigger()
+        .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Score Coral")
         .whileTrue(
             new RunStateMachineCommand(
                 () ->
@@ -511,28 +519,28 @@ public class RobotContainer {
     };
 
     driverController
-        .y()
+        .registerTrigger(XboxControllerWrapper.Button.y, "Score L4")
         .onTrue(
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L4;
                 }));
     driverController
-        .x()
+        .registerTrigger(XboxControllerWrapper.Button.x, "Score L3")
         .onTrue(
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L3;
                 }));
     driverController
-        .a()
+        .registerTrigger(XboxControllerWrapper.Button.a, "Score L2")
         .onTrue(
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L2;
                 }));
     driverController
-        .b()
+        .registerTrigger(XboxControllerWrapper.Button.b, "Score L1")
         .onTrue(
             Commands.runOnce(
                 () -> {
@@ -540,7 +548,7 @@ public class RobotContainer {
                 }));
 
     driverController
-        .rightStick()
+        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Rotate to Angle")
         .toggleOnTrue(
             new RotateToAngle(
                 drivetrainWrapper,
@@ -561,7 +569,7 @@ public class RobotContainer {
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
     driverController
-        .leftStick()
+        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
         .toggleOnTrue(
             new RotateToAngle(
                 drivetrainWrapper,
@@ -575,7 +583,7 @@ public class RobotContainer {
     // Change clearing algae
 
     driverController
-        .povUp()
+        .registerTrigger(XboxControllerWrapper.Button.povUp, "Clearing Algae")
         .onTrue(
             Commands.runOnce(
                 () -> {
@@ -583,7 +591,7 @@ public class RobotContainer {
                 }));
 
     driverController
-        .povDown()
+        .registerTrigger(XboxControllerWrapper.Button.povDown, "Done Clearing Algae")
         .onTrue(
             Commands.runOnce(
                 () -> {
@@ -592,10 +600,10 @@ public class RobotContainer {
 
     // ---------- OPERATOR CONTROLS -----------
 
-    operatorController.a().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(5)));
-    operatorController.b().whileTrue(new ElevatorSetHeight(elevator, Units.Inches.of(18)));
+    operatorController.registerTrigger(XboxControllerWrapper.Button.a, "Elevator 5 inches");
+    operatorController.registerTrigger(XboxControllerWrapper.Button.b, "Elevator 18 inches");
 
-    operatorController.leftBumper().whileTrue(new IntakeEject(intake));
+    operatorController.registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject");
     // Toggle clearing algae
 
     /*operatorController
@@ -613,12 +621,13 @@ public class RobotContainer {
                    RobotStates.clearingAlgae = false;
                  }));*/
 
-    if (!DriverStation.isFMSAttached())
+    if (!DriverStation.isFMSAttached()) {
       operatorController
-          .povDown()
+          .registerTrigger(XboxControllerWrapper.Button.povDown, "Wheel Radius Characterization")
           .whileTrue(
               new WheelRadiusCharacterization(
                   drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
+    }
 
     // ---------- ON-ROBOT CONTROLS ------------
 
