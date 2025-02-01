@@ -87,13 +87,13 @@ public class MechanismPositions {
       coralStationElevatorHeightInches.initDefault(25.451);
       coralStationArmAngleDegrees.initDefault(-22.324);
       algaeClearingLow1ElevatorHeightInches.initDefault(17.34);
-      algaeClearingLow1ArmAngleDegrees.initDefault(172.8);
+      algaeClearingLow1ArmAngleDegrees.initDefault(0);
       algaeClearingLow2ElevatorHeightInches.initDefault(21.95);
-      algaeClearingLow2ArmAngleDegrees.initDefault(172.8);
+      algaeClearingLow2ArmAngleDegrees.initDefault(32);
       algaeClearingHigh1ElevatorHeightInches.initDefault(24.03);
-      algaeClearingHigh1ArmAngleDegrees.initDefault(172.8);
+      algaeClearingHigh1ArmAngleDegrees.initDefault(0);
       algaeClearingHigh2ElevatorHeightInches.initDefault(26.2);
-      algaeClearingHigh2ArmAngleDegrees.initDefault(172.8);
+      algaeClearingHigh2ArmAngleDegrees.initDefault(32);
     } else {
       stowElevatorHeightInches.initDefault(11.6);
       stowArmAngleDegrees.initDefault(11.6);
