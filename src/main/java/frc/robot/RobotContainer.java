@@ -580,13 +580,17 @@ public class RobotContainer {
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
-    driverController.povUp().whileTrue(MechanismActions.clearAlgaeHigh1Position(elevator, arm));
-    driverController.povUp().onFalse(MechanismActions.clearAlgaeHigh2Position(elevator, arm));
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.povUp, "Clear Algae High Position")
+        .onTrue(MechanismActions.clearAlgaeHigh1Position(elevator, arm))
+        .onFalse(MechanismActions.clearAlgaeHigh2Position(elevator, arm));
 
-    driverController.povDown().whileTrue(MechanismActions.clearAlgaeLow1Position(elevator, arm));
-    driverController.povDown().onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.povDown, "Clear Algae Low Position")
+        .onTrue(MechanismActions.clearAlgaeLow1Position(elevator, arm))
+        .onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
+
     // Change clearing algae
-
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povUp, "Clearing Algae")
         .onTrue(
