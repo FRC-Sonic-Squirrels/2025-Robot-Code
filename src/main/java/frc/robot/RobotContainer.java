@@ -502,6 +502,13 @@ public class RobotContainer {
       layout.getTagPose(22).get().toPose2d()
     };
 
+    Pose2d[] coralStationPose = {
+      layout.getTagPose(1).get().toPose2d(),
+      layout.getTagPose(2).get().toPose2d(),
+      layout.getTagPose(12).get().toPose2d(),
+      layout.getTagPose(13).get().toPose2d()
+    };
+
     driverController
         .y()
         .onTrue(
@@ -539,11 +546,15 @@ public class RobotContainer {
                 () -> {
                   Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
-                  Pose2d nearestAprilTag = null;
-                  nearestAprilTag = findNearestAprilTag(robotTranslation, reefAprilTagPose);
-
-                  Rotation2d finalRotationValue = nearestAprilTag.getRotation();
-
+                  Pose2d nearestReefAprilTag =
+                      findNearestAprilTag(robotTranslation, reefAprilTagPose);
+                  Pose2d nearestCoralStation =
+                      findNearestCoralStation(robotTranslation, coralStationPose);
+                  Rotation2d finalRotationValue =
+                      RobotStates.coralInEndEffector
+                          ? findNearestAprilTag(robotTranslation, reefAprilTagPose).getRotation()
+                          : findNearestCoralStation(robotTranslation, coralStationPose)
+                              .getRotation();
                   return finalRotationValue;
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
@@ -736,9 +747,6 @@ public class RobotContainer {
 
     for (int i = start; i < start + 6; i++) {
       Translation2d aprilTag = reefAprilTagPose[i].getTranslation();
-      if (Constants.unusedCode) {
-        System.out.printf("Tag %d: %s\n", i, reefAprilTagPose[i]);
-      }
 
       double distance = robotTranslation.getTranslation().getDistance(aprilTag);
       if (distance < minDistance) {
@@ -746,11 +754,37 @@ public class RobotContainer {
         nearestAprilTag = reefAprilTagPose[i];
       }
     }
-    if (Constants.unusedCode) {
-      System.out.printf("Closest: %s\n", nearestAprilTag);
-    }
 
     return nearestAprilTag;
+  }
+
+  /**
+   * Finds the nearest coral station april tag position relative to the current robot translation
+   *
+   * @param robotTranslation - Current robot translation
+   * @param coralStationPose - List of all coral station april tag positions
+   * @return Nearest april tag
+   */
+  public static Pose2d findNearestCoralStation(Pose2d robotTranslation, Pose2d[] coralStationPose) {
+
+    int coralStation1Index = Constants.isRedAlliance() ? 0 : 2;
+    int coralStation2Index = Constants.isRedAlliance() ? 1 : 3;
+
+    Pose2d coralStation1Pose = coralStationPose[coralStation1Index];
+    Pose2d coralStation2Pose = coralStationPose[coralStation2Index];
+
+    Translation2d coralStation1Translation = coralStationPose[coralStation1Index].getTranslation();
+    Translation2d coralStation2Translation = coralStationPose[coralStation2Index].getTranslation();
+
+    Translation2d robotTranslationTranslation = robotTranslation.getTranslation();
+
+    Pose2d nearestCoralStation =
+        robotTranslationTranslation.getDistance(coralStation1Translation)
+                < robotTranslationTranslation.getDistance(coralStation2Translation)
+            ? coralStation1Pose
+            : coralStation2Pose;
+
+    return nearestCoralStation;
   }
 
   /**
