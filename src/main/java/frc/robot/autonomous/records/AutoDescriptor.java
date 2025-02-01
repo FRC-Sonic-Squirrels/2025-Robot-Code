@@ -69,4 +69,29 @@ public record AutoDescriptor(
     }
     return new ScoringLocation(newSide, location.level());
   }
+
+  public List<CoralStationLocation> flippedCoralStationLocations() {
+    List<CoralStationLocation> newLocations = new ArrayList<>();
+
+    for (CoralStationLocation scoringLocation : coralStationLocations) {
+      newLocations.add(flipCoralStationLocation(scoringLocation));
+    }
+
+    return newLocations;
+  }
+
+  public CoralStationLocation flipCoralStationLocation(CoralStationLocation location) {
+    switch (location) {
+      case IA:
+        return CoralStationLocation.ID;
+      case IB:
+        return CoralStationLocation.IC;
+      case IC:
+        return CoralStationLocation.IB;
+      case ID:
+        return CoralStationLocation.IA;
+      default:
+        return null;
+    }
+  }
 }

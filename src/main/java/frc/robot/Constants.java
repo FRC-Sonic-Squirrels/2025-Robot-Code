@@ -158,8 +158,14 @@ public final class Constants {
 
     public static Distance REEF_WIDTH = Units.Inches.of(65.5);
 
+    public static Distance REEF_DIAGONAL_WIDTH = REEF_WIDTH.times(2.0 / Math.sqrt(3));
+
     public static Translation2d BLUE_REEF_CENTER_POSE =
         new Translation2d(REEF_DIST_FROM_WALL.plus(REEF_WIDTH.div(2.0)), FIELD_WIDTH.div(2.0));
+
+    public static Translation2d REEF_CENTER_POSE() {
+      return AllianceFlipUtil.flipTranslationForAlliance(BLUE_REEF_CENTER_POSE);
+    }
 
     public static Distance REEF_BRANCH_OFFSET = Units.Inches.of(6.5);
 
@@ -193,6 +199,8 @@ public final class Constants {
     }
 
     public record ScoringSideWithPose(Pose2d pose, ScoringSide side) {}
+
+    public static final Distance CORAL_STATION_WIDTH = Units.Inches.of(76);
 
     public static class Gamepieces {
       // TODO: add specific gamepiece dimensions for new season
