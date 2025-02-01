@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AllianceFlipUtil;
+import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.RunStateMachineCommand;
@@ -770,19 +771,14 @@ public class RobotContainer {
     int coralStation1Index = Constants.isRedAlliance() ? 0 : 2;
     int coralStation2Index = Constants.isRedAlliance() ? 1 : 3;
 
-    Pose2d coralStation1Pose = coralStationPose[coralStation1Index];
-    Pose2d coralStation2Pose = coralStationPose[coralStation2Index];
-
-    Translation2d coralStation1Translation = coralStationPose[coralStation1Index].getTranslation();
-    Translation2d coralStation2Translation = coralStationPose[coralStation2Index].getTranslation();
-
-    Translation2d robotTranslationTranslation = robotTranslation.getTranslation();
+    Pose2d coralStation1 = coralStationPose[coralStation1Index];
+    Pose2d coralStation2 = coralStationPose[coralStation2Index];
 
     Pose2d nearestCoralStation =
-        robotTranslationTranslation.getDistance(coralStation1Translation)
-                < robotTranslationTranslation.getDistance(coralStation2Translation)
-            ? coralStation1Pose
-            : coralStation2Pose;
+        GeometryUtil.getDist(coralStation1, robotTranslation)
+                < GeometryUtil.getDist(coralStation2, robotTranslation)
+            ? coralStation1
+            : coralStation2;
 
     return nearestCoralStation;
   }
