@@ -38,6 +38,9 @@ import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
+import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.ScoringLocation;
+import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
@@ -76,7 +79,9 @@ import frc.robot.subsystems.visionGamepiece.VisionGamepieceIOReal;
 import frc.robot.subsystems.visionGamepiece.VisionGamepieceIOSim;
 import frc.robot.visualization.MechanismVisualization;
 import frc.robot.visualization.SimpleMechanismVisualization;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -110,6 +115,11 @@ public class RobotContainer {
       new LoggedDashboardChooser<>("Auto Routine");
   private final LoggedDashboardChooser<Boolean> flipAutoChooser =
       new LoggedDashboardChooser<>("Flip Auto?");
+
+  private final List<LoggedDashboardChooser<ReefSide>> scoringPosChooser = new ArrayList<>();
+  private final List<LoggedDashboardChooser<CoralStationLocation>> coralStationPosChooser =
+      new ArrayList<>();
+  private final int customGamepieceCount = 5;
 
   private final HashMap<String, Supplier<Auto>> stringToAutoSupplierMap = new HashMap<>();
   private final AutosManager autoManager;
@@ -395,6 +405,22 @@ public class RobotContainer {
     flipAutoChooser.addDefaultOption("No", false);
     flipAutoChooser.addOption("Yes", true);
 
+    for (int i = 0; i < customGamepieceCount; i++) {
+      LoggedDashboardChooser<ReefSide> chooser = new LoggedDashboardChooser<>(i + " CustomScoring");
+      for (ReefSide side : ScoringLocation.ReefSide.values()) chooser.addOption(side.name(), side);
+      chooser.addDefaultOption(ReefSide.CH.name(), ReefSide.CH);
+      scoringPosChooser.add(chooser);
+    }
+
+    for (int i = 1; i < customGamepieceCount; i++) {
+      LoggedDashboardChooser<CoralStationLocation> chooser =
+          new LoggedDashboardChooser<>(i + " CustomPickup");
+      for (CoralStationLocation side : CoralStationLocation.values())
+        chooser.addOption(side.name(), side);
+      chooser.addDefaultOption(CoralStationLocation.IA.name(), CoralStationLocation.IA);
+      coralStationPosChooser.add(chooser);
+    }
+
     var subsystems = new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led);
 
     autoManager =
@@ -409,7 +435,9 @@ public class RobotContainer {
                 return result;
               }
               return false;
-            });
+            },
+            this::getCustomScoringLocations,
+            this::getCustomCoralStationLocations);
 
     drivetrain.setDefaultCommand(
         new DrivetrainDefaultTeleopDrive(
@@ -929,5 +957,26 @@ public class RobotContainer {
     if (!gamepieceInRobot.getAsBoolean() && led.getGamepieceStatus()) {
       led.setGamepieceStatus(false);
     }
+  }
+
+  public List<ScoringLocation> getCustomScoringLocations() {
+    List<ScoringLocation> scoringLocations = new ArrayList<>();
+
+    for (LoggedDashboardChooser<ReefSide> location : scoringPosChooser) {
+      scoringLocations.add(
+          new ScoringLocation(location.get(), ScoringLevel.L4)); // Assume L4 during auto for now
+    }
+
+    return scoringLocations;
+  }
+
+  public List<CoralStationLocation> getCustomCoralStationLocations() {
+    List<CoralStationLocation> coralStationLocations = new ArrayList<>();
+
+    for (LoggedDashboardChooser<CoralStationLocation> location : coralStationPosChooser) {
+      coralStationLocations.add(location.get());
+    }
+
+    return coralStationLocations;
   }
 }

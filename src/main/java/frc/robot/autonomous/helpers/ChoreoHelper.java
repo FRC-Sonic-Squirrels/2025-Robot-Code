@@ -66,6 +66,8 @@ public class ChoreoHelper {
   private double pausedTime = Double.NaN;
   private SwerveSample stateTooBehind;
 
+  private final boolean flipForAlliance;
+
   public record ChassisSpeedsWithPathEnd(ChassisSpeeds chassisSpeeds, boolean atEndOfPath) {}
 
   /**
@@ -86,13 +88,15 @@ public class ChoreoHelper {
       double lagThreshold,
       PIDController translationalFeedbackX,
       PIDController translationalFeedbackY,
-      PIDController rotationalFeedback) {
+      PIDController rotationalFeedback,
+      boolean flipForAlliance) {
     this.traj = trajWithName.states();
     this.lagThreshold = lagThreshold;
     this.xFeedback = translationalFeedbackX;
     this.yFeedback = translationalFeedbackY;
     this.rotationalFeedback = rotationalFeedback;
     this.rotationalFeedback.enableContinuousInput(-Math.PI, Math.PI);
+    this.flipForAlliance = flipForAlliance;
 
     SwerveSample closestState = null;
     double closestDistance = Double.MAX_VALUE;
@@ -101,7 +105,7 @@ public class ChoreoHelper {
     if (useCorrection.get() != 0) {
       for (SwerveSample state : getStates(traj)) {
         SwerveSample stateComputed =
-            traj.sampleAt(state.t, Constants.isRedAlliance()).orElseThrow();
+            traj.sampleAt(state.t, flipForAlliance && Constants.isRedAlliance()).orElseThrow();
         double stateDistance = GeometryUtil.getDist(initialPose, stateComputed.getPose());
 
         if (stateDistance > lastDistance) {
@@ -124,7 +128,10 @@ public class ChoreoHelper {
     }
 
     this.initialTime = initialTime;
-    log_path.info(AllianceFlipUtil.flipPoseArrayForAlliance(trajWithName.states().getPoses()));
+    log_path.info(
+        flipForAlliance
+            ? AllianceFlipUtil.flipPoseArrayForAlliance(trajWithName.states().getPoses())
+            : trajWithName.states().getPoses());
   }
 
   public boolean isPaused() {
@@ -162,7 +169,11 @@ public class ChoreoHelper {
     } else {
       var timestampCorrected = timestamp - initialTime + timeOffset;
 
-      state = traj.sampleAt(timestampCorrected, Constants.isRedAlliance()).orElseThrow();
+      state =
+          traj.sampleAt(timestampCorrected, flipForAlliance && Constants.isRedAlliance())
+              .orElseThrow();
+      System.out.println(timestampCorrected);
+      System.out.println(traj.getTotalTime());
       if (timestampCorrected >= traj.getTotalTime()) {
         atTheEndOfPath = true;
       }
@@ -254,7 +265,8 @@ public class ChoreoHelper {
   private SwerveSample isFutureStateCloser(
       Pose2d robotPose, SwerveSample state, double lookaheadTime) {
     var stateAhead =
-        traj.sampleAt(state.t + lookaheadTime, Constants.isRedAlliance()).orElseThrow();
+        traj.sampleAt(state.t + lookaheadTime, flipForAlliance && Constants.isRedAlliance())
+            .orElseThrow();
 
     double stateDistance = distanceToState(robotPose, state);
     double stateDistanceAhead = distanceToState(robotPose, stateAhead);

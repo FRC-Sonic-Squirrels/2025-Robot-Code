@@ -27,6 +27,10 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.autonomous.AutosManager.Auto;
+import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.ScoringLocation;
+import java.util.ArrayList;
+import java.util.List;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -64,6 +68,8 @@ public class Robot extends LoggedRobot {
   private LoggedDashboardChooser<String> autonomousChooser = null;
   private Auto selectedAuto;
   private String selectedAutoName;
+  private List<ScoringLocation> selectedScoringLocations = new ArrayList<>();
+  private List<CoralStationLocation> selectedCoralStationLocations = new ArrayList<>();
   private boolean selectedAutoFlipped;
   private Command autoCommand;
   private Pose2d selectedInitialPose;
@@ -194,10 +200,21 @@ public class Robot extends LoggedRobot {
       autonomousChooser = robotContainer.getAutonomousChooser();
     }
 
+    var customScoringLocations = robotContainer.getCustomScoringLocations();
+    var customCoralStationLocations = robotContainer.getCustomCoralStationLocations();
+
+    if (selectedScoringLocations.isEmpty()) {
+      selectedScoringLocations = customScoringLocations;
+      selectedCoralStationLocations = customCoralStationLocations;
+    }
+
     var autoName = autonomousChooser.get();
     var autoFlipped = robotContainer.autoFlipped();
     if (autoName != null
-        && (!autoName.equals(selectedAutoName) || !(autoFlipped == selectedAutoFlipped))) {
+        && (!autoName.equals(selectedAutoName)
+            || autoFlipped != selectedAutoFlipped
+            || !selectedScoringLocations.equals(customScoringLocations)
+            || !selectedCoralStationLocations.equals(customCoralStationLocations))) {
       Pose2d initialPose;
 
       selectedAuto = robotContainer.getAutoSupplierForString(autoName).get();
@@ -216,6 +233,8 @@ public class Robot extends LoggedRobot {
       desiredInitialPose = initialPose;
       selectedAutoName = autoName;
       selectedAutoFlipped = autoFlipped;
+      selectedScoringLocations = customScoringLocations;
+      selectedCoralStationLocations = customCoralStationLocations;
     }
 
     if (desiredInitialPose != null && !desiredInitialPose.equals(selectedInitialPose)) {

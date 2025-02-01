@@ -46,19 +46,25 @@ public class AutosManager {
       RobotConfig config,
       LoggedDashboardChooser<String> chooser,
       HashMap<String, Supplier<Auto>> stringToAutoSupplierMap,
-      BooleanSupplier flipAuto) {
+      BooleanSupplier flipAuto,
+      Supplier<List<ScoringLocation>> customScoringLocations,
+      Supplier<List<CoralStationLocation>> customCoralStationLocations) {
     this.subsystems = subsystems;
     this.config = config;
     this.flipAuto = flipAuto;
 
-    fillChooserAndMap(chooser, stringToAutoSupplierMap);
+    fillChooserAndMap(
+        chooser, stringToAutoSupplierMap, customScoringLocations, customCoralStationLocations);
   }
 
-  private List<Supplier<Auto>> allCompetitionAutos() {
+  private List<Supplier<Auto>> allCompetitionAutos(
+      Supplier<List<ScoringLocation>> customScoringLocations,
+      Supplier<List<CoralStationLocation>> customCoralStationLocations) {
     var list = new ArrayList<Supplier<Auto>>();
 
     list.add(this::doNothing);
     list.add(this::auto_IKLJ);
+    list.add(() -> customAuto(customScoringLocations.get(), customCoralStationLocations.get()));
 
     if (includeDebugPaths) {
       list.add(this::swerveCharacterization);
@@ -78,8 +84,10 @@ public class AutosManager {
 
   private void fillChooserAndMap(
       LoggedDashboardChooser<String> chooser,
-      HashMap<String, Supplier<Auto>> stringToAutoSupplierMap) {
-    var compAutos = allCompetitionAutos();
+      HashMap<String, Supplier<Auto>> stringToAutoSupplierMap,
+      Supplier<List<ScoringLocation>> customScoringLocations,
+      Supplier<List<CoralStationLocation>> customCoralStationLocations) {
+    var compAutos = allCompetitionAutos(customScoringLocations, customCoralStationLocations);
 
     for (int i = 0; i < compAutos.size(); i++) {
       var supplier = compAutos.get(i);
@@ -120,9 +128,25 @@ public class AutosManager {
             subsystems,
             new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S1),
             config,
-            flipAuto.getAsBoolean());
+            flipAuto.getAsBoolean(),
+            false);
 
     return stateToAuto("IKLJ", state);
+  }
+
+  private Auto customAuto(
+      List<ScoringLocation> scoringLocations, List<CoralStationLocation> coralStationLocations) {
+    var state =
+        new AutoStateMachine(
+            subsystems,
+            new AutoDescriptor(
+                scoringLocations,
+                coralStationLocations,
+                StartingLocation.S1), // TODO: no need for starting position for this command
+            config,
+            flipAuto.getAsBoolean(),
+            true);
+    return new Auto("CUSTOM", state.asCommand(), null);
   }
 
   private Auto testPath(String pathName, boolean useInitialPose) {
@@ -149,7 +173,8 @@ public class AutosManager {
                     config.getDriveBaseRadius() / 2,
                     config.getAutoTranslationPidController(),
                     config.getAutoTranslationPidController(),
-                    config.getAutoThetaPidController());
+                    config.getAutoThetaPidController(),
+                    true);
           }
 
           @Override

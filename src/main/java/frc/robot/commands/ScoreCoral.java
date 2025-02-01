@@ -240,11 +240,7 @@ public class ScoreCoral extends StateMachine {
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
         new DriveToPosePathing(
-            wrapper,
-            config,
-            () -> wrapper.getReefPoseEstimatorPose(true),
-            () -> scoringPose,
-            scoringPose.getRotation().plus(Rotation2d.k180deg)),
+            wrapper, config, () -> wrapper.getReefPoseEstimatorPose(true), () -> scoringPose),
         (command) -> stateWithName("Score", () -> score()));
   }
 
