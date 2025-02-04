@@ -705,6 +705,11 @@ public class RobotContainer {
 
     SmartDashboard.putData("Confirm Auto", new RunsWhenDisabledInstantCommand(led::confirmAuto));
 
+    SmartDashboard.putData(
+        "Swerve Coast", new RunsWhenDisabledInstantCommand(() -> drivetrain.setBrakeMode(false)));
+    SmartDashboard.putData(
+        "Swerve Brake", new RunsWhenDisabledInstantCommand(() -> drivetrain.setBrakeMode(true)));
+
     if (Constants.RobotMode.isSimBot()) {
       SmartDashboard.putData(
           "SIM Coral in End Effector",

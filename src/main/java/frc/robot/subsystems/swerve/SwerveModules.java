@@ -116,4 +116,11 @@ public class SwerveModules {
     back_left.stop();
     back_right.stop();
   }
+
+  public void setBrakeMode(boolean brake) {
+    front_left.setBrakeMode(brake);
+    front_right.setBrakeMode(brake);
+    back_left.setBrakeMode(brake);
+    back_right.setBrakeMode(brake);
+  }
 }
