@@ -19,6 +19,7 @@ public class MechanismVisualization {
   private static final LoggerEntry.Struct<Pose2d> logTestPose =
       logGroup.buildStruct(Pose2d.class, "TestPose");
 
+  // Use these tunable numbers for testing different heights and angles manually
   private static final TunableNumberGroup tunableGroup = new TunableNumberGroup("Visualization");
   private static final LoggedTunableNumber tunableArmAngleDeg =
       tunableGroup.build("ArmAngleDeg", 0);
