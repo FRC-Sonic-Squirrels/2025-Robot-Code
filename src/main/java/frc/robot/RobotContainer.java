@@ -884,7 +884,11 @@ public class RobotContainer {
     MechanismVisualization.logMechanism();
     SimpleMechanismVisualization.updateVisualization(elevator.getHeight(), arm.getAngle());
     SimpleMechanismVisualization.logMechanism();
-    MechanismVisualization.updateVisualization(elevator.getHeight().in(Units.Inches), arm.getAngle().getDegrees(), intake.getPivotAngle().getDegrees(), 0); //TODO: add climber to mech visualization
+    MechanismVisualization.updateVisualization(
+        elevator.getHeight().in(Units.Inches),
+        arm.getAngle().getDegrees(),
+        intake.getPivotAngle().getDegrees(),
+        0); // TODO: add climber to mech visualization
     MechanismVisualization.logMechanism();
   }
 
