@@ -172,8 +172,6 @@ public class ChoreoHelper {
       state =
           traj.sampleAt(timestampCorrected, flipForAlliance && Constants.isRedAlliance())
               .orElseThrow();
-      System.out.println(timestampCorrected);
-      System.out.println(traj.getTotalTime());
       if (timestampCorrected >= traj.getTotalTime()) {
         atTheEndOfPath = true;
       }
