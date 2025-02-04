@@ -691,4 +691,8 @@ public class Drivetrain extends SubsystemBase {
     this.useSecondGyro = useSecondGyro;
     this.switchGyro = true;
   }
+
+  public void setBrakeMode(boolean brake) {
+    modules.setBrakeMode(brake);
+  }
 }
