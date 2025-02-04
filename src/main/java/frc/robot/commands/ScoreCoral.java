@@ -17,6 +17,7 @@ import frc.lib.team6328.GeomUtil;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants.ScoringSideWithPose;
+import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
@@ -43,7 +44,7 @@ public class ScoreCoral extends StateMachine {
   private final LED led;
   private final RobotConfig config;
 
-  private final ScoringDirection scoringDirection;
+  private final Optional<ScoringDirection> scoringDirection;
   private ScoringSide scoringSide;
   private final Optional<ScoringSide> optionalScoringSide;
   private ScoringSideWithPose scoringPoseAndSide;
@@ -94,6 +95,26 @@ public class ScoreCoral extends StateMachine {
       Arm arm,
       EndEffector endEffector,
       LED led,
+      Consumer<Double> rumble,
+      RobotConfig config) {
+    this(
+        wrapper,
+        elevator,
+        arm,
+        endEffector,
+        led,
+        Optional.empty(),
+        Optional.empty(),
+        rumble,
+        config);
+  }
+
+  public ScoreCoral(
+      DrivetrainWrapper wrapper,
+      Elevator elevator,
+      Arm arm,
+      EndEffector endEffector,
+      LED led,
       ReefSide side,
       Consumer<Double> rumble,
       RobotConfig config) {
@@ -103,7 +124,7 @@ public class ScoreCoral extends StateMachine {
         arm,
         endEffector,
         led,
-        reefSideToScoringDirection(side),
+        Optional.of(reefSideToScoringDirection(side)),
         Optional.of(reefSideToScoringSide(side)),
         rumble,
         config);
@@ -124,7 +145,7 @@ public class ScoreCoral extends StateMachine {
         arm,
         endEffector,
         led,
-        scoringDirection,
+        Optional.of(scoringDirection),
         Optional.empty(),
         rumble,
         config);
@@ -136,7 +157,7 @@ public class ScoreCoral extends StateMachine {
       Arm arm,
       EndEffector endEffector,
       LED led,
-      ScoringDirection scoringDirection,
+      Optional<ScoringDirection> scoringDirection,
       Optional<ScoringSide> side,
       Consumer<Double> rumble,
       RobotConfig config) {
@@ -169,7 +190,7 @@ public class ScoreCoral extends StateMachine {
     scoringSide = scoringPoseAndSide.side();
 
     log_scoringSide.info(scoringSide);
-    log_scoringDirection.info(scoringDirection);
+    if (scoringDirection.isPresent()) log_scoringDirection.info(scoringDirection.orElseThrow());
     log_scoringPose.info(scoringPose);
     log_algaeClearPose.info(scoringPoseAndSide.pose());
 
@@ -247,6 +268,11 @@ public class ScoreCoral extends StateMachine {
   private StateHandler score() {
 
     if (!prepMechanismForScoring.isScheduled()) endEffector.setVelocity(scoringVelocityRPM.get());
+
+    if (RobotMode.isSimBot()) {
+      RobotStates.coralInEndEffectorNonScoringSide = false;
+      RobotStates.coralInEndEffectorScoringSide = false;
+    }
 
     if (RobotStates.coralInEndEffector) return null;
 
@@ -367,13 +393,24 @@ public class ScoreCoral extends StateMachine {
 
     var newSides = new ScoringSideWithPose[sides.length];
 
-    for (int i = 0; i < sides.length; i++) {
-      var scoringSidePose = sides[i].pose();
+    for (int i = 0; i < sides.length * (scoringDirection.isPresent() ? 1 : 2); i++) {
+      var scoringSidePose = sides[i * (scoringDirection.isPresent() ? 1 : 1 / 2)].pose();
 
-      var scoringSide = sides[i].side();
+      var scoringSide = sides[i * (scoringDirection.isPresent() ? 1 : 1 / 2)].side();
 
-      var objectiveScoringDirection =
-          scoringDirection == ScoringDirection.LEFT ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg;
+      Rotation2d objectiveScoringDirection;
+
+      if (scoringDirection.isPresent()) {
+
+        objectiveScoringDirection =
+            scoringDirection.orElseThrow() == ScoringDirection.LEFT
+                ? Rotation2d.kCW_90deg
+                : Rotation2d.kCCW_90deg;
+
+      } else {
+
+        objectiveScoringDirection = i % 2 == 0 ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg;
+      }
 
       Translation2d offset =
           new Translation2d(
