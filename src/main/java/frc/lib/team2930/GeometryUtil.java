@@ -49,8 +49,8 @@ public class GeometryUtil {
   }
 
   public static double optimizeRotationInDegrees(double theta) {
-    while (theta <= -180) theta += 360;
-    while (theta >= 180) theta -= 360;
+    while (theta < -180) theta += 360;
+    while (theta > 180) theta -= 360;
     return theta;
   }
 }
