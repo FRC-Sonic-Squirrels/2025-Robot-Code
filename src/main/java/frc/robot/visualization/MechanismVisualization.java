@@ -2,8 +2,10 @@ package frc.robot.visualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -34,12 +36,12 @@ public class MechanismVisualization {
   private static Pose3d climber = Constants.zeroPose3d;
 
   public static void updateVisualization(
-      double elevatorHeightInches,
-      double armAngleDeg,
-      double intakeAngleDeg,
-      double climberAngleDeg) {
+      Distance elevatorHeight,
+      Rotation2d armAngle,
+      Rotation2d intakeAngle,
+      Rotation2d climberAngle) {
     // TODO: input positions as variables, add to pose3ds
-    double elevatorHeightMeters = Units.Inches.of(elevatorHeightInches).in(Units.Meter);
+    double elevatorHeightMeters = elevatorHeight.in(Units.Meter);
     mechFirstStage =
         new Pose3d(0.0, 0.0, Math.max(0.0, elevatorHeightMeters - 0.691), new Rotation3d());
     mechSecondStage = new Pose3d(0.0, 0.0, elevatorHeightMeters, new Rotation3d());
@@ -48,11 +50,11 @@ public class MechanismVisualization {
             -0.0314,
             0.0,
             0.352 + elevatorHeightMeters,
-            new Rotation3d(0, Math.toRadians(89 - armAngleDeg), 0));
+            new Rotation3d(0, Math.toRadians(89 - armAngle.getDegrees()), 0));
     intake =
-        new Pose3d(0.342, 0.0, 0.178, new Rotation3d(0, Math.toRadians(intakeAngleDeg + 43), 0));
-    climber =
-        new Pose3d(0.0, -0.3303, 0.1235, new Rotation3d(Math.toRadians(climberAngleDeg), 0, 0));
+        new Pose3d(
+            0.342, 0.0, 0.178, new Rotation3d(0, Math.toRadians(intakeAngle.getDegrees() + 43), 0));
+    climber = new Pose3d(0.0, -0.3303, 0.1235, new Rotation3d(climberAngle.getRadians(), 0, 0));
   }
 
   public static void logMechanism() {
