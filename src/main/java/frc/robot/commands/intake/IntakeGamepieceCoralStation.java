@@ -10,31 +10,20 @@ import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.RobotStates;
 import frc.robot.subsystems.endEffector.EndEffector;
-import frc.robot.subsystems.intake.Intake;
 
 public class IntakeGamepieceCoralStation extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
-  private static final LoggedTunableNumber rumbleIntensityPercent =
-      group.build("rumbleIntensityPercent", 0.5);
   private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", -500);
-  private final Intake intake;
   private final EndEffector endEffector;
   private final Trigger gamepieceInRobot =
-      new Trigger(
-              () ->
-                  ((RobotStates.coralInEndEffectorScoringSide
-                          && RobotStates.coralInEndEffectorNonScoringSide))
-                      || RobotStates.coralInIntake)
+      new Trigger(() -> RobotStates.coralInEndEffectorNonScoringSide || RobotStates.coralInIntake)
           .debounce(0.5);
 
   /** Creates a new IntakeDefaultIdleRPM. */
-  public IntakeGamepieceCoralStation(Intake intake, EndEffector endEffector) {
-    // TODO: add subsystems
-    this.intake = intake;
+  public IntakeGamepieceCoralStation(EndEffector endEffector) {
     this.endEffector = endEffector;
-    // TODO: add subsystem requirements
-    addRequirements(intake);
-    setName("IntakeGamepiece");
+    addRequirements(endEffector);
+    setName("IntakeGamepieceCoralStation");
   }
 
   // Called when the command is initially scheduled.
@@ -44,16 +33,11 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var rumbleValue = rumbleIntensityPercent.get();
-
-    // TODO: add logic to intake gamepiece
     if ((RobotStates.coralInEndEffectorScoringSide && RobotStates.coralInEndEffectorNonScoringSide)
         || RobotStates.coralInIntake) {
-      // intake.setRollerVelocity(0.0);
       endEffector.setPercentOut(0);
       endEffector.setGamepieceInRobot(true);
     } else {
-      // intake.setRollerVelocity(intakingVelocity.get());
       endEffector.setVelocity(intakingVelocity.get());
       endEffector.setGamepieceInRobot(false);
     }
@@ -62,15 +46,12 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // TODO: stop intaking
-    // intake.setRollerVelocity(0.0);
-    endEffector.setVelocity(0.0);
+    endEffector.setPercentOut(0.0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // TODO: change to: if gamepiece is seen (debounced)
     return gamepieceInRobot.getAsBoolean();
   }
 }

@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -18,8 +17,10 @@ import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.GeomUtil;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
+import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
 import frc.robot.autonomous.helpers.ChoreoHelper;
+import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.AutoDescriptor;
 import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
@@ -27,6 +28,7 @@ import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
+import frc.robot.commands.intake.IntakeGamepieceCoralStation;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.arm.Arm;
@@ -35,6 +37,7 @@ import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class AutoStateMachine extends StateMachine {
@@ -68,6 +71,12 @@ public class AutoStateMachine extends StateMachine {
       logGroup.buildStruct(Pose3d.class, "UsedCoralTag");
 
   private final boolean procedural;
+  private Consumer<Double> rumble = null;
+
+  public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config, Consumer<Double> rumble) {
+    this(subsystems, null, config, false, false);
+    this.rumble = rumble;
+  }
 
   /** Creates a new AutoSubstateMachine. */
   public AutoStateMachine(
@@ -83,10 +92,17 @@ public class AutoStateMachine extends StateMachine {
     arm = subsystems.arm();
     endEffector = subsystems.endEffector();
     led = subsystems.led();
-    scoringLocations =
-        flipAuto ? descriptor.flippedScoringLocations() : descriptor.scoringLocations();
-    coralStationLocations =
-        flipAuto ? descriptor.flippedCoralStationLocations() : descriptor.coralStationLocations();
+
+    if (descriptor == null) {
+      scoringLocations = null;
+      coralStationLocations = null;
+    } else {
+      scoringLocations =
+          flipAuto ? descriptor.flippedScoringLocations() : descriptor.scoringLocations();
+      coralStationLocations =
+          flipAuto ? descriptor.flippedCoralStationLocations() : descriptor.coralStationLocations();
+    }
+
     this.procedural = procedural;
 
     if (!procedural) {
@@ -116,7 +132,7 @@ public class AutoStateMachine extends StateMachine {
   // CORAL SCORING STATES
 
   private StateHandler prepScoreCoralPathing() {
-    if (scoringIndex == scoringLocations.size()) {
+    if (scoringLocations != null && scoringIndex == scoringLocations.size()) {
       return stateWithName("Done", setDone());
     }
 
@@ -147,19 +163,27 @@ public class AutoStateMachine extends StateMachine {
   }
 
   private StateHandler prepScoreCoral() {
-    RobotStates.scoringLevel = scoringLocations.get(scoringIndex).level();
+    ScoreCoral scoringCommand;
+    if (scoringLocations == null) {
 
-    spawnStateMachineAsCommand(
-        new ScoreCoral(
-            wrapper,
-            elevator,
-            arm,
-            endEffector,
-            led,
-            scoringLocations.get(scoringIndex).side(),
-            (r) -> {},
-            config),
-        (s) -> null);
+      scoringCommand = new ScoreCoral(wrapper, elevator, arm, endEffector, led, rumble, config);
+
+    } else {
+
+      RobotStates.scoringLevel = scoringLocations.get(scoringIndex).level();
+      scoringCommand =
+          new ScoreCoral(
+              wrapper,
+              elevator,
+              arm,
+              endEffector,
+              led,
+              scoringLocations.get(scoringIndex).side(),
+              (r) -> {},
+              config);
+    }
+
+    spawnStateMachineAsCommand(scoringCommand, (s) -> null);
 
     return stateWithName("ScoreCoral", () -> scoreCoral());
   }
@@ -176,7 +200,7 @@ public class AutoStateMachine extends StateMachine {
   // CORAL INTAKING STATES
 
   private StateHandler prepIntakeCoral() {
-    if (intakingIndex == coralStationLocations.size()) {
+    if (coralStationLocations != null && intakingIndex == coralStationLocations.size()) {
       return stateWithName("Done", setDone());
     }
 
@@ -194,14 +218,16 @@ public class AutoStateMachine extends StateMachine {
               false);
     }
     spawnCommand(
-        Commands.waitUntil(
-            () -> RobotStates.coralInRobot), // TODO: put intaking actual command here
+        new IntakeGamepieceCoralStation(endEffector),
         (c) -> {
           intakingIndex++;
           return stateWithName("PrepScoreCoralPathing", () -> prepScoreCoralPathing());
         });
     Supplier<Pose2d> intakingPoseSupplier =
-        () -> getCoralStationPose(coralStationLocations.get(intakingIndex));
+        () ->
+            coralStationLocations == null
+                ? getClosestCoralStationPose()
+                : getCoralStationPose(coralStationLocations.get(intakingIndex));
     return procedural
         ? suspendForCommand(
             new DriveToPosePathing(
@@ -209,15 +235,25 @@ public class AutoStateMachine extends StateMachine {
                 config,
                 () -> wrapper.getCoralStationPoseEstimatorPose(true),
                 intakingPoseSupplier),
-            (c) -> null)
+            (c) -> stateWithName("NotifySimPathEnded", () -> notifySimPathEnded()))
         : stateWithName("IntakeCoral", () -> intakeCoral());
   }
 
+  private StateHandler notifySimPathEnded() {
+
+    if (RobotMode.isSimBot()) {
+      RobotStates.coralInEndEffectorNonScoringSide = true;
+    }
+
+    return null;
+  }
+
   private StateHandler intakeCoral() {
-    wrapper.setVelocityOverride(
-        choreoHelper
-            .calculateChassisSpeeds(wrapper.getReefPoseEstimatorPose(true), timeFromStart())
-            .chassisSpeeds());
+    ChassisSpeedsWithPathEnd result =
+        choreoHelper.calculateChassisSpeeds(
+            wrapper.getReefPoseEstimatorPose(true), timeFromStart());
+    wrapper.setVelocityOverride(result.chassisSpeeds());
+
     return null;
   }
 
@@ -270,5 +306,19 @@ public class AutoStateMachine extends StateMachine {
                     Constants.FieldConstants.CORAL_STATION_WIDTH.div(4).in(Units.Meter),
                     left ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg)));
     return offsetPickup;
+  }
+
+  private Pose2d getClosestCoralStationPose() {
+    Pose2d bestPose = null;
+
+    for (CoralStationLocation location : CoralStationLocation.values()) {
+      Pose2d trialPose = getCoralStationPose(location);
+      if (bestPose == null
+          || GeometryUtil.getDist(trialPose, wrapper.getCoralStationPoseEstimatorPose(true))
+              < GeometryUtil.getDist(bestPose, wrapper.getCoralStationPoseEstimatorPose(true)))
+        bestPose = trialPose;
+    }
+
+    return null;
   }
 }

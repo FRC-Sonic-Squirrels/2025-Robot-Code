@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
@@ -474,7 +475,7 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             MechanismActions.coralStationPosition(elevator, arm)
-                .andThen(new IntakeGamepieceCoralStation(intake, endEffector)))
+                .andThen(new IntakeGamepieceCoralStation(endEffector)))
         .whileTrue(
             Commands.run(
                     () -> {
@@ -482,7 +483,8 @@ public class RobotContainer {
                       // .isGamepieceInRobot()); //
                       // testing scenario
                       if (endEffector
-                          .isGamepieceInRobot()) { // If the gamepiece is in robot, set rumble
+                          .isGamepieceFullyInEndEffector()) { // If the gamepiece is in robot, set
+                        // rumble
                         driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
                         led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
                       }
@@ -929,12 +931,14 @@ public class RobotContainer {
   }
 
   public void updateRobotState() {
-    RobotStates.coralInEndEffectorNonScoringSide = ((endEffector.tofSeenGamepiece()));
+    if (!RobotMode.isSimBot()) {
+      RobotStates.coralInEndEffectorNonScoringSide = ((endEffector.tofSeenGamepiece()));
 
-    RobotStates.coralInEndEffectorScoringSide = (endEffector.secondTOFSeenGamepiece());
+      RobotStates.coralInEndEffectorScoringSide = (endEffector.secondTOFSeenGamepiece());
+    }
 
     RobotStates.coralInEndEffector =
-        (RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide);
+        RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide;
 
     ScoringLevel level = RobotStates.scoringLevel;
     logScoringLevelState.info(level);
@@ -945,8 +949,7 @@ public class RobotContainer {
     logAlgaeClearingState.info(RobotStates.clearingAlgae);
     logGamepieceInRobotState.info(RobotStates.coralInRobot);
     logGamepieceInIntakeState.info(RobotStates.coralInIntake);
-    logGamepieceInEndEffectorState.info(
-        RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide);
+    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
     logGamepieceInEndEffectorScoringSideState.info(RobotStates.coralInEndEffectorScoringSide);
     logGamepieceInEndEffectorNonScoringSideState.info(RobotStates.coralInEndEffectorNonScoringSide);
 

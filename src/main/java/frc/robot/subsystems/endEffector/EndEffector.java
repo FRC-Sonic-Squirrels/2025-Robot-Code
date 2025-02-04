@@ -162,7 +162,7 @@ public class EndEffector extends SubsystemBase {
     return inputs.secondTOFDistInches <= distanceToTriggerCoralDetection.get();
   }
 
-  public boolean isGamepieceInRobot() {
+  public boolean isGamepieceFullyInEndEffector() {
     return gamepieceInRobot;
   }
 }

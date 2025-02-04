@@ -67,7 +67,7 @@ public class DriveToPosePathing extends Command {
   private static LoggerEntry.StructArray<Pose2d> log_unAttemptedPath =
       logGroup.buildStructArray(Pose2d.class, "UnAttemptedPath");
 
-  private boolean debugRotationClamping = true;
+  private boolean debugRotationClamping = false;
   private boolean debugRerouting = false;
   private boolean debugGenerateStartAndEndRotations = false;
   private boolean debugIsRobotNextToReef = false;
