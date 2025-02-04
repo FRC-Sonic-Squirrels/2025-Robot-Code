@@ -33,7 +33,7 @@ public class IntakeIOSim implements IntakeIO {
               PivotConstants.MIN_PIVOT_ANGLE.getRadians(),
               PivotConstants.MAX_PIVOT_ANGLE.getRadians(),
               false,
-              Math.PI));
+              Constants.IntakeConstants.PivotConstants.INITIAL_PIVOT_ANGLE.getRadians()));
 
   private VoltageOut rollerOpenLoopControl = new VoltageOut(0);
   private VelocityVoltage rollerClosedLoopControl = new VelocityVoltage(0);
