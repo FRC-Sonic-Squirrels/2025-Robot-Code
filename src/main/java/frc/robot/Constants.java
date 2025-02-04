@@ -124,7 +124,7 @@ public final class Constants {
   public static double MAX_VOLTAGE = 12.0;
 
   public static class RobotDimensions {
-    public static Distance BUMPER_THICKNESS = Units.Inches.of(1.5);
+    public static Distance BUMPER_THICKNESS = Units.Inches.of(3);
 
     /**
      * x = left to right
@@ -243,6 +243,7 @@ public final class Constants {
       public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(-80);
       public static final Rotation2d HOME_POSITION = MAX_PIVOT_ANGLE;
 
+      public static final Rotation2d INITIAL_PIVOT_ANGLE = Rotation2d.fromDegrees(-30);
       public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(-30);
 
       public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
