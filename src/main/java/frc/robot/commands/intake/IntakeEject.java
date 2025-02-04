@@ -32,7 +32,7 @@ public class IntakeEject extends Command {
   // TODO: test on 2025 bot
   @Override
   public void execute() {
-    intake.setPivotAngle(PivotConstants.EXTERNAL_ANGLE);
+    intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
     if (intake.isPivotAtTargetAngle()) {
       intake.setRollerVelocity(ejectingVelocity.get());
     }

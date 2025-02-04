@@ -1,0 +1,148 @@
+{
+  "name": "2025Bot",
+  "sourceUrl": "https://cad.onshape.com/documents/e1c87e412df33564b7ce424b/w/c8f99940f1585d89781be1f4/e/f9c4b6a2deaa4715fc1b3e16",
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    },
+    {
+      "axis": "z",
+      "degrees": -90
+    }
+  ],
+  "position": [0, 0, 0],
+  "cameras": [
+    {
+      "name": "Reef Left",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": 0
+        },
+        {
+          "axis": "z",
+          "degrees": 0.0
+        }
+      ],
+      "position": [0, 0, 0],
+      "resolution": [0, 0],
+      "fov": 0
+    },
+    {
+      "name": "Reef Right",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": 0
+        },
+        {
+          "axis": "z",
+          "degrees": 0
+        }
+      ],
+      "position": [0, 0, 0],
+      "resolution": [0, 0],
+      "fov": 0
+    },
+    {
+      "name": "Coral Station Left",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": 0
+        },
+        {
+          "axis": "z",
+          "degrees": 0
+        }
+      ],
+      "position": [0, 0, 0],
+      "resolution": [0, 0],
+      "fov": 0
+    },
+    {
+      "name": "Coral Station Right",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": 0
+        },
+        {
+          "axis": "z",
+          "degrees": 0
+        }
+      ],
+      "position": [0, 0, 0],
+      "resolution": [0, 0],
+      "fov": 0
+    }
+  ],
+  "components": [
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": -90
+        }
+      ],
+      "zeroedPosition": [0, 0, 0]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": -90
+        }
+      ],
+      "zeroedPosition": [0, 0, 0]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": -90
+        }
+      ],
+      "zeroedPosition": [0.0314, 0, -0.352]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": -90
+        }
+      ],
+      "zeroedPosition": [-0.342, 0, -0.178]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": -90
+        }
+      ],
+      "zeroedPosition": [0, 0.3303, -0.1235]
+    }
+  ]
+}

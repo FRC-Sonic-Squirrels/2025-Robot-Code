@@ -56,7 +56,7 @@ public final class Constants {
   }
 
   public static class RobotMode {
-    private static final RobotType ROBOT = RobotType.ROBOT_2024_RETIRED_MAESTRO;
+    private static final RobotType ROBOT = RobotType.ROBOT_2025;
 
     private static final Alert invalidRobotAlert =
         new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
@@ -231,14 +231,11 @@ public final class Constants {
 
       public static final double MOI = 1.0;
 
-      public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(180);
-      public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(0);
-      public static final Rotation2d HOME_POSITION = MIN_PIVOT_ANGLE;
+      public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(91);
+      public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(-80);
+      public static final Rotation2d HOME_POSITION = MAX_PIVOT_ANGLE;
 
-      public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
-
-      public static final Rotation2d INTERNAL_ANGLE = Rotation2d.fromDegrees(0);
-      public static final Rotation2d EXTERNAL_ANGLE = Rotation2d.fromDegrees(180);
+      public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(-30);
 
       public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
 
