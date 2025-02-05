@@ -267,11 +267,12 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler score() {
 
-    if (!prepMechanismForScoring.isScheduled()) endEffector.setVelocity(scoringVelocityRPM.get());
-
-    if (RobotMode.isSimBot()) {
-      RobotStates.coralInEndEffectorNonScoringSide = false;
-      RobotStates.coralInEndEffectorScoringSide = false;
+    if (!prepMechanismForScoring.isScheduled()) {
+      endEffector.setVelocity(scoringVelocityRPM.get());
+      if (RobotMode.isSimBot()) {
+        RobotStates.coralInEndEffectorNonScoringSide = false;
+        RobotStates.coralInEndEffectorScoringSide = false;
+      }
     }
 
     if (RobotStates.coralInEndEffector) return null;
