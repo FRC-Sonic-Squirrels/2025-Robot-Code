@@ -107,14 +107,14 @@ public class MechanismPositions {
       reefL4ArmAngleDegrees.initDefault(150);
       coralStationElevatorHeightInches.initDefault(32);
       coralStationArmAngleDegrees.initDefault(-40);
-      algaeClearingLow1ElevatorHeightInches.initDefault(0);
-      algaeClearingLow1ArmAngleDegrees.initDefault(0);
-      algaeClearingLow2ElevatorHeightInches.initDefault(0);
-      algaeClearingLow2ArmAngleDegrees.initDefault(0);
-      algaeClearingHigh1ElevatorHeightInches.initDefault(0);
-      algaeClearingHigh1ArmAngleDegrees.initDefault(0);
-      algaeClearingHigh2ElevatorHeightInches.initDefault(0);
-      algaeClearingHigh2ArmAngleDegrees.initDefault(0);
+      algaeClearingLow1ElevatorHeightInches.initDefault(10);
+      algaeClearingLow1ArmAngleDegrees.initDefault(150);
+      algaeClearingLow2ElevatorHeightInches.initDefault(25);
+      algaeClearingLow2ArmAngleDegrees.initDefault(150);
+      algaeClearingHigh1ElevatorHeightInches.initDefault(35);
+      algaeClearingHigh1ArmAngleDegrees.initDefault(150);
+      algaeClearingHigh2ElevatorHeightInches.initDefault(50);
+      algaeClearingHigh2ArmAngleDegrees.initDefault(150);
     }
   }
 

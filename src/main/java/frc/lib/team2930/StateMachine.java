@@ -239,11 +239,10 @@ public class StateMachine {
         });
   }
 
-  protected Command spawnStateMachineAsCommand(
+  protected StateMachine spawnStateMachineAsCommand(
       StateMachine subStateMachine, ResumeStateHandlerFromCommand handler) {
-    Command command = subStateMachine.asCommand();
-    spawnCommand(command, handler);
-    return command;
+    spawnCommand(subStateMachine.asCommand(), handler);
+    return subStateMachine;
   }
 
   protected StateHandler suspendForCommand(Command command, ResumeStateHandlerFromCommand handler) {

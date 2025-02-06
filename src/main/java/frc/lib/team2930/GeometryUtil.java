@@ -1,6 +1,7 @@
 package frc.lib.team2930;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -52,5 +53,19 @@ public class GeometryUtil {
     while (theta < -180) theta += 360;
     while (theta > 180) theta -= 360;
     return theta;
+  }
+
+  public static Pose3d rotatePose3dAroundTranslation2d(
+      Pose3d initialPose, Translation2d referenceTranslation, Rotation2d rot) {
+    Translation2d offset =
+        initialPose.getTranslation().toTranslation2d().minus(referenceTranslation);
+    Pose3d zeroedPose =
+        new Pose3d(offset.getX(), offset.getY(), initialPose.getZ(), initialPose.getRotation());
+    Pose3d rotatedZeroedPose = zeroedPose.rotateBy(new Rotation3d(rot));
+    return new Pose3d(
+        rotatedZeroedPose.getX() + initialPose.getX() - offset.getX(),
+        rotatedZeroedPose.getY() + initialPose.getY() - offset.getY(),
+        rotatedZeroedPose.getZ(),
+        rotatedZeroedPose.getRotation());
   }
 }

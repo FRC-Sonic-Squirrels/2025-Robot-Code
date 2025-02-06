@@ -73,8 +73,10 @@ public class AutoStateMachine extends StateMachine {
   private final boolean procedural;
   private Consumer<Double> rumble = null;
 
+  private ScoreCoral scoreCoral;
+
   public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config, Consumer<Double> rumble) {
-    this(subsystems, null, config, false, false);
+    this(subsystems, null, config, false, true);
     this.rumble = rumble;
   }
 
@@ -183,13 +185,13 @@ public class AutoStateMachine extends StateMachine {
               config);
     }
 
-    spawnStateMachineAsCommand(scoringCommand, (s) -> null);
+    scoreCoral = (ScoreCoral) spawnStateMachineAsCommand(scoringCommand, (s) -> null);
 
     return stateWithName("ScoreCoral", () -> scoreCoral());
   }
 
   private StateHandler scoreCoral() {
-    if (RobotStates.coralInEndEffector == false) {
+    if (!scoreCoral.usingDrivetrain()) {
       scoringIndex++;
       return stateWithName("PrepIntakeCoral", () -> prepIntakeCoral());
     }
@@ -319,6 +321,6 @@ public class AutoStateMachine extends StateMachine {
         bestPose = trialPose;
     }
 
-    return null;
+    return bestPose;
   }
 }

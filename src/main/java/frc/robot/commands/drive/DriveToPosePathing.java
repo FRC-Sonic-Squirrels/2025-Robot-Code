@@ -87,6 +87,8 @@ public class DriveToPosePathing extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if (GeometryUtil.getDist(wrapper.getCoralStationPoseEstimatorPose(true), targetPose.get())
+        < 0.0001) this.cancel();
 
     Pair<Rotation2d, Rotation2d> rotations =
         generateStartAndEndRotations(targetPose.get(), currentPose.get());
