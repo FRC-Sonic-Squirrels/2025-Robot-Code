@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import frc.lib.team2930.LoggerEntry;
@@ -18,6 +19,8 @@ public class MechanismVisualization {
       logGroup.buildStructArray(Pose3d.class, "Mechanism");
   private static final LoggerEntry.Struct<Pose2d> logTestPose =
       logGroup.buildStruct(Pose2d.class, "TestPose");
+  private static final LoggerEntry.Struct<Pose3d> logArmCameraView =
+      logGroup.buildStruct(Pose3d.class, "ArmCameraView");
 
   // Use these tunable numbers for testing different heights and angles manually
   private static final TunableNumberGroup tunableGroup = new TunableNumberGroup("Visualization");
@@ -35,6 +38,8 @@ public class MechanismVisualization {
   private static Pose3d arm = Constants.zeroPose3d;
   private static Pose3d intake = Constants.zeroPose3d;
   private static Pose3d climber = Constants.zeroPose3d;
+
+  private static Pose3d camViewFromArm = Constants.zeroPose3d;
 
   public static void updateVisualization(
       Distance elevatorHeight,
@@ -56,10 +61,16 @@ public class MechanismVisualization {
         new Pose3d(
             0.342, 0.0, 0.178, new Rotation3d(0, Math.toRadians(intakeAngle.getDegrees() + 43), 0));
     climber = new Pose3d(0.0, -0.3303, 0.1235, new Rotation3d(climberAngle.getRadians(), 0, 0));
+
+    camViewFromArm =
+        arm.transformBy(
+            new Transform3d(
+                0, tunableElevatorHeightInches.get(), tunableArmAngleDeg.get(), Rotation3d.kZero));
   }
 
   public static void logMechanism() {
     logMechanism.info(new Pose3d[] {mechFirstStage, mechSecondStage, arm, intake, climber});
     logTestPose.info(Constants.zeroPose2d);
+    logArmCameraView.info(camViewFromArm); // TODO: make this work
   }
 }

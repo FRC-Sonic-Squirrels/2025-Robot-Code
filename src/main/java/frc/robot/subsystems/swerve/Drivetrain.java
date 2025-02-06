@@ -173,7 +173,8 @@ public class Drivetrain extends SubsystemBase {
   private Pose2d rawOdometryPose = Constants.zeroPose2d;
 
   private final PoseEstimator reefPoseEstimator;
-  private final PoseEstimator coralStationPoseEstimator;
+  private final PoseEstimator
+      coralStationPoseEstimator; // TODO: should be updated at the start of the game with reef tags
 
   private final Field2d field2d = new Field2d();
   private final Field2d rawOdometryField2d = new Field2d();

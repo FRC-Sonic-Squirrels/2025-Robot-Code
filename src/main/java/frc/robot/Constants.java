@@ -27,6 +27,7 @@ import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team6328.Alert;
 import frc.lib.team6328.Alert.AlertType;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.ScoreCoral.ScoringSide;
 import frc.robot.configs.RobotConfig;
 import frc.robot.configs.RobotConfig2023Rober;
@@ -199,6 +200,9 @@ public final class Constants {
     }
 
     public record ScoringSideWithPose(Pose2d pose, ScoringSide side) {}
+
+    public record ScoringSideWithPoseAndDirection(
+        Pose2d pose, ScoringSide side, ScoringDirection direction) {}
 
     public static final Distance CORAL_STATION_WIDTH = Units.Inches.of(76);
 

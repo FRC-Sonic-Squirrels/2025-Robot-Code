@@ -36,6 +36,7 @@ import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
+import frc.robot.autonomous.AutoStateMachine;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
@@ -472,6 +473,16 @@ public class RobotContainer {
                 drivetrain));
 
     driverController
+        .registerTrigger(XboxControllerWrapper.Button.start, "Teleop Autonomous")
+        .whileTrue(
+            new RunStateMachineCommand(
+                () ->
+                    new AutoStateMachine(
+                        new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
+                        Constants.RobotMode.getRobot().config.get(),
+                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
+
+    driverController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             MechanismActions.coralStationPosition(elevator, arm)
@@ -587,10 +598,6 @@ public class RobotContainer {
                 () -> {
                   Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
-                  Pose2d nearestReefAprilTag =
-                      findNearestAprilTag(robotTranslation, reefAprilTagPose);
-                  Pose2d nearestCoralStation =
-                      findNearestCoralStation(robotTranslation, coralStationPose);
                   Rotation2d finalRotationValue =
                       RobotStates.coralInEndEffector
                           ? findNearestAprilTag(robotTranslation, reefAprilTagPose).getRotation()
@@ -612,17 +619,18 @@ public class RobotContainer {
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.povUp, "Clear Algae High Position")
-        .onTrue(MechanismActions.clearAlgaeHigh1Position(elevator, arm))
-        .onFalse(MechanismActions.clearAlgaeHigh2Position(elevator, arm));
+    // Manual Algae Clearing
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.povUp, "Clear Algae High Position")
+    //     .onTrue(MechanismActions.clearAlgaeHigh1Position(elevator, arm))
+    //     .onFalse(MechanismActions.clearAlgaeHigh2Position(elevator, arm));
 
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.povDown, "Clear Algae Low Position")
-        .onTrue(MechanismActions.clearAlgaeLow1Position(elevator, arm))
-        .onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.povDown, "Clear Algae Low Position")
+    //     .onTrue(MechanismActions.clearAlgaeLow1Position(elevator, arm))
+    //     .onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
 
-    // Change clearing algae
+    // Automatic Algae Clearing
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povUp, "Clearing Algae")
         .onTrue(
@@ -645,22 +653,6 @@ public class RobotContainer {
     operatorController.registerTrigger(XboxControllerWrapper.Button.b, "Elevator 18 inches");
 
     operatorController.registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject");
-    // Toggle clearing algae
-
-    /*operatorController
-         .povUp()
-         .onTrue(
-             Commands.runOnce(
-                 () -> {
-                   RobotStates.clearingAlgae = true;
-                 }));
-    operatorController
-         .povDown()
-         .onTrue(
-             Commands.runOnce(
-                 () -> {
-                   RobotStates.clearingAlgae = false;
-                 }));*/
 
     if (!DriverStation.isFMSAttached()) {
       operatorController
@@ -922,6 +914,7 @@ public class RobotContainer {
         intake.getPivotAngle(),
         Rotation2d.kZero); // TODO: add climber to mech visualization
     MechanismVisualization.logMechanism();
+    FieldStates.logGamepieceVisualization();
   }
 
   public void resetSubsystems() {}
