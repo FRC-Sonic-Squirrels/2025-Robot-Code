@@ -85,7 +85,18 @@ public class MechanismVisualization {
                 rotatedArmPose.getRotation())
             .transformBy(new Transform3d(0, 0, 0.46, new Rotation3d(0, Math.toRadians(5), 0)));
 
-    camViewFromArm = arm.transformBy(new Transform3d(0, 0, 0, Rotation3d.kZero));
+    camViewFromArm =
+        new Pose3d(
+                robotPose.getX() + rotatedArmPose.getX(),
+                robotPose.getY() + rotatedArmPose.getY(),
+                rotatedArmPose.getZ(),
+                rotatedArmPose.getRotation())
+            .transformBy(
+                new Transform3d(
+                    tunableX.get(),
+                    0,
+                    tunableZ.get(),
+                    new Rotation3d(0, Math.toRadians(tunablePitch.get()), 0)));
   }
 
   public static void logMechanism() {
