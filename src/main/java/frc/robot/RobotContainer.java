@@ -32,7 +32,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.RobotMode;
+import frc.robot.Constants.IntakeConstants.PivotConstants;
+import frc.robot.Constants.MotorConstants.KrakenConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
@@ -54,6 +55,7 @@ import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
+import frc.robot.commands.intake.PivotIntakeToAngle;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
@@ -667,6 +669,20 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.clearingAlgae = false;
+                }));
+
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Ground Intake")
+        .whileTrue(
+            Commands.run(
+                () -> {
+                  if (!RobotStates.coralInEndEffector) {
+                    new PivotIntakeToAngle(intake, PivotConstants.MIN_PIVOT_ANGLE)
+                        .andThen(new IntakeSetRPM(intake, KrakenConstants.FREE_SPEED_RPM));
+                  } else {
+                    new PivotIntakeToAngle(intake, PivotConstants.PIVOT_SAFE_ANGLE)
+                        .andThen(new IntakeSetRPM(intake, 0));
+                  }
                 }));
 
     // ---------- OPERATOR CONTROLS -----------
