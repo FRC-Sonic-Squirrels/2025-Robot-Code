@@ -1,7 +1,9 @@
 package frc.lib.team2930;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import frc.robot.Constants;
@@ -33,6 +35,19 @@ public class AllianceFlipUtil {
     return newPoses;
   }
 
+  public static Pose3d rotatePose3DAroundCenterPoint(Pose3d originalPose) {
+    Pose2d internalPose2d = originalPose.toPose2d();
+    Pose2d flippedInternalPose2d = rotatePose2DAroundCenterPoint(internalPose2d);
+    return new Pose3d(
+        flippedInternalPose2d.getX(),
+        flippedInternalPose2d.getY(),
+        originalPose.getZ(),
+        new Rotation3d(
+            originalPose.getRotation().getX(),
+            originalPose.getRotation().getY(),
+            flippedInternalPose2d.getRotation().getRadians()));
+  }
+
   /**
    * @return blue alliance reference pose
    */
@@ -44,6 +59,10 @@ public class AllianceFlipUtil {
     return Constants.isRedAlliance()
         ? rotatePose2DArrayAroundCenterPoint(originalPose)
         : originalPose;
+  }
+
+  public static Pose3d flipPoseForAlliance(Pose3d originalPose) {
+    return Constants.isRedAlliance() ? rotatePose3DAroundCenterPoint(originalPose) : originalPose;
   }
 
   /**

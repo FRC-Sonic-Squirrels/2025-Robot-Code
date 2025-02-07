@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -307,7 +308,7 @@ public class AutoStateMachine extends StateMachine {
                 new Translation2d(
                     Constants.FieldConstants.CORAL_STATION_WIDTH.div(4).in(Units.Meter),
                     left ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg)));
-    return offsetPickup;
+    return AllianceFlipUtil.flipPoseForAlliance(offsetPickup);
   }
 
   private Pose2d getClosestCoralStationPose() {
