@@ -88,7 +88,7 @@ public class DriveToPosePathing extends Command {
   @Override
   public void initialize() {
     if (GeometryUtil.getDist(wrapper.getCoralStationPoseEstimatorPose(true), targetPose.get())
-        < 0.0001) this.cancel();
+        < 0.0002) this.cancel();
 
     Pair<Rotation2d, Rotation2d> rotations =
         generateStartAndEndRotations(targetPose.get(), currentPose.get());
@@ -175,7 +175,18 @@ public class DriveToPosePathing extends Command {
 
   private Translation2d[] getRobotCorners(Pose2d pose) {
     Translation2d[] corners = new Translation2d[4];
-    Translation2d[] robotRelativeCorners = config.getModuleTranslations();
+
+    double xRad = Constants.RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getX() / 2.0;
+    double yRad = Constants.RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getY() / 2.0;
+
+    Translation2d[] robotRelativeCorners =
+        new Translation2d[] {
+          new Translation2d(xRad, yRad),
+          new Translation2d(-xRad, yRad),
+          new Translation2d(xRad, -yRad),
+          new Translation2d(-xRad, -yRad)
+        };
+
     for (int i = 0; i < corners.length; i++) {
       corners[i] =
           pose.getTranslation()
