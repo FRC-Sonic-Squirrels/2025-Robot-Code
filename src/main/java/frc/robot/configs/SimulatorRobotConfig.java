@@ -65,14 +65,14 @@ public class SimulatorRobotConfig extends RobotConfig {
 
   // ------- AUTONOMOUS CONSTANTS -------
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
-      group.build("AUTO_MAX_SPEED", 2.0);
+      group.build("AUTO_MAX_SPEED", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 2.0);
+      group.build("AUTO_MAX_ACCEL", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND =
-      group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 2);
+      group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 4);
   private static final LoggedTunableNumber
       AUTO_MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED =
-          group.build("AUTO_MAX_ANGULAR_ACCEL_RAD_PER_SECOND_SQUARED", Math.PI * 4);
+          group.build("AUTO_MAX_ANGULAR_ACCEL_RAD_PER_SECOND_SQUARED", Math.PI * 8);
 
   private static final LoggedTunableNumber AUTO_TRANSLATION_KP =
       group.build("AUTO_TRANSLATION_KP", 6.0);

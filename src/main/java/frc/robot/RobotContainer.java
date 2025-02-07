@@ -852,6 +852,11 @@ public class RobotContainer {
 
   public void setPose(Pose2d pose) {
     drivetrain.setPose(pose);
+    drivetrain.setCoralStationPoseToReefPose();
+  }
+
+  public void setCoralStationPoseToReefPose() {
+    drivetrain.setCoralStationPoseToReefPose();
   }
 
   public void matchRawOdometryToPoseEstimatorValue() {
@@ -909,6 +914,7 @@ public class RobotContainer {
     SimpleMechanismVisualization.updateVisualization(elevator.getHeight(), arm.getAngle());
     SimpleMechanismVisualization.logMechanism();
     MechanismVisualization.updateVisualization(
+        drivetrainWrapper.getReefPoseEstimatorPose(true),
         elevator.getHeight(),
         arm.getAngle(),
         intake.getPivotAngle(),

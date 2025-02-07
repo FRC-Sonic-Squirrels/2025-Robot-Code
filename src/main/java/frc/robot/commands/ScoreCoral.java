@@ -186,6 +186,8 @@ public class ScoreCoral extends StateMachine {
     setInitialState(stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
   }
 
+  // SCORING STATES
+
   private StateHandler prepForScoringAlignment() {
 
     Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
@@ -209,14 +211,10 @@ public class ScoreCoral extends StateMachine {
 
     led.setBaseRobotState(BaseRobotState.SCORING_ALIGNMENT);
 
-    System.out.println(FieldStates.scoringLevelFilled(RobotStates.scoringLevel));
-    if (!RobotStates.coralInEndEffector
-        || (gamepieceMemory && FieldStates.scoringLevelFilled(RobotStates.scoringLevel))) {
-      spawnCommand(new ControllerRumbleForTime(rumble, 0.25, 0.3), (c) -> null);
-      led.setRobotState(RobotState.SCORE_FAILURE);
+    if (!RobotStates.coralInEndEffector || !scorableLevel()) {
       return RobotStates.clearingAlgae && !gamepieceMemory
           ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
-          : stateWithName("End", () -> end(true));
+          : stateWithName("ScoreFailure", () -> scoreFailure());
     }
 
     prepMechanismForScoring =
@@ -257,9 +255,12 @@ public class ScoreCoral extends StateMachine {
     led.setRobotState(RobotState.SCORE_SUCCESS);
 
     return RobotStates.clearingAlgae
+            && !(gamepieceMemory && !FieldStates.isAlgaeInScoringSide(scoringSide))
         ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
         : stateWithName("End", () -> end(false));
   }
+
+  // ALGAE STATES
 
   private StateHandler prepForAlgaeAlignment() {
     led.setBaseRobotState(BaseRobotState.ALGAE_ALIGNMENT);
@@ -286,8 +287,7 @@ public class ScoreCoral extends StateMachine {
                 .andThen(clearAlgae1Position),
             (command) -> null);
 
-    algaeClearPose =
-        getClosestAlgaeClearingSide(wrapper.getCoralStationPoseEstimatorPose(true)).pose();
+    algaeClearPose = getClosestAlgaeClearingSide(scoringPose).pose();
 
     DriveToPose driveToAlgaePose =
         new DriveToPose(
@@ -300,8 +300,17 @@ public class ScoreCoral extends StateMachine {
                 Commands.waitUntil(
                         () ->
                             !prepMechanismForAlgae.isScheduled() && !driveToAlgaePose.isScheduled())
-                    .andThen(clearAlgae2Position),
+                    .andThen(clearAlgae2Position)
+                    .andThen(
+                        Commands.runOnce(
+                            () -> FieldStates.removeAlgaeFromScoringSide(scoringSide))),
                 (c) -> stateWithName("End", () -> end(false))));
+  }
+
+  private StateHandler scoreFailure() {
+    spawnCommand(new ControllerRumbleForTime(rumble, 0.25, 0.3), (c) -> null);
+    led.setRobotState(RobotState.SCORE_FAILURE);
+    return stateWithName("End", () -> end(true));
   }
 
   private StateHandler end(boolean interrupted) {
@@ -310,32 +319,6 @@ public class ScoreCoral extends StateMachine {
     endEffector.setPercentOut(0);
     return suspendForCommand(
         MechanismActions.coralStationPosition(elevator, arm), (command) -> setDone());
-  }
-
-  private StateHandler waitState() {
-    return null;
-  }
-
-  private boolean algaeClearRequired() {
-    // TODO: potentially store locations where algae has been cleared, then return false if algae is
-    // already cleared. May want to add manual override for this in case algae clear fails.
-    // L1 and L4 are clear of algae
-    if (RobotStates.scoringLevel == ScoringLevel.L1
-        || RobotStates.scoringLevel == ScoringLevel.L4) {
-      return false;
-    }
-
-    ScoringSide currentScoringSide = scoringSide;
-
-    // There are particular sides of L2 that are free
-    if (RobotStates.scoringLevel == ScoringLevel.L2
-        && currentScoringSide != ScoringSide.NEAR_LEFT
-        && currentScoringSide != ScoringSide.NEAR_RIGHT
-        && currentScoringSide != ScoringSide.FAR_MID) {
-      return false;
-    }
-
-    return RobotStates.clearingAlgae;
   }
 
   private ScoringSideWithPoseAndDirection getScoringSide(ScoringSide side) {
@@ -349,20 +332,20 @@ public class ScoreCoral extends StateMachine {
 
   private ScoringSideWithPoseAndDirection getOptimalScoringSide(
       Pose2d robotPose, Translation2d vel) {
+
     log_inputVel.info(vel);
+
     Translation2d flippedReef =
         AllianceFlipUtil.flipTranslationForAlliance(Constants.FieldConstants.BLUE_REEF_CENTER_POSE);
     Rotation2d headingToReef =
         GeometryUtil.getHeading(robotPose.getTranslation(), flippedReef).unaryMinus();
+
     log_headingToReef.info(headingToReef);
-    // y' y * cos(t) + x * sin(t)
-    // x' y * sin(t) + x * cos(t)
-    // distToReef = dist(curr, reef)
-    // distToReef + x' * time = newDistToReef
-    // ravg = (distToReef + newDistToReef) / 2.0
-    // deltaTheta = y' / ravg
+
     Translation2d adjustedVel = vel.rotateBy(headingToReef);
+
     log_adjustedVel.info(adjustedVel);
+
     Translation2d deltaPos = adjustedVel.times(predictiveTime.get());
     double distToReef = GeometryUtil.getDist(robotPose.getTranslation(), flippedReef);
     double newDistToReef =
@@ -376,8 +359,10 @@ public class ScoreCoral extends StateMachine {
             new Translation2d(
                 newDistToReef,
                 GeometryUtil.getHeading(flippedReef, robotPose.getTranslation()).plus(deltaTheta)));
+
     log_predictedPose.info(GeomUtil.translationToPose(newTranslation));
     log_deltaTheta.info(deltaTheta);
+
     return getClosestScoringSide(newTranslation);
   }
 
@@ -387,8 +372,9 @@ public class ScoreCoral extends StateMachine {
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero),
             ScoringSide.FAR_LEFT,
             ScoringDirection.LEFT);
+
     for (ScoringSideWithPoseAndDirection pose : getScoringLocations()) {
-      if (!FieldStates.isScoringLocationFilled(
+      if (scoreableLocation(
               new ScoringLocation(
                   scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),
                   RobotStates.scoringLevel))
@@ -397,6 +383,7 @@ public class ScoreCoral extends StateMachine {
         bestTarget = pose;
       }
     }
+
     return bestTarget;
   }
 
@@ -431,14 +418,12 @@ public class ScoreCoral extends StateMachine {
 
       if (optionalScoringDirection.isPresent()) {
         direction = optionalScoringDirection.orElseThrow();
-
-        objectiveScoringDirection =
-            direction == ScoringDirection.LEFT ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg;
-
       } else {
-        direction = i % 2 == 0 ? ScoringDirection.RIGHT : ScoringDirection.LEFT;
-        objectiveScoringDirection = i % 2 == 0 ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg;
+        direction = i % 2 == 0 ? ScoringDirection.LEFT : ScoringDirection.RIGHT;
       }
+
+      objectiveScoringDirection =
+          direction == ScoringDirection.LEFT ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg;
 
       Translation2d offset =
           new Translation2d(
@@ -530,17 +515,52 @@ public class ScoreCoral extends StateMachine {
     return usingDrivetrain;
   }
 
+  private boolean conflictsWithAlgae(ScoringLocation location) {
+
+    ScoringLevel level = location.level();
+
+    ScoringSide side = reefSideToScoringSide(location.side());
+
+    if (level == ScoringLevel.L3 && FieldStates.isAlgaeInScoringSide(side)) return true;
+
+    if (level == ScoringLevel.L2
+        && side.ordinal() % 2 == 1
+        && FieldStates.isAlgaeInScoringSide(side)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private boolean scoreableLocation(ScoringLocation location) {
+    return (!gamepieceMemory
+        || !(FieldStates.isScoringLocationFilled(
+                new ScoringLocation(location.side(), RobotStates.scoringLevel))
+            || conflictsWithAlgae(location)));
+  }
+
+  private boolean scorableLevel() {
+    for (ScoringSideWithPoseAndDirection pose : getScoringLocations()) {
+      if (scoreableLocation(
+          new ScoringLocation(
+              scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),
+              RobotStates.scoringLevel))) return true;
+    }
+
+    return false;
+  }
+
   public enum ScoringDirection {
     LEFT,
     RIGHT
   }
 
   public enum ScoringSide {
-    NEAR_LEFT,
     NEAR_MID,
     NEAR_RIGHT,
-    FAR_LEFT,
+    FAR_RIGHT,
     FAR_MID,
-    FAR_RIGHT
+    FAR_LEFT,
+    NEAR_LEFT,
   }
 }
