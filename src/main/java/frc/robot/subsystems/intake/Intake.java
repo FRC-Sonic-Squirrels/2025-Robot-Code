@@ -100,8 +100,8 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.0002);
       rollerTargetAccelerationConfig.initDefault(0.0);
 
-      pKP.initDefault(.01);
-      pKD.initDefault(0);
+      pKP.initDefault(10);
+      pKD.initDefault(9);
       pKG.initDefault(0.0);
 
       pivotMaxVelocityConfig.initDefault(40);
