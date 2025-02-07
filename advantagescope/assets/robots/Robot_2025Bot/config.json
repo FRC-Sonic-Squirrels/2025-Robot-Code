@@ -26,8 +26,8 @@
         }
       ],
       "position": [0, 0, 0],
-      "resolution": [0, 0],
-      "fov": 0
+      "resolution": [1920, 1080],
+      "fov": 128.2
     },
     {
       "name": "Reef Right",
@@ -42,8 +42,8 @@
         }
       ],
       "position": [0, 0, 0],
-      "resolution": [0, 0],
-      "fov": 0
+      "resolution": [1920, 1080],
+      "fov": 128.2
     },
     {
       "name": "Coral Station Left",
@@ -58,8 +58,8 @@
         }
       ],
       "position": [0, 0, 0],
-      "resolution": [0, 0],
-      "fov": 0
+      "resolution": [1920, 1080],
+      "fov": 128.2
     },
     {
       "name": "Coral Station Right",
@@ -74,8 +74,8 @@
         }
       ],
       "position": [0, 0, 0],
-      "resolution": [0, 0],
-      "fov": 0
+      "resolution": [1920, 1080],
+      "fov": 128.2
     }
   ],
   "components": [
