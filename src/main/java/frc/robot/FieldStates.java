@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -108,10 +109,11 @@ public class FieldStates {
           Pose3d referencePose = row % 2 == 0 ? blueAPose3ds[columb] : blueBPose3ds[columb];
 
           poses.add(
-              GeometryUtil.rotatePose3dAroundTranslation2d(
-                  referencePose,
-                  Constants.FieldConstants.BLUE_REEF_CENTER_POSE,
-                  Rotation2d.fromDegrees(60 * (row / 2))));
+              AllianceFlipUtil.flipPoseForAlliance(
+                  GeometryUtil.rotatePose3dAroundTranslation2d(
+                      referencePose,
+                      Constants.FieldConstants.BLUE_REEF_CENTER_POSE,
+                      Rotation2d.fromDegrees(60 * (row / 2)))));
         }
       }
     }
@@ -128,10 +130,11 @@ public class FieldStates {
                 i % 2 == 0 ? upperAlgaeHeight : referencePose.getZ(),
                 referencePose.getRotation());
         algaePoseArray.add(
-            GeometryUtil.rotatePose3dAroundTranslation2d(
-                correctedHeight,
-                Constants.FieldConstants.BLUE_REEF_CENTER_POSE,
-                Rotation2d.fromDegrees(60 * i)));
+            AllianceFlipUtil.flipPoseForAlliance(
+                GeometryUtil.rotatePose3dAroundTranslation2d(
+                    correctedHeight,
+                    Constants.FieldConstants.BLUE_REEF_CENTER_POSE,
+                    Rotation2d.fromDegrees(60 * i))));
       }
     }
 
