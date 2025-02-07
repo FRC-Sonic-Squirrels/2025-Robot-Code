@@ -61,7 +61,7 @@ public class Arm extends SubsystemBase {
       targetAccelerationConfig.initDefault(10);
     } else if (Constants.RobotMode.getRobot() == RobotType.ROBOT_SIMBOT) {
 
-      kP.initDefault(2.5);
+      kP.initDefault(4);
       kD.initDefault(0);
       kG.initDefault(0.0);
 

@@ -60,7 +60,7 @@ public class Elevator extends SubsystemBase {
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_SIMBOT) {
-      kP.initDefault(10);
+      kP.initDefault(3);
       kD.initDefault(0.0);
       kG.initDefault(0.0);
 

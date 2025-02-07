@@ -267,7 +267,8 @@ public final class Constants {
   }
 
   public static class ElevatorConstants { // TODO: check all constants for new season
-    public static final double GEAR_RATIO = 23.05;
+    public static final double GEAR_RATIO =
+        RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO ? 23.05 : 10.667;
     public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.256);
     public static final double CARRIAGE_MASS = 0.2; // arbitrary
 
@@ -292,7 +293,7 @@ public final class Constants {
 
     static {
       SPEED_SCALAR_MAP.put(HOME_POSITION.in(Units.Inch), 1.0);
-      SPEED_SCALAR_MAP.put(MAX_HEIGHT.in(Units.Inch), 0.5);
+      SPEED_SCALAR_MAP.put(MAX_HEIGHT.in(Units.Inch), 0.8);
     }
   }
 
@@ -341,7 +342,10 @@ public final class Constants {
   public static class ArmConstants { // TODO: check all constants for new season
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
-    public static final double GEAR_RATIO = (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0);
+    public static final double GEAR_RATIO =
+        RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
+            ? (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0)
+            : 27.7778;
 
     public static final double MOI = 0.15;
 

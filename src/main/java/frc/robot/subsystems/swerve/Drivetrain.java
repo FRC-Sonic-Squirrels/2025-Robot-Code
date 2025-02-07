@@ -126,8 +126,10 @@ public class Drivetrain extends SubsystemBase {
   private static final LoggerEntry.Struct<Pose2d> logLocalization_RobotPosition_RAW_ODOMETRY =
       logGroupLocalization.buildStruct(Pose2d.class, "RobotPosition_RAW_ODOMETRY");
 
-  private static final LoggerEntry.Struct<Pose2d> logLocalization_RobotPosition =
-      logGroupLocalization.buildStruct(Pose2d.class, "RobotPosition");
+  private static final LoggerEntry.Struct<Pose2d> logLocalization_ReefRobotPosition =
+      logGroupLocalization.buildStruct(Pose2d.class, "ReefRobotPosition");
+  private static final LoggerEntry.Struct<Pose2d> logLocalization_CoralStationRobotPosition =
+      logGroupLocalization.buildStruct(Pose2d.class, "CoralStationRobotPosition");
 
   private static final LoggerEntry.Decimal logTimeSinceVision =
       logGroupLocalization.buildDecimal("timeSinceVision");
@@ -173,10 +175,10 @@ public class Drivetrain extends SubsystemBase {
   private Pose2d rawOdometryPose = Constants.zeroPose2d;
 
   private final PoseEstimator reefPoseEstimator;
-  private final PoseEstimator
-      coralStationPoseEstimator; // TODO: should be updated at the start of the game with reef tags
+  private final PoseEstimator coralStationPoseEstimator;
 
-  private final Field2d field2d = new Field2d();
+  private final Field2d reefField2d = new Field2d();
+  private final Field2d coralField2d = new Field2d();
   private final Field2d rawOdometryField2d = new Field2d();
 
   private Pose2d prevVel = Constants.zeroPose2d;
@@ -205,9 +207,9 @@ public class Drivetrain extends SubsystemBase {
     int[] reefTags = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
     int[] coralStationTags = {1, 2, 12, 13};
 
-    reefPoseEstimator = new PoseEstimator(0.6, 0.6, 0.3, reefTags); // refine these numbers?
+    reefPoseEstimator = new PoseEstimator(0.6, 0.6, 0.3, reefTags); // TODO: refine these numbers?
     coralStationPoseEstimator =
-        new PoseEstimator(0.6, 0.6, 0.3, coralStationTags); // refine these numbers?
+        new PoseEstimator(0.6, 0.6, 0.3, coralStationTags); // TODO: refine these numbers?
 
     var thread = new Thread(this::runOdometry);
     thread.setName("PhoenixOdometryThread");
@@ -250,12 +252,17 @@ public class Drivetrain extends SubsystemBase {
 
       prevVel = getFieldRelativeVelocities();
 
-      var poseEstimatorPose = getReefPoseEstimatorPose();
+      var reefPoseEstimatorPose = getReefPoseEstimatorPose();
+      var coralPoseEstimatorPose = getReefPoseEstimatorPose();
       var visionStaleness = getReefVisionStaleness();
-      logLocalization_RobotPosition.info(poseEstimatorPose);
 
-      field2d.setRobotPose(poseEstimatorPose);
-      SmartDashboard.putData("Localization/field2d", field2d);
+      logLocalization_ReefRobotPosition.info(reefPoseEstimatorPose);
+      logLocalization_CoralStationRobotPosition.info(coralPoseEstimatorPose);
+
+      reefField2d.setRobotPose(reefPoseEstimatorPose);
+      coralField2d.setRobotPose(coralPoseEstimatorPose);
+      SmartDashboard.putData("Localization/reefField2d", reefField2d);
+      SmartDashboard.putData("Localization/coralField2d", coralField2d);
 
       rawOdometryField2d.setRobotPose(rawOdometryPose);
       logLocalization_RobotPosition_RAW_ODOMETRY.info(rawOdometryPose);
@@ -655,6 +662,11 @@ public class Drivetrain extends SubsystemBase {
 
       this.rawOdometryPose = pose;
     }
+  }
+
+  public void setCoralStationPoseToReefPose() {
+    this.coralStationPoseEstimator.resetPose(
+        reefPoseEstimator.getLatestPose(), Utils.getCurrentTimeSeconds() + 0.2);
   }
 
   public void setRawOdometryPose(Pose2d pose) {

@@ -253,6 +253,8 @@ public class Robot extends LoggedRobot {
       }
     }
 
+    robotContainer.setCoralStationPoseToReefPose();
+
     // set gyro zero based on vision during pre match disable. This allows for imprecise robot
     // placement on the field to be fixed by vision
     // fms = has ever entered auto or tele then never reset
