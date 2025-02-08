@@ -101,6 +101,7 @@ public class ScoreCoral extends StateMachine {
       DrivetrainWrapper wrapper,
       Elevator elevator,
       Arm arm,
+      Intake intake,
       EndEffector endEffector,
       LED led,
       Consumer<Double> rumble,
@@ -109,6 +110,7 @@ public class ScoreCoral extends StateMachine {
         wrapper,
         elevator,
         arm,
+        intake,
         endEffector,
         led,
         Optional.empty(),
@@ -125,6 +127,7 @@ public class ScoreCoral extends StateMachine {
       Intake intake,
       EndEffector endEffector,
       LED led,
+      ReefSide side,
       Consumer<Double> rumble,
       RobotConfig config) {
     this(
@@ -134,7 +137,7 @@ public class ScoreCoral extends StateMachine {
         intake,
         endEffector,
         led,
-        reefSideToScoringDirection(side),
+        Optional.of(reefSideToScoringDirection(side)),
         Optional.of(reefSideToScoringSide(side)),
         rumble,
         config);
@@ -155,6 +158,7 @@ public class ScoreCoral extends StateMachine {
         wrapper,
         elevator,
         arm,
+        intake,
         endEffector,
         led,
         Optional.of(scoringDirection),
@@ -229,7 +233,8 @@ public class ScoreCoral extends StateMachine {
                     () ->
                         GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
                             < distToRaiseMech.get())
-                .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
+                .andThen(
+                    MechanismActions.reefPosition(elevator, arm, intake, RobotStates.scoringLevel)),
             (command) -> null);
 
     return suspendForCommand(
@@ -324,7 +329,7 @@ public class ScoreCoral extends StateMachine {
     usingDrivetrain = false;
     endEffector.setPercentOut(0);
     return suspendForCommand(
-        MechanismActions.coralStationPosition(elevator, arm), (command) -> setDone());
+        MechanismActions.coralStationPosition(elevator, arm, intake), (command) -> setDone());
   }
 
   private ScoringSideWithPoseAndDirection getScoringSide(ScoringSide side) {
