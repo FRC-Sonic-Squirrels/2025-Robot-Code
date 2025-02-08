@@ -3,10 +3,12 @@ package frc.robot.subsystems.climber;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -25,120 +27,210 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
 
 public class ClimberIOReal implements ClimberIO {
-  private final StatusSignal<Voltage> appliedVoltage;
-  private final StatusSignal<Angle> position;
-  private final StatusSignal<Current> current;
-  private final StatusSignal<Temperature> temp;
-  private final StatusSignal<AngularVelocity> velocity;
+  private final StatusSignal<Voltage> winchAppliedVoltage;
+  private final StatusSignal<Angle> winchPosition;
+  private final StatusSignal<Current> winchCurrent;
+  private final StatusSignal<Temperature> winchTemp;
+  private final StatusSignal<AngularVelocity> winchVelocity;
 
-  private final MotionMagicVoltage closedLoopControl =
+  private final MotionMagicVoltage winchClosedLoopControl =
       new MotionMagicVoltage(0.0).withEnableFOC(true);
-  private final VoltageOut openLoopControl = new VoltageOut(0.0).withEnableFOC(true);
+  private final VoltageOut winchOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
-  private final TalonFX motor = new TalonFX(Constants.CanIDs.CLIMBER_ARM_CAN_ID);
+  private final TalonFX winchMotor = new TalonFX(Constants.CanIDs.CLIMBER_WINCH_CAN_ID);
 
-  private final BaseStatusSignal[] refreshSet;
+  private final BaseStatusSignal[] winchRefreshSet;
+
+  private TalonFX grabberMotor = new TalonFX(Constants.CanIDs.CLIMBER_GRABBER_CAN_ID);
+
+  private final StatusSignal<Current> grabberCurrent;
+  private final StatusSignal<Temperature> grabberTemp;
+  private final StatusSignal<Voltage> grabberAppliedVoltage;
+  private final StatusSignal<AngularVelocity> grabberVelocity;
+
+  private final VoltageOut grabberOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
+
+  private final MotionMagicVelocityVoltage grabberClosedLoopControl =
+      new MotionMagicVelocityVoltage(0).withEnableFOC(true);
+
+  private final BaseStatusSignal[] grabberRefreshSet;
 
   public ClimberIOReal() {
-    // Motor config
-    TalonFXConfiguration config = new TalonFXConfiguration();
+    // Winch motor config
+    TalonFXConfiguration winchConfig = new TalonFXConfiguration();
 
-    config.CurrentLimits.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    winchConfig.CurrentLimits.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
+    winchConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    winchConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    winchConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    winchConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    winchConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+    winchConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
         Constants.ClimberConstants.MAX_CLIMBER_ANGLE.getRotations();
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+    winchConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
         Constants.ClimberConstants.MIN_CLIMBER_ANGLE
             .minus(Rotation2d.fromDegrees(2.0))
             .getRotations();
 
-    config.Feedback.SensorToMechanismRatio = Constants.ClimberConstants.GEAR_RATIO;
-    config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    winchConfig.Feedback.SensorToMechanismRatio = ClimberConstants.WINCH_GEAR_RATIO;
+    winchConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-    config.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
+    winchConfig.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
 
-    motor.getConfigurator().apply(config);
+    winchMotor.getConfigurator().apply(winchConfig);
+
+    // Grabber motor config
+    TalonFXConfiguration grabberConfig = new TalonFXConfiguration();
+    CurrentLimitsConfigs grabberCurrentLimitConfig = new CurrentLimitsConfigs();
+
+    grabberCurrentLimitConfig.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
+    grabberCurrentLimitConfig.SupplyCurrentLimitEnable = true;
+
+    grabberConfig.CurrentLimits = grabberCurrentLimitConfig;
+
+    grabberConfig.Feedback.SensorToMechanismRatio = ClimberConstants.GRABBER_GEAR_RATIO;
+    grabberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    grabberConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+    grabberConfig.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
+
+    grabberMotor.getConfigurator().apply(grabberConfig);
 
     // Status signals
 
-    appliedVoltage = motor.getMotorVoltage();
-    position = motor.getPosition();
-    current = motor.getStatorCurrent();
-    temp = motor.getDeviceTemp();
-    velocity = motor.getVelocity();
+    winchAppliedVoltage = winchMotor.getMotorVoltage();
+    winchPosition = winchMotor.getPosition();
+    winchCurrent = winchMotor.getStatorCurrent();
+    winchTemp = winchMotor.getDeviceTemp();
+    winchVelocity = winchMotor.getVelocity();
+
+    grabberCurrent = grabberMotor.getStatorCurrent();
+    grabberTemp = grabberMotor.getDeviceTemp();
+    grabberAppliedVoltage = grabberMotor.getMotorVoltage();
+    grabberVelocity = grabberMotor.getVelocity();
 
     // Update status signals
 
-    BaseStatusSignal.setUpdateFrequencyForAll(100, appliedVoltage, position, velocity);
-    BaseStatusSignal.setUpdateFrequencyForAll(50, current);
-    BaseStatusSignal.setUpdateFrequencyForAll(1, temp);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100, winchAppliedVoltage, winchPosition, winchVelocity);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50, winchCurrent, grabberCurrent, grabberAppliedVoltage, grabberVelocity);
+    BaseStatusSignal.setUpdateFrequencyForAll(1, winchTemp, grabberTemp);
 
-    motor.optimizeBusUtilization();
+    winchMotor.optimizeBusUtilization();
 
-    refreshSet = new BaseStatusSignal[] {appliedVoltage, position, current, temp, velocity};
+    winchRefreshSet =
+        new BaseStatusSignal[] {
+          winchAppliedVoltage, winchPosition, winchCurrent, winchTemp, winchVelocity
+        };
+
+    grabberMotor.optimizeBusUtilization();
+    grabberRefreshSet =
+        new BaseStatusSignal[] {
+          grabberCurrent, grabberTemp, grabberAppliedVoltage, grabberVelocity
+        };
   }
 
   @Override
-  public void updateInputs(Inputs inputs) {
-    inputs.refreshAll(refreshSet);
+  public void updateWinchInputs(Inputs inputs) {
+    inputs.refreshAll(winchRefreshSet);
+    inputs.refreshAll(grabberRefreshSet);
 
-    inputs.climberPosition = Rotation2d.fromRotations(position.getValue().in(Units.Rotations));
-    inputs.climberAppliedVolts = appliedVoltage.getValue().in(Units.Volts);
-    inputs.climberCurrentAmps = current.getValue().in(Units.Amps);
-    inputs.climberTempCelsius = temp.getValue().in(Units.Celsius);
-    inputs.climberVelocityDegreesPerSecond = velocity.getValue().in(Units.DegreesPerSecond);
+    inputs.winchPosition = winchPosition.getValue().in(Units.Degrees);
+    inputs.winchAppliedVolts = winchAppliedVoltage.getValue().in(Units.Volts);
+    inputs.winchCurrentAmps = winchCurrent.getValue().in(Units.Amps);
+    inputs.winchTempCelsius = winchTemp.getValue().in(Units.Celsius);
+    inputs.winchVelocityDegreesPerSecond = winchVelocity.getValue().in(Units.DegreesPerSecond);
+
+    inputs.grabberCurrentAmps = grabberCurrent.getValue().in(Units.Amps);
+    inputs.grabberTempCelsius = grabberTemp.getValue().in(Units.Celsius);
+    inputs.grabberAppliedVolts = grabberAppliedVoltage.getValue().in(Units.Volts);
+    inputs.grabberVelocityRPM = grabberVelocity.getValue().in(Units.RPM);
+  }
+
+  // Winch
+
+  @Override
+  public void setWinchClosedLoopPosition(Rotation2d angle) {
+    winchClosedLoopControl.withPosition(angle.getRotations());
+    winchMotor.setControl(winchClosedLoopControl);
   }
 
   @Override
-  public void setClosedLoopPosition(Rotation2d angle) {
-    closedLoopControl.withPosition(angle.getRotations());
-    motor.setControl(closedLoopControl);
-  }
-
-  @Override
-  public void setClosedLoopConstants(
+  public void setWinchClosedLoopConstants(
       double kP, double kD, double kG, MotionMagicConfigs mmConfigs) {
     var slot0Configs = new Slot0Configs();
 
-    motor.getConfigurator().refresh(slot0Configs);
-    motor.getConfigurator().refresh(mmConfigs);
+    winchMotor.getConfigurator().refresh(slot0Configs);
+    winchMotor.getConfigurator().refresh(mmConfigs);
 
     slot0Configs.kP = kP;
     slot0Configs.kD = kD;
     slot0Configs.kG = kG;
 
-    motor.getConfigurator().apply(slot0Configs);
-    motor.getConfigurator().apply(mmConfigs);
+    winchMotor.getConfigurator().apply(slot0Configs);
+    winchMotor.getConfigurator().apply(mmConfigs);
   }
 
   @Override
-  public void setVoltage(double volts) {
-    motor.setControl(openLoopControl.withOutput(volts));
+  public void setWinchVoltage(double volts) {
+    winchMotor.setControl(winchOpenLoopControl.withOutput(volts));
   }
 
   @Override
-  public void resetSensorPosition(Rotation2d angle) {
-    motor.setPosition(angle.getRotations());
+  public void resetWinchSensorPosition(Rotation2d angle) {
+    winchMotor.setPosition(angle.getRotations());
   }
 
   @Override
-  public boolean setNeutralMode(NeutralModeValue value) {
+  public boolean setWinchNeutralMode(NeutralModeValue value) {
     var config = new MotorOutputConfigs();
 
-    var status = motor.getConfigurator().refresh(config);
+    var status = winchMotor.getConfigurator().refresh(config);
 
     if (status != StatusCode.OK) return false;
 
     config.NeutralMode = value;
 
-    motor.getConfigurator().apply(config);
+    winchMotor.getConfigurator().apply(config);
     return true;
+  }
+
+  // Grabber
+
+  @Override
+  public void setGrabberVoltage(double volts) {
+    grabberMotor.setControl(grabberOpenLoopControl.withOutput(volts));
+  }
+
+  @Override
+  public void setGrabberVelocity(double revPerMin) {
+    grabberMotor.setControl(
+        grabberClosedLoopControl.withVelocity(
+            Units.RPM.of(revPerMin).in(Units.RotationsPerSecond)));
+  }
+
+  @Override
+  public void setGrabberClosedLoopConstants(
+      double kP, double kV, double kS, double targetAccelerationConfig) {
+    Slot0Configs pidConfig = new Slot0Configs();
+    MotionMagicConfigs mmConfig = new MotionMagicConfigs();
+
+    var config = grabberMotor.getConfigurator();
+
+    config.refresh(pidConfig);
+    config.refresh(mmConfig);
+
+    pidConfig.kP = kP;
+    pidConfig.kV = kV;
+    pidConfig.kS = kS;
+
+    mmConfig.MotionMagicAcceleration = targetAccelerationConfig;
+
+    config.apply(pidConfig);
+    config.apply(mmConfig);
   }
 }

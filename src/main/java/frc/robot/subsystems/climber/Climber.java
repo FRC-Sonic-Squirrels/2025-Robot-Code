@@ -6,170 +6,279 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 
 public class Climber extends SubsystemBase {
   // Execution timing
-  private static final ExecutionTiming timing = new ExecutionTiming(ClimberConstants.ROOT_TABLE);
-
+  private static final ExecutionTiming winchTiming =
+      new ExecutionTiming(ClimberConstants.WINCH_ROOT_TABLE);
+  private static final ExecutionTiming grabberTiming =
+      new ExecutionTiming(EndEffectorConstants.ROOT_TABLE);
   // Logging
-  private static final LoggerGroup logGroup = LoggerGroup.build(ClimberConstants.ROOT_TABLE);
-  private static final LoggerEntry.Decimal logInputs_angle = logGroup.buildDecimal("AngleDegrees");
-  private static final LoggerEntry.Decimal logInputs_appliedVolts =
-      logGroup.buildDecimal("AppliedVolts");
-  private static final LoggerEntry.Decimal logInputs_currentAmps =
-      logGroup.buildDecimal("CurrentAmps");
-  private static final LoggerEntry.Decimal logInputs_tempCelsius =
-      logGroup.buildDecimal("TempCelsius");
-  private static final LoggerEntry.Decimal logInputs_velocityDegreesPerSecond =
-      logGroup.buildDecimal("VelocityDegreesPerSecond");
-  private static final LoggerEntry.EnumValue<ControlMode> logControlMode =
-      logGroup.buildEnum("ControlMode");
+  private static final LoggerGroup winchLogGroup =
+      LoggerGroup.build(ClimberConstants.WINCH_ROOT_TABLE);
+  private static final LoggerEntry.Decimal logInputs_winchAngle =
+      winchLogGroup.buildDecimal("AngleDegrees");
+  private static final LoggerEntry.Decimal logInputs_winchAppliedVolts =
+      winchLogGroup.buildDecimal("AppliedVolts");
+  private static final LoggerEntry.Decimal logInputs_winchCurrentAmps =
+      winchLogGroup.buildDecimal("CurrentAmps");
+  private static final LoggerEntry.Decimal logInputs_winchTempCelsius =
+      winchLogGroup.buildDecimal("TempCelsius");
+  private static final LoggerEntry.Decimal logInputs_winchVelocityDegreesPerSecond =
+      winchLogGroup.buildDecimal("VelocityDegreesPerSecond");
+  private static final LoggerEntry.EnumValue<ControlMode> logWinchControlMode =
+      winchLogGroup.buildEnum("ControlMode");
   private static final LoggerEntry.Decimal logTargetAngleDegrees =
-      logGroup.buildDecimal("targetAngleDegrees");
+      winchLogGroup.buildDecimal("targetAngleDegrees");
+
+  private static final LoggerGroup grabberLogGroup =
+      LoggerGroup.build(ClimberConstants.GRABBER_ROOT_TABLE);
+  private static final LoggerEntry.Decimal logInputs_grabberVelocityRPM =
+      grabberLogGroup.buildDecimal("VelocityRPM");
+  private static final LoggerEntry.Decimal logInputs_grabberCurrentAmps =
+      grabberLogGroup.buildDecimal("CurrentAmps");
+  private static final LoggerEntry.Decimal logInputs_grabberTempCelsius =
+      grabberLogGroup.buildDecimal("TempCelsius");
+  private static final LoggerEntry.Decimal logInputs_grabberAppliedVolts =
+      grabberLogGroup.buildDecimal("AppliedVolts");
+
+  private static final LoggerEntry.Decimal logTargetVelocityRPM =
+      grabberLogGroup.buildDecimal("TargetVelocityRPM");
+  private static final LoggerEntry.EnumValue<ControlMode> logGrabberControlMode =
+      grabberLogGroup.buildEnum("ControlMode");
 
   // Tunable Numbers
-  private static final TunableNumberGroup group =
-      new TunableNumberGroup(ClimberConstants.ROOT_TABLE);
+  private static final TunableNumberGroup winchGroup =
+      new TunableNumberGroup(ClimberConstants.WINCH_ROOT_TABLE);
 
-  private static final LoggedTunableNumber kP = group.build("kP");
-  private static final LoggedTunableNumber kD = group.build("kD");
-  private static final LoggedTunableNumber kG = group.build("kG");
+  private static final LoggedTunableNumber winchkP = winchGroup.build("kP");
+  private static final LoggedTunableNumber winchkD = winchGroup.build("kD");
+  private static final LoggedTunableNumber winchkG = winchGroup.build("kG");
 
-  private static final LoggedTunableNumber maxVelocityConfig = group.build("MaxVelocityConfig");
-  private static final LoggedTunableNumber targetAccelerationConfig =
-      group.build("TargetAccelerationConfig");
-  private static final LoggedTunableNumber toleranceDegrees = group.build("ToleranceDegrees", 1);
+  private static final LoggedTunableNumber maxVelocityConfig =
+      winchGroup.build("MaxVelocityConfig");
+  private static final LoggedTunableNumber winchTargetAccelerationConfig =
+      winchGroup.build("TargetAccelerationConfig");
+  private static final LoggedTunableNumber toleranceDegrees =
+      winchGroup.build("ToleranceDegrees", 1);
+
+  // Tunable numbers
+
+  private static final TunableNumberGroup grabberGroup =
+      new TunableNumberGroup(EndEffectorConstants.ROOT_TABLE);
+
+  private static final LoggedTunableNumber grabberkS = grabberGroup.build("kS");
+  private static final LoggedTunableNumber grabberkP = grabberGroup.build("kP");
+  private static final LoggedTunableNumber grabberkV = grabberGroup.build("kV");
+  private static final LoggedTunableNumber grabberTargetAccelerationConfig =
+      grabberGroup.build("MaxAccelerationConstraint");
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
-      kP.initDefault(70.0);
-      kD.initDefault(1.6);
-      kG.initDefault(0.0);
+      winchkP.initDefault(70.0);
+      winchkD.initDefault(1.6);
+      winchkG.initDefault(0.0);
 
       // FIXME: find the theoretical from the JVN docs
       maxVelocityConfig.initDefault(10);
-      targetAccelerationConfig.initDefault(10);
+      winchTargetAccelerationConfig.initDefault(10);
+
+      grabberkS.initDefault(0);
+      grabberkP.initDefault(0.8);
+      grabberkV.initDefault(0.15);
+      grabberTargetAccelerationConfig.initDefault(300.0);
+
     } else if (Constants.RobotMode.getRobot() == RobotType.ROBOT_SIMBOT) {
 
-      kP.initDefault(2.5);
-      kD.initDefault(0);
-      kG.initDefault(0.0);
+      winchkP.initDefault(.02);
+      winchkD.initDefault(0);
+      winchkG.initDefault(0.0);
 
       maxVelocityConfig.initDefault(40);
-      targetAccelerationConfig.initDefault(80);
+      winchTargetAccelerationConfig.initDefault(80);
+
+      grabberkS.initDefault(0);
+      grabberkP.initDefault(0.0006);
+      grabberkV.initDefault(0.0002);
+      grabberTargetAccelerationConfig.initDefault(0.0);
     }
   }
 
   private final ClimberIO io;
-  private final ClimberIO.Inputs inputs = new ClimberIO.Inputs(logGroup);
+  private final ClimberIO.Inputs winchInputs = new ClimberIO.Inputs(winchLogGroup);
+  private final ClimberIO.Inputs grabberInputs = new ClimberIO.Inputs(grabberLogGroup);
 
-  private ControlMode controlMode = ControlMode.OPEN_LOOP;
-  private Rotation2d targetAngleDegrees = Constants.zeroRotation2d;
+  private ControlMode winchControlMode = ControlMode.OPEN_LOOP;
+  private Rotation2d winchTargetAngleDegrees = Constants.zeroRotation2d;
+
+  private double grabberTargetRPM;
+
+  private ControlMode grabberControlMode = ControlMode.OPEN_LOOP;
 
   /** Creates a new ClimberSubsystem. */
   public Climber(ClimberIO io) {
     this.io = io;
 
-    io.setVoltage(0.0);
+    io.setWinchVoltage(0.0);
 
     setConstants();
   }
 
   @Override
   public void periodic() {
-    try (var ignored = timing.start()) {
-      // Climber logging
-      io.updateInputs(inputs);
-      logInputs_angle.info(inputs.climberPosition);
-      logInputs_appliedVolts.info(inputs.climberAppliedVolts);
-      logInputs_currentAmps.info(inputs.climberCurrentAmps);
-      logInputs_tempCelsius.info(inputs.climberTempCelsius);
-      logInputs_velocityDegreesPerSecond.info(inputs.climberVelocityDegreesPerSecond);
+    try (var ignored = winchTiming.start()) {
+      // Winch logging
+      io.updateWinchInputs(winchInputs);
+      logInputs_winchAngle.info(winchInputs.winchPosition);
+      logInputs_winchAppliedVolts.info(winchInputs.winchAppliedVolts);
+      logInputs_winchCurrentAmps.info(winchInputs.winchCurrentAmps);
+      logInputs_winchTempCelsius.info(winchInputs.winchTempCelsius);
+      logInputs_winchVelocityDegreesPerSecond.info(winchInputs.winchVelocityDegreesPerSecond);
 
-      logControlMode.info(controlMode);
+      logWinchControlMode.info(winchControlMode);
 
       // Updating tunable numbers
       var hc = hashCode();
-      if (kP.hasChanged(hc)
-          || kD.hasChanged(hc)
-          || kG.hasChanged(hc)
+      if (winchkP.hasChanged(hc)
+          || winchkD.hasChanged(hc)
+          || winchkG.hasChanged(hc)
           || maxVelocityConfig.hasChanged(hc)
-          || targetAccelerationConfig.hasChanged(hc)) {
+          || winchTargetAccelerationConfig.hasChanged(hc)) {
+        setConstants();
+      }
+    }
+    try (var ignored = grabberTiming.start()) {
+      // Logging
+      io.updateGrabberInputs(grabberInputs);
+      logInputs_grabberVelocityRPM.info(grabberInputs.grabberVelocityRPM);
+      logInputs_grabberCurrentAmps.info(grabberInputs.grabberCurrentAmps);
+      logInputs_grabberTempCelsius.info(grabberInputs.grabberTempCelsius);
+      logInputs_grabberAppliedVolts.info(grabberInputs.grabberAppliedVolts);
+
+      logGrabberControlMode.info(grabberControlMode);
+
+      // Update tunable numbers
+
+      var hc = hashCode();
+      if (grabberkS.hasChanged(hc)
+          || grabberkP.hasChanged(hc)
+          || grabberkV.hasChanged(hc)
+          || grabberTargetAccelerationConfig.hasChanged(hc)) {
         setConstants();
       }
     }
   }
 
+  // setters
+
   private void setConstants() {
     MotionMagicConfigs configs = new MotionMagicConfigs();
     configs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
-    configs.MotionMagicAcceleration = targetAccelerationConfig.get();
-    io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), configs);
+    configs.MotionMagicAcceleration = winchTargetAccelerationConfig.get();
+    io.setWinchClosedLoopConstants(winchkP.get(), winchkD.get(), winchkG.get(), configs);
+    io.setGrabberClosedLoopConstants(
+        grabberkP.get(), grabberkV.get(), grabberkS.get(), grabberTargetAccelerationConfig.get());
   }
 
-  public void setAngle(Rotation2d angle) {
+  public void setWinchAngle(Rotation2d angle) {
     angle =
-        Rotation2d.fromRadians(
+        Rotation2d.fromDegrees(
             MathUtil.clamp(
-                angle.getRadians(),
-                Constants.ClimberConstants.MIN_CLIMBER_ANGLE.getRadians(),
-                Constants.ClimberConstants.MAX_CLIMBER_ANGLE.getRadians()));
+                angle.getDegrees(),
+                Constants.ClimberConstants.MIN_CLIMBER_ANGLE.getDegrees(),
+                Constants.ClimberConstants.MAX_CLIMBER_ANGLE.getDegrees()));
 
-    controlMode = ControlMode.CLOSED_LOOP;
-    targetAngleDegrees = angle;
-    io.setClosedLoopPosition(angle);
-    logTargetAngleDegrees.info(targetAngleDegrees);
+    winchControlMode = ControlMode.CLOSED_LOOP;
+    winchTargetAngleDegrees = angle;
+    io.setWinchClosedLoopPosition(angle);
+    logTargetAngleDegrees.info(winchTargetAngleDegrees);
   }
 
-  public void resetSubsystem() {
-    controlMode = ControlMode.OPEN_LOOP;
-    io.setVoltage(0);
+  public void resetWinchSubsystem() {
+    winchControlMode = ControlMode.OPEN_LOOP;
+    io.setWinchVoltage(0);
   }
 
-  public void setVoltage(double percent) {
-    controlMode = ControlMode.OPEN_LOOP;
-    io.setVoltage(percent);
+  public void setWinchVoltage(double percent) {
+    winchControlMode = ControlMode.OPEN_LOOP;
+    io.setWinchVoltage(percent);
   }
 
-  public void resetSensorToHomePosition() {
-    io.resetSensorPosition(Constants.ClimberConstants.MIN_CLIMBER_ANGLE);
+  public void resetWinchSensorToHomePosition() {
+    io.resetWinchSensorPosition(Constants.ClimberConstants.MIN_CLIMBER_ANGLE);
   }
 
-  public boolean setNeutralMode(NeutralModeValue value) {
-    return io.setNeutralMode(value);
+  public boolean setWinchNeutralMode(NeutralModeValue value) {
+    return io.setWinchNeutralMode(value);
   }
 
-  // Getters
-
-  public Rotation2d getAngle() {
-    return inputs.climberPosition;
+  public void setGrabberPercentOut(double percent) {
+    io.setGrabberVoltage(percent * Constants.MAX_VOLTAGE);
+    grabberControlMode = ControlMode.OPEN_LOOP;
   }
 
-  public boolean isAtTargetAngle() {
-    return isAtTargetAngle(targetAngleDegrees);
+  public void setGrabberVelocity(double revPerMin) {
+    io.setGrabberVelocity(revPerMin);
+    grabberTargetRPM = revPerMin;
+    logTargetVelocityRPM.info(grabberTargetRPM);
+    grabberControlMode = ControlMode.CLOSED_LOOP;
   }
 
-  public boolean isAtTargetAngle(Rotation2d target, Rotation2d tolerance) {
-    var error = inputs.climberPosition.minus(target).getRadians();
+  public void resetGrabberSubsystem() {
+    grabberControlMode = ControlMode.OPEN_LOOP;
+    io.setGrabberVoltage(0);
+  }
+
+  public boolean setGrabberNeutralMode(NeutralModeValue value) {
+    return io.setGrabberNeutralMode(value);
+  }
+
+  // Winch getters
+
+  public Rotation2d getWinchAngle() {
+    return Rotation2d.fromDegrees(winchInputs.winchPosition);
+  }
+
+  public boolean isWinchAtTargetAngle() {
+    return isWinchAtTargetAngle(winchTargetAngleDegrees);
+  }
+
+  public boolean isWinchAtTargetAngle(Rotation2d target, Rotation2d tolerance) {
+    var error = winchInputs.winchPosition - target.getDegrees();
     return Math.abs(error) <= tolerance.getRadians();
   }
 
-  public boolean isAtTargetAngle(Rotation2d target) {
-    return isAtTargetAngle(target, Rotation2d.fromDegrees(toleranceDegrees.get()));
+  public boolean isWinchAtTargetAngle(Rotation2d target) {
+    return isWinchAtTargetAngle(target, Rotation2d.fromDegrees(toleranceDegrees.get()));
   }
 
-  public Voltage getVoltage() {
-    return Units.Volts.of(inputs.climberAppliedVolts);
+  public Voltage getWinchVoltage() {
+    return Units.Volts.of(winchInputs.winchAppliedVolts);
+  }
+
+  public AngularVelocity getWinchVelocity() {
+    return Units.DegreesPerSecond.of(winchInputs.winchVelocityDegreesPerSecond);
+  }
+
+  // Grabber getters
+  public Current getCurrentDraw() {
+    return Units.Amps.of(grabberInputs.grabberCurrentAmps);
   }
 
   public AngularVelocity getVelocity() {
-    return Units.DegreesPerSecond.of(inputs.climberVelocityDegreesPerSecond);
+    return Units.RPM.of(grabberInputs.grabberVelocityRPM);
+  }
+
+  public Voltage getGrabberVoltage() {
+    return Units.Volts.of(winchInputs.grabberAppliedVolts);
   }
 }
