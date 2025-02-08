@@ -98,13 +98,14 @@ public class MechanismActions {
 
           boolean elevatorInPosition = false;
           boolean armInPosition = false;
+          boolean pivotInPosition = false;
           MechanismPosition targetPosition = position.get();
           // the first 3 are the elevator, arm, and pivot
           // 0,0 is the bottom of the elevator
           // 1 unit is 1 inch
           // TODO: get actual values and poses for colldiers
-          Transform2d[] colliders = {null, null, null};
-          double[] radiii = {1.0, 1.0, 1.0};
+          Translation2d[] colliders = {null, null, null, new Translation2d(0, 0)};
+          double[] radiii = {5.0, 5.0, 8.0, 1.0};
           double SAFE_MULT = 0.0;
 
           @Override
@@ -114,38 +115,31 @@ public class MechanismActions {
           public void execute() {
             // update colliders for the moving parts
             // elevator
-            colliders[0] =
-                new Transform2d(
-                    new Translation2d(0.0, elevator.getHeight().in(Units.Inches)),
-                    new Rotation2d());
+            colliders[0] = new Translation2d(0.0, elevator.getHeight().in(Units.Inches));
             // arm, elevator plus arm stuff
             colliders[1] =
                 colliders[0].plus(
-                    new Transform2d(
-                        new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
-                            .rotateBy(arm.getAngle()),
-                        new Rotation2d()));
+                    new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
+                        .rotateBy(arm.getAngle()));
             // pivot
             colliders[2] =
-                new Transform2d(
-                    new Translation2d(18, 0)
-                        .plus(
-                            new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
-                                .rotateBy(intake.getPivotAngle())),
-                    new Rotation2d());
+                new Translation2d(18, 0)
+                    .plus(
+                        new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
+                            .rotateBy(intake.getPivotAngle()));
             // check elevator
             boolean runningElevator = true;
             for (int c = 0; c < colliders.length; c++) { // check against all other colliders
               if (c == 0) { // dont check if the other is myself
                 continue;
               }
-              if (colliders[0].getTranslation().getDistance(colliders[c].getTranslation())
+              if (colliders[0].getDistance(colliders[c])
                   < (radiii[0] + radiii[c])) { // circle col with raw radii
                 // they hit eachother
                 elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
                 runningElevator = false;
                 break;
-              } else if (colliders[0].getTranslation().getDistance(colliders[c].getTranslation())
+              } else if (colliders[0].getDistance(colliders[c])
                   < (radiii[0] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
                 // oh no they are getting very close
                 elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
@@ -159,13 +153,13 @@ public class MechanismActions {
               if (c == 1) { // dont check if the other is myself
                 continue;
               }
-              if (colliders[0].getTranslation().getDistance(colliders[c].getTranslation())
+              if (colliders[1].getDistance(colliders[c])
                   < (radiii[1] + radiii[c])) { // circle col with raw radii
                 // they hit eachother
                 arm.setAngle(ArmConstants.ARM_SAFE_ANGLE);
                 runningArm = false;
                 break;
-              } else if (colliders[0].getTranslation().getDistance(colliders[c].getTranslation())
+              } else if (colliders[1].getDistance(colliders[c])
                   < (radiii[1] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
                 // oh no they are getting very close
                 arm.setAngle(ArmConstants.ARM_SAFE_ANGLE);
@@ -179,13 +173,13 @@ public class MechanismActions {
               if (c == 2) { // dont check if the other is myself
                 continue;
               }
-              if (colliders[0].getTranslation().getDistance(colliders[c].getTranslation())
+              if (colliders[2].getDistance(colliders[c])
                   < (radiii[2] + radiii[c])) { // circle col with raw radii
                 // they hit eachother
                 intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
                 runningPivot = false;
                 break;
-              } else if (colliders[0].getTranslation().getDistance(colliders[c].getTranslation())
+              } else if (colliders[2].getDistance(colliders[c])
                   < (radiii[2] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
                 // oh no they are getting very close
                 intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
@@ -202,26 +196,31 @@ public class MechanismActions {
             if (runningPivot) {
               intake.setPivotAngle(targetPosition.intakeAngle());
             }
+
+            elevatorInPosition = elevator.isAtTarget();
+            armInPosition = arm.isAtTargetAngle();
+            pivotInPosition = intake.isPivotAtTargetAngle();
+
             log_runningArm.info(runningArm);
             log_runningElevator.info(runningElevator);
             log_runningPivot.info(runningPivot);
 
-            log_ElevatorInPosition.info(elevator.isAtTarget());
-            log_ArmInPosition.info(arm.isAtTargetAngle());
-            log_PivotInPosition.info(intake.isPivotAtTargetAngle());
+            log_ElevatorInPosition.info(elevatorInPosition);
+            log_ArmInPosition.info(armInPosition);
+            log_PivotInPosition.info(pivotInPosition);
 
-            log_EstimatedElevatorPosision.info(colliders[0].div(20));
-            log_EstimatedArmPosision.info(colliders[1].div(20));
-            log_EstimatedPivotPosision.info(colliders[2].div(20));
+            log_EstimatedElevatorPosision.info(new Transform2d(colliders[0], Rotation2d.kZero));
+            log_EstimatedArmPosision.info(new Transform2d(colliders[1], Rotation2d.kZero));
+            log_EstimatedPivotPosision.info(new Transform2d(colliders[2], Rotation2d.kZero));
           }
 
           @Override
           public boolean isFinished() {
-            return elevatorInPosition;
+            return elevatorInPosition && armInPosition && pivotInPosition;
           }
         };
 
-    cmd.addRequirements(elevator, arm);
+    cmd.addRequirements(elevator, arm, intake);
     cmd.setName("MechanismAction");
     return cmd;
   }

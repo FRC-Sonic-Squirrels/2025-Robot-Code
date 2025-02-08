@@ -74,6 +74,8 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber pKD = group.build("pKD");
   private static final LoggedTunableNumber pKG = group.build("pKG");
 
+  private final LoggedTunableNumber pivotTolerance = group.build("pivotToleranceDegrees", 0.1);
+
   private static final LoggedTunableNumber pivotMaxVelocityConfig =
       group.build("PivotMaxVelocityConfig");
   private static final LoggedTunableNumber pivotTargetAccelerationConfig =
@@ -245,7 +247,8 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isPivotAtTargetAngle() {
-    return isPivotAtTargetAngle(pivotTargetAngle);
+    return Math.abs(pivotTargetAngleDegrees.getDegrees() - inputs.pivotPosition.getDegrees())
+        <= pivotTolerance.get();
   }
 
   public boolean isPivotAtTargetAngle(Rotation2d target, Rotation2d tolerance) {
