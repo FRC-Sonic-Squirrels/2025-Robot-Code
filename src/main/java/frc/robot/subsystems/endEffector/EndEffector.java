@@ -34,10 +34,14 @@ public class EndEffector extends SubsystemBase {
       logGroup.buildDecimal("TempCelsius");
   private static final LoggerEntry.Decimal logInputs_appliedVolts =
       logGroup.buildDecimal("AppliedVolts");
-  private static final LoggerEntry.Decimal logInputs_tofDist =
-      logGroup.buildDecimal("tofDistInches");
-  private static final LoggerEntry.Decimal logInputs_secondTOFDist =
-      logGroup.buildDecimal("secondTOFDistInches");
+  private static final LoggerEntry.Decimal logInputs_scoringSideTofDist =
+      logGroup.buildDecimal("ToF/ScoringSideTofDist");
+  private static final LoggerEntry.Decimal logInputs_nonScoringSideTOFDist =
+      logGroup.buildDecimal("ToF/NonScoringSideTOFDist");
+  private static final LoggerEntry.Bool logInputs_scoringSideTofActivated =
+      logGroup.buildBoolean("ToF/ScoringSideTofActivated");
+  private static final LoggerEntry.Bool logInputs_nonScoringSideTOFActivated =
+      logGroup.buildBoolean("ToF/NonScoringSideTOFActivated");
 
   private static final LoggerEntry.Decimal logTargetVelocityRPM =
       logGroup.buildDecimal("TargetVelocityRPM");
@@ -98,8 +102,10 @@ public class EndEffector extends SubsystemBase {
       logInputs_currentAmps.info(inputs.currentAmps);
       logInputs_tempCelsius.info(inputs.tempCelsius);
       logInputs_appliedVolts.info(inputs.appliedVolts);
-      logInputs_tofDist.info(inputs.scoringSideTofDistInches);
-      logInputs_secondTOFDist.info(inputs.nonScoringSideTofDistInches);
+      logInputs_scoringSideTofDist.info(inputs.scoringSideTofDistInches);
+      logInputs_nonScoringSideTOFDist.info(inputs.nonScoringSideTofDistInches);
+      logInputs_scoringSideTofActivated.info(inputs.scoringSideTofDetecting);
+      logInputs_nonScoringSideTOFActivated.info(inputs.nonScoringSideTofDetecting);
 
       logControlMode.info(controlMode);
 
