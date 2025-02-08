@@ -486,7 +486,7 @@ public class ScoreCoral extends StateMachine {
     if (level == ScoringLevel.L3 && FieldStates.isAlgaeInScoringSide(side)) return true;
 
     if (level == ScoringLevel.L2
-        && !side.hasAlgaeAtStartOnL2
+        && side.hasAlgaeAtStartOnL2
         && FieldStates.isAlgaeInScoringSide(side)) {
       return true;
     }

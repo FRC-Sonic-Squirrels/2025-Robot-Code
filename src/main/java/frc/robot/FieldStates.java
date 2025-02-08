@@ -134,7 +134,7 @@ public class FieldStates {
                 GeometryUtil.rotatePose3dAroundTranslation2d(
                     correctedHeight,
                     Constants.FieldConstants.BLUE_REEF_CENTER_POSE,
-                    Rotation2d.fromDegrees(60 * i))));
+                    Rotation2d.fromDegrees(60 * (i - 1)))));
       }
     }
 
