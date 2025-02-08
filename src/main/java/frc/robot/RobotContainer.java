@@ -567,6 +567,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L4;
+                  led.setBaseRobotState(BaseRobotState.CLASS);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.x, "Score L3")
@@ -574,6 +575,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L3;
+                  led.setBaseRobotState(BaseRobotState.CLASS);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.a, "Score L2")
@@ -581,6 +583,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L2;
+                  led.setBaseRobotState(BaseRobotState.CLASS);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.b, "Score L1")
@@ -588,6 +591,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L1;
+                  led.setBaseRobotState(BaseRobotState.CLASS);
                 }));
 
     driverController
