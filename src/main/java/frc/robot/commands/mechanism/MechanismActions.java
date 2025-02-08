@@ -8,6 +8,8 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
@@ -22,8 +24,11 @@ public class MechanismActions {
   private static final LoggerEntry.Bool log_runningArm = logGroup.buildBoolean("runningArm");
   private static final LoggerEntry.Bool log_runningElevator =
       logGroup.buildBoolean("runningElevator");
+  private static final LoggerEntry.Bool log_runningPivot = logGroup.buildBoolean("runningPivot");
   private static final LoggerEntry.Bool log_ElevatorInPosition =
       logGroup.buildBoolean("ElevatorInPosition");
+  private static final LoggerEntry.Bool log_PivotInPosition =
+      logGroup.buildBoolean("PivotInPosition");
   private static final LoggerEntry.Bool log_ArmInPosition = logGroup.buildBoolean("ArmInPosition");
 
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
@@ -106,66 +111,88 @@ public class MechanismActions {
             colliders[2] =
                 new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
                     .rotateBy(intake.getPivotAngle());
-
-            for (int i = 0; i < 3; i++) { // loop over the moving colliders
-              for (int c = 0; c < colliders.length; c++) { // check against all other colliders
-                if (i == c) { // dont check if the other is myself
-                  continue;
-                }
-                Translation2d diff = colliders[i].minus(colliders[c]);
-                if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
-                    < (radiii[i] + radiii[c])) { // circle col with raw radii
-                  // they hit eachother 😨
-                  continue;
-                } else if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
-                    < (radiii[i] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
-                  // oh no they are getting very close
-                  continue;
-                }
-                arm.setAngle(targetPosition.armAngle());
-                elevator.setHeight(targetPosition.elevatorHeight());
+            // check elevator
+            boolean runningElevator = true;
+            for (int c = 0; c < colliders.length; c++) { // check against all other colliders
+              if (c == 0) { // dont check if the other is myself
+                continue;
+              }
+              Translation2d diff = colliders[0].minus(colliders[c]);
+              if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+                  < (radiii[0] + radiii[c])) { // circle col with raw radii
+                // they hit eachother
+                elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                runningElevator = false;
+                continue;
+              } else if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+                  < (radiii[0] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
+                // oh no they are getting very close
+                elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                runningElevator = false;
+                continue;
               }
             }
-            /*
-            MechanismPosition targetPosition = position.get();
-            Distance safeHeight = Constants.ElevatorConstants.SAFE_HEIGHT;
-            boolean runningArm =
-                elevator.getHeight().in(Units.Inches)
-                        >= safeHeight.minus(Units.Inches.of(1.0)).in(Units.Inches)
-                    || (arm.getAngle().getRadians()
-                            > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-                        && position.get().armAngle().getRadians()
-                            > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians());
-            if (ignoreSafety) runningArm = true;
+            // check arm
+            boolean runningArm = true;
+            for (int c = 0; c < colliders.length; c++) { // check against all other colliders
+              if (c == 1) { // dont check if the other is myself
+                continue;
+              }
+              Translation2d diff = colliders[1].minus(colliders[c]);
+              if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+                  < (radiii[1] + radiii[c])) { // circle col with raw radii
+                // they hit eachother
+                elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                runningElevator = false;
+                arm.setAngle(ArmConstants.ARM_SAFE_ANGLE);
+                runningArm = false;
+                continue;
+              } else if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+                  < (radiii[1] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
+                // oh no they are getting very close
+                elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                runningElevator = false;
+                arm.setAngle(ArmConstants.ARM_SAFE_ANGLE);
+                runningArm = false;
+                continue;
+              }
+            }
+            // check pivot
+            boolean runningPivot = true;
+            for (int c = 0; c < colliders.length; c++) { // check against all other colliders
+              if (c == 2) { // dont check if the other is myself
+                continue;
+              }
+              Translation2d diff = colliders[2].minus(colliders[c]);
+              if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+                  < (radiii[2] + radiii[c])) { // circle col with raw radii
+                // they hit eachother
+                intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
+                runningPivot = false;
+                continue;
+              } else if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+                  < (radiii[2] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
+                // oh no they are getting very close
+                intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
+                runningPivot = false;
+                continue;
+              }
+            }
+            if (runningElevator) {
+              elevator.setHeight(targetPosition.elevatorHeight());
+            }
             if (runningArm) {
               arm.setAngle(targetPosition.armAngle());
             }
-
-            boolean runningElevatorSafety =
-                targetPosition.elevatorHeight().lte(safeHeight)
-                    && ((arm.getAngle().getRadians()
-                                >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-                            && targetPosition.armAngle().getRadians()
-                                <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians())
-                        || (arm.getAngle().getRadians()
-                                <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-                            && position.get().armAngle().getRadians()
-                                >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()));
-            if (ignoreSafety) runningElevatorSafety = false;
-
-            if (runningElevatorSafety) {
-              elevator.setHeight(safeHeight);
-            } else {
-              elevator.setHeight(targetPosition.elevatorHeight());
+            if (runningPivot) {
+              intake.setPivotAngle(targetPosition.armAngle());
             }
             log_runningArm.info(runningArm);
-            log_runningElevator.info(runningElevatorSafety);
-            elevatorInPosition = elevator.isAtTarget(position.get().elevatorHeight());
-            log_ElevatorInPosition.info(elevatorInPosition);
-            armInPosition =
-                arm.isAtTargetAngle(position.get().armAngle(), Rotation2d.fromDegrees(5.0));
-            log_ArmInPosition.info(armInPosition);
-            */
+            log_runningElevator.info(runningElevator);
+            log_runningPivot.info(runningPivot);
+            log_ElevatorInPosition.info(elevator.isAtTarget());
+            log_ArmInPosition.info(arm.isAtTargetAngle());
+            log_PivotInPosition.info(intake.isPivotAtTargetAngle());
           }
 
           @Override
