@@ -10,8 +10,10 @@ public interface EndEffectorIO {
     public double currentAmps;
     public double tempCelsius;
     public double appliedVolts;
-    public double tofDistInches;
-    public double secondTOFDistInches;
+    public double scoringSideTofDistInches;
+    public double nonScoringSideTofDistInches;
+    public boolean scoringSideTofDetecting;
+    public boolean nonScoringSideTofDetecting;
 
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);

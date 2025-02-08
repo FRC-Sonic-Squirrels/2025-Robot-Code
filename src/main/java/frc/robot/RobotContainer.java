@@ -931,9 +931,9 @@ public class RobotContainer {
 
   public void updateRobotState() {
     if (!RobotMode.isSimBot()) {
-      RobotStates.coralInEndEffectorNonScoringSide = ((endEffector.tofSeenGamepiece()));
+      RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
 
-      RobotStates.coralInEndEffectorScoringSide = (endEffector.secondTOFSeenGamepiece());
+      RobotStates.coralInEndEffectorNonScoringSide = (endEffector.nonScoringSideTOFSeenGamepiece());
     }
 
     RobotStates.coralInEndEffector =

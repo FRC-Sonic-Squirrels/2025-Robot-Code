@@ -98,8 +98,8 @@ public class EndEffector extends SubsystemBase {
       logInputs_currentAmps.info(inputs.currentAmps);
       logInputs_tempCelsius.info(inputs.tempCelsius);
       logInputs_appliedVolts.info(inputs.appliedVolts);
-      logInputs_tofDist.info(inputs.tofDistInches);
-      logInputs_secondTOFDist.info(inputs.secondTOFDistInches);
+      logInputs_tofDist.info(inputs.scoringSideTofDistInches);
+      logInputs_secondTOFDist.info(inputs.nonScoringSideTofDistInches);
 
       logControlMode.info(controlMode);
 
@@ -146,20 +146,20 @@ public class EndEffector extends SubsystemBase {
     return Units.RPM.of(inputs.velocityRPM);
   }
 
-  public Distance tofDistance() {
-    return Units.Inches.of(inputs.tofDistInches);
+  public Distance scoringSideTofDistance() {
+    return Units.Inches.of(inputs.scoringSideTofDistInches);
   }
 
-  public Distance secondTOFDistance() {
-    return Units.Inches.of(inputs.secondTOFDistInches);
+  public Distance nonScoringSideTofDistance() {
+    return Units.Inches.of(inputs.nonScoringSideTofDistInches);
   }
 
-  public boolean tofSeenGamepiece() {
-    return inputs.tofDistInches <= distanceToTriggerCoralDetection.get();
+  public boolean scoringSideTofSeenGamepiece() {
+    return inputs.scoringSideTofDetecting;
   }
 
-  public boolean secondTOFSeenGamepiece() {
-    return inputs.secondTOFDistInches <= distanceToTriggerCoralDetection.get();
+  public boolean nonScoringSideTOFSeenGamepiece() {
+    return inputs.nonScoringSideTofDetecting;
   }
 
   public boolean isGamepieceFullyInEndEffector() {
