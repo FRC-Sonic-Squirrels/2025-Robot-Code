@@ -97,7 +97,7 @@ public class MechanismPositions {
       algaeClearingHigh1ArmAngleDegrees.initDefault(0);
       algaeClearingHigh2ElevatorHeightInches.initDefault(26.2);
       algaeClearingHigh2ArmAngleDegrees.initDefault(32);
-      stowArmAngleDegrees.initDefault(0);
+      stowIntakeAngleDegrees.initDefault(0);
     } else {
       stowElevatorHeightInches.initDefault(11.6);
       stowArmAngleDegrees.initDefault(11.6);
@@ -119,6 +119,7 @@ public class MechanismPositions {
       algaeClearingHigh1ArmAngleDegrees.initDefault(150);
       algaeClearingHigh2ElevatorHeightInches.initDefault(50);
       algaeClearingHigh2ArmAngleDegrees.initDefault(150);
+      stowIntakeAngleDegrees.initDefault(0);
     }
   }
 

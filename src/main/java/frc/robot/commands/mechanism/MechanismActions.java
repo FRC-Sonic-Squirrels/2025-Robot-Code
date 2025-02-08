@@ -127,6 +127,10 @@ public class MechanismActions {
                     .plus(
                         new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
                             .rotateBy(intake.getPivotAngle()));
+            // 0 means it is fine
+            // 1 means it is close to another collider
+            // 2 means it is hitting another collider
+            int elevatorMovePriority = 0;
             // check elevator
             boolean runningElevator = true;
             for (int c = 0; c < colliders.length; c++) { // check against all other colliders
@@ -136,53 +140,120 @@ public class MechanismActions {
               if (colliders[0].getDistance(colliders[c])
                   < (radiii[0] + radiii[c])) { // circle col with raw radii
                 // they hit eachother
-                elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                // if the thing we are hitting is lower than us
+                if (colliders[0].getY() < colliders[c].getY()) {
+                  // move down
+                  elevator.setHeight(Units.Inches.of(0));
+                } else {
+                  // otherwise move up
+                  elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
+                }
+                elevatorMovePriority = 2;
                 runningElevator = false;
                 break;
               } else if (colliders[0].getDistance(colliders[c])
                   < (radiii[0] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
                 // oh no they are getting very close
-                elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                // same logic as above
+                if (colliders[0].getY() < colliders[c].getY()) {
+                  elevator.setHeight(Units.Inches.of(0));
+                } else {
+                  elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
+                }
+                elevatorMovePriority = 1;
                 runningElevator = false;
                 break;
               }
             }
+            // same collision logic for arm and pivot
             // check arm
             boolean runningArm = true;
-            for (int c = 0; c < colliders.length; c++) { // check against all other colliders
-              if (c == 1) { // dont check if the other is myself
+            for (int c = 0; c < colliders.length; c++) {
+              if (c == 1) {
                 continue;
               }
-              if (colliders[1].getDistance(colliders[c])
-                  < (radiii[1] + radiii[c])) { // circle col with raw radii
-                // they hit eachother
-                arm.setAngle(ArmConstants.ARM_SAFE_ANGLE);
+              if (colliders[1].getDistance(colliders[c]) < (radiii[1] + radiii[c])) {
+                // only move the elevator if it is ok
+                if (elevatorMovePriority < 2) {
+                  if (colliders[1].getY() < colliders[c].getY()) {
+                    elevator.setHeight(Units.Inches.of(0));
+                  } else {
+                    elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
+                  }
+                  elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                  runningElevator = false;
+                }
+                // if the thing we are colliding with is to our left
+                // TODO: make sure this math is correct
+                // source: https://stackoverflow.com/questions/1560492
+                if ((colliders[1].getX())
+                            * (colliders[c].getY() - elevator.getHeight().in(Units.Inches))
+                        - (colliders[1].getY() - elevator.getHeight().in(Units.Inches))
+                            * (colliders[c].getX())
+                    > 0) {
+                  // move right
+                  arm.setAngle(ArmConstants.MAX_ARM_ANGLE);
+                } else {
+                  // otherwise move left
+                  arm.setAngle(ArmConstants.MIN_ARM_ANGLE);
+                }
                 runningArm = false;
                 break;
               } else if (colliders[1].getDistance(colliders[c])
-                  < (radiii[1] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
-                // oh no they are getting very close
-                arm.setAngle(ArmConstants.ARM_SAFE_ANGLE);
+                  < (radiii[1] + radiii[c]) * SAFE_MULT) {
+
+                // only move the elevator if it is ok
+                if (elevatorMovePriority < 1) {
+                  if (colliders[1].getY() < colliders[c].getY()) {
+                    elevator.setHeight(Units.Inches.of(0));
+                  } else {
+                    elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
+                  }
+                  elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+                  runningElevator = false;
+                }
+                // same logic as above
+                if ((colliders[1].getX())
+                            * (colliders[c].getY() - elevator.getHeight().in(Units.Inches))
+                        - (colliders[1].getY() - elevator.getHeight().in(Units.Inches))
+                            * (colliders[c].getX())
+                    > 0) {
+                  arm.setAngle(ArmConstants.MAX_ARM_ANGLE);
+                } else {
+                  arm.setAngle(ArmConstants.MIN_ARM_ANGLE);
+                }
                 runningArm = false;
                 break;
               }
             }
             // check pivot
             boolean runningPivot = true;
-            for (int c = 0; c < colliders.length; c++) { // check against all other colliders
-              if (c == 2) { // dont check if the other is myself
+            for (int c = 0; c < colliders.length; c++) {
+              if (c == 2) {
                 continue;
               }
-              if (colliders[2].getDistance(colliders[c])
-                  < (radiii[2] + radiii[c])) { // circle col with raw radii
-                // they hit eachother
-                intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
+              if (colliders[2].getDistance(colliders[c]) < (radiii[2] + radiii[c])) {
+
+                // same logic as above
+                if ((colliders[2].getX() - 18) * colliders[c].getY()
+                        - colliders[2].getY() * (colliders[c].getX() - 18)
+                    > 0) {
+                  intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
+                } else {
+                  intake.setPivotAngle(PivotConstants.MIN_PIVOT_ANGLE);
+                }
                 runningPivot = false;
                 break;
               } else if (colliders[2].getDistance(colliders[c])
-                  < (radiii[2] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
-                // oh no they are getting very close
-                intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
+                  < (radiii[2] + radiii[c]) * SAFE_MULT) {
+                // same logic as above
+                if ((colliders[2].getX() - 18) * colliders[c].getY()
+                        - colliders[2].getY() * (colliders[c].getX() - 18)
+                    > 0) {
+                  intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
+                } else {
+                  intake.setPivotAngle(PivotConstants.MIN_PIVOT_ANGLE);
+                }
                 runningPivot = false;
                 break;
               }
