@@ -498,6 +498,8 @@ public class RobotContainer {
                         // rumble
                         driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
                         led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
+                      } else {
+                        led.setBaseRobotState(BaseRobotState.INTAKING_CORAL_STATION);
                       }
                     })
                 .finallyDo(

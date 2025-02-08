@@ -147,7 +147,7 @@ public class LED extends SubsystemBase {
               setBlinking(Color.kGreen);
               break;
             case INTAKING_CORAL_STATION:
-              setBlinking(Color.kYellow);
+              setSolidColor(Color.kYellow);
             default:
               setSeaLevelGraphic();
               break;
