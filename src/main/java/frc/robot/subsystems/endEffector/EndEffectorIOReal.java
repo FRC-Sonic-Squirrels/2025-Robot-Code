@@ -2,20 +2,22 @@ package frc.robot.subsystems.endEffector;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.playingwithfusion.TimeOfFlight;
-import com.playingwithfusion.TimeOfFlight.RangingMode;
+import com.ctre.phoenix6.signals.UpdateModeValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
@@ -37,11 +39,14 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
   private final BaseStatusSignal[] refreshSet;
 
-  private final TimeOfFlight endEffectorTOF =
-      new TimeOfFlight(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
+  private final CANrange endEffectorTOF = new CANrange(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
 
-  private final TimeOfFlight secondTOF =
-      new TimeOfFlight(Constants.CanIDs.SECOND_END_EFFECTOR_TOF_CAN_ID);
+  private final CANrange secondTOF = new CANrange(Constants.CanIDs.SECOND_END_EFFECTOR_TOF_CAN_ID);
+
+  private final StatusSignal<Distance> scoringSideTofDistance;
+  private final StatusSignal<Distance> nonScoringSideTofDistance;
+  private final StatusSignal<Boolean> scoringSideTofDetected;
+  private final StatusSignal<Boolean> nonScoringSideTofDetected;
 
   public EndEffectorIOReal() {
     // Motor config
@@ -74,15 +79,47 @@ public class EndEffectorIOReal implements EndEffectorIO {
     BaseStatusSignal.setUpdateFrequencyForAll(1, deviceTemp);
 
     motor.optimizeBusUtilization();
-    refreshSet = new BaseStatusSignal[] {current, deviceTemp, appliedVoltage, velocity};
 
     // Time of Flight
 
-    endEffectorTOF.setRangeOfInterest(6, 6, 10, 10);
-    secondTOF.setRangeOfInterest(6, 6, 10, 10);
+    CANrangeConfiguration canRangeConfig = new CANrangeConfiguration();
 
-    endEffectorTOF.setRangingMode(RangingMode.Short, 25);
-    secondTOF.setRangingMode(RangingMode.Short, 25);
+    canRangeConfig.FovParams.FOVRangeX = 6.75;
+    canRangeConfig.FovParams.FOVRangeY = 6.75;
+
+    canRangeConfig.ProximityParams.ProximityThreshold = 0.4;
+    canRangeConfig.ProximityParams.ProximityHysteresis = 0.01;
+    canRangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
+
+    canRangeConfig.ToFParams.UpdateFrequency = 100;
+    canRangeConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
+
+    endEffectorTOF.getConfigurator().apply(canRangeConfig);
+    secondTOF.getConfigurator().apply(canRangeConfig);
+
+    scoringSideTofDistance = endEffectorTOF.getDistance();
+    nonScoringSideTofDistance = secondTOF.getDistance();
+    scoringSideTofDetected = endEffectorTOF.getIsDetected();
+    nonScoringSideTofDetected = secondTOF.getIsDetected();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100,
+        scoringSideTofDistance,
+        nonScoringSideTofDistance,
+        scoringSideTofDetected,
+        nonScoringSideTofDetected);
+
+    refreshSet =
+        new BaseStatusSignal[] {
+          current,
+          deviceTemp,
+          appliedVoltage,
+          velocity,
+          scoringSideTofDistance,
+          nonScoringSideTofDistance,
+          scoringSideTofDetected,
+          nonScoringSideTofDetected
+        };
   }
 
   @Override
@@ -93,8 +130,10 @@ public class EndEffectorIOReal implements EndEffectorIO {
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.velocityRPM = velocity.getValue().in(Units.RPM);
-    inputs.tofDistInches = Units.Millimeters.of(endEffectorTOF.getRange()).in(Units.Inches);
-    inputs.secondTOFDistInches = Units.Millimeters.of(secondTOF.getRange()).in(Units.Inches);
+    inputs.scoringSideTofDistInches = scoringSideTofDistance.getValue().in(Units.Inches);
+    inputs.nonScoringSideTofDistInches = nonScoringSideTofDistance.getValue().in(Units.Inches);
+    inputs.scoringSideTofDetecting = scoringSideTofDetected.getValue().booleanValue();
+    inputs.nonScoringSideTofDetecting = nonScoringSideTofDetected.getValue().booleanValue();
   }
 
   @Override
