@@ -39,9 +39,11 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
   private final BaseStatusSignal[] refreshSet;
 
-  private final CANrange endEffectorTOF = new CANrange(Constants.CanIDs.END_EFFECTOR_TOF_CAN_ID);
+  private final CANrange scoringSideEndEffectorTOF =
+      new CANrange(Constants.CanIDs.END_EFFECTOR_SCORING_SIDE_TOF_CAN_ID, "CANivore");
 
-  private final CANrange secondTOF = new CANrange(Constants.CanIDs.SECOND_END_EFFECTOR_TOF_CAN_ID);
+  private final CANrange nonScoringSideEndEffectorTOF =
+      new CANrange(Constants.CanIDs.END_EFFECTOR_NON_SCORING_SIDE_TOF_CAN_ID, "CANivore");
 
   private final StatusSignal<Distance> scoringSideTofDistance;
   private final StatusSignal<Distance> nonScoringSideTofDistance;
@@ -94,13 +96,13 @@ public class EndEffectorIOReal implements EndEffectorIO {
     canRangeConfig.ToFParams.UpdateFrequency = 100;
     canRangeConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
 
-    endEffectorTOF.getConfigurator().apply(canRangeConfig);
-    secondTOF.getConfigurator().apply(canRangeConfig);
+    scoringSideEndEffectorTOF.getConfigurator().apply(canRangeConfig);
+    nonScoringSideEndEffectorTOF.getConfigurator().apply(canRangeConfig);
 
-    scoringSideTofDistance = endEffectorTOF.getDistance();
-    nonScoringSideTofDistance = secondTOF.getDistance();
-    scoringSideTofDetected = endEffectorTOF.getIsDetected();
-    nonScoringSideTofDetected = secondTOF.getIsDetected();
+    scoringSideTofDistance = scoringSideEndEffectorTOF.getDistance();
+    nonScoringSideTofDistance = nonScoringSideEndEffectorTOF.getDistance();
+    scoringSideTofDetected = scoringSideEndEffectorTOF.getIsDetected();
+    nonScoringSideTofDetected = nonScoringSideEndEffectorTOF.getIsDetected();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100,
@@ -108,6 +110,9 @@ public class EndEffectorIOReal implements EndEffectorIO {
         nonScoringSideTofDistance,
         scoringSideTofDetected,
         nonScoringSideTofDetected);
+
+    scoringSideEndEffectorTOF.optimizeBusUtilization();
+    nonScoringSideEndEffectorTOF.optimizeBusUtilization();
 
     refreshSet =
         new BaseStatusSignal[] {

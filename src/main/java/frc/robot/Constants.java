@@ -320,8 +320,8 @@ public final class Constants {
     public static final int ELEVATOR_CAN_ID = 37;
 
     public static final int END_EFFECTOR_CAN_ID = 30;
-    public static final int END_EFFECTOR_TOF_CAN_ID = 39;
-    public static final int SECOND_END_EFFECTOR_TOF_CAN_ID = 40;
+    public static final int END_EFFECTOR_SCORING_SIDE_TOF_CAN_ID = 39;
+    public static final int END_EFFECTOR_NON_SCORING_SIDE_TOF_CAN_ID = 40;
 
     public static final int GYRO_2_CAN_ID = 41;
 
