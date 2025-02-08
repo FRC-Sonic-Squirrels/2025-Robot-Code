@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
-import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -66,8 +65,6 @@ public class ChoreoHelper {
   private double pausedTime = Double.NaN;
   private SwerveSample stateTooBehind;
 
-  private final boolean flipForAlliance;
-
   public record ChassisSpeedsWithPathEnd(ChassisSpeeds chassisSpeeds, boolean atEndOfPath) {}
 
   /**
@@ -88,15 +85,13 @@ public class ChoreoHelper {
       double lagThreshold,
       PIDController translationalFeedbackX,
       PIDController translationalFeedbackY,
-      PIDController rotationalFeedback,
-      boolean flipForAlliance) {
+      PIDController rotationalFeedback) {
     this.traj = trajWithName.states();
     this.lagThreshold = lagThreshold;
     this.xFeedback = translationalFeedbackX;
     this.yFeedback = translationalFeedbackY;
     this.rotationalFeedback = rotationalFeedback;
     this.rotationalFeedback.enableContinuousInput(-Math.PI, Math.PI);
-    this.flipForAlliance = flipForAlliance;
 
     SwerveSample closestState = null;
     double closestDistance = Double.MAX_VALUE;
@@ -104,8 +99,7 @@ public class ChoreoHelper {
 
     if (useCorrection.get() != 0) {
       for (SwerveSample state : getStates(traj)) {
-        SwerveSample stateComputed =
-            traj.sampleAt(state.t, flipForAlliance && Constants.isRedAlliance()).orElseThrow();
+        SwerveSample stateComputed = traj.sampleAt(state.t, false).orElseThrow();
         double stateDistance = GeometryUtil.getDist(initialPose, stateComputed.getPose());
 
         if (stateDistance > lastDistance) {
@@ -128,10 +122,8 @@ public class ChoreoHelper {
     }
 
     this.initialTime = initialTime;
-    log_path.info(
-        flipForAlliance
-            ? AllianceFlipUtil.flipPoseArrayForAlliance(trajWithName.states().getPoses())
-            : trajWithName.states().getPoses());
+    var poses = trajWithName.states().getPoses();
+    log_path.info(poses);
   }
 
   public boolean isPaused() {
@@ -169,9 +161,7 @@ public class ChoreoHelper {
     } else {
       var timestampCorrected = timestamp - initialTime + timeOffset;
 
-      state =
-          traj.sampleAt(timestampCorrected, flipForAlliance && Constants.isRedAlliance())
-              .orElseThrow();
+      state = traj.sampleAt(timestampCorrected, false).orElseThrow();
       if (timestampCorrected >= traj.getTotalTime()) {
         atTheEndOfPath = true;
       }
@@ -262,9 +252,7 @@ public class ChoreoHelper {
 
   private SwerveSample isFutureStateCloser(
       Pose2d robotPose, SwerveSample state, double lookaheadTime) {
-    var stateAhead =
-        traj.sampleAt(state.t + lookaheadTime, flipForAlliance && Constants.isRedAlliance())
-            .orElseThrow();
+    var stateAhead = traj.sampleAt(state.t + lookaheadTime, false).orElseThrow();
 
     double stateDistance = distanceToState(robotPose, state);
     double stateDistanceAhead = distanceToState(robotPose, stateAhead);

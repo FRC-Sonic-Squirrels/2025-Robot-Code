@@ -150,8 +150,7 @@ public class AutoStateMachine extends StateMachine {
             config.getDriveBaseRadius() / 2,
             config.getAutoTranslationPidController(),
             config.getAutoTranslationPidController(),
-            config.getAutoThetaPidController(),
-            false);
+            config.getAutoThetaPidController());
     scoringEndPose = traj.getFinalPose(Constants.isRedAlliance());
     return stateWithName("ScorePathing", () -> scoreCoralPathing());
   }
@@ -166,15 +165,15 @@ public class AutoStateMachine extends StateMachine {
   }
 
   private StateHandler prepScoreCoral() {
-    ScoreCoral scoringCommand;
+
     if (scoringLocations == null) {
 
-      scoringCommand = new ScoreCoral(wrapper, elevator, arm, endEffector, led, rumble, config);
+      scoreCoral = new ScoreCoral(wrapper, elevator, arm, endEffector, led, rumble, config);
 
     } else {
 
       RobotStates.scoringLevel = scoringLocations.get(scoringIndex).level();
-      scoringCommand =
+      scoreCoral =
           new ScoreCoral(
               wrapper,
               elevator,
@@ -186,7 +185,7 @@ public class AutoStateMachine extends StateMachine {
               config);
     }
 
-    scoreCoral = (ScoreCoral) spawnStateMachineAsCommand(scoringCommand, (s) -> null);
+    spawnStateMachineAsCommand(scoreCoral, (s) -> null);
 
     return stateWithName("ScoreCoral", () -> scoreCoral());
   }
@@ -217,8 +216,7 @@ public class AutoStateMachine extends StateMachine {
               config.getDriveBaseRadius() / 2,
               config.getAutoTranslationPidController(),
               config.getAutoTranslationPidController(),
-              config.getAutoThetaPidController(),
-              false);
+              config.getAutoThetaPidController());
     }
     spawnCommand(
         new IntakeGamepieceCoralStation(endEffector),

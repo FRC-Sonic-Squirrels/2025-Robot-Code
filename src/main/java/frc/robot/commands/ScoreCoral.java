@@ -443,69 +443,31 @@ public class ScoreCoral extends StateMachine {
   }
 
   private static ScoringSide reefSideToScoringSide(ReefSide side) {
-    switch (side) {
-      case CA:
-      case CB:
-        return ScoringSide.NEAR_MID;
-      case CC:
-      case CD:
-        return ScoringSide.NEAR_RIGHT;
-      case CE:
-      case CF:
-        return ScoringSide.FAR_RIGHT;
-      case CG:
-      case CH:
-        return ScoringSide.FAR_MID;
-      case CI:
-      case CJ:
-        return ScoringSide.FAR_LEFT;
-      case CK:
-      case CL:
-        return ScoringSide.NEAR_LEFT;
-      default:
-        return null;
-    }
+    return switch (side) {
+      case CA, CB -> ScoringSide.NEAR_MID;
+      case CC, CD -> ScoringSide.NEAR_RIGHT;
+      case CE, CF -> ScoringSide.FAR_RIGHT;
+      case CG, CH -> ScoringSide.FAR_MID;
+      case CI, CJ -> ScoringSide.FAR_LEFT;
+      case CK, CL -> ScoringSide.NEAR_LEFT;
+    };
   }
 
   private static ReefSide scoringSideAndDirectionToReefSide(
       ScoringSide side, ScoringDirection direction) {
     switch (side) {
       case NEAR_MID:
-        if (direction == ScoringDirection.LEFT) {
-          return ReefSide.CA;
-        } else {
-          return ReefSide.CB;
-        }
+        return direction == ScoringDirection.LEFT ? ReefSide.CA : ReefSide.CB;
       case NEAR_RIGHT:
-        if (direction == ScoringDirection.LEFT) {
-          return ReefSide.CC;
-        } else {
-          return ReefSide.CD;
-        }
+        return direction == ScoringDirection.LEFT ? ReefSide.CC : ReefSide.CD;
       case FAR_RIGHT:
-        if (direction == ScoringDirection.LEFT) {
-          return ReefSide.CE;
-        } else {
-          return ReefSide.CF;
-        }
+        return direction == ScoringDirection.LEFT ? ReefSide.CE : ReefSide.CF;
       case FAR_MID:
-        if (direction == ScoringDirection.LEFT) {
-          return ReefSide.CG;
-        } else {
-          return ReefSide.CH;
-        }
+        return direction == ScoringDirection.LEFT ? ReefSide.CG : ReefSide.CH;
       case FAR_LEFT:
-        if (direction == ScoringDirection.LEFT) {
-          return ReefSide.CI;
-        } else {
-          return ReefSide.CJ;
-        }
+        return direction == ScoringDirection.LEFT ? ReefSide.CI : ReefSide.CJ;
       case NEAR_LEFT:
-        if (direction == ScoringDirection.LEFT) {
-          return ReefSide.CK;
-        } else {
-          return ReefSide.CL;
-        }
+        return direction == ScoringDirection.LEFT ? ReefSide.CK : ReefSide.CL;
       default:
         return null;
     }
@@ -524,7 +486,7 @@ public class ScoreCoral extends StateMachine {
     if (level == ScoringLevel.L3 && FieldStates.isAlgaeInScoringSide(side)) return true;
 
     if (level == ScoringLevel.L2
-        && side.ordinal() % 2 == 1
+        && !side.hasAlgaeAtStartOnL2
         && FieldStates.isAlgaeInScoringSide(side)) {
       return true;
     }
@@ -556,11 +518,17 @@ public class ScoreCoral extends StateMachine {
   }
 
   public enum ScoringSide {
-    NEAR_MID,
-    NEAR_RIGHT,
-    FAR_RIGHT,
-    FAR_MID,
-    FAR_LEFT,
-    NEAR_LEFT,
+    NEAR_LEFT(true),
+    NEAR_MID(false),
+    NEAR_RIGHT(true),
+    FAR_RIGHT(false),
+    FAR_MID(true),
+    FAR_LEFT(false);
+
+    public final boolean hasAlgaeAtStartOnL2;
+
+    ScoringSide(boolean hasAlgaeAtStartOnL2) {
+      this.hasAlgaeAtStartOnL2 = hasAlgaeAtStartOnL2;
+    }
   }
 }
