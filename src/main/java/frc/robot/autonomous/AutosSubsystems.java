@@ -4,7 +4,13 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 
 public record AutosSubsystems(
-    DrivetrainWrapper drivetrain, Elevator elevator, Arm arm, EndEffector endEffector, LED led) {}
+    DrivetrainWrapper drivetrain,
+    Elevator elevator,
+    Arm arm,
+    Intake intake,
+    EndEffector endEffector,
+    LED led) {}
