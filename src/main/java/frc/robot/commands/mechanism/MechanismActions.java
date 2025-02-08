@@ -103,10 +103,21 @@ public class MechanismActions {
           // the first 3 are the elevator, arm, and pivot
           // 0,0 is the bottom of the elevator
           // 1 unit is 1 inch
+          // positive x is from the elevator to the intake
+          // positive y is up
           // TODO: get actual values and poses for colldiers
-          Translation2d[] colliders = {null, null, null, new Translation2d(0, 0)};
-          double[] radiii = {5.0, 5.0, 8.0, 1.0};
+          Translation2d[] colliders = {
+            null,
+            null,
+            null,
+            new Translation2d(0, -1),
+            new Translation2d(-34.35, -1),
+            new Translation2d(0, 11.4),
+            new Translation2d(18.8, -6.0)
+          };
+          double[] radiii = {2.0, 3.375, 7.0, 1.0, 1.0, 0.5};
           double SAFE_MULT = 0.0;
+          Translation2d intakePos = new Translation2d(19, 6.2);
 
           @Override
           public void initialize() {}
@@ -123,10 +134,9 @@ public class MechanismActions {
                         .rotateBy(arm.getAngle()));
             // pivot
             colliders[2] =
-                new Translation2d(18, 0)
-                    .plus(
-                        new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
-                            .rotateBy(intake.getPivotAngle()));
+                intakePos.plus(
+                    new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
+                        .rotateBy(intake.getPivotAngle()));
             // 0 means it is fine
             // 1 means it is close to another collider
             // 2 means it is hitting another collider
@@ -235,8 +245,10 @@ public class MechanismActions {
               if (colliders[2].getDistance(colliders[c]) < (radiii[2] + radiii[c])) {
 
                 // same logic as above
-                if ((colliders[2].getX() - 18) * colliders[c].getY()
-                        - colliders[2].getY() * (colliders[c].getX() - 18)
+                if ((colliders[2].getX() - intakePos.getX())
+                            * (colliders[c].getY() - intakePos.getY())
+                        - (colliders[2].getY() - intakePos.getY())
+                            * (colliders[c].getX() - intakePos.getX())
                     > 0) {
                   intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
                 } else {
@@ -247,8 +259,10 @@ public class MechanismActions {
               } else if (colliders[2].getDistance(colliders[c])
                   < (radiii[2] + radiii[c]) * SAFE_MULT) {
                 // same logic as above
-                if ((colliders[2].getX() - 18) * colliders[c].getY()
-                        - colliders[2].getY() * (colliders[c].getX() - 18)
+                if ((colliders[2].getX() - intakePos.getX())
+                            * (colliders[c].getY() - intakePos.getY())
+                        - (colliders[2].getY() - intakePos.getY())
+                            * (colliders[c].getX() - intakePos.getX())
                     > 0) {
                   intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
                 } else {
