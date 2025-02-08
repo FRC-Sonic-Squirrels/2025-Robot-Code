@@ -95,7 +95,7 @@ public class MechanismActions {
           // 1 unit is 1 inch
           // TODO: get actual values and poses for colldiers
           Translation2d[] colliders = {null, null, null, new Translation2d(0, 0)};
-          double[] radiii = {1.0, 1.0, 1.0, 1.0};
+          double[] radiii = {5.0, 5.0, 5.0, 5.0};
           double SAFE_MULT = 1.2;
 
           @Override
@@ -121,14 +121,13 @@ public class MechanismActions {
               if (c == 0) { // dont check if the other is myself
                 continue;
               }
-              Translation2d diff = colliders[0].minus(colliders[c]);
-              if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+              if (colliders[0].getDistance(colliders[c])
                   < (radiii[0] + radiii[c])) { // circle col with raw radii
                 // they hit eachother
                 elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
                 runningElevator = false;
                 continue;
-              } else if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+              } else if (colliders[0].getDistance(colliders[c])
                   < (radiii[0] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
                 // oh no they are getting very close
                 elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
@@ -142,8 +141,7 @@ public class MechanismActions {
               if (c == 1) { // dont check if the other is myself
                 continue;
               }
-              Translation2d diff = colliders[1].minus(colliders[c]);
-              if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+              if (colliders[0].getDistance(colliders[c])
                   < (radiii[1] + radiii[c])) { // circle col with raw radii
                 // they hit eachother
                 elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
@@ -151,7 +149,7 @@ public class MechanismActions {
                 arm.setAngle(ArmConstants.ARM_SAFE_ANGLE);
                 runningArm = false;
                 continue;
-              } else if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+              } else if (colliders[0].getDistance(colliders[c])
                   < (radiii[1] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
                 // oh no they are getting very close
                 elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
@@ -167,14 +165,13 @@ public class MechanismActions {
               if (c == 2) { // dont check if the other is myself
                 continue;
               }
-              Translation2d diff = colliders[2].minus(colliders[c]);
-              if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+              if (colliders[0].getDistance(colliders[c])
                   < (radiii[2] + radiii[c])) { // circle col with raw radii
                 // they hit eachother
                 intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
                 runningPivot = false;
                 continue;
-              } else if (Math.pow(diff.getX(), 2) + Math.pow(diff.getY(), 2)
+              } else if (colliders[0].getDistance(colliders[c])
                   < (radiii[2] + radiii[c]) * SAFE_MULT) { // circle col with safety barrier
                 // oh no they are getting very close
                 intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
