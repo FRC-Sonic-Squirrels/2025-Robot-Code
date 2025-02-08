@@ -173,8 +173,7 @@ public class AutosManager {
                     config.getDriveBaseRadius() / 2,
                     config.getAutoTranslationPidController(),
                     config.getAutoTranslationPidController(),
-                    config.getAutoThetaPidController(),
-                    true);
+                    config.getAutoThetaPidController());
           }
 
           @Override

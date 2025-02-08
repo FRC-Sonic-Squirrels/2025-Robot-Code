@@ -103,8 +103,7 @@ public class DriveToPosePathing extends Command {
             config.getDriveBaseRadius() / 2,
             config.getAutoTranslationPidController(),
             config.getAutoTranslationPidController(),
-            config.getAutoThetaPidController(),
-            false);
+            config.getAutoThetaPidController());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
