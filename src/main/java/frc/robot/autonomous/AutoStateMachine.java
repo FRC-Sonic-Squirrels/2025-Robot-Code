@@ -34,6 +34,7 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public class AutoStateMachine extends StateMachine {
   private final DrivetrainWrapper wrapper;
   private final Elevator elevator;
   private final Arm arm;
+  private final Intake intake;
   private final EndEffector endEffector;
   private final LED led;
 
@@ -92,6 +94,7 @@ public class AutoStateMachine extends StateMachine {
     wrapper = subsystems.drivetrain();
     elevator = subsystems.elevator();
     arm = subsystems.arm();
+    intake = subsystems.intake();
     endEffector = subsystems.endEffector();
     led = subsystems.led();
 

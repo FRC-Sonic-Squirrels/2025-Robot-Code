@@ -41,47 +41,51 @@ public class MechanismActions {
   public static final LoggedTunableNumber tunableArmVoltage =
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
-  public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
-    return goToPositionParallel(elevator, arm, () -> MechanismPositions.reefPosition(scoringLevel));
+  public static Command reefPosition(
+      Elevator elevator, Arm arm, Intake intake, ScoringLevel scoringLevel) {
+    return goToPositionParallel(
+        elevator, arm, intake, () -> MechanismPositions.reefPosition(scoringLevel));
   }
 
-  public static Command coralStationPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition);
+  public static Command coralStationPosition(Elevator elevator, Arm arm, Intake intake) {
+    return goToPositionParallel(elevator, arm, intake, MechanismPositions::coralStationPosition);
   }
 
-  public static Command stowPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::stowPosition);
+  public static Command stowPosition(Elevator elevator, Arm arm, Intake intake) {
+    return goToPositionParallel(elevator, arm, intake, MechanismPositions::stowPosition);
   }
 
-  public static Command clearAlgaeLow1Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow1Position);
+  public static Command clearAlgaeLow1Position(Elevator elevator, Arm arm, Intake intake) {
+    return goToPositionParallel(elevator, arm, intake, MechanismPositions::clearAlgaeLow1Position);
   }
 
-  public static Command clearAlgaeLow2Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow2Position);
+  public static Command clearAlgaeLow2Position(Elevator elevator, Arm arm, Intake intake) {
+    return goToPositionParallel(elevator, arm, intake, MechanismPositions::clearAlgaeLow2Position);
   }
 
-  public static Command clearAlgaeHigh1Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh1Position);
+  public static Command clearAlgaeHigh1Position(Elevator elevator, Arm arm, Intake intake) {
+    return goToPositionParallel(elevator, arm, intake, MechanismPositions::clearAlgaeHigh1Position);
   }
 
-  public static Command clearAlgaeHigh2Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh2Position);
+  public static Command clearAlgaeHigh2Position(Elevator elevator, Arm arm, Intake intake) {
+    return goToPositionParallel(elevator, arm, intake, MechanismPositions::clearAlgaeHigh2Position);
   }
 
   // TODO: Change Logic for 2025 Robot Geometry
   private static Command goToPositionParallel(
-      Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
-    return goToPositionParallel(elevator, arm, position, false);
+      Elevator elevator, Arm arm, Intake intake, Supplier<MechanismPosition> position) {
+    return goToPositionParallel(elevator, arm, intake, position, false);
   }
 
   private static Command goToPositionParallel(
-      Elevator elevator, Arm arm, Supplier<MechanismPosition> position, boolean ignoreSafety) {
+      Elevator elevator,
+      Arm arm,
+      Intake intake,
+      Supplier<MechanismPosition> position,
+      boolean ignoreSafety) {
 
     var cmd =
         new Command() {
-          // make real
-          Intake intake = null;
 
           boolean elevatorInPosition = false;
           boolean armInPosition = false;
@@ -185,7 +189,7 @@ public class MechanismActions {
               arm.setAngle(targetPosition.armAngle());
             }
             if (runningPivot) {
-              intake.setPivotAngle(targetPosition.armAngle());
+              intake.setPivotAngle(targetPosition.intakeAngle());
             }
             log_runningArm.info(runningArm);
             log_runningElevator.info(runningElevator);

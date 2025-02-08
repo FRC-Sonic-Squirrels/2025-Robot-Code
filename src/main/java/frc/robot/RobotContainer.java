@@ -449,7 +449,24 @@ public class RobotContainer {
       coralStationPosChooser.add(chooser);
     }
 
-    var subsystems = new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led);
+    for (int i = 0; i < customGamepieceCount; i++) {
+      LoggedDashboardChooser<ReefSide> chooser = new LoggedDashboardChooser<>(i + " CustomScoring");
+      for (ReefSide side : ScoringLocation.ReefSide.values()) chooser.addOption(side.name(), side);
+      chooser.addDefaultOption(ReefSide.CH.name(), ReefSide.CH);
+      scoringPosChooser.add(chooser);
+    }
+
+    for (int i = 1; i < customGamepieceCount; i++) {
+      LoggedDashboardChooser<CoralStationLocation> chooser =
+          new LoggedDashboardChooser<>(i + " CustomPickup");
+      for (CoralStationLocation side : CoralStationLocation.values())
+        chooser.addOption(side.name(), side);
+      chooser.addDefaultOption(CoralStationLocation.IA.name(), CoralStationLocation.IA);
+      coralStationPosChooser.add(chooser);
+    }
+
+    var subsystems =
+        new AutosSubsystems(drivetrainWrapper, elevator, arm, intake, endEffector, led);
 
     autoManager =
         new AutosManager(
@@ -550,7 +567,8 @@ public class RobotContainer {
                             drivetrainWrapper,
                             elevator,
                             arm,
-                            endEffector,
+                            intake,
+                        endEffector,
                             led,
                             ScoringDirection.LEFT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
@@ -566,7 +584,8 @@ public class RobotContainer {
                             drivetrainWrapper,
                             elevator,
                             arm,
-                            endEffector,
+                            intake,
+                        endEffector,
                             led,
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),

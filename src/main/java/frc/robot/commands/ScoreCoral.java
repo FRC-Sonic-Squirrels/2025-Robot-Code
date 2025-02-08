@@ -34,6 +34,7 @@ import frc.robot.subsystems.LED.RobotState;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -43,6 +44,7 @@ public class ScoreCoral extends StateMachine {
   private final DrivetrainWrapper wrapper;
   private final Elevator elevator;
   private final Arm arm;
+  private final Intake intake;
   private final EndEffector endEffector;
   private final LED led;
   private final RobotConfig config;
@@ -120,18 +122,19 @@ public class ScoreCoral extends StateMachine {
       DrivetrainWrapper wrapper,
       Elevator elevator,
       Arm arm,
+      Intake intake,
       EndEffector endEffector,
       LED led,
-      ReefSide side,
       Consumer<Double> rumble,
       RobotConfig config) {
     this(
         wrapper,
         elevator,
         arm,
+        intake,
         endEffector,
         led,
-        Optional.of(reefSideToScoringDirection(side)),
+        reefSideToScoringDirection(side),
         Optional.of(reefSideToScoringSide(side)),
         rumble,
         config);
@@ -142,6 +145,7 @@ public class ScoreCoral extends StateMachine {
       DrivetrainWrapper wrapper,
       Elevator elevator,
       Arm arm,
+      Intake intake,
       EndEffector endEffector,
       LED led,
       ScoringDirection scoringDirection,
@@ -163,6 +167,7 @@ public class ScoreCoral extends StateMachine {
       DrivetrainWrapper wrapper,
       Elevator elevator,
       Arm arm,
+      Intake intake,
       EndEffector endEffector,
       LED led,
       Optional<ScoringDirection> scoringDirection,
@@ -174,6 +179,7 @@ public class ScoreCoral extends StateMachine {
     this.wrapper = wrapper;
     this.elevator = elevator;
     this.arm = arm;
+    this.intake = intake;
     this.endEffector = endEffector;
     this.led = led;
     this.config = config;
@@ -271,12 +277,12 @@ public class ScoreCoral extends StateMachine {
 
     clearAlgae1Position =
         high
-            ? MechanismActions.clearAlgaeHigh1Position(elevator, arm)
-            : MechanismActions.clearAlgaeLow1Position(elevator, arm);
+            ? MechanismActions.clearAlgaeHigh1Position(elevator, arm, intake)
+            : MechanismActions.clearAlgaeLow1Position(elevator, arm, intake);
     clearAlgae2Position =
         high
-            ? MechanismActions.clearAlgaeHigh2Position(elevator, arm)
-            : MechanismActions.clearAlgaeLow2Position(elevator, arm);
+            ? MechanismActions.clearAlgaeHigh2Position(elevator, arm, intake)
+            : MechanismActions.clearAlgaeLow2Position(elevator, arm, intake);
 
     prepMechanismForAlgae =
         spawnCommand(
