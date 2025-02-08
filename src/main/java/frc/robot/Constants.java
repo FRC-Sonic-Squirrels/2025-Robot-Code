@@ -249,6 +249,7 @@ public final class Constants {
 
       public static final Rotation2d INITIAL_PIVOT_ANGLE = Rotation2d.fromDegrees(-30);
       public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(-30);
+      public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
 
       public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
 
