@@ -280,7 +280,6 @@ public final class Constants {
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
             ? Units.Inches.of(26.2)
             : Units.Inches.of(55);
-    public static final Distance TRUE_TOP_HARD_STOP = Units.Inches.of(26.5);
 
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
@@ -354,8 +353,6 @@ public final class Constants {
     public static final Rotation2d HOME_POSITION = MIN_ARM_ANGLE;
 
     public static final Rotation2d ARM_SAFE_ANGLE = Rotation2d.fromDegrees(-87);
-
-    public static final Rotation2d TRAP_SCORE_ANGLE = Rotation2d.fromDegrees(15.0);
 
     public static final Distance ARM_LENGTH =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
