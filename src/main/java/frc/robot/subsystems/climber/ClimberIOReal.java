@@ -137,18 +137,12 @@ public class ClimberIOReal implements ClimberIO {
   @Override
   public void updateWinchInputs(Inputs inputs) {
     inputs.refreshAll(winchRefreshSet);
-    inputs.refreshAll(grabberRefreshSet);
 
     inputs.winchPosition = winchPosition.getValue().in(Units.Degrees);
     inputs.winchAppliedVolts = winchAppliedVoltage.getValue().in(Units.Volts);
     inputs.winchCurrentAmps = winchCurrent.getValue().in(Units.Amps);
     inputs.winchTempCelsius = winchTemp.getValue().in(Units.Celsius);
     inputs.winchVelocityDegreesPerSecond = winchVelocity.getValue().in(Units.DegreesPerSecond);
-
-    inputs.grabberCurrentAmps = grabberCurrent.getValue().in(Units.Amps);
-    inputs.grabberTempCelsius = grabberTemp.getValue().in(Units.Celsius);
-    inputs.grabberAppliedVolts = grabberAppliedVoltage.getValue().in(Units.Volts);
-    inputs.grabberVelocityRPM = grabberVelocity.getValue().in(Units.RPM);
   }
 
   // Winch
@@ -200,6 +194,14 @@ public class ClimberIOReal implements ClimberIO {
   }
 
   // Grabber
+  public void updateGrabberInputs(Inputs inputs) {
+    inputs.refreshAll(grabberRefreshSet);
+
+    inputs.grabberCurrentAmps = grabberCurrent.getValue().in(Units.Amps);
+    inputs.grabberTempCelsius = grabberTemp.getValue().in(Units.Celsius);
+    inputs.grabberAppliedVolts = grabberAppliedVoltage.getValue().in(Units.Volts);
+    inputs.grabberVelocityRPM = grabberVelocity.getValue().in(Units.RPM);
+  }
 
   @Override
   public void setGrabberVoltage(double volts) {

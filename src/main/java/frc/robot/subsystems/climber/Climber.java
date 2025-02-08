@@ -270,7 +270,7 @@ public class Climber extends SubsystemBase {
   }
 
   // Grabber getters
-  public Current getCurrentDraw() {
+  public Current getGrabberCurrentDraw() {
     return Units.Amps.of(grabberInputs.grabberCurrentAmps);
   }
 
