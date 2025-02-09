@@ -29,7 +29,7 @@ import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
-import frc.robot.commands.intake.IntakeGamepieceCoralStation;
+import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.arm.Arm;
@@ -219,7 +219,8 @@ public class AutoStateMachine extends StateMachine {
               config.getAutoThetaPidController());
     }
     spawnCommand(
-        new IntakeGamepieceCoralStation(endEffector),
+        new IntakeGamepieceCoralStation(
+            endEffector, () -> wrapper.getCoralStationPoseEstimatorPose(true)),
         (c) -> {
           intakingIndex++;
           return stateWithName("PrepScoreCoralPathing", () -> prepScoreCoralPathing());
