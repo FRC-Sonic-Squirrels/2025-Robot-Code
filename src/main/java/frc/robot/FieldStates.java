@@ -127,7 +127,7 @@ public class FieldStates {
             new Pose3d(
                 referencePose.getX(),
                 referencePose.getY(),
-                i % 2 == 0 ? upperAlgaeHeight : referencePose.getZ(),
+                i % 2 == 1 ? upperAlgaeHeight : referencePose.getZ(),
                 referencePose.getRotation());
         algaePoseArray.add(
             AllianceFlipUtil.flipPoseForAlliance(
