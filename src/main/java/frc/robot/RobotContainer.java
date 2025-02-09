@@ -490,7 +490,7 @@ public class RobotContainer {
                 drivetrain));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.start, "Teleop Autonomous")
+        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
         .whileTrue(
             new RunStateMachineCommand(
                 () ->
@@ -506,6 +506,8 @@ public class RobotContainer {
                 .andThen(
                     new IntakeGamepieceCoralStation(
                         endEffector,
+                        elevator,
+                        arm,
                         () -> drivetrainWrapper.getCoralStationPoseEstimatorPose(true))))
         .whileTrue(
             Commands.run(
@@ -619,7 +621,7 @@ public class RobotContainer {
                 }));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Rotate to Angle")
+        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
         .toggleOnTrue(
             new RotateToAngle(
                 drivetrainWrapper,
@@ -635,17 +637,17 @@ public class RobotContainer {
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
-        .toggleOnTrue(
-            new RotateToAngle(
-                drivetrainWrapper,
-                () -> {
-                  Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
+    //     .toggleOnTrue(
+    //         new RotateToAngle(
+    //             drivetrainWrapper,
+    //             () -> {
+    //               Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
-                  return faceTowardsCenter(robotTranslation, reefAprilTagPose);
-                },
-                () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+    //               return faceTowardsCenter(robotTranslation, reefAprilTagPose);
+    //             },
+    //             () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
     // Manual Algae Clearing
     // driverController
@@ -789,6 +791,8 @@ public class RobotContainer {
                 elevator,
                 arm),
             () -> brakeModeTriggered)); // TODO: add climber?
+
+    // ---------- ELASTIC CONTROLS ------------
 
     // Add Reset and Reboot buttons to SmartDashboard
     // TODO: add correct vision addresses

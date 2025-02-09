@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import frc.robot.Constants;
 
 public class GeometryUtil {
   public static Rotation2d getHeading(Translation2d pose, Translation2d targetPose) {
@@ -67,5 +68,12 @@ public class GeometryUtil {
         rotatedZeroedPose.getY() + initialPose.getY() - offset.getY(),
         rotatedZeroedPose.getZ(),
         rotatedZeroedPose.getRotation());
+  }
+
+  public static Pose2d flipPoseOnAlliance(Pose2d pose) {
+    return new Pose2d(
+        pose.getX(),
+        Constants.FieldConstants.FIELD_WIDTH.in(Units.Meter) - pose.getY(),
+        pose.getRotation().unaryMinus());
   }
 }

@@ -381,7 +381,6 @@ public class DriveToPosePathing extends Command {
   }
 
   private boolean isRobotNextToReef(Pose2d pose) {
-
     if (debugIsRobotNextToReef) {
       System.out.println("START IS ROBOT NEXT TO REEF DEBUG ----------------");
     }
