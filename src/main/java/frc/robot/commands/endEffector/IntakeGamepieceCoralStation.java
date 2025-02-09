@@ -5,13 +5,19 @@
 package frc.robot.commands.endEffector;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AllianceFlipUtil;
+import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
+import frc.robot.commands.mechanism.MechanismPositions;
+import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
 import java.util.function.Supplier;
 
@@ -19,14 +25,19 @@ public class IntakeGamepieceCoralStation extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
   private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", -500);
   private final EndEffector endEffector;
+  private final Elevator elevator;
+  private final Arm arm;
   private final Supplier<Pose2d> robotPose;
   private final Trigger gamepieceInRobot =
       new Trigger(() -> RobotStates.coralInEndEffectorNonScoringSide || RobotStates.coralInIntake)
           .debounce(0.5);
 
   /** Creates a new IntakeDefaultIdleRPM. */
-  public IntakeGamepieceCoralStation(EndEffector endEffector, Supplier<Pose2d> robotPose) {
+  public IntakeGamepieceCoralStation(
+      EndEffector endEffector, Elevator elevator, Arm arm, Supplier<Pose2d> robotPose) {
     this.endEffector = endEffector;
+    this.elevator = elevator;
+    this.arm = arm;
     this.robotPose = robotPose;
     addRequirements(endEffector);
     setName("IntakeGamepieceCoralStation");
@@ -47,10 +58,19 @@ public class IntakeGamepieceCoralStation extends Command {
       endEffector.setGamepieceInRobot(false);
 
       // Sim put gamepiece in end effector
-      // -1.079x - 1.893y + 2.042
       if (RobotMode.isSimBot()) {
         Pose2d blueAllianceReferencePose = AllianceFlipUtil.flipPoseForAlliance(robotPose.get());
-        if (Math.min(0, 0) < 1.0) {}
+        MechanismPosition targetPos = MechanismPositions.coralStationPosition();
+        if (Math.min(
+                    distToHumanPlayerStation(blueAllianceReferencePose.getTranslation()),
+                    distToHumanPlayerStation(
+                        GeometryUtil.flipPoseOnAlliance(blueAllianceReferencePose)
+                            .getTranslation()))
+                < 1.0
+            && elevator.isAtTarget(targetPos.elevatorHeight())
+            && arm.isAtTargetAngle(targetPos.armAngle())) {
+          RobotStates.coralInEndEffectorNonScoringSide = true;
+        }
       }
     }
   }
@@ -67,20 +87,21 @@ public class IntakeGamepieceCoralStation extends Command {
     return gamepieceInRobot.getAsBoolean();
   }
 
-  private double distToHumanPlayerStation(Pose2d pose) {
-    return distBetweenPointAndLine(pose, 0, 0, 0);
+  private double distToHumanPlayerStation(Translation2d translation) {
+    // -1.079x - 1.893y + 2.042
+    return distBetweenPointAndLine(translation, -1.079, -1.893, 2.042);
   }
 
   /**
    * https://study.com/skill/learn/finding-the-distance-between-a-point-line-given-the-point-the-equation-of-the-line-explanation.html#:~:text=Step%201%3A%20Identify%20the%20point,%2C%20%2C%20and%20are%20real%20numbers.
    *
-   * @param pose
+   * @param translation
    * @param a
    * @param b
    * @param c
    * @return distance
    */
-  private double distBetweenPointAndLine(Pose2d pose, double a, double b, double c) {
-    return 0;
+  private double distBetweenPointAndLine(Translation2d translation, double a, double b, double c) {
+    return Math.abs(a * translation.getX() + b * translation.getY() + c) / Math.hypot(a, b);
   }
 }
