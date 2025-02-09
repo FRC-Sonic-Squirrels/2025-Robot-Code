@@ -51,7 +51,7 @@ import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
-import frc.robot.commands.intake.IntakeGamepieceCoralStation;
+import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.mechanism.MechanismActions;
@@ -503,7 +503,10 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             MechanismActions.coralStationPosition(elevator, arm)
-                .andThen(new IntakeGamepieceCoralStation(endEffector)))
+                .andThen(
+                    new IntakeGamepieceCoralStation(
+                        endEffector,
+                        () -> drivetrainWrapper.getCoralStationPoseEstimatorPose(true))))
         .whileTrue(
             Commands.run(
                     () -> {
