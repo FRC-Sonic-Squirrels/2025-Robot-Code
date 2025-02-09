@@ -18,7 +18,6 @@ import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.GeomUtil;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
-import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
 import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
@@ -220,7 +219,7 @@ public class AutoStateMachine extends StateMachine {
     }
     spawnCommand(
         new IntakeGamepieceCoralStation(
-            endEffector, () -> wrapper.getCoralStationPoseEstimatorPose(true)),
+            endEffector, elevator, arm, () -> wrapper.getCoralStationPoseEstimatorPose(true)),
         (c) -> {
           intakingIndex++;
           return stateWithName("PrepScoreCoralPathing", () -> prepScoreCoralPathing());
@@ -237,17 +236,8 @@ public class AutoStateMachine extends StateMachine {
                 config,
                 () -> wrapper.getCoralStationPoseEstimatorPose(true),
                 intakingPoseSupplier),
-            (c) -> stateWithName("NotifySimPathEnded", () -> notifySimPathEnded()))
+            (c) -> null)
         : stateWithName("IntakeCoral", () -> intakeCoral());
-  }
-
-  private StateHandler notifySimPathEnded() {
-
-    if (RobotMode.isSimBot()) {
-      RobotStates.coralInEndEffectorNonScoringSide = true;
-    }
-
-    return null;
   }
 
   private StateHandler intakeCoral() {
