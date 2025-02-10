@@ -45,10 +45,15 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
+import frc.robot.commands.climber.ClimberSetAngle;
+import frc.robot.commands.climber.ClimberSetGrabberRPM;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
+import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGamepieceCoralStation;
+import frc.robot.commands.intake.IntakeSetPivotAngle;
+import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
@@ -58,6 +63,10 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOReal;
 import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOReal;
+import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
@@ -65,6 +74,7 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.endEffector.EndEffectorIO;
 import frc.robot.subsystems.endEffector.EndEffectorIOReal;
+import frc.robot.subsystems.endEffector.EndEffectorIOSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
@@ -109,6 +119,7 @@ public class RobotContainer {
   private final EndEffector endEffector;
   private final VisionGamepiece visionGamepiece;
   private final LED led;
+  private final Climber climber;
 
   private final XboxControllerWrapper driverController = new XboxControllerWrapper(0);
   private final XboxControllerWrapper operatorController = new XboxControllerWrapper(1);
@@ -197,6 +208,7 @@ public class RobotContainer {
       elevator = new Elevator(new ElevatorIO() {});
       intake = new Intake(new IntakeIO() {});
       endEffector = new EndEffector(new EndEffectorIO() {});
+      climber = new Climber(new ClimberIO() {});
       visionGamepiece =
           new VisionGamepiece(
               new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
@@ -264,7 +276,8 @@ public class RobotContainer {
           arm = new Arm(new ArmIOSim());
           elevator = new Elevator(new ElevatorIOSim());
           intake = new Intake(new IntakeIOSim());
-          endEffector = new EndEffector(new EndEffectorIO() {});
+          endEffector = new EndEffector(new EndEffectorIOSim());
+          climber = new Climber(new ClimberIOSim());
           led =
               new LED(
                   () -> brakeModeTriggered,
@@ -292,6 +305,7 @@ public class RobotContainer {
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
+          climber = new Climber(new ClimberIO() {});
           visionGamepiece =
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
@@ -315,6 +329,7 @@ public class RobotContainer {
           endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
+          climber = new Climber(new ClimberIO() {});
           vision =
               new Vision(
                   aprilTagLayout,
@@ -346,6 +361,7 @@ public class RobotContainer {
           endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
+          climber = new Climber(new ClimberIOReal());
           vision =
               new Vision(
                   aprilTagLayout,
@@ -384,6 +400,7 @@ public class RobotContainer {
           elevator = new Elevator(new ElevatorIO() {});
           intake = new Intake(new IntakeIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
+          climber = new Climber(new ClimberIO() {});
           visionGamepiece =
               new VisionGamepiece(
                   new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
@@ -649,14 +666,72 @@ public class RobotContainer {
 
     // ---------- OPERATOR CONTROLS -----------
 
-    operatorController.registerTrigger(XboxControllerWrapper.Button.a, "Elevator 5 inches");
-    operatorController.registerTrigger(XboxControllerWrapper.Button.b, "Elevator 18 inches");
+    // Manual mech positions
 
-    operatorController.registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject");
+    // Reef positions
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.povDown, "L1 Position")
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L1));
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.povRight, "L2 Position")
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L2));
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.povLeft, "L3 Position")
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L3));
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.povUp, "L4 Position")
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
+
+    // Coral Station position
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.y, "CoralStation Position")
+        .onTrue(MechanismActions.coralStationPosition(elevator, arm));
+
+    // Stow position
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.x, "Stow Position")
+        .onTrue(MechanismActions.stowPosition(elevator, arm));
+
+    // Eject
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject")
+        .whileTrue(new IntakeSetRPM(intake, -1000));
+
+    // Intake
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
+        .whileTrue(new IntakeSetRPM(intake, 1000));
+
+    // Intake positions
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Intake Pivot Out")
+        .onTrue(
+            new IntakeSetPivotAngle(
+                intake, Constants.IntakeConstants.PivotConstants.MAX_PIVOT_ANGLE));
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Intake Pivot In")
+        .onTrue(
+            new IntakeSetPivotAngle(
+                intake, Constants.IntakeConstants.PivotConstants.HOME_POSITION));
+
+    // End Effector Rotation
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.a, "End Effector")
+        .whileTrue(new EndEffectorSetRPM(endEffector, 1000));
+
+    // Climber in
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.b, "Climber In")
+        .onTrue(new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE));
+
+    // Climber grabber
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.b, "Climber Grabber")
+        .onTrue(new ClimberSetGrabberRPM(climber, 1000));
 
     if (!DriverStation.isFMSAttached()) {
       operatorController
-          .registerTrigger(XboxControllerWrapper.Button.povDown, "Wheel Radius Characterization")
+          .registerTrigger(XboxControllerWrapper.Button.start, "Wheel Radius Characterization")
           .whileTrue(
               new WheelRadiusCharacterization(
                   drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
