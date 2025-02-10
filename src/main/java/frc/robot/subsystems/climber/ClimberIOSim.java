@@ -105,3 +105,4 @@ public class ClimberIOSim implements ClimberIO {
 
     grabberMotor.setConfig(config);
   }
+}

@@ -10,17 +10,17 @@ import frc.robot.subsystems.intake.Intake;
 import java.util.function.Supplier;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PivotIntakeToAngle extends Command {
+public class IntakeSetPivotAngle extends Command {
   /** Creates a new PivotIntake. */
   private Intake intake;
 
   private Supplier<Rotation2d> angleSupplier;
 
-  public PivotIntakeToAngle(Intake intake, Rotation2d angle) {
+  public IntakeSetPivotAngle(Intake intake, Rotation2d angle) {
     this(intake, () -> angle);
   }
 
-  public PivotIntakeToAngle(Intake intake, Supplier<Rotation2d> angleSupplier) {
+  public IntakeSetPivotAngle(Intake intake, Supplier<Rotation2d> angleSupplier) {
     this.intake = intake;
     this.angleSupplier = angleSupplier;
 

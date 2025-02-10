@@ -1,6 +1,7 @@
 package frc.lib.team2930;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -96,6 +97,11 @@ public class TalonFXSim {
   }
 
   public void setControl(PositionDutyCycle request) {
+    targetOutput = request.Position;
+    control = ControlMode.POSITION;
+  }
+
+  public void setControl(MotionMagicVoltage request) {
     targetOutput = request.Position;
     control = ControlMode.POSITION;
   }
