@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -18,6 +19,7 @@ import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class MechanismActions {
@@ -40,8 +42,8 @@ public class MechanismActions {
       logGroup.buildStruct(Pose2d.class, "EstimatedArmPosision");
   private static final LoggerEntry.Struct<Pose2d> log_EstimatedPivotPosision =
       logGroup.buildStruct(Pose2d.class, "EstimatedPivotPosision");
-  private static final LoggerEntry.IntegerArray log_Collisions =
-      logGroup.buildIntegerArray("Collisions");
+  private static final LoggerEntry.StructArray<Collision> log_Collisions =
+      logGroup.buildStructArray(Collision.class, "Collisions");
 
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
 
@@ -96,8 +98,12 @@ public class MechanismActions {
 
     collisionSquare(Pose2d location, double xScale, double yScale) {
       this.location = location;
-      this.xScale = xScale;
-      this.yScale = yScale;
+      this.xScale = xScale / 2;
+      this.yScale = yScale / 2;
+    }
+
+    boolean isInside(Pose2d point) {
+      return Math.abs(point.getX()) < this.xScale && Math.abs(point.getY()) < this.yScale;
     }
 
     boolean checkCollision(collisionSquare other) {
@@ -106,23 +112,23 @@ public class MechanismActions {
       // check all four corners of the other against this
       Pose2d cornerpp =
           new Pose2d(new Translation2d(other.xScale, other.yScale), Rotation2d.kZero).plus(newPos);
-      if (Math.abs(cornerpp.getX()) < this.xScale && Math.abs(cornerpp.getY()) < this.yScale / 2) {
+      if (isInside(cornerpp)) {
         return true;
       }
       Pose2d cornerpn =
           new Pose2d(new Translation2d(other.xScale, -other.yScale), Rotation2d.kZero).plus(newPos);
-      if (Math.abs(cornerpn.getX()) < this.xScale && Math.abs(cornerpn.getY()) < this.yScale / 2) {
+      if (isInside(cornerpn)) {
         return true;
       }
       Pose2d cornernp =
           new Pose2d(new Translation2d(-other.xScale, other.yScale), Rotation2d.kZero).plus(newPos);
-      if (Math.abs(cornernp.getX()) < this.xScale && Math.abs(cornernp.getY()) < this.yScale / 2) {
+      if (isInside(cornernp)) {
         return true;
       }
       Pose2d cornernn =
           new Pose2d(new Translation2d(-other.xScale, -other.yScale), Rotation2d.kZero)
               .plus(newPos);
-      if (Math.abs(cornernn.getX()) < this.xScale && Math.abs(cornernn.getY()) < this.yScale / 2) {
+      if (isInside(cornernn)) {
         return true;
       }
       // return false if none intersect
@@ -130,6 +136,8 @@ public class MechanismActions {
       return false;
     }
   }
+
+  record Collision(int collider, int colliding) implements StructSerializable {}
 
   private static Command goToPositionParallel(
       Elevator elevator,
@@ -156,7 +164,7 @@ public class MechanismActions {
             new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 13.0, 5.0),
             new collisionSquare(new Pose2d(new Translation2d(8, -1), Rotation2d.kZero), 18, 1)
           };
-          double SAFE_MULT = 0.0;
+          double SAFETY_BARRIER = 1.0;
           Pose2d intakePos = new Pose2d(new Translation2d(19, 6.2), Rotation2d.kZero);
           collisionSquare[] safeColliders = new collisionSquare[colliders.length];
 
@@ -166,8 +174,8 @@ public class MechanismActions {
               safeColliders[i] =
                   new collisionSquare(
                       colliders[i].location,
-                      colliders[i].xScale * SAFE_MULT,
-                      colliders[i].yScale * SAFE_MULT);
+                      colliders[i].xScale + SAFETY_BARRIER,
+                      colliders[i].yScale + SAFETY_BARRIER);
             }
           }
 
@@ -198,8 +206,7 @@ public class MechanismActions {
             // 2 means it is hitting another collider
             int elevatorMovePriority = 0;
 
-            long[] collisions = new long[10];
-            int nextColIndex = 0;
+            ArrayList<Collision> collisions = new ArrayList<>(1);
             // check elevator
             boolean runningElevator = true;
             for (int c = 0; c < colliders.length; c++) { // check against all other colliders
@@ -220,9 +227,7 @@ public class MechanismActions {
                 elevatorMovePriority = 2;
                 runningElevator = false;
 
-                collisions[nextColIndex] = 0;
-                collisions[nextColIndex + 1] = c;
-                nextColIndex += 2;
+                collisions.add(new Collision(0, c));
                 break;
                 // square col with slightly larger squares
               } else if (safeColliders[0].checkCollision(safeColliders[c])) {
@@ -236,9 +241,7 @@ public class MechanismActions {
                 elevatorMovePriority = 1;
                 runningElevator = false;
 
-                collisions[nextColIndex] = 0;
-                collisions[nextColIndex + 1] = c;
-                nextColIndex += 2;
+                collisions.add(new Collision(0, c));
                 break;
               }
             }
@@ -274,9 +277,7 @@ public class MechanismActions {
                 }
                 runningArm = false;
 
-                collisions[nextColIndex] = 0;
-                collisions[nextColIndex + 1] = c;
-                nextColIndex += 2;
+                collisions.add(new Collision(1, c));
                 break;
               } else if (safeColliders[1].checkCollision(safeColliders[c])) {
                 // if we are close dont check the safe colliders
@@ -305,9 +306,7 @@ public class MechanismActions {
                 }
                 runningArm = false;
 
-                collisions[nextColIndex] = 0;
-                collisions[nextColIndex + 1] = c;
-                nextColIndex += 2;
+                collisions.add(new Collision(1, c));
                 break;
               }
             }
@@ -331,9 +330,7 @@ public class MechanismActions {
                 }
                 runningPivot = false;
 
-                collisions[nextColIndex] = 0;
-                collisions[nextColIndex + 1] = c;
-                nextColIndex += 2;
+                collisions.add(new Collision(2, c));
                 break;
               } else if (safeColliders[2].checkCollision(safeColliders[c])) {
                 // same logic as above
@@ -348,9 +345,7 @@ public class MechanismActions {
                 }
                 runningPivot = false;
 
-                collisions[nextColIndex] = 0;
-                collisions[nextColIndex + 1] = c;
-                nextColIndex += 2;
+                collisions.add(new Collision(2, c));
                 break;
               }
             }
@@ -380,7 +375,9 @@ public class MechanismActions {
             log_EstimatedArmPosision.info(colliders[1].location);
             log_EstimatedPivotPosision.info(colliders[2].location);
 
-            log_Collisions.info(collisions);
+            collisions.add(new Collision(0, 1));
+
+            log_Collisions.info(collisions.toArray(new Collision[0]));
           }
 
           @Override
