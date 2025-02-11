@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerEntry;
@@ -19,6 +20,7 @@ import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
@@ -137,7 +139,51 @@ public class MechanismActions {
     }
   }
 
-  record Collision(int collider, int colliding) implements StructSerializable {}
+  public static record Collision(int collider, int colliding) implements StructSerializable {
+
+    /** Pose3d struct for serialization. */
+    public static final CollisionStruct struct = new CollisionStruct();
+  }
+
+  public static class CollisionStruct implements Struct<Collision> {
+    @Override
+    public Class<Collision> getTypeClass() {
+      return Collision.class;
+    }
+
+    @Override
+    public String getTypeName() {
+      return "Collision";
+    }
+
+    @Override
+    public int getSize() {
+      return 8;
+    }
+
+    @Override
+    public String getSchema() {
+      return "double collider;double colliding";
+    }
+
+    @Override
+    public Collision unpack(ByteBuffer bb) {
+      var collider = (int) bb.getDouble();
+      var colliding = (int) bb.getDouble();
+      return new Collision(collider, colliding);
+    }
+
+    @Override
+    public void pack(ByteBuffer bb, Collision value) {
+      bb.putDouble(value.collider);
+      bb.putDouble(value.colliding);
+    }
+
+    @Override
+    public boolean isImmutable() {
+      return true;
+    }
+  }
 
   private static Command goToPositionParallel(
       Elevator elevator,
@@ -374,8 +420,6 @@ public class MechanismActions {
             log_EstimatedElevatorPosision.info(colliders[0].location);
             log_EstimatedArmPosision.info(colliders[1].location);
             log_EstimatedPivotPosision.info(colliders[2].location);
-
-            collisions.add(new Collision(0, 1));
 
             log_Collisions.info(collisions.toArray(new Collision[0]));
           }
