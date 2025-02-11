@@ -23,7 +23,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -96,8 +96,8 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
   private MotionMagicVelocityVoltage driveMotionMagicVelocityRequest =
       new MotionMagicVelocityVoltage(0.0).withAcceleration(0.0).withEnableFOC(true);
 
-  private MotionMagicVoltage turnMotionMagicVoltageRequest =
-      new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private PositionVoltage turnMotionMagicVoltageRequest =
+      new PositionVoltage(0.0).withEnableFOC(true);
 
   private Rotation2d turnRelativeOffset; // Relative + Offset = Absolute
   private double lastPositionMeters;

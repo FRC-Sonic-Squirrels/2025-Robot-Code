@@ -117,19 +117,19 @@ public class RobotConfig2025 extends RobotConfig {
   private static final Distance TRACK_WIDTH_Y = Units.Inches.of(22.750005);
 
   // ------- ROBOT MAX SPEED --------
-  private static final double MAX_VELOCITY_METERS_PER_SECOND = 5.0;
+  private static final double MAX_VELOCITY_METERS_PER_SECOND = 4.78; // TODO: tune
   private static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05; // unused currently
 
   // ------- AUTONOMOUS CONSTANTS -------
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
       group.build("AUTO_MAX_SPEED", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 10.0);
+      group.build("AUTO_MAX_ACCEL", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND =
-      group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 2);
+      group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 4);
   private static final LoggedTunableNumber
       AUTO_MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED =
-          group.build("AUTO_MAX_ANGULAR_ACCEL_RAD_PER_SECOND_SQUARED", Math.PI * 4);
+          group.build("AUTO_MAX_ANGULAR_ACCEL_RAD_PER_SECOND_SQUARED", Math.PI * 8);
 
   private static final LoggedTunableNumber AUTO_TRANSLATION_KP = // TODO: tune these
       group.build("AUTO_TRANSLATION_KP", 2.4);
