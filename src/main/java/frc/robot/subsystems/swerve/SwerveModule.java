@@ -43,6 +43,8 @@ public class SwerveModule {
 
   private final LoggerEntry.Decimal log_drivePositionRad;
   private final LoggerEntry.Decimal log_driveVelocityRadPerSec;
+  private final LoggerEntry.Decimal log_driveVelocityMetersPerSec;
+  private final LoggerEntry.Decimal log_driveTargetVelocityMetersPerSec;
   private final LoggerEntry.Decimal log_driveAppliedVolts;
   private final LoggerEntry.Decimal log_driveCurrentAmps;
   private final LoggerEntry.Decimal log_turnAbsolutePosition;
@@ -68,6 +70,8 @@ public class SwerveModule {
   private final LoggedTunableNumber angleKP;
   private final LoggedTunableNumber angleKD;
 
+  private final double maxSpeedMetersPerSecond;
+
   private Rotation2d angleSetpoint; // Setpoint for closed loop control, null for open loop
   private Double speedSetpoint; // Setpoint for closed loop control, null for open loop
   private double driveMotorMotionMagicAcceleration;
@@ -81,6 +85,8 @@ public class SwerveModule {
     var group = LoggerGroup.build(key);
     log_drivePositionRad = group.buildDecimal("DrivePositionRad");
     log_driveVelocityRadPerSec = group.buildDecimal("DriveVelocityRadPerSec");
+    log_driveVelocityMetersPerSec = group.buildDecimal("DriveVelocityMetersPerSec");
+    log_driveTargetVelocityMetersPerSec = group.buildDecimal("DriveTargetVelocityMetersPerSec");
     log_driveAppliedVolts = group.buildDecimal("DriveAppliedVolts");
     log_driveCurrentAmps = group.buildDecimal("DriveCurrentAmps");
     log_turnAbsolutePosition = group.buildDecimal("TurnAbsolutePosition");
@@ -106,6 +112,8 @@ public class SwerveModule {
     angleKP = config.getAngleKP();
     angleKD = config.getAngleKD();
 
+    maxSpeedMetersPerSecond = config.getRobotMaxLinearVelocity();
+
     updateConstants();
 
     setBrakeMode(true);
@@ -129,6 +137,8 @@ public class SwerveModule {
       // Logging
       log_drivePositionRad.info(inputs.drivePositionRad);
       log_driveVelocityRadPerSec.info(inputs.driveVelocityRadPerSec);
+      log_driveVelocityMetersPerSec.info(getVelocity().in(Units.MetersPerSecond));
+      log_driveTargetVelocityMetersPerSec.info(speedSetpoint == null ? 0 : speedSetpoint);
       log_driveAppliedVolts.info(inputs.driveAppliedVolts);
       log_driveCurrentAmps.info(inputs.driveCurrentAmps);
       log_turnAbsolutePosition.info(inputs.turnAbsolutePosition);
@@ -158,7 +168,8 @@ public class SwerveModule {
       }
 
       if (speedSetpoint != null) {
-        io.setDriveVelocity(speedSetpoint, driveMotorMotionMagicAcceleration);
+        // TODO: decide whether to use velocity or voltage
+        io.setDriveVoltage(speedSetpoint / maxSpeedMetersPerSecond * 12.0);
       }
     }
   }

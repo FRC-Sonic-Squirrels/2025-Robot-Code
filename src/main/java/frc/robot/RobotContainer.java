@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
+import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
@@ -173,6 +174,11 @@ public class RobotContainer {
       robotStateLogGroup.buildBoolean("GamepieceInEndEffectorNonScoringSideState");
   private static LoggerEntry.Bool logGamepieceInIntakeState =
       robotStateLogGroup.buildBoolean("GamepieceInIntakeState");
+
+  private static TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
+  private static LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
+  private static LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
+  private static LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 60);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -488,8 +494,18 @@ public class RobotContainer {
                 },
                 drivetrain));
 
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.start, "Teleop Autonomous")
+    //     .whileTrue(
+    //         new RunStateMachineCommand(
+    //             () ->
+    //                 new AutoStateMachine(
+    //                     new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
+    //                     Constants.RobotMode.getRobot().config.get(),
+    //                     (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
+
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake")
+        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             MechanismActions.coralStationPosition(elevator, arm)
                 .andThen(
@@ -1017,9 +1033,10 @@ public class RobotContainer {
 
   public void updateRobotState() {
     if (!RobotMode.isSimBot()) {
-      RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
+      // RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
 
-      RobotStates.coralInEndEffectorNonScoringSide = (endEffector.nonScoringSideTOFSeenGamepiece());
+      // RobotStates.coralInEndEffectorNonScoringSide =
+      // (endEffector.nonScoringSideTOFSeenGamepiece());
     }
 
     RobotStates.coralInEndEffector =
