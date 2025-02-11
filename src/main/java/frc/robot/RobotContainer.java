@@ -32,12 +32,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.IntakeConstants.PivotConstants;
-import frc.robot.Constants.MotorConstants.KrakenConstants;
+import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
-import frc.robot.autonomous.AutoStateMachine;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
@@ -53,9 +51,9 @@ import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
+import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
-import frc.robot.commands.intake.PivotIntakeToAngle;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
@@ -492,17 +490,7 @@ public class RobotContainer {
                 drivetrain));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
-        .whileTrue(
-            new RunStateMachineCommand(
-                () ->
-                    new AutoStateMachine(
-                        new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
-                        Constants.RobotMode.getRobot().config.get(),
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
-
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
+        .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake")
         .whileTrue(
             MechanismActions.coralStationPosition(elevator, arm)
                 .andThen(
@@ -673,17 +661,7 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Ground Intake")
-        .whileTrue(
-            Commands.run(
-                () -> {
-                  if (!RobotStates.coralInEndEffector) {
-                    new PivotIntakeToAngle(intake, PivotConstants.MIN_PIVOT_ANGLE)
-                        .andThen(new IntakeSetRPM(intake, KrakenConstants.FREE_SPEED_RPM));
-                  } else {
-                    new PivotIntakeToAngle(intake, PivotConstants.PIVOT_SAFE_ANGLE)
-                        .andThen(new IntakeSetRPM(intake, 0));
-                  }
-                }));
+        .whileTrue(new IntakeGround(intake));
 
     // ---------- OPERATOR CONTROLS -----------
 
