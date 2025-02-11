@@ -150,7 +150,7 @@ public class RobotConfig2025 extends RobotConfig {
               Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND),
               0.65,
               DCMotor.getKrakenX60Foc(4),
-              SWERVE_DRIVE_GEAR_RATIO,
+              SwerveModuleConstants.MK4I.LEVEL_2_GEARING_DRIVE_GEAR_RATIO,
               Units.Amps.of(DRIVE_TALON_CURRENT_LIMIT_CONFIGS.SupplyCurrentLimit),
               1),
           getModuleTranslations());
