@@ -989,9 +989,9 @@ public class RobotContainer {
    * @return Rotates robot to face center
    */
   public static Rotation2d faceTowardsCenter(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
-    double kP = 10.0;
+    double kP = 5.0;
     double kI = 0.0;
-    double kD = 1.0;
+    double kD = 5.0;
     double cumulativeError = 0.0;
     double previousError = 0.0;
     long previousTime = System.nanoTime() / 1_000_000;
