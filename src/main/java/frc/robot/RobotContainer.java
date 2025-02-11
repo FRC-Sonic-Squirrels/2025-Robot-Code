@@ -942,7 +942,7 @@ public class RobotContainer {
     int start;
     double minDistance = 10000000000.0;
 
-    start = Constants.isRedAlliance() ? 0 : 6;
+    start = Constants.isRedAlliance() ? 6 : 0;
 
     for (int i = start; i < start + 6; i++) {
       Translation2d aprilTag = reefAprilTagPose[i].getTranslation();
@@ -989,14 +989,36 @@ public class RobotContainer {
    * @return Rotates robot to face center
    */
   public static Rotation2d faceTowardsCenter(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
-    Pose2d tag1;
-
-    tag1 = Constants.isRedAlliance() ? reefAprilTagPose[1] : reefAprilTagPose[8];
+    double kP = 10.0;
+    double kI = 0.0;
+    double kD = 1.0;
+    double cumulativeError = 0.0;
+    double previousError = 0.0;
+    long previousTime = System.nanoTime() / 1_000_000;
+    long currentTime = System.nanoTime();
+    double timeInterval = (currentTime - previousTime) / 1_000_000.0;
 
     var center = FieldConstants.BLUE_REEF_CENTER_POSE;
     Pose2d centerPose = new Pose2d();
 
     AllianceFlipUtil.flipPoseForAlliance(centerPose);
+
+    double currentRotation = robotTranslation.getRotation().getRadians();
+    double targetRotation = centerPose.getRotation().getRadians();
+    double currentError = targetRotation - currentRotation;
+
+    double proportionalOutput = kP * currentError;
+
+    cumulativeError += currentError * timeInterval;
+    double integralOutput = kI * cumulativeError;
+
+    double rateOfChangeError = (currentError - previousError) / timeInterval;
+    double derivativeOutput = kD * rateOfChangeError;
+
+    double controlOutput = proportionalOutput + integralOutput + derivativeOutput;
+
+    previousError = currentError;
+    previousTime = currentTime;
 
     double targetX = center.getX();
     double targetY = center.getY();
@@ -1012,8 +1034,9 @@ public class RobotContainer {
 
     var offset = centerPose.minus(robotTranslation);
 
-    Rotation2d finalRotation = new Rotation2d(normalizedAngleToCenter);
-    return finalRotation.rotateBy(Rotation2d.k180deg);
+    double finalRotationAngle = robotAngle + controlOutput;
+    Rotation2d finalRotation = new Rotation2d(finalRotationAngle);
+    return finalRotation;
   }
 
   /**
