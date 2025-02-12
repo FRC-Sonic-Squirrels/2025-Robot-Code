@@ -50,6 +50,7 @@ import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.climber.Climb;
 import frc.robot.commands.climber.ClimberSetAngle;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
+import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeAlgaeGround;
@@ -165,12 +166,34 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private final TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
-  private final LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
-  private final LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
-  private final LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
+  private double kP = 50.0;
+  private double kI = 0.0;
+  private double kD = 0.0;
 
-  private final Trigger passOffTrigger;
+  private static LoggerGroup robotStateLogGroup = LoggerGroup.build("RobotState");
+  private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
+      robotStateLogGroup.buildEnum("Levels/Level");
+  private static LoggerEntry.Bool logL1State = robotStateLogGroup.buildBoolean("Levels/L1");
+  private static LoggerEntry.Bool logL2State = robotStateLogGroup.buildBoolean("Levels/L2");
+  private static LoggerEntry.Bool logL3State = robotStateLogGroup.buildBoolean("Levels/L3");
+  private static LoggerEntry.Bool logL4State = robotStateLogGroup.buildBoolean("Levels/L4");
+  private static LoggerEntry.Bool logAlgaeClearingState =
+      robotStateLogGroup.buildBoolean("AlgaeClearing");
+  private static LoggerEntry.Bool logGamepieceInRobotState =
+      robotStateLogGroup.buildBoolean("GamepieceInRobotState");
+  private static LoggerEntry.Bool logGamepieceInEndEffectorState =
+      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorState");
+  private static LoggerEntry.Bool logGamepieceInEndEffectorScoringSideState =
+      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorScoringSideState");
+  private static LoggerEntry.Bool logGamepieceInEndEffectorNonScoringSideState =
+      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorNonScoringSideState");
+  private static LoggerEntry.Bool logGamepieceInIntakeState =
+      robotStateLogGroup.buildBoolean("GamepieceInIntakeState");
+
+  private static TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
+  private static LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
+  private static LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
+  private static LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -674,7 +697,50 @@ public class RobotContainer {
                 }));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.leftStick, "ScoreCoral")
+        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
+        .toggleOnTrue(
+            new RotateToAngle(
+                drivetrainWrapper,
+                () -> {
+                  Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
+
+                  Rotation2d finalRotationValue =
+                      RobotStates.coralInEndEffector
+                          ? findNearestAprilTag(robotTranslation, reefAprilTagPose).getRotation()
+                          : findNearestCoralStation(robotTranslation, coralStationPose)
+                              .getRotation();
+                  return finalRotationValue;
+                },
+                () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
+    //     .toggleOnTrue(
+    //         new RotateToAngle(
+    //             drivetrainWrapper,
+    //             () -> {
+    //               Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
+
+    //              double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
+    //            
+    //              return faceTowardsCenter(robotTranslation, reefAprilTagPose, controlOutput);
+    //            },
+    //            () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+
+    // Manual Algae Clearing
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.povUp, "Clear Algae High Position")
+    //     .onTrue(MechanismActions.clearAlgaeHigh1Position(elevator, arm))
+    //     .onFalse(MechanismActions.clearAlgaeHigh2Position(elevator, arm));
+
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.povDown, "Clear Algae Low Position")
+    //     .onTrue(MechanismActions.clearAlgaeLow1Position(elevator, arm))
+    //     .onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
+
+    // Automatic Algae Clearing
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.povUp, "Clearing Algae")
         .onTrue(
             Commands.waitUntil(() -> !RobotStates.coralInEndEffector)
                 .deadlineFor(
@@ -988,37 +1054,12 @@ public class RobotContainer {
    * @param reefAprilTagPose - List of all april tag positions
    * @return Rotates robot to face center
    */
-  public static Rotation2d faceTowardsCenter(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
-    double kP = 5.0;
-    double kI = 0.0;
-    double kD = 5.0;
-    double cumulativeError = 0.0;
-    double previousError = 0.0;
-    long previousTime = System.nanoTime() / 1_000_000;
-    long currentTime = System.nanoTime();
-    double timeInterval = (currentTime - previousTime) / 1_000_000.0;
-
+  public static Rotation2d faceTowardsCenter(
+      Pose2d robotTranslation, Pose2d[] reefAprilTagPose, double controlOutput) {
     var center = FieldConstants.BLUE_REEF_CENTER_POSE;
     Pose2d centerPose = new Pose2d();
 
     AllianceFlipUtil.flipPoseForAlliance(centerPose);
-
-    double currentRotation = robotTranslation.getRotation().getRadians();
-    double targetRotation = centerPose.getRotation().getRadians();
-    double currentError = targetRotation - currentRotation;
-
-    double proportionalOutput = kP * currentError;
-
-    cumulativeError += currentError * timeInterval;
-    double integralOutput = kI * cumulativeError;
-
-    double rateOfChangeError = (currentError - previousError) / timeInterval;
-    double derivativeOutput = kD * rateOfChangeError;
-
-    double controlOutput = proportionalOutput + integralOutput + derivativeOutput;
-
-    previousError = currentError;
-    previousTime = currentTime;
 
     double targetX = center.getX();
     double targetY = center.getY();
@@ -1037,6 +1078,45 @@ public class RobotContainer {
     double finalRotationAngle = robotAngle + controlOutput;
     Rotation2d finalRotation = new Rotation2d(finalRotationAngle);
     return finalRotation;
+  }
+
+  /**
+   * @param kP - Proportional gain
+   * @param kI - Integral gain
+   * @param kD - Derivative gain
+   * @param robotTranslation - Current robot translation
+   * @param controlOutput - PID control variable
+   * @return
+   */
+  public static double calculateControlOutput(
+      double kP, double kI, double kD, Pose2d robotTranslation) {
+    Pose2d centerPose = new Pose2d();
+    AllianceFlipUtil.flipPoseForAlliance(centerPose);
+
+    double cumulativeError = 0.0;
+    double previousError = 0.0;
+    long previousTime = System.nanoTime() / 1_000_000;
+    long currentTime = System.nanoTime();
+    double timeInterval = (currentTime - previousTime) / 1_000_000.0;
+
+    double currentRotation = robotTranslation.getRotation().getRadians();
+    double targetRotation = centerPose.getRotation().getRadians();
+
+    double currentError = targetRotation - currentRotation;
+    double proportionalOutput = kP * currentError;
+
+    cumulativeError += currentError * timeInterval;
+    double integralOutput = kI * cumulativeError;
+
+    double rateOfChangeError = (currentError - previousError) / timeInterval;
+    double derivativeOutput = kD * rateOfChangeError;
+
+    double controlOutput = proportionalOutput + integralOutput + derivativeOutput;
+
+    previousError = currentError;
+    previousTime = currentTime;
+
+    return controlOutput;
   }
 
   /**
