@@ -104,42 +104,56 @@ public class MechanismActions {
       this.yScale = yScale / 2;
     }
 
-    boolean isInside(Pose2d point) {
+    boolean isInside(Translation2d point) {
       return Math.abs(point.getX()) < this.xScale && Math.abs(point.getY()) < this.yScale;
     }
 
+    Translation2d tranformPoint(double x, double y, Pose2d otherlocation) {
+      return new Translation2d(x, y)
+          .rotateBy(otherlocation.getRotation())
+          .plus(otherlocation.getTranslation())
+          .minus(this.location.getTranslation())
+          .rotateBy(this.location.getRotation().unaryMinus());
+    }
+
+    // for easier typey typey
     boolean checkCollision(collisionSquare other) {
+      return checkCollision(other, true);
+    }
+
+    boolean checkCollision(collisionSquare other, boolean recurse) {
       // subtract the location of this from other
       Transform2d newPos = new Transform2d(Pose2d.kZero, other.location.relativeTo(this.location));
       // check all four corners of the other against this
-      Pose2d cornerpp =
-          new Pose2d(new Translation2d(other.xScale, other.yScale), Rotation2d.kZero).plus(newPos);
+      Translation2d cornerpp = tranformPoint(other.xScale, other.yScale, other.location);
       if (isInside(cornerpp)) {
         return true;
       }
-      Pose2d cornerpn =
-          new Pose2d(new Translation2d(other.xScale, -other.yScale), Rotation2d.kZero).plus(newPos);
+      Translation2d cornerpn = tranformPoint(other.xScale, -other.yScale, other.location);
       if (isInside(cornerpn)) {
         return true;
       }
-      Pose2d cornernp =
-          new Pose2d(new Translation2d(-other.xScale, other.yScale), Rotation2d.kZero).plus(newPos);
+      Translation2d cornernp = tranformPoint(-other.xScale, other.yScale, other.location);
       if (isInside(cornernp)) {
         return true;
       }
-      Pose2d cornernn =
-          new Pose2d(new Translation2d(-other.xScale, -other.yScale), Rotation2d.kZero)
-              .plus(newPos);
+      Translation2d cornernn = tranformPoint(-other.xScale, -other.yScale, other.location);
       if (isInside(cornernn)) {
         return true;
       }
-      // return false if none intersect
 
-      return false;
+      if (recurse) {
+        // have the other check against us if it did not tell us to
+        return other.checkCollision(this, false);
+      } else {
+        // return false if none intersect
+        return false;
+      }
     }
   }
 
-  public static record Collision(int collider, int colliding) implements StructSerializable {
+  public static record Collision(int collider, int colliding, int bad)
+      implements StructSerializable {
 
     /** Pose3d struct for serialization. */
     public static final CollisionStruct struct = new CollisionStruct();
@@ -158,25 +172,27 @@ public class MechanismActions {
 
     @Override
     public int getSize() {
-      return 8;
+      return 9;
     }
 
     @Override
     public String getSchema() {
-      return "double collider;double colliding";
+      return "double collider;double colliding;int bad";
     }
 
     @Override
     public Collision unpack(ByteBuffer bb) {
       var collider = (int) bb.getDouble();
       var colliding = (int) bb.getDouble();
-      return new Collision(collider, colliding);
+      var bad = (int) bb.getInt();
+      return new Collision(collider, colliding, bad);
     }
 
     @Override
     public void pack(ByteBuffer bb, Collision value) {
       bb.putDouble(value.collider);
       bb.putDouble(value.colliding);
+      bb.putInt(value.bad);
     }
 
     @Override
@@ -205,10 +221,11 @@ public class MechanismActions {
           // positive y is up
           // TODO: get actual values and poses for colldiers
           collisionSquare[] colliders = {
-            new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 2.0, 8.0),
+            new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 2.0, 1.0),
             new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 7.0, 9.75),
             new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 13.0, 5.0),
-            new collisionSquare(new Pose2d(new Translation2d(8, -1), Rotation2d.kZero), 18, 1)
+            new collisionSquare(new Pose2d(new Translation2d(8, -1), Rotation2d.kZero), 18, 1),
+            new collisionSquare(new Pose2d(new Translation2d(17, 18), Rotation2d.kZero), 5, 5)
           };
           double SAFETY_BARRIER = 1.0;
           Pose2d intakePos = new Pose2d(new Translation2d(19, 6.2), Rotation2d.kZero);
@@ -233,6 +250,7 @@ public class MechanismActions {
                 new Pose2d(
                     new Translation2d(0.0, elevator.getHeight().in(Units.Inches)),
                     colliders[0].location.getRotation());
+            safeColliders[0].location = colliders[0].location;
             // arm, elevator plus arm stuff
             colliders[1].location =
                 colliders[0].location.plus(
@@ -240,6 +258,7 @@ public class MechanismActions {
                         new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
                             .rotateBy(arm.getAngle()),
                         arm.getAngle()));
+            safeColliders[1].location = colliders[1].location;
             // pivot
             colliders[2].location =
                 intakePos.plus(
@@ -247,13 +266,19 @@ public class MechanismActions {
                         new Translation2d(PivotConstants.PIVOT_LENGTH.in(Units.Inches), 0)
                             .rotateBy(intake.getPivotAngle()),
                         intake.getPivotAngle()));
+            safeColliders[2].location = colliders[2].location;
+
+            ArrayList<Collision> collisions = new ArrayList<>(1);
+
+            for (int i = 0; i < colliders.length; i++) {
+              for (int c = 0; c < colliders.length; c++) {}
+            }
+            // check elevator
             // 0 means it is fine
             // 1 means it is close to another collider
             // 2 means it is hitting another collider
             int elevatorMovePriority = 0;
 
-            ArrayList<Collision> collisions = new ArrayList<>(1);
-            // check elevator
             boolean runningElevator = true;
             for (int c = 0; c < colliders.length; c++) { // check against all other colliders
               if (c == 0) { // dont check if the other is myself
@@ -273,7 +298,7 @@ public class MechanismActions {
                 elevatorMovePriority = 2;
                 runningElevator = false;
 
-                collisions.add(new Collision(0, c));
+                collisions.add(new Collision(0, c, 1));
                 break;
                 // square col with slightly larger squares
               } else if (safeColliders[0].checkCollision(safeColliders[c])) {
@@ -287,7 +312,7 @@ public class MechanismActions {
                 elevatorMovePriority = 1;
                 runningElevator = false;
 
-                collisions.add(new Collision(0, c));
+                collisions.add(new Collision(0, c, 0));
                 break;
               }
             }
@@ -323,7 +348,7 @@ public class MechanismActions {
                 }
                 runningArm = false;
 
-                collisions.add(new Collision(1, c));
+                collisions.add(new Collision(1, c, 1));
                 break;
               } else if (safeColliders[1].checkCollision(safeColliders[c])) {
                 // if we are close dont check the safe colliders
@@ -352,7 +377,7 @@ public class MechanismActions {
                 }
                 runningArm = false;
 
-                collisions.add(new Collision(1, c));
+                collisions.add(new Collision(1, c, 0));
                 break;
               }
             }
@@ -376,7 +401,7 @@ public class MechanismActions {
                 }
                 runningPivot = false;
 
-                collisions.add(new Collision(2, c));
+                collisions.add(new Collision(2, c, 1));
                 break;
               } else if (safeColliders[2].checkCollision(safeColliders[c])) {
                 // same logic as above
@@ -391,7 +416,7 @@ public class MechanismActions {
                 }
                 runningPivot = false;
 
-                collisions.add(new Collision(2, c));
+                collisions.add(new Collision(2, c, 0));
                 break;
               }
             }
