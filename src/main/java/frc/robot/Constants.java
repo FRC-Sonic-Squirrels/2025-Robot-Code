@@ -346,7 +346,7 @@ public final class Constants {
     public static final double GEAR_RATIO =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
             ? (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0)
-            : 27.7778;
+            : 7.9545;
 
     public static final double MOI = 0.15;
 
