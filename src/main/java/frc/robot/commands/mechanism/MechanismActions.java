@@ -269,9 +269,21 @@ public class MechanismActions {
             safeColliders[2].location = colliders[2].location;
 
             ArrayList<Collision> collisions = new ArrayList<>(1);
-
-            for (int i = 0; i < colliders.length; i++) {
-              for (int c = 0; c < colliders.length; c++) {}
+            // check the three moving parts against all other parts
+            for (int i = 0; i < 3; i++) {
+              for (int c = 0; c < colliders.length; c++) {
+                if (c == 0) { // dont check if the other is myself
+                  continue;
+                }
+                // collision between the two colliders
+                if (colliders[i].checkCollision(colliders[i])) {
+                  // they hit eachother
+                  collisions.add(new Collision(i, c, 1));
+                } else if (safeColliders[i].checkCollision(safeColliders[i])) {
+                  // oh no they are getting very close
+                  collisions.add(new Collision(i, c, 0));
+                }
+              }
             }
             // check elevator
             // 0 means it is fine
@@ -280,15 +292,13 @@ public class MechanismActions {
             int elevatorMovePriority = 0;
 
             boolean runningElevator = true;
-            for (int c = 0; c < colliders.length; c++) { // check against all other colliders
-              if (c == 0) { // dont check if the other is myself
+            for (Collision c : collisions) { // check against all collisions
+              if (c.collider != 0) {
                 continue;
               }
-              // collision between the two colliders
-              if (colliders[0].checkCollision(colliders[c])) {
-                // they hit eachother
+              if (c.bad == 1) {
                 // if the thing we are hitting is lower than us
-                if (colliders[0].location.getY() < colliders[c].location.getY()) {
+                if (colliders[0].location.getY() < colliders[c.colliding].location.getY()) {
                   // move down
                   elevator.setHeight(Units.Inches.of(0));
                 } else {
@@ -298,13 +308,11 @@ public class MechanismActions {
                 elevatorMovePriority = 2;
                 runningElevator = false;
 
-                collisions.add(new Collision(0, c, 1));
                 break;
-                // square col with slightly larger squares
-              } else if (safeColliders[0].checkCollision(safeColliders[c])) {
-                // oh no they are getting very close
+                // close to hitting
+              } else if (c.bad == 0) {
                 // same logic as above
-                if (colliders[0].location.getY() < colliders[c].location.getY()) {
+                if (colliders[0].location.getY() < colliders[c.colliding].location.getY()) {
                   elevator.setHeight(Units.Inches.of(0));
                 } else {
                   elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
@@ -312,21 +320,20 @@ public class MechanismActions {
                 elevatorMovePriority = 1;
                 runningElevator = false;
 
-                collisions.add(new Collision(0, c, 0));
                 break;
               }
             }
             // same collision logic for arm and pivot
             // check arm
             boolean runningArm = true;
-            for (int c = 0; c < colliders.length; c++) {
-              if (c == 1) {
+            for (Collision c : collisions) { // check against all collisions
+              if (c.collider != 1) {
                 continue;
               }
-              if (colliders[1].checkCollision(colliders[c])) {
+              if (colliders[1].checkCollision(colliders[c.colliding])) {
                 // only move the elevator if it is ok
                 if (elevatorMovePriority < 2) {
-                  if (colliders[1].location.getY() < colliders[c].location.getY()) {
+                  if (colliders[1].location.getY() < colliders[c.colliding].location.getY()) {
                     elevator.setHeight(Units.Inches.of(0));
                   } else {
                     elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
@@ -335,7 +342,7 @@ public class MechanismActions {
                 }
                 // if the thing we are colliding with is to our left
                 // TODO: make sure this math is correct
-                if (colliders[c]
+                if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[1].location.relativeTo(colliders[0].location))
                         .getX()
@@ -348,9 +355,8 @@ public class MechanismActions {
                 }
                 runningArm = false;
 
-                collisions.add(new Collision(1, c, 1));
                 break;
-              } else if (safeColliders[1].checkCollision(safeColliders[c])) {
+              } else if (safeColliders[1].checkCollision(safeColliders[c.colliding])) {
                 // if we are close dont check the safe colliders
                 if (Math.abs(arm.getAngle().getDegrees() - targetPosition.armAngle().getDegrees())
                     < 5) {
@@ -358,7 +364,7 @@ public class MechanismActions {
                 }
                 // only move the elevator if it is ok
                 if (elevatorMovePriority < 1) {
-                  if (colliders[1].location.getY() < colliders[c].location.getY()) {
+                  if (colliders[1].location.getY() < colliders[c.colliding].location.getY()) {
                     elevator.setHeight(Units.Inches.of(0));
                   } else {
                     elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
@@ -366,7 +372,7 @@ public class MechanismActions {
                   runningElevator = false;
                 }
                 // same logic as above
-                if (colliders[c]
+                if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[1].location.relativeTo(colliders[0].location))
                         .getX()
@@ -377,20 +383,19 @@ public class MechanismActions {
                 }
                 runningArm = false;
 
-                collisions.add(new Collision(1, c, 0));
                 break;
               }
             }
             // check pivot
             boolean runningPivot = true;
-            for (int c = 0; c < colliders.length; c++) {
-              if (c == 2) {
+            for (Collision c : collisions) { // check against all collisions
+              if (c.collider != 2) {
                 continue;
               }
-              if (colliders[2].checkCollision(colliders[c])) {
+              if (colliders[2].checkCollision(colliders[c.colliding])) {
 
                 // same logic as above
-                if (colliders[c]
+                if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[2].location.relativeTo(intakePos))
                         .getX()
@@ -401,11 +406,10 @@ public class MechanismActions {
                 }
                 runningPivot = false;
 
-                collisions.add(new Collision(2, c, 1));
                 break;
-              } else if (safeColliders[2].checkCollision(safeColliders[c])) {
+              } else if (safeColliders[2].checkCollision(safeColliders[c.colliding])) {
                 // same logic as above
-                if (colliders[c]
+                if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[2].location.relativeTo(intakePos))
                         .getX()
@@ -416,7 +420,6 @@ public class MechanismActions {
                 }
                 runningPivot = false;
 
-                collisions.add(new Collision(2, c, 0));
                 break;
               }
             }
