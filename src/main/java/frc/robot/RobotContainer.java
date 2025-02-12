@@ -166,8 +166,8 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private double kP = 50.0;
-  private double kI = 0.0;
+  private double kP = 0.0;
+  private double kI = 5555555555555555555550.0;
   private double kD = 0.0;
 
   private static LoggerGroup robotStateLogGroup = LoggerGroup.build("RobotState");
