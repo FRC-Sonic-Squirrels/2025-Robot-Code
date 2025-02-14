@@ -159,18 +159,18 @@ public class RobotConfig2025 extends RobotConfig {
   public static final Transform3d REEF_SIDE_LEFT = // TODO: input new cam positions
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(-12.25).in(Units.Meters),
-              Units.Inches.of(6.625).in(Units.Meters),
-              Units.Inches.of(10).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(180.0)));
+              Units.Inches.of(-8.638).in(Units.Meters),
+              Units.Inches.of(-8.472).in(Units.Meters),
+              Units.Inches.of(12.125).in(Units.Meters)),
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(210.0)));
 
   public static final Transform3d REEF_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(-12.25).in(Units.Meters),
-              Units.Inches.of(-6.625).in(Units.Meters),
-              Units.Inches.of(10).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(180.0), Math.toRadians(0.0), Math.toRadians(180.0)));
+              Units.Inches.of(-8.638).in(Units.Meters),
+              Units.Inches.of(8.472).in(Units.Meters),
+              Units.Inches.of(12.125).in(Units.Meters)),
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(150.0)));
 
   public static final Transform3d CORAL_STATION_SIDE_LEFT =
       new Transform3d(
