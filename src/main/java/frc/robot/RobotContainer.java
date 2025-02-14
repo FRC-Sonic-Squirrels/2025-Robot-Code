@@ -37,7 +37,6 @@ import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
-import frc.robot.autonomous.AutoStateMachine;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
