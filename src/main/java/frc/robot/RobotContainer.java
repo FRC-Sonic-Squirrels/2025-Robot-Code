@@ -357,11 +357,11 @@ public class RobotContainer {
                   new GyroIOPigeon2(config, Constants.CanIDs.GYRO_2_CAN_ID),
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
-          intake = new Intake(new IntakeIOReal());
-          endEffector = new EndEffector(new EndEffectorIOReal());
+          intake = new Intake(new IntakeIO() {});
+          endEffector = new EndEffector(new EndEffectorIO() {});
           elevator = new Elevator(new ElevatorIOReal());
-          arm = new Arm(new ArmIOReal());
-          climber = new Climber(new ClimberIOReal());
+          arm = new Arm(new ArmIO() {});
+          climber = new Climber(new ClimberIO() {});
           vision =
               new Vision(
                   aprilTagLayout,

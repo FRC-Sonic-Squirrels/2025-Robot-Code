@@ -318,8 +318,8 @@ public final class Constants {
 
     public static final int ARM_CAN_ID = 17;
 
-    public static final int ELEVATOR_LEAD_CAN_ID = 37;
-    public static final int ELEVATOR_FOLLOW_CAN_ID = 38;
+    public static final int ELEVATOR_LEAD_CAN_ID = 15;
+    public static final int ELEVATOR_FOLLOW_CAN_ID = 16;
 
     public static final int END_EFFECTOR_CAN_ID = 30;
     public static final int END_EFFECTOR_SCORING_SIDE_TOF_CAN_ID = 39;
