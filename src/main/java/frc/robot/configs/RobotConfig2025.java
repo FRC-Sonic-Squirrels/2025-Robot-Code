@@ -190,10 +190,10 @@ public class RobotConfig2025 extends RobotConfig {
 
   public static final String OBJECT_DETECTION_CAMERA_NAME =
       "0_Object_Detection_ELP"; // TODO: input new cam names
-  public static final String REEF_SIDE_LEFT_CAMERA_NAME = "1_Reef_Left_See3Cam";
-  public static final String REEF_SIDE_RIGHT_CAMERA_NAME = "2_Reef_Right_See3Cam";
-  public static final String CORAL_STATION_SIDE_LEFT_CAMERA_NAME = "3_Coral_Left_See3Cam";
-  public static final String CORAL_STATION_SIDE_RIGHT_CAMERA_NAME = "4_Coral_Right_See3Cam";
+  public static final String REEF_SIDE_LEFT_CAMERA_NAME = "1_Reef_Left";
+  public static final String REEF_SIDE_RIGHT_CAMERA_NAME = "2_Reef_Right";
+  public static final String CORAL_STATION_SIDE_LEFT_CAMERA_NAME = "3_Coral_Left";
+  public static final String CORAL_STATION_SIDE_RIGHT_CAMERA_NAME = "4_Coral_Right";
 
   public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025Reefscape;
 
