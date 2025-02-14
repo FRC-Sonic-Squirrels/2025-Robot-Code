@@ -36,7 +36,7 @@ public class IntakeGround extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.setPivotAngle(PivotConstants.MIN_PIVOT_ANGLE_NEW);
+    intake.setPivotAngle(PivotConstants.MIN_PIVOT_ANGLE);
     intake.setRollerVelocity(0);
   }
 
