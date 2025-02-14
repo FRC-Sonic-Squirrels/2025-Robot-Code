@@ -55,6 +55,7 @@ import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
 import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
+import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
@@ -532,6 +533,13 @@ public class RobotContainer {
                       driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
                       led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                     }));
+
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
+        .whileTrue(
+      
+              new ScoreAlgae(intake)
+        );
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Score Coral")

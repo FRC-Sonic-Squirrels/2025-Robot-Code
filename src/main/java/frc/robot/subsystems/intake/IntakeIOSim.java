@@ -51,7 +51,7 @@ public class IntakeIOSim implements IntakeIO {
 
     pivotSim.update(Constants.kDefaultPeriod);
 
-    inputs.pivotPosition = new Rotation2d(pivotSim.getPosition().in(Units.Radian));
+    inputs.pivotPosition = new Rotation2d(pivotSim.getPosition());
     inputs.pivotAppliedVolts = pivotSim.getVoltage().in(Units.Volts);
     inputs.pivotVelocityDegreesPerSecond = pivotSim.getVelocity().in(Units.DegreesPerSecond);
   }
@@ -89,8 +89,7 @@ public class IntakeIOSim implements IntakeIO {
   @Override
   public void setPivotClosedLoopPosition(Rotation2d angle) {
     pivotSim.setControl(
-        pivotClosedLoopControl.withPosition(
-            Units.Degrees.of(angle.getDegrees()).in(Units.Rotations)));
+        pivotClosedLoopControl.withPosition(angle.getRotations()));
   }
 
   @Override

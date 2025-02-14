@@ -15,6 +15,8 @@ public interface IntakeIO {
     public double rollerTempCelsius;
     public double rollerAppliedVolts;
 
+    public double tofDistanceInches;
+
     public Rotation2d pivotPosition = Constants.zeroRotation2d;
     public double pivotAppliedVolts;
     public double pivotCurrentAmps;
