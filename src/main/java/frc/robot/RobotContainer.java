@@ -505,38 +505,40 @@ public class RobotContainer {
                 .finallyDo(
                     () -> {
                       driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-                      led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
+                      led.setBaseRobotState(BaseRobotState.CLASS);
                     }));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Score Coral")
         .whileTrue(
             new RunStateMachineCommand(
-                () ->
-                    new ScoreCoral(
-                        drivetrainWrapper,
-                        elevator,
-                        arm,
-                        endEffector,
-                        led,
-                        ScoringDirection.LEFT,
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                        Constants.RobotMode.getRobot().config.get())));
+                    () ->
+                        new ScoreCoral(
+                            drivetrainWrapper,
+                            elevator,
+                            arm,
+                            endEffector,
+                            led,
+                            ScoringDirection.LEFT,
+                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                            Constants.RobotMode.getRobot().config.get()))
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.CLASS)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Score Coral")
         .whileTrue(
             new RunStateMachineCommand(
-                () ->
-                    new ScoreCoral(
-                        drivetrainWrapper,
-                        elevator,
-                        arm,
-                        endEffector,
-                        led,
-                        ScoringDirection.RIGHT,
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                        Constants.RobotMode.getRobot().config.get())));
+                    () ->
+                        new ScoreCoral(
+                            drivetrainWrapper,
+                            elevator,
+                            arm,
+                            endEffector,
+                            led,
+                            ScoringDirection.RIGHT,
+                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                            Constants.RobotMode.getRobot().config.get()))
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.CLASS)));
 
     // Change scoring height
     var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
@@ -904,7 +906,7 @@ public class RobotContainer {
     vision.useMaxDistanceAwayFromExistingEstimate(true);
     vision.useGyroBasedFilteringForVision(true);
 
-    led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
+    led.setBaseRobotState(BaseRobotState.CLASS);
 
     visionGamepiece.setPipelineIndex(1);
 
