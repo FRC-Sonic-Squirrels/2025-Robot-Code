@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -26,7 +27,8 @@ import frc.robot.Constants.MotorConstants.KrakenConstants;
 
 public class ElevatorIOReal implements ElevatorIO {
 
-  private final TalonFX motor = new TalonFX(Constants.CanIDs.ELEVATOR_CAN_ID);
+  private final TalonFX leadMotor = new TalonFX(Constants.CanIDs.ELEVATOR_LEAD_CAN_ID);
+  private final TalonFX followerMotor = new TalonFX(Constants.CanIDs.ELEVATOR_FOLLOW_CAN_ID);
 
   private final MotionMagicVoltage closedLoopControl =
       new MotionMagicVoltage(0.0).withEnableFOC(true);
@@ -61,15 +63,16 @@ public class ElevatorIOReal implements ElevatorIO {
 
     config.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
 
-    motor.getConfigurator().apply(config);
+    leadMotor.getConfigurator().apply(config);
+    followerMotor.getConfigurator().apply(config);
 
     // Status signals
 
-    rotorPosition = motor.getRotorPosition();
-    rotorVelocity = motor.getRotorVelocity();
-    appliedVoltage = motor.getMotorVoltage();
-    current = motor.getStatorCurrent();
-    temp = motor.getDeviceTemp();
+    rotorPosition = leadMotor.getRotorPosition();
+    rotorVelocity = leadMotor.getRotorVelocity();
+    appliedVoltage = leadMotor.getMotorVoltage();
+    current = leadMotor.getStatorCurrent();
+    temp = leadMotor.getDeviceTemp();
 
     // Update status signals
 
@@ -77,7 +80,9 @@ public class ElevatorIOReal implements ElevatorIO {
     BaseStatusSignal.setUpdateFrequencyForAll(50, appliedVoltage, current);
     BaseStatusSignal.setUpdateFrequencyForAll(1, temp);
 
-    motor.optimizeBusUtilization();
+    leadMotor.optimizeBusUtilization();
+
+    followerMotor.setControl(new Follower(Constants.CanIDs.ELEVATOR_LEAD_CAN_ID, false));
 
     refreshSet =
         new BaseStatusSignal[] {rotorPosition, rotorVelocity, appliedVoltage, current, temp};
@@ -99,18 +104,18 @@ public class ElevatorIOReal implements ElevatorIO {
   @Override
   public void setVoltage(double volts) {
     openLoopControl.withOutput(volts);
-    motor.setControl(openLoopControl);
+    leadMotor.setControl(openLoopControl);
   }
 
   @Override
   public void setHeight(Distance height) {
     closedLoopControl.withPosition(height.in(Units.Inches) * ElevatorConstants.INCHES_TO_MOTOR_ROT);
-    motor.setControl(closedLoopControl);
+    leadMotor.setControl(closedLoopControl);
   }
 
   @Override
   public void setSensorPosition(Distance position) {
-    motor.setPosition(position.in(Units.Inches) * ElevatorConstants.INCHES_TO_MOTOR_ROT);
+    leadMotor.setPosition(position.in(Units.Inches) * ElevatorConstants.INCHES_TO_MOTOR_ROT);
   }
 
   @Override
@@ -118,27 +123,27 @@ public class ElevatorIOReal implements ElevatorIO {
       double kP, double kD, double kG, MotionMagicConfigs mmConfigs) {
     Slot0Configs pidConfig = new Slot0Configs();
 
-    motor.getConfigurator().refresh(pidConfig);
+    leadMotor.getConfigurator().refresh(pidConfig);
 
     pidConfig.kP = kP;
     pidConfig.kD = kD;
     pidConfig.kG = kG;
 
-    motor.getConfigurator().apply(pidConfig);
-    motor.getConfigurator().apply(mmConfigs);
+    leadMotor.getConfigurator().apply(pidConfig);
+    leadMotor.getConfigurator().apply(mmConfigs);
   }
 
   @Override
   public boolean setNeutralMode(NeutralModeValue value) {
     var config = new MotorOutputConfigs();
 
-    var status = motor.getConfigurator().refresh(config);
+    var status = leadMotor.getConfigurator().refresh(config);
 
     if (status != StatusCode.OK) return false;
 
     config.NeutralMode = value;
 
-    motor.getConfigurator().apply(config);
+    leadMotor.getConfigurator().apply(config);
     return true;
   }
 }
