@@ -100,8 +100,13 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.0002);
       rollerTargetAccelerationConfig.initDefault(0.0);
 
+<<<<<<< HEAD
       pKP.initDefault(10);
       pKD.initDefault(9);
+=======
+      pKP.initDefault(.2);
+      pKD.initDefault(0);
+>>>>>>> dbac697 (Added the ScoreAlgae command to the controller. Fixed the simulator so it would work.)
       pKG.initDefault(0.0);
 
       pivotMaxVelocityConfig.initDefault(40);
@@ -115,7 +120,9 @@ public class Intake extends SubsystemBase {
   private double rollerTargetRPM;
 
   private ControlMode pivotControlMode = ControlMode.OPEN_LOOP;
-  private Rotation2d pivotTargetAngleDegrees = Constants.zeroRotation2d;
+  private Rotation2d pivotTargetAngle;
+
+  private double pivotTargetAngleDegrees;
 
   private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
 
@@ -199,7 +206,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void setPivotAngle(Rotation2d angle) {
-    angle =
+    Rotation2d targetAngle =
         Rotation2d.fromRadians(
             MathUtil.clamp(
                 angle.getRadians(),
@@ -207,8 +214,9 @@ public class Intake extends SubsystemBase {
                 PivotConstants.MAX_PIVOT_ANGLE.getRadians()));
 
     pivotControlMode = ControlMode.CLOSED_LOOP;
-    pivotTargetAngleDegrees = angle;
-    io.setPivotClosedLoopPosition(angle);
+    pivotTargetAngle = targetAngle;
+    pivotTargetAngleDegrees = targetAngle.getDegrees();
+    io.setPivotClosedLoopPosition(targetAngle);
     logPivotTargetAngleDegrees.info(pivotTargetAngleDegrees);
   }
 
@@ -245,7 +253,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isPivotAtTargetAngle() {
-    return isPivotAtTargetAngle(pivotTargetAngleDegrees);
+    return isPivotAtTargetAngle(pivotTargetAngle);
   }
 
   public boolean isPivotAtTargetAngle(Rotation2d target, Rotation2d tolerance) {
@@ -263,5 +271,11 @@ public class Intake extends SubsystemBase {
 
   public AngularVelocity getPivotVelocity() {
     return Units.DegreesPerSecond.of(inputs.pivotVelocityDegreesPerSecond);
+  }
+
+  public boolean timeOfFlight() {
+    // TODO: get an actual value fot this this code is only for testing purposes
+    //return inputs.tofDistanceInches <= 1;
+    return true;
   }
 }

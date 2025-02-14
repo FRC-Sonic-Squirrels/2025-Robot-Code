@@ -241,7 +241,7 @@ public final class Constants {
 
       public static final double GEAR_RATIO = (16.0 / 42.0) * (16.0 / 56.0);
 
-      public static final double MOI = 0.1;
+      public static final double MOI = .00001;
 
       public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(91);
       public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(-80);
@@ -249,7 +249,12 @@ public final class Constants {
 
       public static final Rotation2d INITIAL_PIVOT_ANGLE = Rotation2d.fromDegrees(-30);
       public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(-30);
+
       public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
+
+      public static final Rotation2d INTERNAL_ANGLE = Rotation2d.fromDegrees(0);
+      public static final Rotation2d EXTERNAL_ANGLE = Rotation2d.fromDegrees(180);
+      public static final Rotation2d ALGAE_SCORE_ANGLE = Rotation2d.fromDegrees(45);
 
       public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
 

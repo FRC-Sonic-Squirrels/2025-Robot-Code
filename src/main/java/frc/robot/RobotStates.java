@@ -5,6 +5,8 @@ public class RobotStates {
 
   public static ScoringLevel scoringLevel = ScoringLevel.L4;
 
+  public static boolean algaeInRobot = false;
+
   // TODO: update these coral values
   public static boolean coralInRobot = true;
 
