@@ -480,6 +480,10 @@ public class RobotContainer {
                 drivetrain));
 
     driverController
+        .registerTrigger(XboxControllerWrapper.Button.start, "X Stance")
+        .onTrue(Commands.runOnce(drivetrain::stopWithX));
+
+    driverController
         .registerTrigger(XboxControllerWrapper.Button.rightStick, "Clear Algae")
         .whileTrue(
             new RunStateMachineCommand(
