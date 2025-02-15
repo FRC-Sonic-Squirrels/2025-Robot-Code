@@ -166,7 +166,7 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private double kP = 0.5;
+  private double kP = 0.0;
   private double kI = 0.0;
   private double kD = 0.0;
 
@@ -696,30 +696,6 @@ public class RobotContainer {
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
 
-    // Change scoring height
-    var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
-
-    Pose2d[] reefAprilTagPose = {
-      layout.getTagPose(6).get().toPose2d(),
-      layout.getTagPose(7).get().toPose2d(),
-      layout.getTagPose(8).get().toPose2d(),
-      layout.getTagPose(9).get().toPose2d(),
-      layout.getTagPose(10).get().toPose2d(),
-      layout.getTagPose(11).get().toPose2d(),
-      layout.getTagPose(17).get().toPose2d(),
-      layout.getTagPose(18).get().toPose2d(),
-      layout.getTagPose(19).get().toPose2d(),
-      layout.getTagPose(20).get().toPose2d(),
-      layout.getTagPose(21).get().toPose2d(),
-      layout.getTagPose(22).get().toPose2d()
-    };
-
-    Pose2d[] coralStationPose = {
-      layout.getTagPose(1).get().toPose2d(),
-      layout.getTagPose(2).get().toPose2d(),
-      layout.getTagPose(12).get().toPose2d(),
-      layout.getTagPose(13).get().toPose2d()
-    };
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
         .toggleOnTrue(
@@ -749,19 +725,19 @@ public class RobotContainer {
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
-    //     .toggleOnTrue(
-    //         new RotateToAngle(
-    //             drivetrainWrapper,
-    //             () -> {
-    //               Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
-
-    //              double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
-    //            
-    //              return faceTowardsCenter(robotTranslation, reefAprilTagPose, controlOutput);
-    //            },
-    //            () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+    //     driverController
+    //         .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
+    //         .toggleOnTrue(
+    //             new RotateToAngle(
+    //                 drivetrainWrapper,
+    //                 () -> {
+    //                   Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
+    //
+    //                  double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
+    //
+    //                  return faceTowardsCenter(robotTranslation, controlOutput);
+    //                },
+    //                () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
     // Manual Algae Clearing
     // driverController
