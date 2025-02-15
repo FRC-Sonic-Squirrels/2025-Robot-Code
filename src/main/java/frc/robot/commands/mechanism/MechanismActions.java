@@ -87,10 +87,18 @@ public class MechanismActions {
     new MechanismPosition(
         Units.Inches.of(15),
         new Rotation2d(Units.Degrees.of(45)),
+        new Rotation2d(Units.Degrees.of(0))),
+    new MechanismPosition(
+        Units.Inches.of(55),
+        new Rotation2d(Units.Degrees.of(45)),
+        new Rotation2d(Units.Degrees.of(0))),
+    new MechanismPosition(
+        Units.Inches.of(11.2),
+        new Rotation2d(Units.Degrees.of(11.2)),
         new Rotation2d(Units.Degrees.of(0)))
   };
 
-  private static int[][] connections = {{1}, {0}};
+  private static int[][] connections = {{1}, {0, 2}, {1, 3}, {2}};
 
   private static class MechanismPath {
     Node[] intermediatePositions;
