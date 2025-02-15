@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.RobotStates;
@@ -44,8 +43,7 @@ public class PassToEndEffector extends Command {
   public void execute() {
     intake.setPivotAngle(PivotConstants.PASSOFF_PIVOT_ANGLE);
     intake.setRollerPercentOut(0);
-    arm.setAngle(ArmConstants.PASSOFF_ARM_ANGLE);
-    elevator.setHeight(ElevatorConstants.HOME_POSITION);
+    MechanismActions.passOffPosition(elevator, arm);
     endEffector.setVelocity(intakingVelocity.get());
   }
 
