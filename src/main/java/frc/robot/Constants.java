@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -364,6 +365,8 @@ public final class Constants {
     public static final Rotation2d HOME_POSITION = Rotation2d.fromDegrees(153.808);
 
     public static final Rotation2d ARM_SAFE_ANGLE = Rotation2d.fromDegrees(-87);
+
+    public static final Angle ARM_SAFETY_MARGIN = Units.Degrees.of(5);
 
     public static final Distance ARM_LENGTH =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
