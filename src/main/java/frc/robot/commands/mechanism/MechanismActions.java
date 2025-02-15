@@ -20,10 +20,6 @@ public class MechanismActions {
   private static final String ROOT_TABLE = "MechanismActions";
 
   private static final LoggerGroup logGroup = LoggerGroup.build(ROOT_TABLE);
-  private static final LoggerEntry.Bool log_runningArm = logGroup.buildBoolean("runningArm");
-  private static final LoggerEntry.Bool log_runningElevator =
-      logGroup.buildBoolean("runningElevator");
-  private static final LoggerEntry.Bool log_runningPivot = logGroup.buildBoolean("runningPivot");
   private static final LoggerEntry.Bool log_ElevatorInPosition =
       logGroup.buildBoolean("ElevatorInPosition");
   private static final LoggerEntry.Bool log_PivotInPosition =
@@ -264,10 +260,11 @@ public class MechanismActions {
       // it should break after finding the end
       if (intermediatePositions == null) {
         // if this triggers it means that a node has no inputs or outputs
-        System.err.println("--------------NO PATH FOUND--------------");
+        System.out.println("--------------NO PATH FOUND--------------");
       }
     }
 
+    // returns the next MechanismPosition in this path
     MechanismPosition getNextPosition() {
       MechanismPosition nextPosition = null;
       if (isAtEnd()) {
@@ -315,16 +312,13 @@ public class MechanismActions {
                     new MechanismPosition(
                         elevator.getHeight(), arm.getAngle(), intake.getPivotAngle()),
                     targetPosition);
+            // this means that the path was not able to be created
             if (path.intermediatePositions == null) {
               shouldEnd = new Trigger(() -> true);
               return;
             }
             currentTargetPosition = path.getNextPosition();
           }
-
-          boolean runningElevator;
-          boolean runningArm;
-          boolean runningPivot;
 
           @Override
           public void execute() {
@@ -348,10 +342,6 @@ public class MechanismActions {
             log_PathIndex.info(path.currentIndex);
             log_SafePathIndex.info(
                 path.intermediatePositions[Math.max(path.currentIndex - 1, 0)].positionIndex);
-
-            log_runningArm.info(runningArm);
-            log_runningElevator.info(runningElevator);
-            log_runningPivot.info(runningPivot);
 
             log_ElevatorInPosition.info(elevatorInPosition);
             log_ArmInPosition.info(armInPosition);
