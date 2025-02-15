@@ -166,9 +166,9 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private double kP = 0.5;
+  private double kP = 1.0;
   private double kI = 0.0;
-  private double kD = 0.5;
+  private double kD = 5.0;
 
   private static LoggerGroup robotStateLogGroup = LoggerGroup.build("RobotState");
   private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
@@ -1062,8 +1062,8 @@ public class RobotContainer {
    */
   public static Pose2d findNearestCoralStation(Pose2d robotTranslation, Pose2d[] coralStationPose) {
 
-    int coralStation1Index = Constants.isRedAlliance() ? 0 : 2;
-    int coralStation2Index = Constants.isRedAlliance() ? 1 : 3;
+    int coralStation1Index = Constants.isRedAlliance() ? 2 : 0;
+    int coralStation2Index = Constants.isRedAlliance() ? 3 : 1;
 
     Pose2d coralStation1 = coralStationPose[coralStation1Index];
     Pose2d coralStation2 = coralStationPose[coralStation2Index];
@@ -1112,8 +1112,7 @@ public class RobotContainer {
    * @param kI - Integral gain
    * @param kD - Derivative gain
    * @param robotTranslation - Current robot translation
-   * @param controlOutput - PID control variable
-   * @return
+   * @return PID control output
    */
   public static double calculateControlOutput(
       double kP, double kI, double kD, Pose2d robotTranslation) {
