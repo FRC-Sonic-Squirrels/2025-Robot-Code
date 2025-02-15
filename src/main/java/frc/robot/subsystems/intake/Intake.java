@@ -247,7 +247,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isPivotAtTargetAngle() {
-    return Math.abs(pivotTargetAngleDegrees.getDegrees() - inputs.pivotPosition.getDegrees())
+    return Math.abs(pivotTargetAngle.getDegrees() - inputs.pivotPosition.getDegrees())
         <= pivotTolerance.get();
   }
 
