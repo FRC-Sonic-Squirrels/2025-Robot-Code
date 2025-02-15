@@ -3,6 +3,7 @@ package frc.robot.commands.mechanism;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -28,6 +29,8 @@ public class MechanismActions {
   private static final LoggerEntry.Bool log_PivotInPosition =
       logGroup.buildBoolean("PivotInPosition");
   private static final LoggerEntry.Bool log_ArmInPosition = logGroup.buildBoolean("ArmInPosition");
+  private static final LoggerEntry.Bool log_AtPathEnd = logGroup.buildBoolean("AtPathEnd");
+  private static final LoggerEntry.Integer log_PathIndex = logGroup.buildInteger("PathIndex");
 
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
 
@@ -75,9 +78,16 @@ public class MechanismActions {
     return goToPositionParallel(elevator, arm, intake, position, false);
   }
 
+  // TODO: get actual positions and connections
   private static MechanismPosition[] safePositions = {
-    new MechanismPosition(Units.Inches.of(10), new Rotation2d(45), new Rotation2d(45)),
-    new MechanismPosition(Units.Inches.of(15), new Rotation2d(45), new Rotation2d(45))
+    new MechanismPosition(
+        Units.Inches.of(10),
+        new Rotation2d(Units.Degrees.of(45)),
+        new Rotation2d(Units.Degrees.of(0))),
+    new MechanismPosition(
+        Units.Inches.of(15),
+        new Rotation2d(Units.Degrees.of(45)),
+        new Rotation2d(Units.Degrees.of(0)))
   };
 
   private static int[][] connections = {{1}, {0}};
@@ -102,6 +112,9 @@ public class MechanismActions {
 
       @Override
       public boolean equals(Object o) {
+        if (o == null) {
+          return false;
+        }
         Node n = (Node) o;
         MechanismPosition np = n.position;
         return np.elevatorHeight().in(Units.Inches) == position.elevatorHeight().in(Units.Inches)
@@ -125,7 +138,7 @@ public class MechanismActions {
           + Math.abs(m1.intakeAngle().getDegrees() - m2.intakeAngle().getDegrees());
     }
 
-    MechanismPath(MechanismPosition endPosition, MechanismPosition startPosition) {
+    MechanismPath(MechanismPosition startPosition, MechanismPosition endPosition) {
       this.endPosition = endPosition;
       int closestStartIndex = -1;
       double closestDistance = 10000000;
@@ -170,18 +183,19 @@ public class MechanismActions {
           do {
             pathNodes.add(lastNode);
             lastNode = lastNode.parentNode;
-          } while (!lastNode.parentNode.equals(new Node(null, closestStartIndex, 0)));
+          } while (!(lastNode == null));
           Node[] intposes = new Node[pathNodes.size()];
           // reverse the arrayList and send it to an array
           for (int i = 0; i < pathNodes.size(); i++) {
             intposes[pathNodes.size() - 1 - i] = pathNodes.get(i);
           }
           intermediatePositions = intposes;
+          break;
         }
         allPoses.add(currentNode);
         newPoses.remove(currentNode);
         // loop over the connected poses
-        Node[] connectedNodes = getConnectedNodes(newPoses.get(lowestDistIndex));
+        Node[] connectedNodes = getConnectedNodes(currentNode);
         for (int a = 0; a < connectedNodes.length; a++) {
           // dont check our parent node
           if (connectedNodes[a].equals(currentNode.parentNode)) {
@@ -212,12 +226,23 @@ public class MechanismActions {
     }
 
     MechanismPosition getNextPosition() {
-      currentIndex++;
-      return intermediatePositions[currentIndex - 1].position;
+      MechanismPosition nextPosition = null;
+      if (isAtEnd()) {
+        nextPosition = endPosition;
+        System.out.println(
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+      } else {
+        nextPosition = intermediatePositions[currentIndex].position;
+        currentIndex++;
+        System.out.println(
+            "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+      }
+
+      return nextPosition;
     }
 
     boolean isAtEnd() {
-      return currentIndex == intermediatePositions.length + 1;
+      return currentIndex == intermediatePositions.length;
     }
   }
 
@@ -238,6 +263,12 @@ public class MechanismActions {
 
           MechanismPath path;
 
+          Trigger shouldEnd =
+              new Trigger(
+                      () ->
+                          elevatorInPosition && armInPosition && pivotInPosition && path.isAtEnd())
+                  .debounce(0.2);
+
           @Override
           public void initialize() {
             path =
@@ -254,23 +285,21 @@ public class MechanismActions {
 
           @Override
           public void execute() {
-            if (path.isAtEnd()) {
-              elevator.setHeight(targetPosition.elevatorHeight());
-              arm.setAngle(targetPosition.armAngle());
-              intake.setPivotAngle(targetPosition.intakeAngle());
-            } else {
-              elevator.setHeight(currentTargetPosition.elevatorHeight());
-              arm.setAngle(currentTargetPosition.armAngle());
-              intake.setPivotAngle(currentTargetPosition.intakeAngle());
-
-              if (elevator.isAtTarget() && arm.isAtTargetAngle() && intake.isPivotAtTargetAngle()) {
-                currentTargetPosition = path.getNextPosition();
-              }
+            if (elevator.isAtTarget() && arm.isAtTargetAngle() && intake.isPivotAtTargetAngle()) {
+              currentTargetPosition = path.getNextPosition();
             }
+
+            elevator.setHeight(currentTargetPosition.elevatorHeight());
+            arm.setAngle(currentTargetPosition.armAngle());
+            intake.setPivotAngle(currentTargetPosition.intakeAngle());
 
             elevatorInPosition = elevator.isAtTarget();
             armInPosition = arm.isAtTargetAngle();
             pivotInPosition = intake.isPivotAtTargetAngle();
+
+            log_AtPathEnd.info(path.isAtEnd());
+
+            log_PathIndex.info(path.currentIndex);
 
             log_runningArm.info(runningArm);
             log_runningElevator.info(runningElevator);
@@ -283,7 +312,7 @@ public class MechanismActions {
 
           @Override
           public boolean isFinished() {
-            return elevatorInPosition && armInPosition && pivotInPosition && path.isAtEnd();
+            return shouldEnd.getAsBoolean();
           }
         };
 
