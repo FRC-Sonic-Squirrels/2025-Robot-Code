@@ -169,7 +169,11 @@ public class SwerveModule {
 
       if (speedSetpoint != null) {
         // TODO: decide whether to use velocity or voltage
-        io.setDriveVoltage(speedSetpoint / maxSpeedMetersPerSecond * 12.0);
+        if (io instanceof SwerveModuleIOSim) {
+          io.setDriveVelocity(speedSetpoint, driveMotorMotionMagicAcceleration);
+        } else {
+          io.setDriveVoltage(speedSetpoint / maxSpeedMetersPerSecond * 12.0);
+        }
       }
     }
   }

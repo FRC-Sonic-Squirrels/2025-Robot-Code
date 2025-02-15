@@ -101,7 +101,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
           turnFeedback.calculate(inputs.turnPosition.getRadians(), angleSetpoint.getRadians()));
     }
 
-    double adjustSpeedSetpoint = speedSetpoint * Math.cos(turnFeedback.getPositionError());
+    double adjustSpeedSetpoint = speedSetpoint * Math.cos(turnFeedback.getError());
 
     // Run drive controller
     double velocityRadPerSec = adjustSpeedSetpoint / wheelRadius;
