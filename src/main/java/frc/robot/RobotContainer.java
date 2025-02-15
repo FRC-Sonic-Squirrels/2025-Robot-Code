@@ -536,10 +536,7 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
-        .whileTrue(
-      
-              new ScoreAlgae(intake)
-        );
+        .whileTrue(new ScoreAlgae(intake));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Score Coral")
