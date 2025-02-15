@@ -49,8 +49,7 @@ public class IntakeAlgae extends Command {
     // check if tof for intake is ful if so rotate to pos and end
     logInputs_algaeInRobot.info(RobotStates.algaeInRobot);
     logInputs_rotateAtPos.info(intake.isPivotAtTargetAngle());
-    if (intake.timeOfFlight()) {
-      RobotStates.algaeInRobot = true;
+    if (RobotStates.algaeInRobot) {
       intake.setPivotAngle(PivotConstants.ALGAE_SCORE_ANGLE);
     }
   }

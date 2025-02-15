@@ -18,7 +18,7 @@ public class ScoreAlgae extends Command {
 
   private static final LoggedTunableNumber scoringVelocity = group.build("scoringVelocity", 400.0);
 
-  private Intake intake;
+  private final Intake intake;
 
   public ScoreAlgae(Intake intake) {
     this.intake = intake;
