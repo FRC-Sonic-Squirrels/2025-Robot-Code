@@ -363,8 +363,6 @@ public final class Constants {
     public static final Rotation2d MIN_ARM_ANGLE = Rotation2d.fromDegrees(-90);
     public static final Rotation2d HOME_POSITION = Rotation2d.fromDegrees(153.808);
 
-    public static final Rotation2d PASSOFF_ARM_ANGLE = Rotation2d.fromDegrees(102.6);
-
     public static final Rotation2d ARM_SAFE_ANGLE = Rotation2d.fromDegrees(-87);
 
     public static final Distance ARM_LENGTH =
