@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -291,6 +292,9 @@ public final class Constants {
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
     public static final Distance HOME_POSITION = Units.Inches.of(7.35);
+
+    public static final Distance ELEVATOR_SAFETY_MARGIN = Units.Inches.of(1.5);
+
     public static final String ROOT_TABLE = "Elevator";
 
     public static final InterpolatingDoubleTreeMap SPEED_SCALAR_MAP =
@@ -362,6 +366,8 @@ public final class Constants {
     public static final Rotation2d HOME_POSITION = MIN_ARM_ANGLE;
 
     public static final Rotation2d ARM_SAFE_ANGLE = Rotation2d.fromDegrees(-87);
+
+    public static final Angle ARM_SAFETY_MARGIN = Units.Degrees.of(5);
 
     public static final Distance ARM_LENGTH =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO

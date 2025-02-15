@@ -8,6 +8,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -32,6 +33,11 @@ public class MechanismActions {
   private static final LoggerEntry.Bool log_runningElevator =
       logGroup.buildBoolean("runningElevator");
   private static final LoggerEntry.Bool log_runningPivot = logGroup.buildBoolean("runningPivot");
+  private static final LoggerEntry.Bool log_SafeToMoveArm = logGroup.buildBoolean("SafeToMoveArm");
+  private static final LoggerEntry.Bool log_SafeToMoveElevator =
+      logGroup.buildBoolean("SafeToMoveElevator");
+  private static final LoggerEntry.Bool log_SafeToMovePivot =
+      logGroup.buildBoolean("SafeToMovePivot");
   private static final LoggerEntry.Bool log_ElevatorInPosition =
       logGroup.buildBoolean("ElevatorInPosition");
   private static final LoggerEntry.Bool log_PivotInPosition =
@@ -242,6 +248,13 @@ public class MechanismActions {
             }
           }
 
+          boolean runningElevator;
+          boolean runningArm;
+          boolean runningPivot;
+          Trigger safeToMoveElevator = new Trigger(() -> runningElevator).debounce(0.5);
+          Trigger safeToMoveArm = new Trigger(() -> runningArm).debounce(0.5);
+          Trigger safeToMovePivot = new Trigger(() -> runningPivot).debounce(0.5);
+
           @Override
           public void execute() {
             // update colliders for the moving parts
@@ -272,14 +285,14 @@ public class MechanismActions {
             // check the three moving parts against all other parts
             for (int i = 0; i < 3; i++) {
               for (int c = 0; c < colliders.length; c++) {
-                if (c == 0) { // dont check if the other is myself
+                if (c == i) { // dont check if the other is myself
                   continue;
                 }
                 // collision between the two colliders
-                if (colliders[i].checkCollision(colliders[i])) {
+                if (colliders[i].checkCollision(colliders[c])) {
                   // they hit eachother
                   collisions.add(new Collision(i, c, 1));
-                } else if (safeColliders[i].checkCollision(safeColliders[i])) {
+                } else if (safeColliders[i].checkCollision(safeColliders[c])) {
                   // oh no they are getting very close
                   collisions.add(new Collision(i, c, 0));
                 }
@@ -291,13 +304,13 @@ public class MechanismActions {
             // 2 means it is hitting another collider
             int elevatorMovePriority = 0;
 
-            boolean runningElevator = true;
+            runningElevator = safeToMoveElevator.getAsBoolean();
             for (Collision c : collisions) { // check against all collisions
               if (c.collider != 0) {
                 continue;
               }
               if (c.bad == 1) {
-                // if the thing we are hitting is lower than us
+                // if the thing we are hitting is higher than us
                 if (colliders[0].location.getY() < colliders[c.colliding].location.getY()) {
                   // move down
                   elevator.setHeight(Units.Inches.of(0));
@@ -310,12 +323,24 @@ public class MechanismActions {
 
                 break;
                 // close to hitting
-              } else if (c.bad == 0) {
-                // same logic as above
+              } else {
+                // if we are close dont check the safe colliders
+                if (Math.abs(
+                        elevator.getHeight().in(Units.Inches)
+                            - targetPosition.elevatorHeight().in(Units.Inches))
+                    < ElevatorConstants.ELEVATOR_SAFETY_MARGIN.in(Units.Inches)) {
+                  break;
+                }
                 if (colliders[0].location.getY() < colliders[c.colliding].location.getY()) {
-                  elevator.setHeight(Units.Inches.of(0));
+                  // if the collision isnt bad dont move it too much
+                  elevator.setHeight(
+                      Units.Inches.of(Math.max(elevator.getHeight().in(Units.Inches) - 1, 0)));
                 } else {
-                  elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
+                  elevator.setHeight(
+                      Units.Inches.of(
+                          Math.min(
+                              elevator.getHeight().in(Units.Inches) + 1,
+                              ElevatorConstants.MAX_HEIGHT.in(Units.Inches))));
                 }
                 elevatorMovePriority = 1;
                 runningElevator = false;
@@ -325,23 +350,27 @@ public class MechanismActions {
             }
             // same collision logic for arm and pivot
             // check arm
-            boolean runningArm = true;
-            for (Collision c : collisions) { // check against all collisions
+            runningArm = safeToMoveArm.getAsBoolean();
+            for (Collision c : collisions) {
               if (c.collider != 1) {
                 continue;
               }
-              if (colliders[1].checkCollision(colliders[c.colliding])) {
+              if (c.bad == 1) {
                 // only move the elevator if it is ok
                 if (elevatorMovePriority < 2) {
                   if (colliders[1].location.getY() < colliders[c.colliding].location.getY()) {
-                    elevator.setHeight(Units.Inches.of(0));
+                    elevator.setHeight(
+                        Units.Inches.of(Math.max(elevator.getHeight().in(Units.Inches) - 1, 0)));
                   } else {
-                    elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
+                    elevator.setHeight(
+                        Units.Inches.of(
+                            Math.min(
+                                elevator.getHeight().in(Units.Inches) + 1,
+                                ElevatorConstants.MAX_HEIGHT.in(Units.Inches))));
                   }
                   runningElevator = false;
                 }
                 // if the thing we are colliding with is to our left
-                // TODO: make sure this math is correct
                 if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[1].location.relativeTo(colliders[0].location))
@@ -356,30 +385,44 @@ public class MechanismActions {
                 runningArm = false;
 
                 break;
-              } else if (safeColliders[1].checkCollision(safeColliders[c.colliding])) {
-                // if we are close dont check the safe colliders
+              } else {
                 if (Math.abs(arm.getAngle().getDegrees() - targetPosition.armAngle().getDegrees())
-                    < 5) {
+                    < ArmConstants.ARM_SAFETY_MARGIN.in(Units.Degrees)) {
                   break;
                 }
-                // only move the elevator if it is ok
                 if (elevatorMovePriority < 1) {
                   if (colliders[1].location.getY() < colliders[c.colliding].location.getY()) {
-                    elevator.setHeight(Units.Inches.of(0));
+                    elevator.setHeight(
+                        Units.Inches.of(Math.max(elevator.getHeight().in(Units.Inches) - 1, 0)));
                   } else {
-                    elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
+                    elevator.setHeight(
+                        Units.Inches.of(
+                            Math.min(
+                                elevator.getHeight().in(Units.Inches) + 1,
+                                ElevatorConstants.MAX_HEIGHT.in(Units.Inches))));
                   }
                   runningElevator = false;
                 }
-                // same logic as above
+
                 if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[1].location.relativeTo(colliders[0].location))
                         .getX()
                     < 0.0) {
-                  arm.setAngle(ArmConstants.MAX_ARM_ANGLE);
+                  arm.setAngle(
+                      new Rotation2d(
+                          Units.Degrees.of(
+                              Math.min(
+                                  arm.getAngle().getDegrees() + 1,
+                                  ArmConstants.MAX_ARM_ANGLE.getDegrees()))));
                 } else {
-                  arm.setAngle(ArmConstants.MIN_ARM_ANGLE);
+                  // otherwise move left
+                  arm.setAngle(
+                      new Rotation2d(
+                          Units.Degrees.of(
+                              Math.max(
+                                  arm.getAngle().getDegrees() - 1,
+                                  ArmConstants.MIN_ARM_ANGLE.getDegrees()))));
                 }
                 runningArm = false;
 
@@ -387,14 +430,13 @@ public class MechanismActions {
               }
             }
             // check pivot
-            boolean runningPivot = true;
-            for (Collision c : collisions) { // check against all collisions
+            runningPivot = safeToMovePivot.getAsBoolean();
+            for (Collision c : collisions) {
               if (c.collider != 2) {
                 continue;
               }
-              if (colliders[2].checkCollision(colliders[c.colliding])) {
+              if (c.bad == 1) {
 
-                // same logic as above
                 if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[2].location.relativeTo(intakePos))
@@ -407,29 +449,44 @@ public class MechanismActions {
                 runningPivot = false;
 
                 break;
-              } else if (safeColliders[2].checkCollision(safeColliders[c.colliding])) {
-                // same logic as above
+              } else {
+                if (Math.abs(
+                        intake.getPivotAngle().getDegrees()
+                            - targetPosition.intakeAngle().getDegrees())
+                    < PivotConstants.PIVOT_SAFETY_MARGIN.in(Units.Degrees)) {
+                  break;
+                }
                 if (colliders[c.colliding]
                         .location
                         .relativeTo(colliders[2].location.relativeTo(intakePos))
                         .getX()
                     < 0.0) {
-                  intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
+                  intake.setPivotAngle(
+                      new Rotation2d(
+                          Units.Degrees.of(
+                              Math.min(
+                                  arm.getAngle().getDegrees() + 1,
+                                  PivotConstants.MAX_PIVOT_ANGLE.getDegrees()))));
                 } else {
-                  intake.setPivotAngle(PivotConstants.MIN_PIVOT_ANGLE);
+                  intake.setPivotAngle(
+                      new Rotation2d(
+                          Units.Degrees.of(
+                              Math.max(
+                                  arm.getAngle().getDegrees() - 1,
+                                  PivotConstants.MIN_PIVOT_ANGLE.getDegrees()))));
                 }
                 runningPivot = false;
 
                 break;
               }
             }
-            if (runningElevator) {
+            if (safeToMoveElevator.getAsBoolean()) {
               elevator.setHeight(targetPosition.elevatorHeight());
             }
-            if (runningArm) {
+            if (safeToMoveArm.getAsBoolean()) {
               arm.setAngle(targetPosition.armAngle());
             }
-            if (runningPivot) {
+            if (safeToMovePivot.getAsBoolean()) {
               intake.setPivotAngle(targetPosition.intakeAngle());
             }
 
@@ -440,6 +497,10 @@ public class MechanismActions {
             log_runningArm.info(runningArm);
             log_runningElevator.info(runningElevator);
             log_runningPivot.info(runningPivot);
+
+            log_SafeToMoveArm.info(safeToMoveArm.getAsBoolean());
+            log_SafeToMoveElevator.info(safeToMoveElevator.getAsBoolean());
+            log_SafeToMovePivot.info(safeToMovePivot.getAsBoolean());
 
             log_ElevatorInPosition.info(elevatorInPosition);
             log_ArmInPosition.info(armInPosition);
