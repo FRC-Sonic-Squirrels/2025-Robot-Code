@@ -103,6 +103,7 @@ public class MechanismActions {
     new MechanismPosition(
         Units.Inches.of(32), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
   };
+
   // the indices that the corresponding safePosition can safely get to without contacting anything
   private static int[][] connections = {
     {10},
@@ -110,18 +111,18 @@ public class MechanismActions {
     {1},
     {4, 11},
     {3, 11},
-    {10, 11},
+    {10, 11, 13},
     {7, 1, 12},
     {6, 2},
     {9, 11},
     {8, 11},
     {0, 5, 11, 13},
-    {3, 4, 6, 7, 8, 9, 10, 12, 13},
+    {3, 4, 5, 8, 9, 10, 12, 13},
     {1, 13, 11},
-    {10, 12, 11},
+    {10, 12, 11, 5},
   };
 
-  // generates a path with waypoints from one mechanismPos to another
+  // generates a path with waypoints from one MechanismPosition to another
   private static class MechanismPath {
     Node[] intermediatePositions;
     MechanismPosition endPosition;
@@ -191,21 +192,21 @@ public class MechanismActions {
         }
       }
       // pathfinding using a Dijkstra like algorithem
-      ArrayList<Node> newPoses = new ArrayList<>();
-      newPoses.add(new Node(null, closestStartIndex, 0));
-      ArrayList<Node> allPoses = new ArrayList<>();
+      ArrayList<Node> newNodes = new ArrayList<>();
+      newNodes.add(new Node(null, closestStartIndex, 0));
+      ArrayList<Node> closedNodes = new ArrayList<>();
       do {
         // find the newPose closest to the start
         int lowestDistIndex = -1;
         double lowestDist = 10000000;
-        for (int i = 0; i < newPoses.size(); i++) {
-          double distance = newPoses.get(i).distance;
+        for (int i = 0; i < newNodes.size(); i++) {
+          double distance = newNodes.get(i).distance;
           if (distance < lowestDist) {
             lowestDistIndex = i;
             lowestDist = distance;
           }
         }
-        Node currentNode = newPoses.get(lowestDistIndex);
+        Node currentNode = newNodes.get(lowestDistIndex);
         // we found the end
         if (currentNode.equals(new Node(null, closestEndIndex, 0))) {
           // go through the parents untill we find the start node
@@ -223,18 +224,18 @@ public class MechanismActions {
           intermediatePositions = intposes;
           break;
         }
-        allPoses.add(currentNode);
-        newPoses.remove(currentNode);
+        closedNodes.add(currentNode);
+        newNodes.remove(currentNode);
         // loop over the connected poses
         Node[] connectedNodes = getConnectedNodes(currentNode);
         for (int a = 0; a < connectedNodes.length; a++) {
           // dont check our parent node
           if (connectedNodes[a].equals(currentNode.parentNode)
-              || allPoses.contains(connectedNodes[a])) {
+              || closedNodes.contains(connectedNodes[a])) {
             continue;
           }
           // allready checked
-          if (allPoses.contains(connectedNodes[a])) {
+          if (closedNodes.contains(connectedNodes[a])) {
             double newDistance =
                 currentNode.distance
                     + getDistance(currentNode.position, connectedNodes[a].position)
@@ -243,8 +244,8 @@ public class MechanismActions {
             if (newDistance < connectedNodes[a].distance) {
               connectedNodes[a].distance = newDistance;
               connectedNodes[a].parentNode = currentNode;
-              newPoses.add(connectedNodes[a]);
-              allPoses.remove(connectedNodes[a]);
+              newNodes.add(connectedNodes[a]);
+              closedNodes.remove(connectedNodes[a]);
             }
             // new
           } else {
@@ -252,14 +253,14 @@ public class MechanismActions {
                 currentNode.distance
                     + getDistance(currentNode.position, connectedNodes[a].position);
             connectedNodes[a].parentNode = currentNode;
-            newPoses.add(connectedNodes[a]);
+            newNodes.add(connectedNodes[a]);
           }
         }
-      } while (newPoses.size() != 0);
+      } while (newNodes.size() != 0);
       // it should never exit with this condition
       // it should break after finding the end
       if (intermediatePositions == null) {
-        // if this triggers it means that a node has no inputs or outputs
+        // if this triggers it means that a node(s) is/are isolated from the rest of the network
         System.out.println("--------------NO PATH FOUND--------------");
       }
     }
