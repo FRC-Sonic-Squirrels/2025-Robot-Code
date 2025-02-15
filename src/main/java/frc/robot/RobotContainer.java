@@ -528,8 +528,8 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
-            MechanismActions.coralStationPosition(elevator, arm)
-                .alongWith(
+            MechanismActions.coralStationPosition(elevator, arm, intake)
+                .andThen(
                     new IntakeGamepieceCoralStation(
                         endEffector,
                         elevator,
@@ -568,7 +568,7 @@ public class RobotContainer {
                             elevator,
                             arm,
                             intake,
-                        endEffector,
+                            endEffector,
                             led,
                             ScoringDirection.LEFT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
@@ -585,7 +585,7 @@ public class RobotContainer {
                             elevator,
                             arm,
                             intake,
-                        endEffector,
+                            endEffector,
                             led,
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
@@ -718,26 +718,26 @@ public class RobotContainer {
     // Reef positions
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "L1 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L1));
+        .onTrue(MechanismActions.reefPosition(elevator, arm, intake, ScoringLevel.L1));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povRight, "L2 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L2));
+        .onTrue(MechanismActions.reefPosition(elevator, arm, intake, ScoringLevel.L2));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "L3 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L3));
+        .onTrue(MechanismActions.reefPosition(elevator, arm, intake, ScoringLevel.L3));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povUp, "L4 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
+        .onTrue(MechanismActions.reefPosition(elevator, arm, intake, ScoringLevel.L4));
 
     // Coral Station position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.y, "CoralStation Position")
-        .onTrue(MechanismActions.coralStationPosition(elevator, arm));
+        .onTrue(MechanismActions.coralStationPosition(elevator, arm, intake));
 
     // Stow position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.x, "Stow Position")
-        .onTrue(MechanismActions.stowPosition(elevator, arm));
+        .onTrue(MechanismActions.stowPosition(elevator, arm, intake));
 
     // Eject
     operatorController
