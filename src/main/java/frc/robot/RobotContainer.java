@@ -179,7 +179,7 @@ public class RobotContainer {
   private static TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
   private static LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
   private static LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
-  private static LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 60);
+  private static LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -366,9 +366,9 @@ public class RobotContainer {
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
           intake = new Intake(new IntakeIO() {});
-          endEffector = new EndEffector(new EndEffectorIO() {});
+          endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
-          arm = new Arm(new ArmIO() {});
+          arm = new Arm(new ArmIOReal());
           climber = new Climber(new ClimberIO() {});
           vision =
               new Vision(

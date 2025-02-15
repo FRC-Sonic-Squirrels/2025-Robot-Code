@@ -67,6 +67,14 @@ public class Arm extends SubsystemBase {
 
       maxVelocityConfig.initDefault(40);
       targetAccelerationConfig.initDefault(80);
+    } else {
+
+      kP.initDefault(30);
+      kD.initDefault(0.02);
+      kG.initDefault(1.3);
+
+      maxVelocityConfig.initDefault(40);
+      targetAccelerationConfig.initDefault(80);
     }
   }
 
@@ -144,7 +152,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void resetSensorToHomePosition() {
-    io.resetSensorPosition(Constants.ArmConstants.MIN_ARM_ANGLE);
+    io.resetSensorPosition(Constants.ArmConstants.HOME_POSITION);
   }
 
   public boolean setNeutralMode(NeutralModeValue value) {
