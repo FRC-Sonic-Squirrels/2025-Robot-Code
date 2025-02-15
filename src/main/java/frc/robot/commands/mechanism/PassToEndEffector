@@ -1,0 +1,22 @@
+package frc.robot.commands.mechanism;
+
+public class PassToEndEffector extends Commands{
+    private Intake intake;
+    private EndEffector endEffector;
+    private final Trigger gamepieceInIntake =
+        new Trigger(() -> RobotStates.coralInIntake).debounce(0.5);
+    
+    /** Creates a new IntakGround */
+  public PassToEndEffector(Intake intake, EndEffector endEffector) {
+
+    this.intake = intake;
+    this.endEffector = endEffector;
+
+    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(intake);
+    addRequirements(endEffector);
+  }
+
+  
+
+}
