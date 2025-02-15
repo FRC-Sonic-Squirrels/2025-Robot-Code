@@ -1078,6 +1078,35 @@ public class RobotContainer {
   }
 
   public void updateRobotState() {
+    if (!RobotMode.isSimBot()) {
+      RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
+
+      RobotStates.coralInEndEffectorNonScoringSide = (endEffector.nonScoringSideTOFSeenGamepiece());
+    }
+
+    RobotStates.coralInEndEffector =
+        RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide;
+
+    RobotStates.coralInRobot = RobotStates.coralInEndEffector || RobotStates.coralInIntake;
+
+    ScoringLevel level = RobotStates.scoringLevel;
+    logScoringLevelState.info(level);
+    logL1State.info(level == ScoringLevel.L1);
+    logL2State.info(level == ScoringLevel.L2);
+    logL3State.info(level == ScoringLevel.L3);
+    logL4State.info(level == ScoringLevel.L4);
+    logAlgaeClearingState.info(RobotStates.clearingAlgae);
+    logGamepieceInRobotState.info(RobotStates.coralInRobot);
+    logGamepieceInIntakeState.info(RobotStates.coralInIntake);
+    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
+    logGamepieceInEndEffectorScoringSideState.info(RobotStates.coralInEndEffectorScoringSide);
+    logGamepieceInEndEffectorNonScoringSideState.info(RobotStates.coralInEndEffectorNonScoringSide);
+
+    Trigger algaeInRobot =
+        new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())
+            .debounce(.1);
+
+    if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
     RobotStates.periodic();
 
     if (RobotStates.triggerForCoralInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
@@ -1086,6 +1115,14 @@ public class RobotContainer {
 
     if (!RobotStates.triggerForCoralInRobot.getAsBoolean() && led.getGamepieceStatus()) {
       led.setGamepieceStatus(false);
+    }
+
+    if (algaeInRobot.getAsBoolean()) {
+      RobotStates.algaeInRobot = true;
+    }
+
+    if (intake.intakeTimeOfFlight()) {
+      RobotStates.coralInIntake = true;
     }
   }
 

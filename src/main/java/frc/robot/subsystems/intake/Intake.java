@@ -115,7 +115,7 @@ public class Intake extends SubsystemBase {
   private double rollerTargetRPM;
 
   private ControlMode pivotControlMode = ControlMode.OPEN_LOOP;
-  private Rotation2d pivotTargetAngle;
+  private Rotation2d pivotTargetAngle = PivotConstants.HOME_POSITION;
 
   private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
 
@@ -265,9 +265,12 @@ public class Intake extends SubsystemBase {
     return Units.DegreesPerSecond.of(inputs.pivotVelocityDegreesPerSecond);
   }
 
-  public boolean timeOfFlight() {
+  public boolean rollerStallDetected() {
+    return inputs.rollerStallDetected;
+  }
+
+  public boolean intakeTimeOfFlight() {
     // TODO: get an actual value fot this this code is only for testing purposes
-    // return inputs.tofDistanceInches <= 1;
-    return true;
+    return inputs.tofDistanceInches <= 1;
   }
 }

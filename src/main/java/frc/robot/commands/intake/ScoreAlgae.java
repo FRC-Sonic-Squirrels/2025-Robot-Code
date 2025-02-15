@@ -37,7 +37,7 @@ public class ScoreAlgae extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (intake.isPivotAtTargetAngle()) {
+    if (intake.isPivotAtTargetAngle(PivotConstants.ALGAE_SCORE_ANGLE)) {
       intake.setRollerVelocity(scoringVelocity.get());
     }
   }
