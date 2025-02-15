@@ -16,10 +16,10 @@ import frc.robot.subsystems.intake.Intake;
 public class PassToEndEffector extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("PassToEndEffector");
   private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 500);
-  private Intake intake;
-  private EndEffector endEffector;
-  private Arm arm;
-  private Elevator elevator;
+  private final Intake intake;
+  private final EndEffector endEffector;
+  private final Arm arm;
+  private final Elevator elevator;
   private final Trigger gamepieceInEndEffector =
       new Trigger(() -> RobotStates.coralInIntake).debounce(0.5);
 
@@ -43,7 +43,7 @@ public class PassToEndEffector extends Command {
   @Override
   public void execute() {
     intake.setPivotAngle(PivotConstants.PASSOFF_PIVOT_ANGLE);
-    intake.setRollerVelocity(0);
+    intake.setRollerPercentOut(0);
     arm.setAngle(ArmConstants.PASSOFF_ARM_ANGLE);
     elevator.setHeight(ElevatorConstants.HOME_POSITION);
     endEffector.setVelocity(intakingVelocity.get());
@@ -55,6 +55,7 @@ public class PassToEndEffector extends Command {
     endEffector.setVelocity(0);
     intake.setPivotAngle(PivotConstants.HOME_POSITION);
     elevator.setHeight(ElevatorConstants.SAFE_HEIGHT);
+    MechanismActions.coralStationPosition(elevator, arm);
   }
 
   // Returns true when the command should end.
