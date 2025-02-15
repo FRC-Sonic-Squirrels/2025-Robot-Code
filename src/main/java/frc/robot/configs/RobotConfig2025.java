@@ -195,7 +195,7 @@ public class RobotConfig2025 extends RobotConfig {
   public static final String CORAL_STATION_SIDE_LEFT_CAMERA_NAME = "3_Coral_Left";
   public static final String CORAL_STATION_SIDE_RIGHT_CAMERA_NAME = "4_Coral_Right";
 
-  public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025Reefscape;
+  public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
 
   /*
    *

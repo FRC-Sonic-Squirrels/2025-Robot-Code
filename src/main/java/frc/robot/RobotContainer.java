@@ -184,6 +184,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+    DriverStation.silenceJoystickConnectionWarning(true);
+
     RobotType robotType = Constants.RobotMode.getRobot();
     Mode mode = Constants.RobotMode.getMode();
 
@@ -440,8 +442,9 @@ public class RobotContainer {
     for (int i = 1; i < customGamepieceCount; i++) {
       LoggedDashboardChooser<CoralStationLocation> chooser =
           new LoggedDashboardChooser<>(i + " CustomPickup");
-      for (CoralStationLocation side : CoralStationLocation.values())
+      for (CoralStationLocation side : CoralStationLocation.values()) {
         chooser.addOption(side.name(), side);
+      }
       chooser.addDefaultOption(CoralStationLocation.IA.name(), CoralStationLocation.IA);
       coralStationPosChooser.add(chooser);
     }
@@ -571,7 +574,7 @@ public class RobotContainer {
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     // Change scoring height
-    var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     Pose2d[] reefAprilTagPose = {
       layout.getTagPose(6).get().toPose2d(),

@@ -175,7 +175,7 @@ public class RobotConfig2023Rober extends RobotConfig {
   public static final String FRONT_RIGHT_CAMERA_NAME = "RightCamera";
   public static final String BACK_CAMERA_NAME = "Arducam_OV9281_Camera_4";
 
-  public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025Reefscape;
+  public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
 
   /*
    *
