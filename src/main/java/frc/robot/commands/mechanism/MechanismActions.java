@@ -304,7 +304,7 @@ public class MechanismActions {
             // 2 means it is hitting another collider
             int elevatorMovePriority = 0;
 
-            runningElevator = safeToMoveElevator.getAsBoolean();
+            runningElevator = true;
             for (Collision c : collisions) { // check against all collisions
               if (c.collider != 0) {
                 continue;
@@ -350,7 +350,7 @@ public class MechanismActions {
             }
             // same collision logic for arm and pivot
             // check arm
-            runningArm = safeToMoveArm.getAsBoolean();
+            runningArm = true;
             for (Collision c : collisions) {
               if (c.collider != 1) {
                 continue;
@@ -430,7 +430,7 @@ public class MechanismActions {
               }
             }
             // check pivot
-            runningPivot = safeToMovePivot.getAsBoolean();
+            runningPivot = true;
             for (Collision c : collisions) {
               if (c.collider != 2) {
                 continue;
