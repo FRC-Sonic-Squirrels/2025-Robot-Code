@@ -290,7 +290,7 @@ public final class Constants {
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
-    public static final Distance HOME_POSITION = Units.Inches.of(0.0);
+    public static final Distance HOME_POSITION = Units.Inches.of(26.96);
 
     public static final Distance ELEVATOR_SAFETY_MARGIN = Units.Inches.of(1.5);
     public static final String ROOT_TABLE = "Elevator";
@@ -361,7 +361,7 @@ public final class Constants {
 
     public static final Rotation2d MAX_ARM_ANGLE = Rotation2d.fromDegrees(165);
     public static final Rotation2d MIN_ARM_ANGLE = Rotation2d.fromDegrees(-90);
-    public static final Rotation2d HOME_POSITION = Rotation2d.fromDegrees(0);
+    public static final Rotation2d HOME_POSITION = Rotation2d.fromDegrees(153.808);
 
     public static final Rotation2d ARM_SAFE_ANGLE = Rotation2d.fromDegrees(-87);
 

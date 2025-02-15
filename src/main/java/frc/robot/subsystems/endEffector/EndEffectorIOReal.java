@@ -37,7 +37,8 @@ public class EndEffectorIOReal implements EndEffectorIO {
   private final MotionMagicVelocityVoltage closedLoopControl =
       new MotionMagicVelocityVoltage(0).withEnableFOC(true);
 
-  private final BaseStatusSignal[] refreshSet;
+  private final BaseStatusSignal[] refreshSetMotor;
+  private final BaseStatusSignal[] refreshSetSensors;
 
   private final CANrange scoringSideEndEffectorTOF =
       new CANrange(Constants.CanIDs.END_EFFECTOR_SCORING_SIDE_TOF_CAN_ID, "CANivore");
@@ -114,12 +115,13 @@ public class EndEffectorIOReal implements EndEffectorIO {
     scoringSideEndEffectorTOF.optimizeBusUtilization();
     nonScoringSideEndEffectorTOF.optimizeBusUtilization();
 
-    refreshSet =
+    refreshSetMotor =
         new BaseStatusSignal[] {
-          current,
-          deviceTemp,
-          appliedVoltage,
-          velocity,
+          current, deviceTemp, appliedVoltage, velocity,
+        };
+
+    refreshSetSensors =
+        new BaseStatusSignal[] {
           scoringSideTofDistance,
           nonScoringSideTofDistance,
           scoringSideTofDetected,
@@ -129,7 +131,8 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
   @Override
   public void updateInputs(Inputs inputs) {
-    inputs.refreshAll(refreshSet);
+    inputs.refreshAll(refreshSetMotor);
+    inputs.refreshAll(refreshSetSensors);
 
     inputs.currentAmps = current.getValue().in(Units.Amps);
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
