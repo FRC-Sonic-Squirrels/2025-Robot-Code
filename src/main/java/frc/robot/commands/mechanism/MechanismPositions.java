@@ -100,7 +100,7 @@ public class MechanismPositions {
       stowIntakeAngleDegrees.initDefault(0);
     } else {
       stowElevatorHeightInches.initDefault(11.6);
-      stowArmAngleDegrees.initDefault(11.6);
+      stowArmAngleDegrees.initDefault(-90);
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
       reefL2ElevatorHeightInches.initDefault(15);
@@ -129,7 +129,7 @@ public class MechanismPositions {
   public static MechanismPosition stowPosition() {
     return new MechanismPosition(
         Units.Inches.of(stowElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get()),
+        Rotation2d.fromDegrees(stowArmAngleDegrees.get()),
         Rotation2d.fromDegrees(stowIntakeAngleDegrees.get()));
   }
 

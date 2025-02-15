@@ -31,6 +31,8 @@ public class MechanismActions {
   private static final LoggerEntry.Bool log_ArmInPosition = logGroup.buildBoolean("ArmInPosition");
   private static final LoggerEntry.Bool log_AtPathEnd = logGroup.buildBoolean("AtPathEnd");
   private static final LoggerEntry.Integer log_PathIndex = logGroup.buildInteger("PathIndex");
+  private static final LoggerEntry.Integer log_SafePathIndex =
+      logGroup.buildInteger("SafePathIndex");
 
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
 
@@ -80,25 +82,47 @@ public class MechanismActions {
 
   // TODO: get actual positions and connections
   private static MechanismPosition[] safePositions = {
+    MechanismPositions.stowPosition(),
+    MechanismPositions.reefPosition(ScoringLevel.L1),
+    MechanismPositions.reefPosition(ScoringLevel.L2),
+    MechanismPositions.reefPosition(ScoringLevel.L3),
+    MechanismPositions.reefPosition(ScoringLevel.L4),
+    MechanismPositions.coralStationPosition(),
+    MechanismPositions.clearAlgaeLow1Position(),
+    MechanismPositions.clearAlgaeLow2Position(),
+    MechanismPositions.clearAlgaeHigh1Position(),
+    MechanismPositions.clearAlgaeHigh2Position(),
+    // intermediate between stow and coral station
     new MechanismPosition(
-        Units.Inches.of(10),
-        new Rotation2d(Units.Degrees.of(45)),
-        new Rotation2d(Units.Degrees.of(0))),
+        Units.Inches.of(32), Rotation2d.fromDegrees(-70), Rotation2d.fromDegrees(0)),
+    // flip from one side to the other
     new MechanismPosition(
-        Units.Inches.of(15),
-        new Rotation2d(Units.Degrees.of(45)),
-        new Rotation2d(Units.Degrees.of(0))),
+        Units.Inches.of(55), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
+    // go under the elevator to get to L1/2
     new MechanismPosition(
-        Units.Inches.of(55),
-        new Rotation2d(Units.Degrees.of(45)),
-        new Rotation2d(Units.Degrees.of(0))),
+        Units.Inches.of(0), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
+    // intermediate
     new MechanismPosition(
-        Units.Inches.of(11.2),
-        new Rotation2d(Units.Degrees.of(11.2)),
-        new Rotation2d(Units.Degrees.of(0)))
+        Units.Inches.of(32), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
   };
 
-  private static int[][] connections = {{1}, {0, 2}, {1, 3}, {2}};
+  private static int[][] connections = {
+    {5, 10},
+    {2, 12},
+    {1},
+    {4, 11},
+    {3, 11},
+    //    {3, 11},
+    {0, 10, 11},
+    {7, 11},
+    {6, 11},
+    {9, 11},
+    {8, 11},
+    {0, 5, 10, 13},
+    {3, 4, 6, 7, 8, 9, 10, 13},
+    {1, 13},
+    {10, 12, 11}
+  };
 
   private static class MechanismPath {
     Node[] intermediatePositions;
@@ -124,10 +148,12 @@ public class MechanismActions {
           return false;
         }
         Node n = (Node) o;
+        return n.positionIndex == this.positionIndex;
+        /*
         MechanismPosition np = n.position;
         return np.elevatorHeight().in(Units.Inches) == position.elevatorHeight().in(Units.Inches)
             && np.armAngle().getDegrees() == position.armAngle().getDegrees()
-            && np.intakeAngle().getDegrees() == position.intakeAngle().getDegrees();
+            && np.intakeAngle().getDegrees() == position.intakeAngle().getDegrees();*/
       }
     }
 
@@ -142,8 +168,9 @@ public class MechanismActions {
 
     double getDistance(MechanismPosition m1, MechanismPosition m2) {
       return Math.abs(m1.elevatorHeight().in(Units.Inches) - m2.elevatorHeight().in(Units.Inches))
-          + Math.abs(m1.armAngle().getDegrees() - m2.armAngle().getDegrees())
-          + Math.abs(m1.intakeAngle().getDegrees() - m2.intakeAngle().getDegrees());
+          + Math.abs(m1.armAngle().getDegrees() - m2.armAngle().getDegrees()) * (0.215);
+      // the pivot should not have much effect on the "distance" between mech poses
+      // + Math.abs(m1.intakeAngle().getDegrees() - m2.intakeAngle().getDegrees());
     }
 
     MechanismPath(MechanismPosition startPosition, MechanismPosition endPosition) {
@@ -206,7 +233,8 @@ public class MechanismActions {
         Node[] connectedNodes = getConnectedNodes(currentNode);
         for (int a = 0; a < connectedNodes.length; a++) {
           // dont check our parent node
-          if (connectedNodes[a].equals(currentNode.parentNode)) {
+          if (connectedNodes[a].equals(currentNode.parentNode)
+              || allPoses.contains(connectedNodes[a])) {
             continue;
           }
           // allready checked
@@ -231,19 +259,21 @@ public class MechanismActions {
           }
         }
       } while (newPoses.size() != 0);
+      // it should never exit with this condition
+      // it should break after finding the end
+      if (intermediatePositions == null) {
+        // if this triggers its bad news
+        System.err.println("--------------NO PATH FOUND--------------");
+      }
     }
 
     MechanismPosition getNextPosition() {
       MechanismPosition nextPosition = null;
       if (isAtEnd()) {
         nextPosition = endPosition;
-        System.out.println(
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
       } else {
         nextPosition = intermediatePositions[currentIndex].position;
         currentIndex++;
-        System.out.println(
-            "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
       }
 
       return nextPosition;
@@ -284,6 +314,10 @@ public class MechanismActions {
                     new MechanismPosition(
                         elevator.getHeight(), arm.getAngle(), intake.getPivotAngle()),
                     targetPosition);
+            if (path.intermediatePositions == null) {
+              shouldEnd = new Trigger(() -> true);
+              return;
+            }
             currentTargetPosition = path.getNextPosition();
           }
 
@@ -293,6 +327,9 @@ public class MechanismActions {
 
           @Override
           public void execute() {
+            if (path.intermediatePositions == null) {
+              return;
+            }
             if (elevator.isAtTarget() && arm.isAtTargetAngle() && intake.isPivotAtTargetAngle()) {
               currentTargetPosition = path.getNextPosition();
             }
@@ -308,6 +345,10 @@ public class MechanismActions {
             log_AtPathEnd.info(path.isAtEnd());
 
             log_PathIndex.info(path.currentIndex);
+            log_SafePathIndex.info(
+                path.intermediatePositions[
+                    Math.min(path.currentIndex, path.intermediatePositions.length - 1)]
+                    .positionIndex);
 
             log_runningArm.info(runningArm);
             log_runningElevator.info(runningElevator);
