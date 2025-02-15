@@ -65,7 +65,6 @@ import frc.robot.subsystems.arm.ArmIOReal;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
-import frc.robot.subsystems.climber.ClimberIOReal;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -515,38 +514,40 @@ public class RobotContainer {
                 .finallyDo(
                     () -> {
                       driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-                      led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
+                      led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                     }));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Score Coral")
         .whileTrue(
             new RunStateMachineCommand(
-                () ->
-                    new ScoreCoral(
-                        drivetrainWrapper,
-                        elevator,
-                        arm,
-                        endEffector,
-                        led,
-                        ScoringDirection.LEFT,
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                        Constants.RobotMode.getRobot().config.get())));
+                    () ->
+                        new ScoreCoral(
+                            drivetrainWrapper,
+                            elevator,
+                            arm,
+                            endEffector,
+                            led,
+                            ScoringDirection.LEFT,
+                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                            Constants.RobotMode.getRobot().config.get()))
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Score Coral")
         .whileTrue(
             new RunStateMachineCommand(
-                () ->
-                    new ScoreCoral(
-                        drivetrainWrapper,
-                        elevator,
-                        arm,
-                        endEffector,
-                        led,
-                        ScoringDirection.RIGHT,
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                        Constants.RobotMode.getRobot().config.get())));
+                    () ->
+                        new ScoreCoral(
+                            drivetrainWrapper,
+                            elevator,
+                            arm,
+                            endEffector,
+                            led,
+                            ScoringDirection.RIGHT,
+                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                            Constants.RobotMode.getRobot().config.get()))
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     // Change scoring height
     var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
@@ -579,6 +580,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L4;
+                  led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.x, "Score L3")
@@ -586,6 +588,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L3;
+                  led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.a, "Score L2")
@@ -593,6 +596,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L2;
+                  led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.b, "Score L1")
@@ -600,6 +604,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L1;
+                  led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
 
     driverController
@@ -974,7 +979,7 @@ public class RobotContainer {
     vision.useMaxDistanceAwayFromExistingEstimate(true);
     vision.useGyroBasedFilteringForVision(true);
 
-    led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
+    led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
 
     visionGamepiece.setPipelineIndex(1);
 

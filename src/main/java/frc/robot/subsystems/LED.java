@@ -12,10 +12,6 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.LoggerEntry;
@@ -23,6 +19,9 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
+import frc.robot.RobotStates;
+import frc.robot.RobotStates.ScoringLevel;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class LED extends SubsystemBase {
@@ -91,6 +90,17 @@ public class LED extends SubsystemBase {
       switch (robotState) {
         case BASE:
           switch (baseRobotState) {
+            case LEVEL_MODE:
+              if (RobotStates.scoringLevel == ScoringLevel.L1) {
+                setColorLevel(Color.kRed, Color.kGreen, 1);
+              } else if (RobotStates.scoringLevel == ScoringLevel.L2) {
+                setColorLevel(Color.kRed, Color.kGreen, 2);
+              } else if (RobotStates.scoringLevel == ScoringLevel.L3) {
+                setColorLevel(Color.kRed, Color.kGreen, 3);
+              } else if (RobotStates.scoringLevel == ScoringLevel.L4) {
+                setColorLevel(Color.kRed, Color.kGreen, 4);
+              }
+              break;
             case GAMEPIECE_STATUS:
               if (robotLoops < robotLoopsTillReady) {
                 setProgressBar(Color.kGreen, (double) robotLoops / (double) robotLoopsTillReady);
@@ -195,6 +205,16 @@ public class LED extends SubsystemBase {
   private void setProgressBar(Color color, double percent) {
     LEDPattern progress = LEDPattern.progressMaskLayer(() -> percent);
     progress.applyTo(ledBuffer);
+    led.setData(ledBuffer);
+  }
+
+  /** setColorLevel() - The LEDS will reflect where the levels are on the robot. */
+  private void setColorLevel(Color bgColor, Color lvColor, int level) {
+    double sectionStart = ((level * (0.25)) - 0.25);
+    double sectionEnd = (level * (0.25));
+    LEDPattern layers =
+        LEDPattern.steps(Map.of(0, bgColor, sectionStart, lvColor, sectionEnd, bgColor));
+    layers.applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
 
@@ -336,6 +356,7 @@ public class LED extends SubsystemBase {
     ALGAE_ALIGNMENT,
     INTAKE_SUCCESS,
     AUTO_DRIVE_TO_POSE,
-    GOAL_LINE_UP
+    GOAL_LINE_UP,
+    LEVEL_MODE
   }
 }
