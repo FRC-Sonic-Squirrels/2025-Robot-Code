@@ -1098,15 +1098,10 @@ public class RobotContainer {
     double robotY = robotTranslation.getY();
 
     double angleToCenter = Math.atan2(targetY - robotY, targetX - robotX);
-
-    double robotAngle = robotTranslation.getRotation().getRadians();
-    double angularError = angleToCenter - robotAngle;
     double normalizedAngleToCenter = Math.atan2(Math.sin(angleToCenter), Math.cos(angleToCenter));
 
-    var offset = centerPose.minus(robotTranslation);
-
-    double finalRotationAngle = robotAngle + controlOutput;
-    Rotation2d finalRotation = new Rotation2d(finalRotationAngle);
+    double finalRotationValue = normalizedAngleToCenter + controlOutput;
+    Rotation2d finalRotation = new Rotation2d(finalRotationValue);
     return finalRotation;
   }
 
@@ -1124,6 +1119,7 @@ public class RobotContainer {
       double kP, double kI, double kD, Pose2d robotTranslation) {
     Pose2d centerPose = new Pose2d();
     AllianceFlipUtil.flipPoseForAlliance(centerPose);
+    double controlOutput;
 
     double cumulativeError = 0.0;
     double previousError = 0.0;
@@ -1143,7 +1139,7 @@ public class RobotContainer {
     double rateOfChangeError = (currentError - previousError) / timeInterval;
     double derivativeOutput = kD * rateOfChangeError;
 
-    double controlOutput = proportionalOutput + integralOutput + derivativeOutput;
+    controlOutput = proportionalOutput + integralOutput + derivativeOutput;
 
     previousError = currentError;
     previousTime = currentTime;
