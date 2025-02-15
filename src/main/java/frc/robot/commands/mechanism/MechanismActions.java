@@ -36,6 +36,8 @@ public class MechanismActions {
   private static final LoggerEntry.Bool log_SafeToMoveArm = logGroup.buildBoolean("SafeToMoveArm");
   private static final LoggerEntry.Bool log_SafeToMoveElevator =
       logGroup.buildBoolean("SafeToMoveElevator");
+  private static final LoggerEntry.Integer log_numCollisions =
+      logGroup.buildInteger("numCollisions");
   private static final LoggerEntry.Bool log_SafeToMovePivot =
       logGroup.buildBoolean("SafeToMovePivot");
   private static final LoggerEntry.Bool log_ElevatorInPosition =
@@ -178,19 +180,19 @@ public class MechanismActions {
 
     @Override
     public int getSize() {
-      return 9;
+      return 12;
     }
 
     @Override
     public String getSchema() {
-      return "double collider;double colliding;int bad";
+      return "double collider;double colliding;double bad";
     }
 
     @Override
     public Collision unpack(ByteBuffer bb) {
       var collider = (int) bb.getDouble();
       var colliding = (int) bb.getDouble();
-      var bad = (int) bb.getInt();
+      var bad = (int) bb.getDouble();
       return new Collision(collider, colliding, bad);
     }
 
@@ -198,7 +200,7 @@ public class MechanismActions {
     public void pack(ByteBuffer bb, Collision value) {
       bb.putDouble(value.collider);
       bb.putDouble(value.colliding);
-      bb.putInt(value.bad);
+      bb.putDouble(value.bad);
     }
 
     @Override
@@ -231,9 +233,10 @@ public class MechanismActions {
             new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 7.0, 9.75),
             new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 13.0, 5.0),
             new collisionSquare(new Pose2d(new Translation2d(8, -1), Rotation2d.kZero), 18, 1),
-            new collisionSquare(new Pose2d(new Translation2d(17, 18), Rotation2d.kZero), 5, 5)
+            new collisionSquare(
+                new Pose2d(new Translation2d(17, 18), Rotation2d.kZero), 5, 5) // the fiend
           };
-          double SAFETY_BARRIER = 1.0;
+          double SAFETY_BARRIER = 5.0;
           Pose2d intakePos = new Pose2d(new Translation2d(19, 6.2), Rotation2d.kZero);
           collisionSquare[] safeColliders = new collisionSquare[colliders.length];
 
@@ -251,9 +254,9 @@ public class MechanismActions {
           boolean runningElevator;
           boolean runningArm;
           boolean runningPivot;
-          Trigger safeToMoveElevator = new Trigger(() -> runningElevator).debounce(0.5);
-          Trigger safeToMoveArm = new Trigger(() -> runningArm).debounce(0.5);
-          Trigger safeToMovePivot = new Trigger(() -> runningPivot).debounce(0.5);
+          Trigger safeToMoveElevator = new Trigger(() -> runningElevator).debounce(0.2);
+          Trigger safeToMoveArm = new Trigger(() -> runningArm).debounce(0.2);
+          Trigger safeToMovePivot = new Trigger(() -> runningPivot).debounce(0.2);
 
           @Override
           public void execute() {
@@ -292,7 +295,7 @@ public class MechanismActions {
                 if (colliders[i].checkCollision(colliders[c])) {
                   // they hit eachother
                   collisions.add(new Collision(i, c, 1));
-                } else if (safeColliders[i].checkCollision(safeColliders[c])) {
+                } else if (colliders[i].checkCollision(safeColliders[c])) {
                   // oh no they are getting very close
                   collisions.add(new Collision(i, c, 0));
                 }
@@ -359,14 +362,9 @@ public class MechanismActions {
                 // only move the elevator if it is ok
                 if (elevatorMovePriority < 2) {
                   if (colliders[1].location.getY() < colliders[c.colliding].location.getY()) {
-                    elevator.setHeight(
-                        Units.Inches.of(Math.max(elevator.getHeight().in(Units.Inches) - 1, 0)));
+                    elevator.setHeight(Units.Inches.of(0));
                   } else {
-                    elevator.setHeight(
-                        Units.Inches.of(
-                            Math.min(
-                                elevator.getHeight().in(Units.Inches) + 1,
-                                ElevatorConstants.MAX_HEIGHT.in(Units.Inches))));
+                    elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
                   }
                   runningElevator = false;
                 }
@@ -481,12 +479,15 @@ public class MechanismActions {
               }
             }
             if (safeToMoveElevator.getAsBoolean()) {
+              // if (runningElevator) {
               elevator.setHeight(targetPosition.elevatorHeight());
             }
             if (safeToMoveArm.getAsBoolean()) {
+              // if (runningArm) {
               arm.setAngle(targetPosition.armAngle());
             }
             if (safeToMovePivot.getAsBoolean()) {
+              // if (runningPivot) {
               intake.setPivotAngle(targetPosition.intakeAngle());
             }
 
@@ -506,11 +507,16 @@ public class MechanismActions {
             log_ArmInPosition.info(armInPosition);
             log_PivotInPosition.info(pivotInPosition);
 
-            log_EstimatedElevatorPosision.info(colliders[0].location);
+            log_EstimatedElevatorPosision.info(safeColliders[0].location);
             log_EstimatedArmPosision.info(colliders[1].location);
             log_EstimatedPivotPosision.info(colliders[2].location);
 
-            log_Collisions.info(collisions.toArray(new Collision[0]));
+            log_numCollisions.info(collisions.size());
+
+            // log_Collisions.info(new Collision[] {new Collision(0, 0, 0), new Collision(0, 0,
+            // 0)});
+            collisions.add(new Collision(0, 0, 0));
+            log_Collisions.info(collisions.toArray(new Collision[collisions.size()]));
           }
 
           @Override
