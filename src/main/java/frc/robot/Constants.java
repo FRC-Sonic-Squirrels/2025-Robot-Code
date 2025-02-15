@@ -290,7 +290,9 @@ public final class Constants {
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
-    public static final Distance HOME_POSITION = Units.Inches.of(7.35);
+    public static final Distance HOME_POSITION = Units.Inches.of(0.0);
+
+    public static final Distance ELEVATOR_SAFETY_MARGIN = Units.Inches.of(1.5);
     public static final String ROOT_TABLE = "Elevator";
 
     public static final InterpolatingDoubleTreeMap SPEED_SCALAR_MAP =
@@ -353,13 +355,13 @@ public final class Constants {
     public static final double GEAR_RATIO =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
             ? (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0)
-            : 7.9545;
+            : 27.7778;
 
     public static final double MOI = 0.15;
 
     public static final Rotation2d MAX_ARM_ANGLE = Rotation2d.fromDegrees(165);
     public static final Rotation2d MIN_ARM_ANGLE = Rotation2d.fromDegrees(-90);
-    public static final Rotation2d HOME_POSITION = MIN_ARM_ANGLE;
+    public static final Rotation2d HOME_POSITION = Rotation2d.fromDegrees(0);
 
     public static final Rotation2d ARM_SAFE_ANGLE = Rotation2d.fromDegrees(-87);
 
