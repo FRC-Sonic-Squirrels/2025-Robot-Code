@@ -696,6 +696,30 @@ public class RobotContainer {
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
 
+    // Change scoring height
+    var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+
+    Pose2d[] reefAprilTagPose = {
+      layout.getTagPose(6).get().toPose2d(),
+      layout.getTagPose(7).get().toPose2d(),
+      layout.getTagPose(8).get().toPose2d(),
+      layout.getTagPose(9).get().toPose2d(),
+      layout.getTagPose(10).get().toPose2d(),
+      layout.getTagPose(11).get().toPose2d(),
+      layout.getTagPose(17).get().toPose2d(),
+      layout.getTagPose(18).get().toPose2d(),
+      layout.getTagPose(19).get().toPose2d(),
+      layout.getTagPose(20).get().toPose2d(),
+      layout.getTagPose(21).get().toPose2d(),
+      layout.getTagPose(22).get().toPose2d()
+    };
+
+    Pose2d[] coralStationPose = {
+      layout.getTagPose(1).get().toPose2d(),
+      layout.getTagPose(2).get().toPose2d(),
+      layout.getTagPose(12).get().toPose2d(),
+      layout.getTagPose(13).get().toPose2d()
+    };
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
         .toggleOnTrue(
@@ -704,12 +728,18 @@ public class RobotContainer {
                 () -> {
                   Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
+                  double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
+
+                  Pose2d nearestReefAprilTag =
+                      findNearestAprilTag(robotTranslation, reefAprilTagPose);
+                  Pose2d nearestCoralStation =
+                      findNearestCoralStation(robotTranslation, coralStationPose);
+                  double finalRotationValue =
                   Rotation2d finalRotationValue =
                       RobotStates.coralInEndEffector
-                          ? findNearestAprilTag(robotTranslation, reefAprilTagPose).getRotation()
-                          : findNearestCoralStation(robotTranslation, coralStationPose)
-                              .getRotation();
-                  return finalRotationValue;
+                          ? nearestReefAprilTag.getRotation().getRadians() + controlOutput
+                          : nearestCoralStation.getRotation().getRadians() + controlOutput;
+                  return new Rotation2d(finalRotationValue);
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
@@ -1081,6 +1111,8 @@ public class RobotContainer {
   }
 
   /**
+   * Calculates the PID control variable
+   *
    * @param kP - Proportional gain
    * @param kI - Integral gain
    * @param kD - Derivative gain
