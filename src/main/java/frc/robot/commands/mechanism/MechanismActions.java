@@ -81,6 +81,8 @@ public class MechanismActions {
   }
 
   // TODO: get actual positions and connections
+  // for later: when adding more positions make sure to add it to the safePositions list
+  // and add its corresponding connections to the connections list
   private static MechanismPosition[] safePositions = {
     MechanismPositions.stowPosition(),
     MechanismPositions.reefPosition(ScoringLevel.L1),
@@ -105,7 +107,7 @@ public class MechanismActions {
     new MechanismPosition(
         Units.Inches.of(32), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
   };
-
+  // the indices that the corresponding safePosition can safely get to without contacting anything
   private static int[][] connections = {
     {10},
     {2, 12},
@@ -123,6 +125,7 @@ public class MechanismActions {
     {10, 12, 11},
   };
 
+  // generates a path with waypoints from one mechanismPos to another
   private static class MechanismPath {
     Node[] intermediatePositions;
     MechanismPosition endPosition;
@@ -148,14 +151,10 @@ public class MechanismActions {
         }
         Node n = (Node) o;
         return n.positionIndex == this.positionIndex;
-        /*
-        MechanismPosition np = n.position;
-        return np.elevatorHeight().in(Units.Inches) == position.elevatorHeight().in(Units.Inches)
-            && np.armAngle().getDegrees() == position.armAngle().getDegrees()
-            && np.intakeAngle().getDegrees() == position.intakeAngle().getDegrees();*/
       }
     }
 
+    // returns all nodes the nodes safePos connects to
     Node[] getConnectedNodes(Node n) {
       int[] connectedIndecies = connections[n.positionIndex];
       Node[] connectedNodes = new Node[connectedIndecies.length];
@@ -165,6 +164,7 @@ public class MechanismActions {
       return connectedNodes;
     }
 
+    // gets the "Distance" from one MechanismPosition to another
     double getDistance(MechanismPosition m1, MechanismPosition m2) {
       return Math.abs(m1.elevatorHeight().in(Units.Inches) - m2.elevatorHeight().in(Units.Inches))
           + Math.abs(m1.armAngle().getDegrees() - m2.armAngle().getDegrees()) * (0.5);
@@ -172,6 +172,7 @@ public class MechanismActions {
       // + Math.abs(m1.intakeAngle().getDegrees() - m2.intakeAngle().getDegrees());
     }
 
+    // the entire path creation is done when it is initialised, no need to call other methods
     MechanismPath(MechanismPosition startPosition, MechanismPosition endPosition) {
       this.endPosition = endPosition;
       int closestStartIndex = -1;
