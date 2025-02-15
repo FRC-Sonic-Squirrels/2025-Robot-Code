@@ -503,6 +503,10 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    if (RobotStates.coralInIntake) {
+      new PassToEndEffector(intake, endEffector, arm, elevator);
+    }
   }
 
   /**
