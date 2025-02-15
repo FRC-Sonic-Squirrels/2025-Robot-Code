@@ -19,6 +19,7 @@ public class PassToEndEffector extends Command {
   private final EndEffector endEffector;
   private final Arm arm;
   private final Elevator elevator;
+  private boolean coralAtStartOfCommand;
   private final Trigger gamepieceInEndEffector =
       new Trigger(() -> RobotStates.coralInIntake).debounce(0.5);
 
@@ -36,7 +37,9 @@ public class PassToEndEffector extends Command {
   }
 
   @Override
-  public void initialize() {}
+  public void initialize() {
+    coralAtStartOfCommand = RobotStates.coralInIntake;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -59,6 +62,6 @@ public class PassToEndEffector extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotStates.coralInEndEffector;
+    return RobotStates.coralInEndEffector || !coralAtStartOfCommand;
   }
 }
