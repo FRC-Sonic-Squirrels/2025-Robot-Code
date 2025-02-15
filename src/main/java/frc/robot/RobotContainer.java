@@ -166,9 +166,9 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private double kP = 1.0;
+  private double kP = 0.5;
   private double kI = 0.0;
-  private double kD = 5.0;
+  private double kD = 0.0;
 
   private static LoggerGroup robotStateLogGroup = LoggerGroup.build("RobotState");
   private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
@@ -734,12 +734,18 @@ public class RobotContainer {
                       findNearestAprilTag(robotTranslation, reefAprilTagPose);
                   Pose2d nearestCoralStation =
                       findNearestCoralStation(robotTranslation, coralStationPose);
-                  double finalRotationValue =
-                  Rotation2d finalRotationValue =
-                      RobotStates.coralInEndEffector
-                          ? nearestReefAprilTag.getRotation().getRadians() + controlOutput
-                          : nearestCoralStation.getRotation().getRadians() + controlOutput;
-                  return new Rotation2d(finalRotationValue);
+
+                  double finalRotationValue;
+                  finalRotationValue =
+                      RobotStates.coralInRobot
+                          ? nearestReefAprilTag.getRotation().getRadians()
+                          : nearestCoralStation.getRotation().getRadians();
+
+                  if (RobotStates.coralInRobot) {
+                    return new Rotation2d(finalRotationValue + controlOutput);
+                  } else {
+                    return new Rotation2d(finalRotationValue);
+                  }
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
 
@@ -1084,8 +1090,7 @@ public class RobotContainer {
    * @param reefAprilTagPose - List of all april tag positions
    * @return Rotates robot to face center
    */
-  public static Rotation2d faceTowardsCenter(
-      Pose2d robotTranslation, Pose2d[] reefAprilTagPose, double controlOutput) {
+  public static Rotation2d faceTowardsCenter(Pose2d robotTranslation, double controlOutput) {
     var center = FieldConstants.BLUE_REEF_CENTER_POSE;
     Pose2d centerPose = new Pose2d();
 
@@ -1097,7 +1102,7 @@ public class RobotContainer {
     double robotX = robotTranslation.getX();
     double robotY = robotTranslation.getY();
 
-    double angleToCenter = Math.atan2(targetY - robotY, targetX - robotX);
+    double angleToCenter = Math.atan2(robotY - targetY, robotX - targetX);
     double normalizedAngleToCenter = Math.atan2(Math.sin(angleToCenter), Math.cos(angleToCenter));
 
     double finalRotationValue = normalizedAngleToCenter + controlOutput;
@@ -1118,11 +1123,10 @@ public class RobotContainer {
       double kP, double kI, double kD, Pose2d robotTranslation) {
     Pose2d centerPose = new Pose2d();
     AllianceFlipUtil.flipPoseForAlliance(centerPose);
-    double controlOutput;
 
     double cumulativeError = 0.0;
     double previousError = 0.0;
-    long previousTime = System.nanoTime() / 1_000_000;
+    long previousTime = System.nanoTime();
     long currentTime = System.nanoTime();
     double timeInterval = (currentTime - previousTime) / 1_000_000.0;
 
@@ -1138,7 +1142,7 @@ public class RobotContainer {
     double rateOfChangeError = (currentError - previousError) / timeInterval;
     double derivativeOutput = kD * rateOfChangeError;
 
-    controlOutput = proportionalOutput + integralOutput + derivativeOutput;
+    double controlOutput = proportionalOutput + integralOutput + derivativeOutput;
 
     previousError = currentError;
     previousTime = currentTime;
