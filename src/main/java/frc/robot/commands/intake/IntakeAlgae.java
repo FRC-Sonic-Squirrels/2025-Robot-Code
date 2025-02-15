@@ -18,18 +18,20 @@ public class IntakeAlgae extends Command {
   private static final LoggerGroup logGroup = LoggerGroup.build("Intake Algae");
 
   private static final LoggerEntry.Bool logInputs_algaeInRobot =
-      logGroup.buildBoolean("algaeIntRobot");
+      logGroup.buildBoolean("algaeInRobot");
 
   private static final LoggerEntry.Bool logInputs_rotateAtPos =
-      logGroup.buildBoolean("rotateatPos");
+      logGroup.buildBoolean("rotateAtPos");
 
-  private Intake intake;
+  private final Intake intake;
 
-  private Trigger end =
-      new Trigger(() -> RobotStates.algaeInRobot || intake.isPivotAtTargetAngle()).debounce(0.5);
+  private final Trigger end;
 
   public IntakeAlgae(Intake intake) {
     this.intake = intake;
+
+    this.end =
+        new Trigger(() -> RobotStates.algaeInRobot || intake.isPivotAtTargetAngle()).debounce(0.5);
 
     addRequirements(intake);
   }
@@ -62,6 +64,6 @@ public class IntakeAlgae extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false; // !end.getAsBoolean();
+    return end.getAsBoolean();
   }
 }

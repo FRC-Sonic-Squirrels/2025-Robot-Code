@@ -18,9 +18,7 @@ public class ScoreAlgae extends Command {
 
   private static final LoggedTunableNumber scoringVelocity = group.build("scoringVelocity", 400.0);
 
-  Intake intake;
-
-  boolean shouldEnd = false;
+  private Intake intake;
 
   public ScoreAlgae(Intake intake) {
     this.intake = intake;
@@ -31,10 +29,9 @@ public class ScoreAlgae extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (!RobotStates.algaeInRobot) {
-      shouldEnd = true;
+    if (RobotStates.algaeInRobot) {
+      intake.setPivotAngle(PivotConstants.ALGAE_SCORE_ANGLE);
     }
-    intake.setPivotAngle(PivotConstants.ALGAE_SCORE_ANGLE);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -42,10 +39,6 @@ public class ScoreAlgae extends Command {
   public void execute() {
     if (intake.isPivotAtTargetAngle()) {
       intake.setRollerVelocity(scoringVelocity.get());
-    }
-    if (!intake.timeOfFlight()) {
-      shouldEnd = true;
-      RobotStates.algaeInRobot = false;
     }
   }
 
@@ -58,6 +51,6 @@ public class ScoreAlgae extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return shouldEnd;
+    return !RobotStates.algaeInRobot;
   }
 }

@@ -117,7 +117,7 @@ public class Intake extends SubsystemBase {
   private ControlMode pivotControlMode = ControlMode.OPEN_LOOP;
   private Rotation2d pivotTargetAngle;
 
-  private ControlMode rollerControlMode = ControlMode.CLOSED_LOOP;
+  private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
 
   /** Creates a new Intake. */
   public Intake(IntakeIO io) {
