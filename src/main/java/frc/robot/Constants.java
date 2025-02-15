@@ -269,8 +269,8 @@ public final class Constants {
 
   public static class ElevatorConstants { // TODO: check all constants for new season
     public static final double GEAR_RATIO =
-        RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO ? 23.05 : 10.667;
-    public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.256);
+        RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO ? 23.05 : 7.9545;
+    public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.35);
     public static final double CARRIAGE_MASS = 0.2; // arbitrary
 
     public static final double INCHES_TO_MOTOR_ROT =
