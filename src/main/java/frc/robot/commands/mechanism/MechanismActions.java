@@ -1,27 +1,17 @@
 package frc.robot.commands.mechanism;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.util.struct.Struct;
-import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
-import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
@@ -33,27 +23,11 @@ public class MechanismActions {
   private static final LoggerEntry.Bool log_runningElevator =
       logGroup.buildBoolean("runningElevator");
   private static final LoggerEntry.Bool log_runningPivot = logGroup.buildBoolean("runningPivot");
-  private static final LoggerEntry.Bool log_SafeToMoveArm = logGroup.buildBoolean("SafeToMoveArm");
-  private static final LoggerEntry.Bool log_SafeToMoveElevator =
-      logGroup.buildBoolean("SafeToMoveElevator");
-  private static final LoggerEntry.Integer log_numCollisions =
-      logGroup.buildInteger("numCollisions");
-  private static final LoggerEntry.Bool log_SafeToMovePivot =
-      logGroup.buildBoolean("SafeToMovePivot");
   private static final LoggerEntry.Bool log_ElevatorInPosition =
       logGroup.buildBoolean("ElevatorInPosition");
   private static final LoggerEntry.Bool log_PivotInPosition =
       logGroup.buildBoolean("PivotInPosition");
   private static final LoggerEntry.Bool log_ArmInPosition = logGroup.buildBoolean("ArmInPosition");
-
-  private static final LoggerEntry.Struct<Pose2d> log_EstimatedElevatorPosision =
-      logGroup.buildStruct(Pose2d.class, "EstimatedElevatorPosision");
-  private static final LoggerEntry.Struct<Pose2d> log_EstimatedArmPosision =
-      logGroup.buildStruct(Pose2d.class, "EstimatedArmPosision");
-  private static final LoggerEntry.Struct<Pose2d> log_EstimatedPivotPosision =
-      logGroup.buildStruct(Pose2d.class, "EstimatedPivotPosision");
-  private static final LoggerEntry.StructArray<Collision> log_Collisions =
-      logGroup.buildStructArray(Collision.class, "Collisions");
 
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
 
@@ -101,111 +75,149 @@ public class MechanismActions {
     return goToPositionParallel(elevator, arm, intake, position, false);
   }
 
-  private static class collisionSquare {
-    Pose2d location;
-    double xScale;
-    double yScale;
+  private static MechanismPosition[] safePositions = {
+    new MechanismPosition(Units.Inches.of(10), new Rotation2d(45), new Rotation2d(45)),
+    new MechanismPosition(Units.Inches.of(15), new Rotation2d(45), new Rotation2d(45))
+  };
 
-    collisionSquare(Pose2d location, double xScale, double yScale) {
-      this.location = location;
-      this.xScale = xScale / 2;
-      this.yScale = yScale / 2;
-    }
+  private static int[][] connections = {{1}, {0}};
 
-    boolean isInside(Translation2d point) {
-      return Math.abs(point.getX()) < this.xScale && Math.abs(point.getY()) < this.yScale;
-    }
+  private static class MechanismPath {
+    Node[] intermediatePositions;
+    MechanismPosition endPosition;
+    int currentIndex = 0;
 
-    Translation2d tranformPoint(double x, double y, Pose2d otherlocation) {
-      return new Translation2d(x, y)
-          .rotateBy(otherlocation.getRotation())
-          .plus(otherlocation.getTranslation())
-          .minus(this.location.getTranslation())
-          .rotateBy(this.location.getRotation().unaryMinus());
-    }
+    private static class Node {
+      Node parentNode;
+      MechanismPosition position;
+      double distance;
+      int positionIndex;
 
-    // for easier typey typey
-    boolean checkCollision(collisionSquare other) {
-      return checkCollision(other, true);
-    }
-
-    boolean checkCollision(collisionSquare other, boolean recurse) {
-      // subtract the location of this from other
-      Transform2d newPos = new Transform2d(Pose2d.kZero, other.location.relativeTo(this.location));
-      // check all four corners of the other against this
-      Translation2d cornerpp = tranformPoint(other.xScale, other.yScale, other.location);
-      if (isInside(cornerpp)) {
-        return true;
-      }
-      Translation2d cornerpn = tranformPoint(other.xScale, -other.yScale, other.location);
-      if (isInside(cornerpn)) {
-        return true;
-      }
-      Translation2d cornernp = tranformPoint(-other.xScale, other.yScale, other.location);
-      if (isInside(cornernp)) {
-        return true;
-      }
-      Translation2d cornernn = tranformPoint(-other.xScale, -other.yScale, other.location);
-      if (isInside(cornernn)) {
-        return true;
+      Node(Node parentNode, int positionIndex, double distance) {
+        this.parentNode = parentNode;
+        this.positionIndex = positionIndex;
+        this.position = safePositions[positionIndex];
+        this.distance = distance;
       }
 
-      if (recurse) {
-        // have the other check against us if it did not tell us to
-        return other.checkCollision(this, false);
-      } else {
-        // return false if none intersect
-        return false;
+      @Override
+      public boolean equals(Object o) {
+        Node n = (Node) o;
+        MechanismPosition np = n.position;
+        return np.elevatorHeight().in(Units.Inches) == position.elevatorHeight().in(Units.Inches)
+            && np.armAngle().getDegrees() == position.armAngle().getDegrees()
+            && np.intakeAngle().getDegrees() == position.intakeAngle().getDegrees();
       }
     }
-  }
 
-  public static record Collision(int collider, int colliding, int bad)
-      implements StructSerializable {
-
-    /** Pose3d struct for serialization. */
-    public static final CollisionStruct struct = new CollisionStruct();
-  }
-
-  public static class CollisionStruct implements Struct<Collision> {
-    @Override
-    public Class<Collision> getTypeClass() {
-      return Collision.class;
+    Node[] getConnectedNodes(Node n) {
+      int[] connectedIndecies = connections[n.positionIndex];
+      Node[] connectedNodes = new Node[connectedIndecies.length];
+      for (int i = 0; i < connectedIndecies.length; i++) {
+        connectedNodes[i] = new Node(n, connectedIndecies[i], 0);
+      }
+      return connectedNodes;
     }
 
-    @Override
-    public String getTypeName() {
-      return "Collision";
+    double getDistance(MechanismPosition m1, MechanismPosition m2) {
+      return Math.abs(m1.elevatorHeight().in(Units.Inches) - m2.elevatorHeight().in(Units.Inches))
+          + Math.abs(m1.armAngle().getDegrees() - m2.armAngle().getDegrees())
+          + Math.abs(m1.intakeAngle().getDegrees() - m2.intakeAngle().getDegrees());
     }
 
-    @Override
-    public int getSize() {
-      return 12;
+    MechanismPath(MechanismPosition endPosition, MechanismPosition startPosition) {
+      this.endPosition = endPosition;
+      int closestStartIndex = -1;
+      double closestDistance = 10000000;
+      // find the closest end and start positions
+      for (int i = 0; i < safePositions.length; i++) {
+        double distance = getDistance(startPosition, safePositions[i]);
+        if (distance < closestDistance) {
+          closestStartIndex = i;
+          closestDistance = distance;
+        }
+      }
+      int closestEndIndex = -1;
+      closestDistance = 10000000;
+      for (int i = 0; i < safePositions.length; i++) {
+        double distance = getDistance(endPosition, safePositions[i]);
+        if (distance < closestDistance) {
+          closestEndIndex = i;
+          closestDistance = distance;
+        }
+      }
+      // pathfinding using a Dijkstra like algorithem
+      ArrayList<Node> newPoses = new ArrayList<>();
+      newPoses.add(new Node(null, closestStartIndex, 0));
+      ArrayList<Node> allPoses = new ArrayList<>();
+      do {
+        // find the newPose closest to the start
+        int lowestDistIndex = -1;
+        double lowestDist = 10000000;
+        for (int i = 0; i < newPoses.size(); i++) {
+          double distance = newPoses.get(i).distance;
+          if (distance < lowestDist) {
+            lowestDistIndex = i;
+            lowestDist = distance;
+          }
+        }
+        Node currentNode = newPoses.get(lowestDistIndex);
+        // we found the end
+        if (currentNode.equals(new Node(null, closestEndIndex, 0))) {
+          // go through the parents untill we find the start node
+          ArrayList<Node> pathNodes = new ArrayList<>();
+          Node lastNode = currentNode;
+          do {
+            pathNodes.add(lastNode);
+            lastNode = lastNode.parentNode;
+          } while (!lastNode.parentNode.equals(new Node(null, closestStartIndex, 0)));
+          Node[] intposes = new Node[pathNodes.size()];
+          // reverse the arrayList and send it to an array
+          for (int i = 0; i < pathNodes.size(); i++) {
+            intposes[pathNodes.size() - 1 - i] = pathNodes.get(i);
+          }
+          intermediatePositions = intposes;
+        }
+        allPoses.add(currentNode);
+        newPoses.remove(currentNode);
+        // loop over the connected poses
+        Node[] connectedNodes = getConnectedNodes(newPoses.get(lowestDistIndex));
+        for (int a = 0; a < connectedNodes.length; a++) {
+          // dont check our parent node
+          if (connectedNodes[a].equals(currentNode.parentNode)) {
+            continue;
+          }
+          // allready checked
+          if (allPoses.contains(connectedNodes[a])) {
+            double newDistance =
+                currentNode.distance
+                    + getDistance(currentNode.position, connectedNodes[a].position);
+            // faster route
+            if (newDistance < connectedNodes[a].distance) {
+              connectedNodes[a].distance = newDistance;
+              connectedNodes[a].parentNode = currentNode;
+              newPoses.add(connectedNodes[a]);
+              allPoses.remove(connectedNodes[a]);
+            }
+            // new
+          } else {
+            connectedNodes[a].distance =
+                currentNode.distance
+                    + getDistance(currentNode.position, connectedNodes[a].position);
+            connectedNodes[a].parentNode = currentNode;
+            newPoses.add(connectedNodes[a]);
+          }
+        }
+      } while (newPoses.size() != 0);
     }
 
-    @Override
-    public String getSchema() {
-      return "double collider;double colliding;double bad";
+    MechanismPosition getNextPosition() {
+      currentIndex++;
+      return intermediatePositions[currentIndex - 1].position;
     }
 
-    @Override
-    public Collision unpack(ByteBuffer bb) {
-      var collider = (int) bb.getDouble();
-      var colliding = (int) bb.getDouble();
-      var bad = (int) bb.getDouble();
-      return new Collision(collider, colliding, bad);
-    }
-
-    @Override
-    public void pack(ByteBuffer bb, Collision value) {
-      bb.putDouble(value.collider);
-      bb.putDouble(value.colliding);
-      bb.putDouble(value.bad);
-    }
-
-    @Override
-    public boolean isImmutable() {
-      return true;
+    boolean isAtEnd() {
+      return currentIndex == intermediatePositions.length + 1;
     }
   }
 
@@ -222,273 +234,38 @@ public class MechanismActions {
           boolean armInPosition = false;
           boolean pivotInPosition = false;
           MechanismPosition targetPosition = position.get();
-          // the first 3 are the elevator, arm, and pivot
-          // 0,0 is the bottom of the elevator
-          // 1 unit is 1 inch
-          // positive x is from the elevator to the intake
-          // positive y is up
-          // TODO: get actual values and poses for colldiers
-          collisionSquare[] colliders = {
-            new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 2.0, 1.0),
-            new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 7.0, 9.75),
-            new collisionSquare(new Pose2d(new Translation2d(0, -1), Rotation2d.kZero), 13.0, 5.0),
-            new collisionSquare(new Pose2d(new Translation2d(8, -1), Rotation2d.kZero), 18, 1),
-            new collisionSquare(
-                new Pose2d(new Translation2d(17, 18), Rotation2d.kZero), 5, 5) // the fiend
-          };
-          double SAFETY_BARRIER = 5.0;
-          Pose2d intakePos = new Pose2d(new Translation2d(19, 6.2), Rotation2d.kZero);
-          collisionSquare[] safeColliders = new collisionSquare[colliders.length];
+          MechanismPosition currentTargetPosition;
+
+          MechanismPath path;
 
           @Override
           public void initialize() {
-            for (int i = 0; i < colliders.length; i++) {
-              safeColliders[i] =
-                  new collisionSquare(
-                      colliders[i].location,
-                      colliders[i].xScale + SAFETY_BARRIER,
-                      colliders[i].yScale + SAFETY_BARRIER);
-            }
+            path =
+                new MechanismPath(
+                    new MechanismPosition(
+                        elevator.getHeight(), arm.getAngle(), intake.getPivotAngle()),
+                    targetPosition);
+            currentTargetPosition = path.getNextPosition();
           }
 
           boolean runningElevator;
           boolean runningArm;
           boolean runningPivot;
-          Trigger safeToMoveElevator = new Trigger(() -> runningElevator).debounce(0.2);
-          Trigger safeToMoveArm = new Trigger(() -> runningArm).debounce(0.2);
-          Trigger safeToMovePivot = new Trigger(() -> runningPivot).debounce(0.2);
 
           @Override
           public void execute() {
-            // update colliders for the moving parts
-            // elevator
-            colliders[0].location =
-                new Pose2d(
-                    new Translation2d(0.0, elevator.getHeight().in(Units.Inches)),
-                    colliders[0].location.getRotation());
-            safeColliders[0].location = colliders[0].location;
-            // arm, elevator plus arm stuff
-            colliders[1].location =
-                colliders[0].location.plus(
-                    new Transform2d(
-                        new Translation2d(ArmConstants.ARM_LENGTH.in(Units.Inches), 0)
-                            .rotateBy(arm.getAngle()),
-                        arm.getAngle()));
-            safeColliders[1].location = colliders[1].location;
-            // pivot
-            colliders[2].location =
-                intakePos.plus(
-                    new Transform2d(
-                        new Translation2d(PivotConstants.PIVOT_LENGTH.in(Units.Inches), 0)
-                            .rotateBy(intake.getPivotAngle()),
-                        intake.getPivotAngle()));
-            safeColliders[2].location = colliders[2].location;
-
-            ArrayList<Collision> collisions = new ArrayList<>(1);
-            // check the three moving parts against all other parts
-            for (int i = 0; i < 3; i++) {
-              for (int c = 0; c < colliders.length; c++) {
-                if (c == i) { // dont check if the other is myself
-                  continue;
-                }
-                // collision between the two colliders
-                if (colliders[i].checkCollision(colliders[c])) {
-                  // they hit eachother
-                  collisions.add(new Collision(i, c, 1));
-                } else if (colliders[i].checkCollision(safeColliders[c])) {
-                  // oh no they are getting very close
-                  collisions.add(new Collision(i, c, 0));
-                }
-              }
-            }
-            // check elevator
-            // 0 means it is fine
-            // 1 means it is close to another collider
-            // 2 means it is hitting another collider
-            int elevatorMovePriority = 0;
-
-            runningElevator = true;
-            for (Collision c : collisions) { // check against all collisions
-              if (c.collider != 0) {
-                continue;
-              }
-              if (c.bad == 1) {
-                // if the thing we are hitting is higher than us
-                if (colliders[0].location.getY() < colliders[c.colliding].location.getY()) {
-                  // move down
-                  elevator.setHeight(Units.Inches.of(0));
-                } else {
-                  // otherwise move up
-                  elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
-                }
-                elevatorMovePriority = 2;
-                runningElevator = false;
-
-                break;
-                // close to hitting
-              } else {
-                // if we are close dont check the safe colliders
-                if (Math.abs(
-                        elevator.getHeight().in(Units.Inches)
-                            - targetPosition.elevatorHeight().in(Units.Inches))
-                    < ElevatorConstants.ELEVATOR_SAFETY_MARGIN.in(Units.Inches)) {
-                  break;
-                }
-                if (colliders[0].location.getY() < colliders[c.colliding].location.getY()) {
-                  // if the collision isnt bad dont move it too much
-                  elevator.setHeight(
-                      Units.Inches.of(Math.max(elevator.getHeight().in(Units.Inches) - 1, 0)));
-                } else {
-                  elevator.setHeight(
-                      Units.Inches.of(
-                          Math.min(
-                              elevator.getHeight().in(Units.Inches) + 1,
-                              ElevatorConstants.MAX_HEIGHT.in(Units.Inches))));
-                }
-                elevatorMovePriority = 1;
-                runningElevator = false;
-
-                break;
-              }
-            }
-            // same collision logic for arm and pivot
-            // check arm
-            runningArm = true;
-            for (Collision c : collisions) {
-              if (c.collider != 1) {
-                continue;
-              }
-              if (c.bad == 1) {
-                // only move the elevator if it is ok
-                if (elevatorMovePriority < 2) {
-                  if (colliders[1].location.getY() < colliders[c.colliding].location.getY()) {
-                    elevator.setHeight(Units.Inches.of(0));
-                  } else {
-                    elevator.setHeight(ElevatorConstants.MAX_HEIGHT);
-                  }
-                  runningElevator = false;
-                }
-                // if the thing we are colliding with is to our left
-                if (colliders[c.colliding]
-                        .location
-                        .relativeTo(colliders[1].location.relativeTo(colliders[0].location))
-                        .getX()
-                    < 0.0) {
-                  // move right
-                  arm.setAngle(ArmConstants.MAX_ARM_ANGLE);
-                } else {
-                  // otherwise move left
-                  arm.setAngle(ArmConstants.MIN_ARM_ANGLE);
-                }
-                runningArm = false;
-
-                break;
-              } else {
-                if (Math.abs(arm.getAngle().getDegrees() - targetPosition.armAngle().getDegrees())
-                    < ArmConstants.ARM_SAFETY_MARGIN.in(Units.Degrees)) {
-                  break;
-                }
-                if (elevatorMovePriority < 1) {
-                  if (colliders[1].location.getY() < colliders[c.colliding].location.getY()) {
-                    elevator.setHeight(
-                        Units.Inches.of(Math.max(elevator.getHeight().in(Units.Inches) - 1, 0)));
-                  } else {
-                    elevator.setHeight(
-                        Units.Inches.of(
-                            Math.min(
-                                elevator.getHeight().in(Units.Inches) + 1,
-                                ElevatorConstants.MAX_HEIGHT.in(Units.Inches))));
-                  }
-                  runningElevator = false;
-                }
-
-                if (colliders[c.colliding]
-                        .location
-                        .relativeTo(colliders[1].location.relativeTo(colliders[0].location))
-                        .getX()
-                    < 0.0) {
-                  arm.setAngle(
-                      new Rotation2d(
-                          Units.Degrees.of(
-                              Math.min(
-                                  arm.getAngle().getDegrees() + 1,
-                                  ArmConstants.MAX_ARM_ANGLE.getDegrees()))));
-                } else {
-                  // otherwise move left
-                  arm.setAngle(
-                      new Rotation2d(
-                          Units.Degrees.of(
-                              Math.max(
-                                  arm.getAngle().getDegrees() - 1,
-                                  ArmConstants.MIN_ARM_ANGLE.getDegrees()))));
-                }
-                runningArm = false;
-
-                break;
-              }
-            }
-            // check pivot
-            runningPivot = true;
-            for (Collision c : collisions) {
-              if (c.collider != 2) {
-                continue;
-              }
-              if (c.bad == 1) {
-
-                if (colliders[c.colliding]
-                        .location
-                        .relativeTo(colliders[2].location.relativeTo(intakePos))
-                        .getX()
-                    < 0.0) {
-                  intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
-                } else {
-                  intake.setPivotAngle(PivotConstants.MIN_PIVOT_ANGLE);
-                }
-                runningPivot = false;
-
-                break;
-              } else {
-                if (Math.abs(
-                        intake.getPivotAngle().getDegrees()
-                            - targetPosition.intakeAngle().getDegrees())
-                    < PivotConstants.PIVOT_SAFETY_MARGIN.in(Units.Degrees)) {
-                  break;
-                }
-                if (colliders[c.colliding]
-                        .location
-                        .relativeTo(colliders[2].location.relativeTo(intakePos))
-                        .getX()
-                    < 0.0) {
-                  intake.setPivotAngle(
-                      new Rotation2d(
-                          Units.Degrees.of(
-                              Math.min(
-                                  arm.getAngle().getDegrees() + 1,
-                                  PivotConstants.MAX_PIVOT_ANGLE.getDegrees()))));
-                } else {
-                  intake.setPivotAngle(
-                      new Rotation2d(
-                          Units.Degrees.of(
-                              Math.max(
-                                  arm.getAngle().getDegrees() - 1,
-                                  PivotConstants.MIN_PIVOT_ANGLE.getDegrees()))));
-                }
-                runningPivot = false;
-
-                break;
-              }
-            }
-            if (safeToMoveElevator.getAsBoolean()) {
-              // if (runningElevator) {
+            if (path.isAtEnd()) {
               elevator.setHeight(targetPosition.elevatorHeight());
-            }
-            if (safeToMoveArm.getAsBoolean()) {
-              // if (runningArm) {
               arm.setAngle(targetPosition.armAngle());
-            }
-            if (safeToMovePivot.getAsBoolean()) {
-              // if (runningPivot) {
               intake.setPivotAngle(targetPosition.intakeAngle());
+            } else {
+              elevator.setHeight(currentTargetPosition.elevatorHeight());
+              arm.setAngle(currentTargetPosition.armAngle());
+              intake.setPivotAngle(currentTargetPosition.intakeAngle());
+
+              if (elevator.isAtTarget() && arm.isAtTargetAngle() && intake.isPivotAtTargetAngle()) {
+                currentTargetPosition = path.getNextPosition();
+              }
             }
 
             elevatorInPosition = elevator.isAtTarget();
@@ -499,29 +276,14 @@ public class MechanismActions {
             log_runningElevator.info(runningElevator);
             log_runningPivot.info(runningPivot);
 
-            log_SafeToMoveArm.info(safeToMoveArm.getAsBoolean());
-            log_SafeToMoveElevator.info(safeToMoveElevator.getAsBoolean());
-            log_SafeToMovePivot.info(safeToMovePivot.getAsBoolean());
-
             log_ElevatorInPosition.info(elevatorInPosition);
             log_ArmInPosition.info(armInPosition);
             log_PivotInPosition.info(pivotInPosition);
-
-            log_EstimatedElevatorPosision.info(safeColliders[0].location);
-            log_EstimatedArmPosision.info(colliders[1].location);
-            log_EstimatedPivotPosision.info(colliders[2].location);
-
-            log_numCollisions.info(collisions.size());
-
-            // log_Collisions.info(new Collision[] {new Collision(0, 0, 0), new Collision(0, 0,
-            // 0)});
-            collisions.add(new Collision(0, 0, 0));
-            log_Collisions.info(collisions.toArray(new Collision[collisions.size()]));
           }
 
           @Override
           public boolean isFinished() {
-            return elevatorInPosition && armInPosition && pivotInPosition;
+            return elevatorInPosition && armInPosition && pivotInPosition && path.isAtEnd();
           }
         };
 
