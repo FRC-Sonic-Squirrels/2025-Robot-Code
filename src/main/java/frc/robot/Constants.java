@@ -251,8 +251,6 @@ public final class Constants {
       public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(-30);
       public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
 
-      public static final Rotation2d MIN_PIVOT_ANGLE_NEW = Rotation2d.fromDegrees(0);
-
       public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
 
       public static final String ROOT_TABLE = "IntakePivot";
