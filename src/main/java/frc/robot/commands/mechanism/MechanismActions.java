@@ -97,31 +97,30 @@ public class MechanismActions {
         Units.Inches.of(32), Rotation2d.fromDegrees(-70), Rotation2d.fromDegrees(0)),
     // flip from one side to the other
     new MechanismPosition(
-        Units.Inches.of(55), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
+        Units.Inches.of(55), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
     // go under the elevator to get to L1/2
     new MechanismPosition(
-        Units.Inches.of(0), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
+        Units.Inches.of(0), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
     // intermediate
     new MechanismPosition(
-        Units.Inches.of(32), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0)),
+        Units.Inches.of(32), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
   };
 
   private static int[][] connections = {
-    {5, 10},
+    {10},
     {2, 12},
     {1},
     {4, 11},
     {3, 11},
-    //    {3, 11},
-    {0, 10, 11},
-    {7, 11},
-    {6, 11},
+    {10, 11},
+    {7, 1, 12},
+    {6, 2},
     {9, 11},
     {8, 11},
-    {0, 5, 10, 13},
-    {3, 4, 6, 7, 8, 9, 10, 13},
-    {1, 13},
-    {10, 12, 11}
+    {0, 5, 11, 13},
+    {3, 4, 6, 7, 8, 9, 10, 12, 13},
+    {1, 13, 11},
+    {10, 12, 11},
   };
 
   private static class MechanismPath {
@@ -168,7 +167,7 @@ public class MechanismActions {
 
     double getDistance(MechanismPosition m1, MechanismPosition m2) {
       return Math.abs(m1.elevatorHeight().in(Units.Inches) - m2.elevatorHeight().in(Units.Inches))
-          + Math.abs(m1.armAngle().getDegrees() - m2.armAngle().getDegrees()) * (0.215);
+          + Math.abs(m1.armAngle().getDegrees() - m2.armAngle().getDegrees()) * (0.5);
       // the pivot should not have much effect on the "distance" between mech poses
       // + Math.abs(m1.intakeAngle().getDegrees() - m2.intakeAngle().getDegrees());
     }
@@ -241,7 +240,8 @@ public class MechanismActions {
           if (allPoses.contains(connectedNodes[a])) {
             double newDistance =
                 currentNode.distance
-                    + getDistance(currentNode.position, connectedNodes[a].position);
+                    + getDistance(currentNode.position, connectedNodes[a].position)
+                    + 10;
             // faster route
             if (newDistance < connectedNodes[a].distance) {
               connectedNodes[a].distance = newDistance;
@@ -262,7 +262,7 @@ public class MechanismActions {
       // it should never exit with this condition
       // it should break after finding the end
       if (intermediatePositions == null) {
-        // if this triggers its bad news
+        // if this triggers it means that a node has no inputs or outputs
         System.err.println("--------------NO PATH FOUND--------------");
       }
     }
@@ -346,9 +346,7 @@ public class MechanismActions {
 
             log_PathIndex.info(path.currentIndex);
             log_SafePathIndex.info(
-                path.intermediatePositions[
-                    Math.min(path.currentIndex, path.intermediatePositions.length - 1)]
-                    .positionIndex);
+                path.intermediatePositions[Math.max(path.currentIndex - 1, 0)].positionIndex);
 
             log_runningArm.info(runningArm);
             log_runningElevator.info(runningElevator);
