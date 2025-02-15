@@ -100,7 +100,7 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.0002);
       rollerTargetAccelerationConfig.initDefault(0.0);
 
-      pKP.initDefault(.2);
+      pKP.initDefault(.01);
       pKD.initDefault(0);
       pKG.initDefault(0.0);
 
@@ -117,9 +117,7 @@ public class Intake extends SubsystemBase {
   private ControlMode pivotControlMode = ControlMode.OPEN_LOOP;
   private Rotation2d pivotTargetAngle;
 
-  private double pivotTargetAngleDegrees;
-
-  private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
+  private ControlMode rollerControlMode = ControlMode.CLOSED_LOOP;
 
   /** Creates a new Intake. */
   public Intake(IntakeIO io) {
@@ -187,10 +185,10 @@ public class Intake extends SubsystemBase {
   }
 
   public void setRollerVelocity(double revPerMin) {
+    rollerControlMode = ControlMode.CLOSED_LOOP;
     io.setRollerVelocity(revPerMin);
     rollerTargetRPM = revPerMin;
     logRollerTargetVelocityRPM.info(rollerTargetRPM);
-    rollerControlMode = ControlMode.CLOSED_LOOP;
   }
 
   private void setPivotConstants() {
@@ -210,9 +208,8 @@ public class Intake extends SubsystemBase {
 
     pivotControlMode = ControlMode.CLOSED_LOOP;
     pivotTargetAngle = targetAngle;
-    pivotTargetAngleDegrees = targetAngle.getDegrees();
     io.setPivotClosedLoopPosition(targetAngle);
-    logPivotTargetAngleDegrees.info(pivotTargetAngleDegrees);
+    logPivotTargetAngleDegrees.info(targetAngle.getDegrees());
   }
 
   public void resetPivotSubsystem() {
@@ -270,7 +267,7 @@ public class Intake extends SubsystemBase {
 
   public boolean timeOfFlight() {
     // TODO: get an actual value fot this this code is only for testing purposes
-    //return inputs.tofDistanceInches <= 1;
+    // return inputs.tofDistanceInches <= 1;
     return true;
   }
 }

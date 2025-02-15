@@ -64,6 +64,7 @@ public class IntakeIOSim implements IntakeIO {
   @Override
   public void setRollerVelocity(double revPerMin) {
     rollerMotor.setControl(rollerClosedLoopControl.withVelocity(revPerMin));
+    System.out.println(revPerMin);
   }
 
   @Override
@@ -88,8 +89,7 @@ public class IntakeIOSim implements IntakeIO {
 
   @Override
   public void setPivotClosedLoopPosition(Rotation2d angle) {
-    pivotSim.setControl(
-        pivotClosedLoopControl.withPosition(angle.getRotations()));
+    pivotSim.setControl(pivotClosedLoopControl.withPosition(angle.getRotations()));
   }
 
   @Override
