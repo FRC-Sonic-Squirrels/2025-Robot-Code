@@ -22,7 +22,7 @@ public class IntakeGround extends Command {
   private static final LoggerEntry.Bool logInputs_coralInIntake =
       logGroup.buildBoolean("coralInIntake");
 
-  /** Creates a new IntakGround */
+  /** Creates a new IntakeGround */
   public IntakeGround(Intake intake) {
 
     this.intake = intake;
