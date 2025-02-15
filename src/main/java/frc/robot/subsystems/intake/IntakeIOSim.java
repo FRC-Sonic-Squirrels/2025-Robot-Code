@@ -64,7 +64,6 @@ public class IntakeIOSim implements IntakeIO {
   @Override
   public void setRollerVelocity(double revPerMin) {
     rollerMotor.setControl(rollerClosedLoopControl.withVelocity(revPerMin));
-    System.out.println(revPerMin);
   }
 
   @Override
