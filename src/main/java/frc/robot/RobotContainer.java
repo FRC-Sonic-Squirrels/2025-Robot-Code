@@ -839,6 +839,16 @@ public class RobotContainer {
     SmartDashboard.putData(
         "Swerve Brake", new RunsWhenDisabledInstantCommand(() -> drivetrain.setBrakeMode(true)));
 
+    SmartDashboard.putData(
+        "Zero Mech",
+        new RunsWhenDisabledInstantCommand(
+            () -> {
+              elevator.resetSensorToHomePosition();
+              arm.resetSensorToHomePosition();
+              intake.resetPivotSensorToHomePosition();
+              led.setRobotState(RobotState.ZERO_SUBSYSTEMS);
+            }));
+
     if (Constants.RobotMode.isSimBot()) {
       SmartDashboard.putData(
           "SIM Coral in End Effector",
