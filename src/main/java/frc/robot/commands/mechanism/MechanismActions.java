@@ -1,6 +1,5 @@
 package frc.robot.commands.mechanism;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -90,18 +89,9 @@ public class MechanismActions {
     MechanismPositions.clearAlgaeLow2Position(),
     MechanismPositions.clearAlgaeHigh1Position(),
     MechanismPositions.clearAlgaeHigh2Position(),
-    // intermediate between stow and coral station
-    new MechanismPosition(
-        Units.Inches.of(32), Rotation2d.fromDegrees(-70), Rotation2d.fromDegrees(0)),
-    // flip from one side to the other
-    new MechanismPosition(
-        Units.Inches.of(55), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
-    // go under the elevator to get to L1/2
-    new MechanismPosition(
-        Units.Inches.of(0), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
-    // intermediate
-    new MechanismPosition(
-        Units.Inches.of(32), Rotation2d.fromDegrees(80), Rotation2d.fromDegrees(0)),
+    MechanismPositions.safetyStowCoralPosition(),
+    MechanismPositions.safetyFlipPosition(),
+    MechanismPositions.safetyUnderElevatorPosition(),
   };
 
   // the indices that the corresponding safePosition can safely get to without contacting anything
@@ -111,15 +101,14 @@ public class MechanismActions {
     {1},
     {4, 11},
     {3, 11},
-    {10, 11, 13},
+    {10, 11},
     {7, 1, 12},
     {6, 2},
     {9, 11},
     {8, 11},
-    {0, 5, 11, 13},
-    {3, 4, 5, 8, 9, 10, 12, 13},
-    {1, 13, 11},
-    {10, 12, 11, 5},
+    {0, 5, 11},
+    {3, 4, 5, 8, 9, 10, 12}, // sasdfadsafds
+    {1, 11},
   };
 
   // generates a path with waypoints from one MechanismPosition to another

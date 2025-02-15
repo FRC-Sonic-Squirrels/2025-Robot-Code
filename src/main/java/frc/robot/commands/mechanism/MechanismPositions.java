@@ -72,6 +72,24 @@ public class MechanismPositions {
   private static final LoggedTunableNumber algaeClearingHigh2ArmAngleDegrees =
       group.build("Reef/AlgaeClearing/High/Step2/ArmAngleDegrees");
 
+  private static final LoggedTunableNumber safetyPositionCoralStowElevatorHeightInches =
+      group.build("Safety/CoralStow/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber safetyPositionCoralStowArmAngleDegrees =
+      group.build("Reef/CoralStow/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber safetyFlipPositionElevatorHeightInches =
+      group.build("Safety/Flip/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber safetyFlipPositionArmAngleDegrees =
+      group.build("Reef/Flip/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber safetyUnderElevatorPositionElevatorHeightInches =
+      group.build("Safety/UnderElevator/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber safetyUnderElevatorPositionArmAngleDegrees =
+      group.build("Reef/UnderElevator/ArmAngleDegrees");
+
   private static final LoggedTunableNumber stowIntakeAngleDegrees =
       group.build("Stow/stowIntakeAngleDegrees");
 
@@ -97,10 +115,16 @@ public class MechanismPositions {
       algaeClearingHigh1ArmAngleDegrees.initDefault(0);
       algaeClearingHigh2ElevatorHeightInches.initDefault(26.2);
       algaeClearingHigh2ArmAngleDegrees.initDefault(32);
+      safetyFlipPositionArmAngleDegrees.initDefault(80);
+      safetyFlipPositionElevatorHeightInches.initDefault(32);
+      safetyPositionCoralStowArmAngleDegrees.initDefault(-70);
+      safetyPositionCoralStowElevatorHeightInches.initDefault(32);
+      safetyUnderElevatorPositionArmAngleDegrees.initDefault(0);
+      safetyUnderElevatorPositionElevatorHeightInches.initDefault(80);
       stowIntakeAngleDegrees.initDefault(0);
     } else {
-      stowElevatorHeightInches.initDefault(11.6);
-      stowArmAngleDegrees.initDefault(-90);
+      stowElevatorHeightInches.initDefault(18);
+      stowArmAngleDegrees.initDefault(-80);
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
       reefL2ElevatorHeightInches.initDefault(15);
@@ -119,6 +143,12 @@ public class MechanismPositions {
       algaeClearingHigh1ArmAngleDegrees.initDefault(150);
       algaeClearingHigh2ElevatorHeightInches.initDefault(50);
       algaeClearingHigh2ArmAngleDegrees.initDefault(150);
+      safetyFlipPositionArmAngleDegrees.initDefault(80);
+      safetyFlipPositionElevatorHeightInches.initDefault(32);
+      safetyPositionCoralStowArmAngleDegrees.initDefault(-70);
+      safetyPositionCoralStowElevatorHeightInches.initDefault(32);
+      safetyUnderElevatorPositionArmAngleDegrees.initDefault(80);
+      safetyUnderElevatorPositionElevatorHeightInches.initDefault(0);
       stowIntakeAngleDegrees.initDefault(0);
     }
   }
@@ -195,6 +225,27 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(algaeClearingHigh2ElevatorHeightInches.get()),
         Rotation2d.fromDegrees(algaeClearingHigh2ArmAngleDegrees.get()),
+        Rotation2d.fromDegrees(stowIntakeAngleDegrees.get()));
+  }
+
+  public static MechanismPosition safetyStowCoralPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(safetyPositionCoralStowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(safetyPositionCoralStowArmAngleDegrees.get()),
+        Rotation2d.fromDegrees(stowIntakeAngleDegrees.get()));
+  }
+
+  public static MechanismPosition safetyFlipPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(safetyFlipPositionElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(safetyFlipPositionArmAngleDegrees.get()),
+        Rotation2d.fromDegrees(stowIntakeAngleDegrees.get()));
+  }
+
+  public static MechanismPosition safetyUnderElevatorPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(safetyUnderElevatorPositionElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(safetyUnderElevatorPositionArmAngleDegrees.get()),
         Rotation2d.fromDegrees(stowIntakeAngleDegrees.get()));
   }
 }
