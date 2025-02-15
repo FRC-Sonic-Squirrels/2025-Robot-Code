@@ -137,13 +137,16 @@ public class ElevatorIOReal implements ElevatorIO {
   public boolean setNeutralMode(NeutralModeValue value) {
     var config = new MotorOutputConfigs();
 
-    var status = leadMotor.getConfigurator().refresh(config);
+    var status1 = leadMotor.getConfigurator().refresh(config);
+    var status2 = followerMotor.getConfigurator().refresh(config);
 
-    if (status != StatusCode.OK) return false;
+    if (status1 != StatusCode.OK || status2 != StatusCode.OK) return false;
 
     config.NeutralMode = value;
 
     leadMotor.getConfigurator().apply(config);
+    followerMotor.getConfigurator().apply(config);
+
     return true;
   }
 }
