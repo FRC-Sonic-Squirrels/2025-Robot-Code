@@ -512,7 +512,7 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             MechanismActions.coralStationPosition(elevator, arm)
-                .andThen(
+                .alongWith(
                     new IntakeGamepieceCoralStation(
                         endEffector,
                         elevator,
@@ -689,7 +689,7 @@ public class RobotContainer {
                 }));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Ground Intake")
+        .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
         .whileTrue(new IntakeGround(intake));
 
     // ---------- OPERATOR CONTROLS -----------
@@ -745,7 +745,7 @@ public class RobotContainer {
     // End Effector Rotation
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.a, "End Effector")
-        .whileTrue(new EndEffectorSetRPM(endEffector, 1000));
+        .whileTrue(new EndEffectorSetRPM(endEffector, -1000));
 
     // Climber in
     operatorController
@@ -1051,10 +1051,9 @@ public class RobotContainer {
 
   public void updateRobotState() {
     if (!RobotMode.isSimBot()) {
-      // RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
+      RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
 
-      // RobotStates.coralInEndEffectorNonScoringSide =
-      // (endEffector.nonScoringSideTOFSeenGamepiece());
+      RobotStates.coralInEndEffectorNonScoringSide = (endEffector.nonScoringSideTOFSeenGamepiece());
     }
 
     RobotStates.coralInEndEffector =
