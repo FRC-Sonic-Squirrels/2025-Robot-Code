@@ -46,8 +46,6 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
-import frc.robot.commands.climber.ClimberSetAngle;
-import frc.robot.commands.climber.ClimberSetGrabberRPM;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
@@ -725,14 +723,20 @@ public class RobotContainer {
         .whileTrue(new EndEffectorSetRPM(endEffector, -1000));
 
     // Climber in
-    operatorController
-        .registerTrigger(XboxControllerWrapper.Button.b, "Climber In")
-        .onTrue(new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE));
+    // operatorController
+    //     .registerTrigger(XboxControllerWrapper.Button.b, "Climber In")
+    //     .onTrue(new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE));
 
     // Climber grabber
-    operatorController
-        .registerTrigger(XboxControllerWrapper.Button.b, "Climber Grabber")
-        .onTrue(new ClimberSetGrabberRPM(climber, 1000));
+    // operatorController
+    //     .registerTrigger(XboxControllerWrapper.Button.b, "Climber Grabber")
+    //     .onTrue(new ClimberSetGrabberRPM(climber, 1000));
+    // operatorController
+    //     .registerTrigger(XboxControllerWrapper.Button.b, "Arm")
+    //     .onTrue(new ArmSetAngle(arm, () -> Rotation2d.fromDegrees(tunableAngle.get())));
+    // operatorController
+    //     .registerTrigger(XboxControllerWrapper.Button.a, "Elevator")
+    //     .onTrue(new ElevatorSetHeight(elevator, Units.Inches.of(30)));
 
     if (!DriverStation.isFMSAttached()) {
       operatorController
