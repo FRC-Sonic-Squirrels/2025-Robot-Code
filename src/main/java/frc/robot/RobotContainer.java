@@ -37,6 +37,7 @@ import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
+import frc.robot.autonomous.AutoStateMachine;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
@@ -51,7 +52,6 @@ import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
-import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
 import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
@@ -498,44 +498,22 @@ public class RobotContainer {
                 },
                 drivetrain));
 
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.start, "Teleop Autonomous")
-    //     .whileTrue(
-    //         new RunStateMachineCommand(
-    //             () ->
-    //                 new AutoStateMachine(
-    //                     new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
-    //                     Constants.RobotMode.getRobot().config.get(),
-    //                     (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
+        .whileTrue(
+            new RunStateMachineCommand(
+                () ->
+                    new AutoStateMachine(
+                        new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
+                        Constants.RobotMode.getRobot().config.get(),
+                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
-        .whileTrue(
-            MechanismActions.coralStationPosition(elevator, arm)
-                .alongWith(
-                    new IntakeGamepieceCoralStation(
-                        endEffector,
-                        elevator,
-                        arm,
-                        () -> drivetrainWrapper.getCoralStationPoseEstimatorPose(true))))
-        .whileTrue(
-            Commands.run(
-                    () -> {
-                      // System.out.println("in robot? " + endEffector
-                      // .isGamepieceInRobot()); //
-                      // testing scenario
-                      if (endEffector
-                          .isGamepieceFullyInEndEffector()) { // If the gamepiece is in robot, set
-                        // rumble
-                        driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
-                        led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
-                      }
-                    })
-                .finallyDo(
-                    () -> {
-                      driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-                      led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
-                    }));
+        .onTrue(MechanismActions.coralStationPosition(elevator, arm))
+        .onTrue(
+            CommandComposer.intakeCoralFromStation(
+                drivetrainWrapper, endEffector, elevator, arm, led, driverController));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
@@ -856,6 +834,8 @@ public class RobotContainer {
               () -> {
                 RobotStates.coralInRobot = true;
                 RobotStates.coralInEndEffector = true;
+                RobotStates.coralInEndEffectorScoringSide = true;
+                RobotStates.coralInEndEffectorNonScoringSide = true;
               }));
       SmartDashboard.putData(
           "SIM NO Coral in End Effector",
@@ -863,6 +843,8 @@ public class RobotContainer {
               () -> {
                 RobotStates.coralInRobot = false;
                 RobotStates.coralInEndEffector = false;
+                RobotStates.coralInEndEffectorScoringSide = false;
+                RobotStates.coralInEndEffectorNonScoringSide = false;
               }));
     }
   }
@@ -1058,6 +1040,8 @@ public class RobotContainer {
 
     RobotStates.coralInEndEffector =
         RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide;
+
+    RobotStates.coralInRobot = RobotStates.coralInEndEffector || RobotStates.coralInIntake;
 
     ScoringLevel level = RobotStates.scoringLevel;
     logScoringLevelState.info(level);

@@ -64,6 +64,10 @@ public class MechanismActions {
     return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh2Position);
   }
 
+  public static Command scorePrepPosition(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::scorePrepPosition);
+  }
+
   // TODO: Change Logic for 2025 Robot Geometry
   private static Command goToPositionParallel(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {

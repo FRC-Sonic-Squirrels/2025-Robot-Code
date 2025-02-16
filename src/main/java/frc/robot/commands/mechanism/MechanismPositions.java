@@ -18,6 +18,12 @@ public class MechanismPositions {
   public static final LoggedTunableNumber stowArmAngleDegrees =
       group.build("Stow/StowArmAngleDegrees");
 
+  public static final LoggedTunableNumber scorePrepElevatorHeightInches =
+      group.build("Reef/ScorePrep/ElevatorHeightInches");
+
+  public static final LoggedTunableNumber scorePrepArmAngleDegrees =
+      group.build("Reef/ScorePrep/StowArmAngleDegrees");
+
   private static final LoggedTunableNumber reefL1ArmAngleDegrees =
       group.build("Reef/L1/ArmAngleDegrees");
 
@@ -115,6 +121,8 @@ public class MechanismPositions {
       algaeClearingHigh1ArmAngleDegrees.initDefault(150);
       algaeClearingHigh2ElevatorHeightInches.initDefault(50);
       algaeClearingHigh2ArmAngleDegrees.initDefault(150);
+      scorePrepElevatorHeightInches.initDefault(30);
+      scorePrepArmAngleDegrees.initDefault(90);
     }
   }
 
@@ -179,5 +187,11 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(algaeClearingHigh2ElevatorHeightInches.get()),
         Rotation2d.fromDegrees(algaeClearingHigh2ArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition scorePrepPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(scorePrepElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(scorePrepArmAngleDegrees.get()));
   }
 }
