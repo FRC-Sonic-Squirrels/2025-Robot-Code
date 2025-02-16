@@ -20,11 +20,11 @@ public class CommandComposer {
       Arm arm,
       LED led,
       XboxControllerWrapper driverController) {
-    return new IntakeGamepieceCoralStation(
-            endEffector, elevator, arm, () -> wrapper.getCoralStationPoseEstimatorPose(true))
-        .andThen(
-            MechanismActions.scorePrepPosition(elevator, arm)
-                .alongWith(Commands.runOnce(() -> System.out.println("WORKING"))))
+    return MechanismActions.coralStationPosition(elevator, arm)
+        .alongWith(
+            new IntakeGamepieceCoralStation(
+                endEffector, elevator, arm, () -> wrapper.getCoralStationPoseEstimatorPose(true)))
+        .andThen(MechanismActions.scorePrepPosition(elevator, arm))
         .alongWith(
             Commands.run(
                     () -> {

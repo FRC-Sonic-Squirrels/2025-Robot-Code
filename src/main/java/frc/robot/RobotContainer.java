@@ -510,8 +510,7 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
-        .onTrue(MechanismActions.coralStationPosition(elevator, arm))
-        .onTrue(
+        .whileTrue(
             CommandComposer.intakeCoralFromStation(
                 drivetrainWrapper, endEffector, elevator, arm, led, driverController));
 
