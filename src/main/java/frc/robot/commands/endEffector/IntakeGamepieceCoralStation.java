@@ -25,7 +25,7 @@ public class IntakeGamepieceCoralStation extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
   private static final LoggedTunableNumber intakingVelocitySlow =
       group.build("intakingVelocitySlow", 800);
-  private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 3200);
+  private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 2500);
   private final EndEffector endEffector;
   private final Elevator elevator;
   private final Arm arm;
