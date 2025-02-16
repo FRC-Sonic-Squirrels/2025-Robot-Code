@@ -78,7 +78,7 @@ public class EndEffector extends SubsystemBase {
       kS.initDefault(0);
       kP.initDefault(0.2);
       kV.initDefault(0.115);
-      targetAccelerationConfig.initDefault(120);
+      targetAccelerationConfig.initDefault(400);
     }
   }
 

@@ -23,14 +23,16 @@ import java.util.function.Supplier;
 
 public class IntakeGamepieceCoralStation extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
-  private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", -500);
+  private static final LoggedTunableNumber intakingVelocitySlow =
+      group.build("intakingVelocitySlow", 800);
+  private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 3200);
   private final EndEffector endEffector;
   private final Elevator elevator;
   private final Arm arm;
   private final Supplier<Pose2d> robotPose;
   private final Trigger gamepieceInRobot =
       new Trigger(() -> RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInIntake)
-          .debounce(0.0);
+          .debounce(0.25);
 
   /** Creates a new IntakeDefaultIdleRPM. */
   public IntakeGamepieceCoralStation(
@@ -50,11 +52,14 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (RobotStates.coralInEndEffectorScoringSide
+    if (RobotStates.coralInEndEffectorNonScoringSide
     // || RobotStates.coralInIntake
     ) {
       endEffector.setPercentOut(0);
       endEffector.setGamepieceInRobot(true);
+    } else if (RobotStates.coralInEndEffectorScoringSide) {
+      endEffector.setVelocity(intakingVelocitySlow.get());
+      endEffector.setGamepieceInRobot(false);
     } else {
       endEffector.setVelocity(intakingVelocity.get());
       endEffector.setGamepieceInRobot(false);

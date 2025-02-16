@@ -85,20 +85,33 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
     // Time of Flight
 
-    CANrangeConfiguration canRangeConfig = new CANrangeConfiguration();
+    CANrangeConfiguration canRangeConfigScoringSide = new CANrangeConfiguration();
+    CANrangeConfiguration canRangeConfigNonScoringSide = new CANrangeConfiguration();
 
-    canRangeConfig.FovParams.FOVRangeX = 6.75;
-    canRangeConfig.FovParams.FOVRangeY = 6.75;
+    canRangeConfigScoringSide.FovParams.FOVRangeX = 6.75;
+    canRangeConfigScoringSide.FovParams.FOVRangeY = 6.75;
 
-    canRangeConfig.ProximityParams.ProximityThreshold = 0.254;
-    canRangeConfig.ProximityParams.ProximityHysteresis = 0.01;
-    canRangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
+    canRangeConfigScoringSide.ProximityParams.ProximityThreshold =
+        Units.Inches.of(10).in(Units.Meters);
+    canRangeConfigScoringSide.ProximityParams.ProximityHysteresis = 0.01;
+    canRangeConfigScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
 
-    canRangeConfig.ToFParams.UpdateFrequency = 100;
-    canRangeConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
+    canRangeConfigScoringSide.ToFParams.UpdateFrequency = 100;
+    canRangeConfigScoringSide.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
 
-    scoringSideEndEffectorTOF.getConfigurator().apply(canRangeConfig);
-    nonScoringSideEndEffectorTOF.getConfigurator().apply(canRangeConfig);
+    canRangeConfigNonScoringSide.FovParams.FOVRangeX = 6.75;
+    canRangeConfigNonScoringSide.FovParams.FOVRangeY = 6.75;
+
+    canRangeConfigNonScoringSide.ProximityParams.ProximityThreshold =
+        Units.Inches.of(5).in(Units.Meters);
+    canRangeConfigNonScoringSide.ProximityParams.ProximityHysteresis = 0.01;
+    canRangeConfigNonScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
+
+    canRangeConfigNonScoringSide.ToFParams.UpdateFrequency = 100;
+    canRangeConfigNonScoringSide.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
+
+    scoringSideEndEffectorTOF.getConfigurator().apply(canRangeConfigScoringSide);
+    nonScoringSideEndEffectorTOF.getConfigurator().apply(canRangeConfigNonScoringSide);
 
     scoringSideTofDistance = scoringSideEndEffectorTOF.getDistance();
     nonScoringSideTofDistance = nonScoringSideEndEffectorTOF.getDistance();
