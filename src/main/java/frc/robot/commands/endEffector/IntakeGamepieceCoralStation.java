@@ -29,8 +29,8 @@ public class IntakeGamepieceCoralStation extends Command {
   private final Arm arm;
   private final Supplier<Pose2d> robotPose;
   private final Trigger gamepieceInRobot =
-      new Trigger(() -> RobotStates.coralInEndEffectorNonScoringSide || RobotStates.coralInIntake)
-          .debounce(0.5);
+      new Trigger(() -> RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInIntake)
+          .debounce(0.0);
 
   /** Creates a new IntakeDefaultIdleRPM. */
   public IntakeGamepieceCoralStation(
@@ -50,7 +50,9 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (RobotStates.coralInEndEffectorNonScoringSide || RobotStates.coralInIntake) {
+    if (RobotStates.coralInEndEffectorScoringSide
+    // || RobotStates.coralInIntake
+    ) {
       endEffector.setPercentOut(0);
       endEffector.setGamepieceInRobot(true);
     } else {

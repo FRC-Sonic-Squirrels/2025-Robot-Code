@@ -90,7 +90,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     canRangeConfig.FovParams.FOVRangeX = 6.75;
     canRangeConfig.FovParams.FOVRangeY = 6.75;
 
-    canRangeConfig.ProximityParams.ProximityThreshold = 0.4;
+    canRangeConfig.ProximityParams.ProximityThreshold = 0.254;
     canRangeConfig.ProximityParams.ProximityHysteresis = 0.01;
     canRangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
 
