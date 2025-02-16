@@ -107,7 +107,7 @@ public class MechanismActions {
     {9, 11},
     {8, 11},
     {0, 5, 11},
-    {3, 4, 5, 8, 9, 10, 12}, // sasdfadsafds
+    {3, 4, 5, 8, 9, 10, 12},
     {1, 11},
   };
 
