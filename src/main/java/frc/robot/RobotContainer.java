@@ -166,6 +166,10 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
+  private double kU;
+  private double tU;
+  private double tI;
+  private double tD;
   private double kP = 0.0;
   private double kI = 0.0;
   private double kD = 0.0;
@@ -696,48 +700,50 @@ public class RobotContainer {
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
 
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
-        .toggleOnTrue(
-            new RotateToAngle(
-                drivetrainWrapper,
-                () -> {
-                  Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
+    if (!Constants.unusedCode) {
+      driverController
+          .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
+          .toggleOnTrue(
+              new RotateToAngle(
+                  drivetrainWrapper,
+                  () -> {
+                    Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
-                  double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
+                    double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
 
-                  Pose2d nearestReefAprilTag =
-                      findNearestAprilTag(robotTranslation, reefAprilTagPose);
-                  Pose2d nearestCoralStation =
-                      findNearestCoralStation(robotTranslation, coralStationPose);
+                    return faceTowardsCenter(robotTranslation, controlOutput);
+                  },
+                  () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+    } else {
+      driverController
+          .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
+          .toggleOnTrue(
+              new RotateToAngle(
+                  drivetrainWrapper,
+                  () -> {
+                    Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
 
-                  double finalRotationValue;
-                  finalRotationValue =
-                      RobotStates.coralInRobot
-                          ? nearestReefAprilTag.getRotation().getRadians()
-                          : nearestCoralStation.getRotation().getRadians();
+                    double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
 
-                  if (RobotStates.coralInRobot) {
-                    return new Rotation2d(finalRotationValue + controlOutput);
-                  } else {
-                    return new Rotation2d(finalRotationValue);
-                  }
-                },
-                () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+                    Pose2d nearestReefAprilTag =
+                        findNearestAprilTag(robotTranslation, reefAprilTagPose);
+                    Pose2d nearestCoralStation =
+                        findNearestCoralStation(robotTranslation, coralStationPose);
 
-    //     driverController
-    //         .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
-    //         .toggleOnTrue(
-    //             new RotateToAngle(
-    //                 drivetrainWrapper,
-    //                 () -> {
-    //                   Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
-    //
-    //                  double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
-    //
-    //                  return faceTowardsCenter(robotTranslation, controlOutput);
-    //                },
-    //                () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+                    double finalRotationValue;
+                    finalRotationValue =
+                        RobotStates.coralInRobot
+                            ? nearestReefAprilTag.getRotation().getRadians()
+                            : nearestCoralStation.getRotation().getRadians();
+
+                    if (RobotStates.coralInRobot) {
+                      return new Rotation2d(finalRotationValue + controlOutput);
+                    } else {
+                      return new Rotation2d(finalRotationValue);
+                    }
+                  },
+                  () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
+    }
 
     // Manual Algae Clearing
     // driverController
