@@ -220,35 +220,33 @@ public class AutoStateMachine extends StateMachine {
               config.getAutoTranslationPidController(),
               config.getAutoThetaPidController());
     }
-    spawnCommand(
-        CommandComposer.intakeCoralFromStation(wrapper, endEffector, elevator, arm, led, null),
-        (c) -> null);
     Supplier<Pose2d> intakingPoseSupplier =
         () ->
             coralStationLocations == null
                 ? getClosestCoralStationPose()
                 : getCoralStationPose(coralStationLocations.get(intakingIndex));
-    if (procedural) {
-      spawnCommand(
-          new DriveToPosePathing(
-              wrapper,
-              config,
-              () -> wrapper.getCoralStationPoseEstimatorPose(true),
-              intakingPoseSupplier),
-          (c) -> null);
-    }
-    return procedural
-        ? (RobotStates.coralInEndEffector
-            ? stateWithName("ReturnToScoring", () -> returnToScoring())
-            : null)
-        : stateWithName("IntakeCoral", () -> intakeCoral());
+
+    spawnCommand(
+        new DriveToPosePathing(
+                wrapper,
+                config,
+                () -> wrapper.getCoralStationPoseEstimatorPose(true),
+                intakingPoseSupplier)
+            .alongWith(
+                CommandComposer.intakeCoralFromStation(
+                    wrapper, endEffector, elevator, arm, led, null)),
+        (c) -> null);
+
+    return stateWithName("IntakeCoral", () -> intakeCoral());
   }
 
   private StateHandler intakeCoral() {
-    ChassisSpeedsWithPathEnd result =
-        choreoHelper.calculateChassisSpeeds(
-            wrapper.getReefPoseEstimatorPose(true), timeFromStart());
-    wrapper.setVelocityOverride(result.chassisSpeeds());
+    if (!procedural) {
+      ChassisSpeedsWithPathEnd result =
+          choreoHelper.calculateChassisSpeeds(
+              wrapper.getReefPoseEstimatorPose(true), timeFromStart());
+      wrapper.setVelocityOverride(result.chassisSpeeds());
+    }
 
     return RobotStates.coralInEndEffector
         ? stateWithName("ReturnToScoring", () -> returnToScoring())

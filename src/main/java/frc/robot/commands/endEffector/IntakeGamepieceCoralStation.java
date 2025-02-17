@@ -27,20 +27,32 @@ public class IntakeGamepieceCoralStation extends Command {
       group.build("intakingVelocitySlow", 800);
   private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 2500);
   private final EndEffector endEffector;
-  private final Elevator elevator;
-  private final Arm arm;
-  private final Supplier<Pose2d> robotPose;
   private final Trigger gamepieceInRobot =
       new Trigger(() -> RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInIntake)
           .debounce(0.25);
+  private final Trigger simConditions;
 
   /** Creates a new IntakeGamepieceCoralStation. */
   public IntakeGamepieceCoralStation(
       EndEffector endEffector, Elevator elevator, Arm arm, Supplier<Pose2d> robotPose) {
     this.endEffector = endEffector;
-    this.elevator = elevator;
-    this.arm = arm;
-    this.robotPose = robotPose;
+    simConditions =
+        new Trigger(
+                () -> {
+                  Pose2d blueAllianceReferencePose =
+                      AllianceFlipUtil.flipPoseForAlliance(robotPose.get());
+                  MechanismPosition targetPos = MechanismPositions.coralStationPosition();
+
+                  return Math.min(
+                              distToHumanPlayerStation(blueAllianceReferencePose.getTranslation()),
+                              distToHumanPlayerStation(
+                                  GeometryUtil.flipPoseOnAlliance(blueAllianceReferencePose)
+                                      .getTranslation()))
+                          < 1.0
+                      && elevator.isAtTarget(targetPos.elevatorHeight())
+                      && arm.isAtTargetAngle(targetPos.armAngle());
+                })
+            .debounce(0.5);
     addRequirements(endEffector);
     setName("IntakeGamepieceCoralStation");
   }
@@ -64,16 +76,7 @@ public class IntakeGamepieceCoralStation extends Command {
 
       // Sim put gamepiece in end effector
       if (RobotMode.isSimBot()) {
-        Pose2d blueAllianceReferencePose = AllianceFlipUtil.flipPoseForAlliance(robotPose.get());
-        MechanismPosition targetPos = MechanismPositions.coralStationPosition();
-        if (Math.min(
-                    distToHumanPlayerStation(blueAllianceReferencePose.getTranslation()),
-                    distToHumanPlayerStation(
-                        GeometryUtil.flipPoseOnAlliance(blueAllianceReferencePose)
-                            .getTranslation()))
-                < 1.0
-            && elevator.isAtTarget(targetPos.elevatorHeight())
-            && arm.isAtTargetAngle(targetPos.armAngle())) {
+        if (simConditions.getAsBoolean()) {
           RobotStates.coralInEndEffectorScoringSide = true;
         }
       }

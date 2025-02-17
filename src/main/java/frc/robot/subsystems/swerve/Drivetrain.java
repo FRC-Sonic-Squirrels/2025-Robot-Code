@@ -593,9 +593,9 @@ public class Drivetrain extends SubsystemBase {
 
   /**
    * WARNING - THIS IS THE RAW *ODOMETRY* POSE, THIS DOES NOT ACCOUNT FOR VISION DATA & SHOULD
-   * EXCLUSIVELY BE USED FOR LOGGING AND ANALYSIS
+   * EXCLUSIVELY BE USED FOR LOGGING AND ANALYSIS OR NON ABSOLUTE POSITION USAGE
    */
-  private Pose2d getRawOdometryPose() {
+  public Pose2d getRawOdometryPose() {
     return rawOdometryPose;
   }
 
