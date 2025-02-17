@@ -78,6 +78,24 @@ public class MechanismPositions {
   private static final LoggedTunableNumber algaeClearingHigh2ArmAngleDegrees =
       group.build("Reef/AlgaeClearing/High/Step2/ArmAngleDegrees");
 
+  private static final LoggedTunableNumber intermediatePoseLowElevatorHeightInches =
+      group.build("IntermediatePoses/LowForward/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber intermediatePoseLowArmAngleDegrees =
+      group.build("IntermediatePoses/LowForward/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber intermediatePoseHighElevatorHeightInches =
+      group.build("IntermediatePoses/High/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber intermediatePoseHighArmAngleDegrees =
+      group.build("IntermediatePoses/High/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber intermediatePoseLowBackElevatorHeightInches =
+      group.build("IntermediatePoses/LowBack/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber intermediatePoseLowBackArmAngleDegrees =
+      group.build("IntermediatePoses/LowBack/ArmAngleDegrees");
+
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       stowElevatorHeightInches.initDefault(2);
@@ -123,6 +141,12 @@ public class MechanismPositions {
       algaeClearingHigh2ArmAngleDegrees.initDefault(150);
       scorePrepElevatorHeightInches.initDefault(30);
       scorePrepArmAngleDegrees.initDefault(90);
+      intermediatePoseHighElevatorHeightInches.initDefault(26);
+      intermediatePoseHighArmAngleDegrees.initDefault(70);
+      intermediatePoseLowElevatorHeightInches.initDefault(0);
+      intermediatePoseLowArmAngleDegrees.initDefault(70);
+      intermediatePoseLowBackElevatorHeightInches.initDefault(0);
+      intermediatePoseLowBackArmAngleDegrees.initDefault(140);
     }
   }
 
@@ -193,5 +217,23 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(scorePrepElevatorHeightInches.get()),
         Rotation2d.fromDegrees(scorePrepArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition intermediateLowPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(intermediatePoseLowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(intermediatePoseLowArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition intermediateLowBackPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(intermediatePoseLowBackElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(intermediatePoseLowBackArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition intermediateHighPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(intermediatePoseHighElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(intermediatePoseHighArmAngleDegrees.get()));
   }
 }

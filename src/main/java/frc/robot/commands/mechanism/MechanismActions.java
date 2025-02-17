@@ -1,14 +1,11 @@
 package frc.robot.commands.mechanism;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
-import frc.robot.Constants;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
@@ -25,6 +22,10 @@ public class MechanismActions {
   private static final LoggerEntry.Bool log_ElevatorInPosition =
       logGroup.buildBoolean("ElevatorInPosition");
   private static final LoggerEntry.Bool log_ArmInPosition = logGroup.buildBoolean("ArmInPosition");
+  private static final LoggerEntry.Text log_currentMotionState =
+      logGroup.buildString("CurrentMotionState");
+  private static final LoggerEntry.Text log_currentSection = logGroup.buildString("CurrentSection");
+  private static final LoggerEntry.Text log_targetSection = logGroup.buildString("TargetSection");
 
   private static final TunableNumberGroup group = new TunableNumberGroup(ROOT_TABLE);
 
@@ -68,59 +69,62 @@ public class MechanismActions {
     return goToPositionParallel(elevator, arm, MechanismPositions::scorePrepPosition);
   }
 
-  // TODO: Change Logic for 2025 Robot Geometry
   private static Command goToPositionParallel(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
-    return goToPositionParallel(elevator, arm, position, false);
-  }
-
-  private static Command goToPositionParallel(
-      Elevator elevator, Arm arm, Supplier<MechanismPosition> position, boolean ignoreSafety) {
 
     var cmd =
         new Command() {
-          boolean elevatorInPosition = false;
-          boolean armInPosition = false;
+          private boolean elevatorInPosition = false;
+          private boolean armInPosition = false;
 
           @Override
           public void execute() {
-            MechanismPosition targetPosition = position.get();
-            Distance safeHeight = Constants.ElevatorConstants.SAFE_HEIGHT;
-            boolean runningArm =
-                elevator.getHeight().in(Units.Inches)
-                        >= safeHeight.minus(Units.Inches.of(1.0)).in(Units.Inches)
-                    || (arm.getAngle().getRadians()
-                            > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-                        && position.get().armAngle().getRadians()
-                            > Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians());
-            if (ignoreSafety) runningArm = true;
-            if (runningArm) {
-              arm.setAngle(targetPosition.armAngle());
-            }
+            MechSection targetMechSection = getMechSection(position.get());
+            MechanismPosition currentMechPos =
+                new MechanismPosition(elevator.getHeight(), arm.getAngle());
+            MechSection currentMechSection = getMechSection(currentMechPos);
 
-            boolean runningElevatorSafety =
-                targetPosition.elevatorHeight().lte(safeHeight)
-                    && ((arm.getAngle().getRadians()
-                                >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-                            && targetPosition.armAngle().getRadians()
-                                <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians())
-                        || (arm.getAngle().getRadians()
-                                <= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()
-                            && position.get().armAngle().getRadians()
-                                >= Constants.ArmConstants.ARM_SAFE_ANGLE.getRadians()));
-            if (ignoreSafety) runningElevatorSafety = false;
+            log_currentSection.info(currentMechSection.name());
+            log_targetSection.info(targetMechSection.name());
 
-            if (runningElevatorSafety) {
-              elevator.setHeight(safeHeight);
+            if (compatibleMechSections(currentMechSection, targetMechSection)) {
+              log_currentMotionState.info("Compatible");
+              goToPositionParallelSimple(elevator, arm, position);
             } else {
-              elevator.setHeight(targetPosition.elevatorHeight());
+              if (currentMechSection == MechSection.S1) {
+                log_currentMotionState.info("Getting out of S1");
+                goToPositionParallelSimple(
+                    elevator, arm, MechanismPositions::intermediateLowBackPosition);
+              } else if (currentMechSection == MechSection.S2) {
+                log_currentMotionState.info("Getting out of S2");
+                goToPositionParallelSimple(
+                    elevator, arm, MechanismPositions::intermediateLowPosition);
+              } else if (currentMechSection == MechSection.S6) {
+                log_currentMotionState.info("Getting out of S6");
+                goToPositionParallelSimple(
+                    elevator, arm, MechanismPositions::intermediateHighPosition);
+              } else if (targetMechSection == MechSection.S2) {
+                log_currentMotionState.info("Getting into S2");
+                goToPositionParallelSimple(
+                    elevator, arm, MechanismPositions::intermediateLowPosition);
+              } else if (targetMechSection == MechSection.S6) {
+                log_currentMotionState.info("Getting into S6");
+                goToPositionParallelSimple(
+                    elevator, arm, MechanismPositions::intermediateHighPosition);
+              } else {
+                log_currentMotionState.info("Getting into S1");
+                if (targetMechSection == MechSection.S1 && currentMechSection == MechSection.S3) {
+                  goToPositionParallelSimple(
+                      elevator, arm, MechanismPositions::intermediateLowBackPosition);
+                } else {
+                  goToPositionParallelSimple(
+                      elevator, arm, MechanismPositions::intermediateLowPosition);
+                }
+              }
             }
-            log_runningArm.info(runningArm);
-            log_runningElevator.info(runningElevatorSafety);
             elevatorInPosition = elevator.isAtTarget(position.get().elevatorHeight());
             log_ElevatorInPosition.info(elevatorInPosition);
-            armInPosition =
-                arm.isAtTargetAngle(position.get().armAngle(), Rotation2d.fromDegrees(5.0));
+            armInPosition = arm.isAtTargetAngle(position.get().armAngle());
             log_ArmInPosition.info(armInPosition);
           }
 
@@ -133,5 +137,58 @@ public class MechanismActions {
     cmd.addRequirements(elevator, arm);
     cmd.setName("MechanismAction");
     return cmd;
+  }
+
+  private static boolean compatibleMechSections(MechSection mech1, MechSection mech2) {
+    if (mech1 == mech2) return true;
+    if ((mech1 == MechSection.S3 || mech1 == MechSection.S4 || mech1 == MechSection.S5)
+        && (mech2 == MechSection.S3 || mech2 == MechSection.S4 || mech2 == MechSection.S5))
+      return true;
+
+    if (mech1 == MechSection.S5 && mech2 == MechSection.S6) return true;
+
+    if (mech1 == MechSection.S6 && mech2 == MechSection.S5) return true;
+
+    if (mech1 == MechSection.S2 && mech2 == MechSection.S3) return true;
+
+    if (mech1 == MechSection.S3 && mech2 == MechSection.S2) return true;
+
+    if (mech1 == MechSection.S1 && mech2 == MechSection.S2) return true;
+
+    if (mech1 == MechSection.S2 && mech2 == MechSection.S1) return true;
+
+    return false;
+  }
+
+  private static void goToPositionParallelSimple(
+      Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
+    MechanismPosition targetPos = position.get();
+    elevator.setHeight(targetPos.elevatorHeight());
+    arm.setAngle(targetPos.armAngle());
+  }
+
+  private static MechSection getMechSection(MechanismPosition position) {
+    if (position.armAngle().getDegrees() > 90) {
+      if (position.elevatorHeight().in(Units.Inches) < 0.1) {
+        return MechSection.S2;
+      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+        return MechSection.S1;
+      } else return MechSection.S6;
+    } else {
+      if (position.elevatorHeight().in(Units.Inches) < 0.1) {
+        return MechSection.S3;
+      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+        return MechSection.S4;
+      } else return MechSection.S5;
+    }
+  }
+
+  private enum MechSection {
+    S1, // elevator below 0.1, arm is back
+    S2, // elevator above 0.1, below top tube, arm is back
+    S3, // elevator below 0.1, arm is forward
+    S4, // below top tube, elevator above 0.1, arm is forward
+    S5, // above top tube, arm is forward
+    S6 // above top tube, arm is back
   }
 }
