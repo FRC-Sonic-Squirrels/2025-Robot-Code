@@ -12,6 +12,7 @@ import frc.robot.Constants;
 
 public class GeometryUtil {
   public static Rotation2d getHeading(Translation2d pose, Translation2d targetPose) {
+    if (pose.getNorm() == 0 && targetPose.getNorm() == 0) return Rotation2d.kZero;
     return new Rotation2d(targetPose.getX() - pose.getX(), targetPose.getY() - pose.getY());
   }
 
