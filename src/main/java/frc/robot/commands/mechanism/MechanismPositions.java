@@ -121,7 +121,7 @@ public class MechanismPositions {
       algaeClearingHigh1ArmAngleDegrees.initDefault(150);
       algaeClearingHigh2ElevatorHeightInches.initDefault(50);
       algaeClearingHigh2ArmAngleDegrees.initDefault(150);
-      scorePrepElevatorHeightInches.initDefault(30);
+      scorePrepElevatorHeightInches.initDefault(0);
       scorePrepArmAngleDegrees.initDefault(90);
     }
   }
