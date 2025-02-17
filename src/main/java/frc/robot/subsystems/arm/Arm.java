@@ -69,12 +69,12 @@ public class Arm extends SubsystemBase {
       targetAccelerationConfig.initDefault(80);
     } else {
 
-      kP.initDefault(30);
-      kD.initDefault(0.02);
-      kG.initDefault(1.3);
+      kP.initDefault(50);
+      kD.initDefault(0.06);
+      kG.initDefault(0.65);
 
-      maxVelocityConfig.initDefault(40);
-      targetAccelerationConfig.initDefault(80);
+      maxVelocityConfig.initDefault(160);
+      targetAccelerationConfig.initDefault(1000);
     }
   }
 
