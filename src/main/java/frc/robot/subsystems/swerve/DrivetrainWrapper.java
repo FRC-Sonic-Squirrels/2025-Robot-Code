@@ -165,4 +165,8 @@ public class DrivetrainWrapper {
   public ChassisSpeeds getCurrentRobotRelativeChassisSpeeds() {
     return drivetrain.getChassisSpeeds();
   }
+
+  public Pose2d getRawOdometryPose() {
+    return drivetrain.getRawOdometryPose();
+  }
 }
