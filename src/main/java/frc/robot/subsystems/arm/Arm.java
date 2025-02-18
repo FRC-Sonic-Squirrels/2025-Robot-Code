@@ -74,7 +74,7 @@ public class Arm extends SubsystemBase {
       kG.initDefault(0.65);
 
       maxVelocityConfig.initDefault(320);
-      targetAccelerationConfig.initDefault(1000);
+      targetAccelerationConfig.initDefault(3);
     }
   }
 

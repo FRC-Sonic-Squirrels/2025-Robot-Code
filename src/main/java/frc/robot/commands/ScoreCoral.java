@@ -2,10 +2,12 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
@@ -26,6 +28,7 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.drive.DriveToPosePathing;
+import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
@@ -67,9 +70,11 @@ public class ScoreCoral extends StateMachine {
 
   private boolean gamepieceMemory = false;
 
+  private Trigger scoringTrigger;
+
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
-      group.build("DistToRaiseMechMeters", 2);
+      group.build("DistToRaiseMechMeters", 1);
   private static final LoggedTunableNumber scoringVelocityRPM =
       group.build("ScoringVelocityRPM", -3000);
   private static final LoggedTunableNumber predictiveTime =
@@ -226,6 +231,8 @@ public class ScoreCoral extends StateMachine {
                 .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
             (command) -> null);
 
+    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(1.5);
+
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
         new DriveToPosePathing(
@@ -235,7 +242,7 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler score() {
 
-    if (!prepMechanismForScoring.isScheduled()) {
+    if (scoringTrigger.getAsBoolean()) {
       endEffector.setVelocity(scoringVelocityRPM.get());
       if (RobotMode.isSimBot()) {
         RobotStates.coralInEndEffectorNonScoringSide = false;
@@ -291,20 +298,19 @@ public class ScoreCoral extends StateMachine {
 
     DriveToPose driveToAlgaePose =
         new DriveToPose(
-            wrapper, () -> algaeClearPose, () -> wrapper.getReefPoseEstimatorPose(true));
+            wrapper,
+            () -> algaeClearPose,
+            () ->
+                wrapper
+                    .getReefPoseEstimatorPose(true)
+                    .transformBy(new Transform2d(-0.05, 0, Rotation2d.kZero)));
 
     return suspendForCommand(
-        driveToAlgaePose,
-        (command) ->
-            suspendForCommand(
-                Commands.waitUntil(
-                        () ->
-                            !prepMechanismForAlgae.isScheduled() && !driveToAlgaePose.isScheduled())
-                    .andThen(clearAlgae2Position)
-                    .andThen(
-                        Commands.runOnce(
-                            () -> FieldStates.removeAlgaeFromScoringSide(scoringSide))),
-                (c) -> stateWithName("End", () -> end(false))));
+        Commands.waitSeconds(2) // TODO: find a better way to wait
+            .deadlineFor(new EndEffectorSetRPM(endEffector, -6000))
+            .andThen(Commands.runOnce(() -> FieldStates.removeAlgaeFromScoringSide(scoringSide)))
+            .alongWith(driveToAlgaePose),
+        (command) -> stateWithName("End", () -> end(false)));
   }
 
   private StateHandler scoreFailure() {
@@ -317,8 +323,11 @@ public class ScoreCoral extends StateMachine {
     led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
     usingDrivetrain = false;
     endEffector.setPercentOut(0);
+    Pose2d initPose = wrapper.getRawOdometryPose();
     return suspendForCommand(
-        MechanismActions.coralStationPosition(elevator, arm), (command) -> setDone());
+        Commands.waitUntil(() -> GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) > 0.3)
+            .andThen(MechanismActions.coralStationPosition(elevator, arm)),
+        (command) -> setDone());
   }
 
   private ScoringSideWithPoseAndDirection getScoringSide(ScoringSide side) {

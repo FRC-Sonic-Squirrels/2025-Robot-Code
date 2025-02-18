@@ -124,7 +124,7 @@ public class RobotConfig2025 extends RobotConfig {
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
       group.build("AUTO_MAX_SPEED", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 5.0);
+      group.build("AUTO_MAX_ACCEL", 1.0);
   private static final LoggedTunableNumber AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND =
       group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 4);
   private static final LoggedTunableNumber
@@ -160,7 +160,7 @@ public class RobotConfig2025 extends RobotConfig {
       new Transform3d(
           new Translation3d(
               Units.Inches.of(-8.638).in(Units.Meters),
-              Units.Inches.of(-8.472).in(Units.Meters),
+              Units.Inches.of(8.472).in(Units.Meters),
               Units.Inches.of(12.125).in(Units.Meters)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(210.0)));
 
@@ -168,9 +168,9 @@ public class RobotConfig2025 extends RobotConfig {
       new Transform3d(
           new Translation3d(
               Units.Inches.of(-8.638).in(Units.Meters),
-              Units.Inches.of(8.472).in(Units.Meters),
+              Units.Inches.of(-8.472).in(Units.Meters),
               Units.Inches.of(12.125).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(150.0)));
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(153.0)));
 
   public static final Transform3d CORAL_STATION_SIDE_LEFT =
       new Transform3d(

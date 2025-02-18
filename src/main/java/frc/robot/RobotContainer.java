@@ -355,7 +355,7 @@ public class RobotContainer {
                   () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
-        case ROBOT_2025:
+        case ROBOT_2025_HOLO:
           drivetrain =
               new Drivetrain(
                   config,
@@ -720,7 +720,7 @@ public class RobotContainer {
     // End Effector Rotation
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.a, "End Effector")
-        .whileTrue(new EndEffectorSetRPM(endEffector, -1000));
+        .whileTrue(new EndEffectorSetRPM(endEffector, -5000));
 
     // Climber in
     // operatorController
