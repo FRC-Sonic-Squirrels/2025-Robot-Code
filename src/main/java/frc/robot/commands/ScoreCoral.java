@@ -227,7 +227,9 @@ public class ScoreCoral extends StateMachine {
             Commands.waitUntil(
                     () ->
                         GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                            < distToRaiseMech.get())
+                            < (RobotStates.scoringLevel == ScoringLevel.L4
+                                ? distToRaiseMech.get()
+                                : 100))
                 .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
             (command) -> null);
 
@@ -290,9 +292,7 @@ public class ScoreCoral extends StateMachine {
             Commands.waitUntil(
                     () ->
                         GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                            < (RobotStates.scoringLevel == ScoringLevel.L4
-                                ? distToRaiseMech.get()
-                                : 100))
+                            < distToRaiseMech.get())
                 .andThen(clearAlgae1Position),
             (command) -> null);
 

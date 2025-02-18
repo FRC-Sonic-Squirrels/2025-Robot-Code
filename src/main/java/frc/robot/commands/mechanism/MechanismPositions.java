@@ -123,11 +123,11 @@ public class MechanismPositions {
       stowArmAngleDegrees.initDefault(11.6);
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
-      reefL2ElevatorHeightInches.initDefault(8.5);
+      reefL2ElevatorHeightInches.initDefault(7.5);
       reefL2ArmAngleDegrees.initDefault(132.71);
       reefL3ElevatorHeightInches.initDefault(26.41);
       reefL3ArmAngleDegrees.initDefault(138.25);
-      reefL4ElevatorHeightInches.initDefault(58.4);
+      reefL4ElevatorHeightInches.initDefault(55.5);
       reefL4ArmAngleDegrees.initDefault(148);
       coralStationElevatorHeightInches.initDefault(33);
       coralStationArmAngleDegrees.initDefault(-40);
