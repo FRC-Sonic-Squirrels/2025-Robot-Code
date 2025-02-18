@@ -285,7 +285,7 @@ public final class Constants {
     public static final Distance MAX_HEIGHT =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO
             ? Units.Inches.of(26.2)
-            : Units.Inches.of(55);
+            : Units.Inches.of(60);
 
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;

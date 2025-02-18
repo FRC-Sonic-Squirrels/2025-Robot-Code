@@ -324,10 +324,14 @@ public class ScoreCoral extends StateMachine {
     usingDrivetrain = false;
     endEffector.setPercentOut(0);
     Pose2d initPose = wrapper.getRawOdometryPose();
-    return suspendForCommand(
-        Commands.waitUntil(() -> GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) > 0.3)
-            .andThen(MechanismActions.coralStationPosition(elevator, arm)),
-        (command) -> setDone());
+    return
+    // suspendForCommand(
+    // Commands.waitUntil(() -> GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) > 0.3)
+    //     .andThen(MechanismActions.coralStationPosition(elevator, arm)),
+    // (command) ->
+    stateWithName("Done", setDone())
+    // )
+    ;
   }
 
   private ScoringSideWithPoseAndDirection getScoringSide(ScoringSide side) {

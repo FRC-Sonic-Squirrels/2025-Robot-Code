@@ -50,6 +50,8 @@ public class EndEffectorIOReal implements EndEffectorIO {
   private final StatusSignal<Distance> nonScoringSideTofDistance;
   private final StatusSignal<Boolean> scoringSideTofDetected;
   private final StatusSignal<Boolean> nonScoringSideTofDetected;
+  private final StatusSignal<Double> scoringSideSignalStrength;
+  private final StatusSignal<Double> nonScoringSideSignalStrength;
 
   public EndEffectorIOReal() {
     // Motor config
@@ -94,7 +96,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     canRangeConfigScoringSide.ProximityParams.ProximityThreshold =
         Units.Inches.of(5).in(Units.Meters);
     canRangeConfigScoringSide.ProximityParams.ProximityHysteresis = 0.01;
-    canRangeConfigScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
+    canRangeConfigScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 4000;
 
     canRangeConfigScoringSide.ToFParams.UpdateFrequency = 100;
     canRangeConfigScoringSide.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
@@ -105,7 +107,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     canRangeConfigNonScoringSide.ProximityParams.ProximityThreshold =
         Units.Inches.of(5).in(Units.Meters);
     canRangeConfigNonScoringSide.ProximityParams.ProximityHysteresis = 0.01;
-    canRangeConfigNonScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 2500;
+    canRangeConfigNonScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 4000;
 
     canRangeConfigNonScoringSide.ToFParams.UpdateFrequency = 100;
     canRangeConfigNonScoringSide.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
@@ -117,6 +119,11 @@ public class EndEffectorIOReal implements EndEffectorIO {
     nonScoringSideTofDistance = nonScoringSideEndEffectorTOF.getDistance();
     scoringSideTofDetected = scoringSideEndEffectorTOF.getIsDetected();
     nonScoringSideTofDetected = nonScoringSideEndEffectorTOF.getIsDetected();
+    scoringSideSignalStrength = scoringSideEndEffectorTOF.getSignalStrength();
+    nonScoringSideSignalStrength = nonScoringSideEndEffectorTOF.getSignalStrength();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        20, scoringSideSignalStrength, nonScoringSideSignalStrength);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100,
@@ -138,7 +145,9 @@ public class EndEffectorIOReal implements EndEffectorIO {
           scoringSideTofDistance,
           nonScoringSideTofDistance,
           scoringSideTofDetected,
-          nonScoringSideTofDetected
+          nonScoringSideTofDetected,
+          scoringSideSignalStrength,
+          nonScoringSideSignalStrength
         };
   }
 
@@ -151,10 +160,17 @@ public class EndEffectorIOReal implements EndEffectorIO {
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.velocityRPM = velocity.getValue().in(Units.RPM);
-    inputs.scoringSideTofDistInches = scoringSideTofDistance.getValue().in(Units.Inches);
-    inputs.nonScoringSideTofDistInches = nonScoringSideTofDistance.getValue().in(Units.Inches);
+
+    double ssDist = scoringSideTofDistance.getValue().in(Units.Inches);
+    if (ssDist != 0) inputs.scoringSideTofDistInches = ssDist;
+
+    double nssDist = nonScoringSideTofDistance.getValue().in(Units.Inches);
+    if (nssDist != 0) inputs.nonScoringSideTofDistInches = nssDist;
+
     inputs.scoringSideTofDetecting = scoringSideTofDetected.getValue().booleanValue();
     inputs.nonScoringSideTofDetecting = nonScoringSideTofDetected.getValue().booleanValue();
+    inputs.scoringSideSignalStrength = scoringSideSignalStrength.getValueAsDouble();
+    inputs.nonScoringSideSignalStrength = nonScoringSideSignalStrength.getValueAsDouble();
   }
 
   @Override

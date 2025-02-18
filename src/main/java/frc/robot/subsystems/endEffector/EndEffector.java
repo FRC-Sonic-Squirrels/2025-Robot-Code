@@ -42,6 +42,10 @@ public class EndEffector extends SubsystemBase {
       logGroup.buildBoolean("ToF/ScoringSideTofActivated");
   private static final LoggerEntry.Bool logInputs_nonScoringSideTOFActivated =
       logGroup.buildBoolean("ToF/NonScoringSideTOFActivated");
+  private static final LoggerEntry.Decimal logInputs_scoringSideTofSignalStrength =
+      logGroup.buildDecimal("ToF/ScoringSideTofSignalStrength");
+  private static final LoggerEntry.Decimal logInputs_nonScoringSideTOFSignalStrength =
+      logGroup.buildDecimal("ToF/NonScoringSideTOFSignalStrength");
 
   private static final LoggerEntry.Decimal logTargetVelocityRPM =
       logGroup.buildDecimal("TargetVelocityRPM");
@@ -111,6 +115,8 @@ public class EndEffector extends SubsystemBase {
       logInputs_nonScoringSideTOFDist.info(inputs.nonScoringSideTofDistInches);
       logInputs_scoringSideTofActivated.info(inputs.scoringSideTofDetecting);
       logInputs_nonScoringSideTOFActivated.info(inputs.nonScoringSideTofDetecting);
+      logInputs_scoringSideTofSignalStrength.info(inputs.scoringSideSignalStrength);
+      logInputs_nonScoringSideTOFSignalStrength.info(inputs.nonScoringSideSignalStrength);
 
       logControlMode.info(controlMode);
 
