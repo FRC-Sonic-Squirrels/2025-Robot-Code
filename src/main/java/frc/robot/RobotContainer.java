@@ -696,7 +696,8 @@ public class RobotContainer {
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
 
-    if (Constants.unusedCode) {
+    // BANG (!) means face center; else, rotate to AprilTags
+    if (!Constants.unusedCode) {
       driverController
           .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
           .toggleOnTrue(
@@ -712,7 +713,7 @@ public class RobotContainer {
                   () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
     } else {
       driverController
-          .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
+          .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to AprilTag")
           .toggleOnTrue(
               new RotateToAngle(
                   drivetrainWrapper,
@@ -723,7 +724,7 @@ public class RobotContainer {
 
                     double finalRotationValue =
                         RobotStates.coralInRobot
-                            ? findNearestAprilTag(robotTranslation, reefAprilTagPose)
+                            ? findNearestReefAprilTag(robotTranslation, reefAprilTagPose)
                                 .getRotation()
                                 .getRadians()
                             : findNearestCoralStation(robotTranslation, coralStationPose)
@@ -1009,13 +1010,13 @@ public class RobotContainer {
   }
 
   /**
-   * Finds the nearest april tag position relative to the current robot translation
+   * Finds the nearest reef april tag position relative to the current robot translation
    *
    * @param robotTranslation - Current robot translation
    * @param reefAprilTagPose - List of all april tag positions
    * @return Nearest april tag
    */
-  public static Pose2d findNearestAprilTag(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
+  public static Pose2d findNearestReefAprilTag(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
     Pose2d nearestAprilTag = null;
     int start;
     double minDistance = 10000000000.0;
