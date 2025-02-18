@@ -114,6 +114,7 @@ public class RobotContainer {
   private final Arm arm;
   private final Elevator elevator;
   private final Intake intake;
+  private final Trigger algaeInRobot;
   private final EndEffector endEffector;
   private final VisionGamepiece visionGamepiece;
   private final LED led;
@@ -402,6 +403,10 @@ public class RobotContainer {
           break;
       }
     }
+
+    algaeInRobot =
+        new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())
+            .debounce(.1);
 
     drivetrainWrapper =
         new DrivetrainWrapper(
@@ -1101,10 +1106,6 @@ public class RobotContainer {
     logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
     logGamepieceInEndEffectorScoringSideState.info(RobotStates.coralInEndEffectorScoringSide);
     logGamepieceInEndEffectorNonScoringSideState.info(RobotStates.coralInEndEffectorNonScoringSide);
-
-    Trigger algaeInRobot =
-        new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())
-            .debounce(.1);
 
     if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
     RobotStates.periodic();
