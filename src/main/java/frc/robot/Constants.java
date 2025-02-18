@@ -243,7 +243,7 @@ public final class Constants {
 
       public static final double MOI = .00001;
 
-      public static final double INTAKE_SPEED_RPM = -1000;
+      public static final double GAMEPIECE_INTAKE_SPEED_RPM = -1000;
 
       public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(91);
       public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(-80);
