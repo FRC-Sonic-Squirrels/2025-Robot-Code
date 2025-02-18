@@ -14,6 +14,8 @@ public interface EndEffectorIO {
     public double nonScoringSideTofDistInches;
     public boolean scoringSideTofDetecting;
     public boolean nonScoringSideTofDetecting;
+    public double scoringSideSignalStrength;
+    public double nonScoringSideSignalStrength;
 
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);

@@ -55,6 +55,7 @@ import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -137,6 +138,7 @@ public class RobotContainer {
   private final AutosManager autoManager;
 
   private Trigger gamepieceInRobot = new Trigger(() -> RobotStates.coralInRobot);
+  private Trigger gamepieceInEndEffector = new Trigger(() -> RobotStates.coralInEndEffector);
 
   public DigitalInput brakeModeButton = new DigitalInput(0);
   public DigitalInput zeroSensorsButton = new DigitalInput(1);
@@ -746,6 +748,15 @@ public class RobotContainer {
                   drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
     }
 
+    // ---------- NON-CONTROLLER TRIGGERS
+
+    gamepieceInEndEffector.onTrue(
+        new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
+            .andThen(MechanismActions.scorePrepPosition(elevator, arm)));
+    gamepieceInEndEffector.onFalse(
+        new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
+            .andThen(MechanismActions.coralStationPosition(elevator, arm)));
+
     // ---------- ON-ROBOT CONTROLS ------------
 
     zeroSensorsButtonTrigger.onTrue(
@@ -976,6 +987,9 @@ public class RobotContainer {
     resetSubsystems();
     vision.useMaxDistanceAwayFromExistingEstimate(false);
     vision.useGyroBasedFilteringForVision(false);
+
+    arm.setVoltage(0);
+    elevator.setPercentOut(0);
 
     is_teleop = false;
     is_autonomous = false;

@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.team2930.GeometryUtil;
 import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.subsystems.LED;
@@ -37,10 +36,11 @@ public class CommandComposer {
                         elevator,
                         arm,
                         () -> wrapper.getCoralStationPoseEstimatorPose(true)))
-                .andThen(
-                    Commands.waitUntil(
-                        () -> GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) > 0.3))
-                .andThen(MechanismActions.scorePrepPosition(elevator, arm))
+                // .andThen(
+                //     Commands.waitUntil(
+                //         () -> GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) >
+                // 0.3))
+                // .andThen(MechanismActions.scorePrepPosition(elevator, arm))
                 .alongWith(
                     Commands.run(
                             () -> {
