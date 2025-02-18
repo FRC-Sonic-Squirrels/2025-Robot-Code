@@ -696,7 +696,7 @@ public class RobotContainer {
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
 
-    // BANG (!) means face center; else, rotate to AprilTags
+    // BANG (!) means face center; else, rotate to AprilTag
     if (!Constants.unusedCode) {
       driverController
           .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
@@ -708,7 +708,7 @@ public class RobotContainer {
 
                     double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
 
-                    return faceTowardsCenter(robotTranslation, controlOutput);
+                    return new Rotation2d(controlOutput);
                   },
                   () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
     } else {
