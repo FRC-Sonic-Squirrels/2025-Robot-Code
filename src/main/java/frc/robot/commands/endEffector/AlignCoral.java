@@ -20,18 +20,17 @@ public class AlignCoral extends Command {
   private static final LoggedTunableNumber minTOFDistanceInches =
       group.build("minTOFDistanceInches", 3);
   private static final LoggedTunableNumber maxTOFDistanceInches =
-      group.build("maxTOFDistanceInches", 5);
+      group.build("maxTOFDistanceInches", 0);
+  private static final LoggedTunableNumber maxTurns = group.build("maxTurns", 5);
 
   private EndEffector endEffector;
-  private double maxTurns;
   private double initialPosition;
   private boolean aligned;
   private boolean intitalMovementDone = false;
   private boolean shouldEnd = false;
 
-  public AlignCoral(EndEffector endEffector, double maxTurns) {
+  public AlignCoral(EndEffector endEffector) {
     this.endEffector = endEffector;
-    this.maxTurns = maxTurns;
 
     addRequirements(endEffector);
   }
@@ -48,16 +47,17 @@ public class AlignCoral extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (aligned) {
+    // TODO: should this check if it is aligned?
+    if (true) {
       if (intitalMovementDone) {
-        endEffector.setVelocity(-correctionVelocity.get());
-        shouldEnd = endEffector.getMotorPosition() - initialPosition > maxTurns;
-      } else {
         endEffector.setVelocity(correctionVelocity.get());
-        intitalMovementDone = !endEffector.scoringSideTofSeenGamepiece();
+        shouldEnd = endEffector.getMotorPosition() - initialPosition > maxTurns.get();
+      } else {
+        endEffector.setVelocity(-correctionVelocity.get());
+        intitalMovementDone = !endEffector.nonScoringSideTOFSeenGamepiece();
         if (intitalMovementDone) initialPosition = endEffector.getMotorPosition();
       }
-      shouldEnd = intitalMovementDone && endEffector.scoringSideTofSeenGamepiece();
+      shouldEnd = intitalMovementDone && endEffector.nonScoringSideTOFSeenGamepiece();
     } else {
       endEffector.setVelocity(correctionVelocity.get());
       shouldEnd =

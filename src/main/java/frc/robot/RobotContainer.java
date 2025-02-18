@@ -49,6 +49,7 @@ import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
+import frc.robot.commands.endEffector.AlignCoral;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
@@ -752,7 +753,8 @@ public class RobotContainer {
 
     gamepieceInEndEffector.onTrue(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-            .andThen(MechanismActions.scorePrepPosition(elevator, arm)));
+            .andThen(MechanismActions.scorePrepPosition(elevator, arm))
+            .alongWith(new AlignCoral(endEffector)));
     gamepieceInEndEffector.onFalse(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(MechanismActions.coralStationPosition(elevator, arm)));
