@@ -182,4 +182,8 @@ public class EndEffector extends SubsystemBase {
   public boolean isGamepieceFullyInEndEffector() {
     return gamepieceInRobot;
   }
+
+  public double getMotorPosition() {
+    return inputs.position;
+  }
 }

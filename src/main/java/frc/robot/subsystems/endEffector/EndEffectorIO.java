@@ -10,6 +10,7 @@ public interface EndEffectorIO {
     public double currentAmps;
     public double tempCelsius;
     public double appliedVolts;
+    public double position;
     public double scoringSideTofDistInches;
     public double nonScoringSideTofDistInches;
     public boolean scoringSideTofDetecting;
