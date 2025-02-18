@@ -49,6 +49,7 @@ import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
+import frc.robot.commands.endEffector.AlignCoral;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
@@ -512,7 +513,8 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
-                drivetrainWrapper, endEffector, elevator, arm, led, driverController, true));
+                    drivetrainWrapper, endEffector, elevator, arm, led, driverController)
+                .andThen(new AlignCoral(endEffector)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
