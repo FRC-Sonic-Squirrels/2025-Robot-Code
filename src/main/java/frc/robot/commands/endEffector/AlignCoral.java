@@ -22,13 +22,16 @@ public class AlignCoral extends Command {
   private static final LoggedTunableNumber maxTOFDistanceInches =
       group.build("maxTOFDistanceInches", 5);
 
-  EndEffector endEffector;
-  boolean aligned;
-  boolean intitalMovementDone = false;
-  boolean shouldEnd = false;
+  private EndEffector endEffector;
+  private double maxTurns;
+  private double initialPosition;
+  private boolean aligned;
+  private boolean intitalMovementDone = false;
+  private boolean shouldEnd = false;
 
-  public AlignCoral(EndEffector endEffector) {
+  public AlignCoral(EndEffector endEffector, double maxTurns) {
     this.endEffector = endEffector;
+    this.maxTurns = maxTurns;
 
     addRequirements(endEffector);
   }
@@ -48,9 +51,11 @@ public class AlignCoral extends Command {
     if (aligned) {
       if (intitalMovementDone) {
         endEffector.setVelocity(-correctionVelocity.get());
+        shouldEnd = endEffector.getMotorPosition() - initialPosition > maxTurns;
       } else {
         endEffector.setVelocity(correctionVelocity.get());
         intitalMovementDone = !endEffector.scoringSideTofSeenGamepiece();
+        if (intitalMovementDone) initialPosition = endEffector.getMotorPosition();
       }
       shouldEnd = intitalMovementDone && endEffector.scoringSideTofSeenGamepiece();
     } else {

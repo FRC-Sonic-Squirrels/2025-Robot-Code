@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.UpdateModeValue;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -31,6 +32,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
   private final StatusSignal<Temperature> deviceTemp;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<AngularVelocity> velocity;
+  private final StatusSignal<Angle> position;
 
   private final VoltageOut openLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
@@ -77,6 +79,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     deviceTemp = motor.getDeviceTemp();
     appliedVoltage = motor.getMotorVoltage();
     velocity = motor.getVelocity();
+    position = motor.getPosition();
 
     // Update status signals
 
@@ -160,6 +163,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
     inputs.appliedVolts = appliedVoltage.getValue().in(Units.Volts);
     inputs.velocityRPM = velocity.getValue().in(Units.RPM);
+    inputs.position = position.getValue().in(Units.Radians);
 
     double ssDist = scoringSideTofDistance.getValue().in(Units.Inches);
     if (ssDist != 0) inputs.scoringSideTofDistInches = ssDist;

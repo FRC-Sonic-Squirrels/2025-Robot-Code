@@ -514,7 +514,7 @@ public class RobotContainer {
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
                     drivetrainWrapper, endEffector, elevator, arm, led, driverController)
-                .andThen(new AlignCoral(endEffector)));
+                .andThen(new AlignCoral(endEffector, 6)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
