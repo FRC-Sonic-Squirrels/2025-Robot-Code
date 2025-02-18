@@ -35,7 +35,7 @@ public class IntakeGround extends Command {
   @Override
   public void initialize() {
     intake.setPivotAngle(PivotConstants.MAX_PIVOT_ANGLE);
-    intake.setRollerVelocity(PivotConstants.INTAKE_SPEED_RPM);
+    intake.setRollerVelocity(PivotConstants.GAMEPIECE_INTAKE_SPEED_RPM);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
