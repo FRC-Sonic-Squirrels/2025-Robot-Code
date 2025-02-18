@@ -131,14 +131,6 @@ public class MechanismActions {
 
           @Override
           public boolean isFinished() {
-            System.out.println(
-                elevator.getHeight().in(Units.Inches)
-                    + " "
-                    + position.get().elevatorHeight().in(Units.Inches)
-                    + " | "
-                    + arm.getAngle().getDegrees()
-                    + " "
-                    + position.get().armAngle().getDegrees());
             return elevatorInPosition && armInPosition;
           }
         };
