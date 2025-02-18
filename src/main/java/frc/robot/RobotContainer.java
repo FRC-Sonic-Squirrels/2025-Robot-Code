@@ -166,10 +166,6 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private double kU;
-  private double tU;
-  private double tI;
-  private double tD;
   private double kP = 0.0;
   private double kI = 0.0;
   private double kD = 0.0;
@@ -700,7 +696,7 @@ public class RobotContainer {
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                 }));
 
-    if (!Constants.unusedCode) {
+    if (Constants.unusedCode) {
       driverController
           .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
           .toggleOnTrue(
@@ -725,16 +721,14 @@ public class RobotContainer {
 
                     double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
 
-                    Pose2d nearestReefAprilTag =
-                        findNearestAprilTag(robotTranslation, reefAprilTagPose);
-                    Pose2d nearestCoralStation =
-                        findNearestCoralStation(robotTranslation, coralStationPose);
-
-                    double finalRotationValue;
-                    finalRotationValue =
+                    double finalRotationValue =
                         RobotStates.coralInRobot
-                            ? nearestReefAprilTag.getRotation().getRadians()
-                            : nearestCoralStation.getRotation().getRadians();
+                            ? findNearestAprilTag(robotTranslation, reefAprilTagPose)
+                                .getRotation()
+                                .getRadians()
+                            : findNearestCoralStation(robotTranslation, coralStationPose)
+                                .getRotation()
+                                .getRadians();
 
                     if (RobotStates.coralInRobot) {
                       return new Rotation2d(finalRotationValue + controlOutput);
