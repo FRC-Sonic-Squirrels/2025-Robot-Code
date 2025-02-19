@@ -35,6 +35,7 @@ import frc.lib.team6328.LoggedTunableNumber;
 import frc.lib.team6328.PoseEstimator;
 import frc.lib.team6328.PoseEstimator.TimestampedVisionUpdate;
 import frc.robot.Constants;
+import frc.robot.Constants.RobotMode;
 import frc.robot.Robot;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
@@ -288,7 +289,7 @@ public class Drivetrain extends SubsystemBase {
       gyroIO.updateInputs(gyroInputs);
       gyroIO2.updateInputs(gyroInputs2);
 
-      var gyro1Healthy = true;
+      var gyro1Healthy = !RobotMode.isSimBot();
       // gyroInputs.wasUpdatedRecently(0.1); //TODO: fix gyro healing
       var gyro2Healthy = gyroInputs2.wasUpdatedRecently(0.1);
 
