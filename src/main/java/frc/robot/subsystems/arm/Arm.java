@@ -78,6 +78,8 @@ public class Arm extends SubsystemBase {
     }
   }
 
+  private double setAccel = targetAccelerationConfig.get();
+
   private final ArmIO io;
   private final ArmIO.Inputs inputs = new ArmIO.Inputs(logGroup);
 
@@ -125,6 +127,7 @@ public class Arm extends SubsystemBase {
     configs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
     configs.MotionMagicAcceleration = targetAccelerationConfig.get();
     io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), configs);
+    setAccel = targetAccelerationConfig.get();
   }
 
   public void setAngle(Rotation2d angle) {
@@ -141,12 +144,15 @@ public class Arm extends SubsystemBase {
 
     controlMode = ControlMode.CLOSED_LOOP;
     targetAngleDegrees = angle;
-    MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+    if (accel != setAccel) {
+      MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
 
-    mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
-    mmConfigs.MotionMagicAcceleration = accel;
+      mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
+      mmConfigs.MotionMagicAcceleration = accel;
+      setAccel = accel;
 
-    io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
+      io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
+    }
     io.setClosedLoopPosition(angle);
     logTargetAngleDegrees.info(targetAngleDegrees);
   }

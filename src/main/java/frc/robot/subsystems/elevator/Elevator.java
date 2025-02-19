@@ -84,6 +84,8 @@ public class Elevator extends SubsystemBase {
     }
   }
 
+  private double setAccel = targetAccelerationConfig.get();
+
   private final ElevatorIO io;
   private final ElevatorIO.Inputs inputs = new ElevatorIO.Inputs(logGroup);
 
@@ -132,6 +134,20 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setHeight(Distance height) {
+    setHeight(height, targetAccelerationConfig.get());
+  }
+
+  public void setHeight(Distance height, double accel) {
+
+    if (accel != setAccel) {
+      MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+
+      mmConfigs.MotionMagicAcceleration = accel;
+      mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
+
+      io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
+      setAccel = accel;
+    }
     io.setHeight(height);
     targetHeight = height;
     logTargetHeight.info(targetHeight.in(Units.Inches));
@@ -150,6 +166,7 @@ public class Elevator extends SubsystemBase {
     MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
     mmConfigs.MotionMagicAcceleration = targetAccelerationConfig.get();
     mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
+    setAccel = maxVelocityConfig.get();
     io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
   }
 
