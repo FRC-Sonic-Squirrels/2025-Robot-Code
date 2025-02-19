@@ -228,7 +228,7 @@ public class AutoStateMachine extends StateMachine {
         new DriveToPosePathing(
                 wrapper,
                 config,
-                () -> wrapper.getReefPoseEstimatorPose(true), // TODO: coral station
+                () -> wrapper.getCoralStationPoseEstimatorPose(true),
                 intakingPoseSupplier)
             .alongWith(
                 CommandComposer.intakeCoralFromStation(
