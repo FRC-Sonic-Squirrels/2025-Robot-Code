@@ -128,6 +128,10 @@ public class Arm extends SubsystemBase {
   }
 
   public void setAngle(Rotation2d angle) {
+    setAngle(angle, targetAccelerationConfig.get());
+  }
+
+  public void setAngle(Rotation2d angle, double accel) {
     angle =
         Rotation2d.fromRadians(
             MathUtil.clamp(
@@ -137,6 +141,12 @@ public class Arm extends SubsystemBase {
 
     controlMode = ControlMode.CLOSED_LOOP;
     targetAngleDegrees = angle;
+    MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+
+    mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
+    mmConfigs.MotionMagicAcceleration = accel;
+
+    io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
     io.setClosedLoopPosition(angle);
     logTargetAngleDegrees.info(targetAngleDegrees);
   }
