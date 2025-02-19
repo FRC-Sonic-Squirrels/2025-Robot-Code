@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision;
 
+import com.ctre.phoenix6.Utils;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
@@ -223,6 +224,10 @@ public class Vision extends SubsystemBase {
     if (visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime
         >= currentResultTimeStampCTRETime) {
       return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.NOT_A_NEW_RESULT);
+    }
+
+    if (currentResultTimeStampCTRETime > Utils.getCurrentTimeSeconds()) {
+      return VisionResultLoggedFields.unsuccessfulResult(VisionResultStatus.TIMESTAMP_IN_FUTURE);
     }
 
     visionModule.lastSuccessfullyProcessedResultTimeStampCTRETime = currentResultTimeStampCTRETime;

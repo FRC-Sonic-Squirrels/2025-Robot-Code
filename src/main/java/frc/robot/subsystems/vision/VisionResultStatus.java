@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision;
 public enum VisionResultStatus {
   VISION_DISABLED(false),
   NOT_A_NEW_RESULT(false),
+  TIMESTAMP_IN_FUTURE(false),
   PHOTON_POSE_ESTIMATOR_OPTIONAL_RESULT_EMPTY(false),
   NO_TARGETS_VISIBLE(false),
   TOO_FAR_FROM_EXISTING_ESTIMATE(false),
