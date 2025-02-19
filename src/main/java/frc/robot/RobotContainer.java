@@ -752,9 +752,10 @@ public class RobotContainer {
     // ---------- NON-CONTROLLER TRIGGERS
 
     gamepieceInEndEffector.onTrue(
-        new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-            .andThen(MechanismActions.scorePrepPosition(elevator, arm))
-            .alongWith(new AlignCoral(endEffector)));
+        new AlignCoral(endEffector)
+            .alongWith(
+                new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
+                    .andThen(MechanismActions.scorePrepPosition(elevator, arm))));
     gamepieceInEndEffector.onFalse(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(MechanismActions.coralStationPosition(elevator, arm)));
