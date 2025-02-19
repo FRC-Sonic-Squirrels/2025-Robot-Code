@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,8 +13,6 @@ import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 
 public class CommandComposer {
-  private static Pose2d initPose;
-
   public static Command intakeCoralFromStation(
       DrivetrainWrapper wrapper,
       EndEffector endEffector,
@@ -25,43 +22,27 @@ public class CommandComposer {
       XboxControllerWrapper driverController,
       boolean moveMech) {
 
-    return Commands.runOnce(
-            () -> {
-              initPose = wrapper.getRawOdometryPose();
-            })
-        .andThen(
-            Commands.either(
-                    MechanismActions.coralStationPosition(elevator, arm),
-                    Commands.none(),
-                    () -> moveMech)
-                .alongWith(
-                    new IntakeGamepieceCoralStation(
-                        endEffector,
-                        elevator,
-                        arm,
-                        () -> wrapper.getCoralStationPoseEstimatorPose(true)))
-                // .andThen(
-                //     Commands.waitUntil(
-                //         () -> GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) >
-                // 0.3))
-                // .andThen(MechanismActions.scorePrepPosition(elevator, arm))
-                .alongWith(
-                    Commands.run(
-                            () -> {
-                              if (endEffector
-                                  .isGamepieceFullyInEndEffector()) { // If the gamepiece is in
-                                // robot, set
-                                // rumble
-                                if (driverController != null)
-                                  driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
-                                led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
-                              }
-                            })
-                        .finallyDo(
-                            () -> {
-                              if (driverController != null)
-                                driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
-                              led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
-                            })));
+    return Commands.either(
+            MechanismActions.coralStationPosition(elevator, arm), Commands.none(), () -> moveMech)
+        .alongWith(
+            new IntakeGamepieceCoralStation(
+                endEffector, elevator, arm, () -> wrapper.getCoralStationPoseEstimatorPose(true)))
+        .alongWith(
+            Commands.run(
+                    () -> {
+                      if (endEffector.isGamepieceFullyInEndEffector()) { // If the gamepiece is in
+                        // robot, set
+                        // rumble
+                        if (driverController != null)
+                          driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
+                        led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
+                      }
+                    })
+                .finallyDo(
+                    () -> {
+                      if (driverController != null)
+                        driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
+                      led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                    }));
   }
 }
