@@ -40,9 +40,9 @@ public class LED extends SubsystemBase {
   private AddressableLED led = new AddressableLED(Constants.LEDConstants.PWM_PORT);
 
   private AddressableLEDBuffer ledBuffer =
-      new AddressableLEDBuffer(13); // TODO: change length of buffers to new
+      new AddressableLEDBuffer(36); // TODO: change length of buffers to new
   // robot's led size
-  private AddressableLEDBuffer previousBuffer = new AddressableLEDBuffer(13);
+  private AddressableLEDBuffer previousBuffer = new AddressableLEDBuffer(36);
 
   private final Distance ledSpacing = Meters.of(1 / 120.0);
 
