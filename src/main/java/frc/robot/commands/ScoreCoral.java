@@ -216,7 +216,8 @@ public class ScoreCoral extends StateMachine {
 
     led.setBaseRobotState(BaseRobotState.SCORING_ALIGNMENT);
 
-    if (!RobotStates.coralInEndEffector || !scorableLevel()) {
+    if (!(RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide)
+        || !scorableLevel()) {
       return RobotStates.clearingAlgae && !gamepieceMemory
           ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
           : stateWithName("ScoreFailure", () -> scoreFailure());
@@ -318,6 +319,7 @@ public class ScoreCoral extends StateMachine {
   private StateHandler scoreFailure() {
     spawnCommand(new ControllerRumbleForTime(rumble, 0.25, 0.3), (c) -> null);
     led.setRobotState(RobotState.SCORE_FAILURE);
+    System.out.println("scoreFailure");
     return stateWithName("End", () -> end(true));
   }
 

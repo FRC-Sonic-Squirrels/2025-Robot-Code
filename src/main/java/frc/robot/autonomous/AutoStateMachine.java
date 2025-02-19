@@ -28,7 +28,6 @@ import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
-import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.arm.Arm;
@@ -138,7 +137,7 @@ public class AutoStateMachine extends StateMachine {
       return stateWithName("Done", setDone());
     }
 
-    spawnCommand(MechanismActions.scorePrepPosition(elevator, arm), (c) -> null);
+    // spawnCommand(MechanismActions.scorePrepPosition(elevator, arm), (c) -> null);
 
     if (procedural) return stateWithName("PrepScoreCoral", () -> prepScoreCoral());
 
@@ -229,7 +228,7 @@ public class AutoStateMachine extends StateMachine {
         new DriveToPosePathing(
                 wrapper,
                 config,
-                () -> wrapper.getCoralStationPoseEstimatorPose(true),
+                () -> wrapper.getReefPoseEstimatorPose(true), // TODO: coral station
                 intakingPoseSupplier)
             .alongWith(
                 CommandComposer.intakeCoralFromStation(
