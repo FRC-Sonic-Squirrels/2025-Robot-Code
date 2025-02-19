@@ -38,7 +38,12 @@ public class MechanismActions {
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
   public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
-    return goToPositionParallel(elevator, arm, () -> MechanismPositions.reefPosition(scoringLevel));
+    return goToPositionParallel(
+        elevator,
+        arm,
+        () -> MechanismPositions.reefPosition(scoringLevel),
+        scoringLevel == ScoringLevel.L4 ? 1000 : -1,
+        scoringLevel == ScoringLevel.L4 ? 3 : -1);
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {
@@ -71,6 +76,15 @@ public class MechanismActions {
 
   private static Command goToPositionParallel(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
+    return goToPositionParallel(elevator, arm, position, -1, -1);
+  }
+
+  private static Command goToPositionParallel(
+      Elevator elevator,
+      Arm arm,
+      Supplier<MechanismPosition> position,
+      double elevatorAccel,
+      double armAccel) {
 
     var cmd =
         new Command() {
@@ -89,36 +103,64 @@ public class MechanismActions {
 
             if (compatibleMechSections(currentMechSection, targetMechSection)) {
               log_currentMotionState.info("Compatible");
-              goToPositionParallelSimple(elevator, arm, position);
+              goToPositionParallelSimple(elevator, arm, position, elevatorAccel, armAccel);
             } else {
               if (currentMechSection == MechSection.S1) {
                 log_currentMotionState.info("Getting out of S1");
                 goToPositionParallelSimple(
-                    elevator, arm, MechanismPositions::intermediateLowBackPosition);
+                    elevator,
+                    arm,
+                    MechanismPositions::intermediateLowBackPosition,
+                    elevatorAccel,
+                    armAccel);
               } else if (currentMechSection == MechSection.S2) {
                 log_currentMotionState.info("Getting out of S2");
                 goToPositionParallelSimple(
-                    elevator, arm, MechanismPositions::intermediateLowPosition);
+                    elevator,
+                    arm,
+                    MechanismPositions::intermediateLowPosition,
+                    elevatorAccel,
+                    armAccel);
               } else if (currentMechSection == MechSection.S6) {
                 log_currentMotionState.info("Getting out of S6");
                 goToPositionParallelSimple(
-                    elevator, arm, MechanismPositions::intermediateHighPosition);
+                    elevator,
+                    arm,
+                    MechanismPositions::intermediateHighPosition,
+                    elevatorAccel,
+                    armAccel);
               } else if (targetMechSection == MechSection.S2) {
                 log_currentMotionState.info("Getting into S2");
                 goToPositionParallelSimple(
-                    elevator, arm, MechanismPositions::intermediateLowPosition);
+                    elevator,
+                    arm,
+                    MechanismPositions::intermediateLowPosition,
+                    elevatorAccel,
+                    armAccel);
               } else if (targetMechSection == MechSection.S6) {
                 log_currentMotionState.info("Getting into S6");
                 goToPositionParallelSimple(
-                    elevator, arm, MechanismPositions::intermediateHighPosition);
+                    elevator,
+                    arm,
+                    MechanismPositions::intermediateHighPosition,
+                    elevatorAccel,
+                    armAccel);
               } else {
                 log_currentMotionState.info("Getting into S1");
                 if (targetMechSection == MechSection.S1 && currentMechSection == MechSection.S3) {
                   goToPositionParallelSimple(
-                      elevator, arm, MechanismPositions::intermediateLowBackPosition);
+                      elevator,
+                      arm,
+                      MechanismPositions::intermediateLowBackPosition,
+                      elevatorAccel,
+                      armAccel);
                 } else {
                   goToPositionParallelSimple(
-                      elevator, arm, MechanismPositions::intermediateLowPosition);
+                      elevator,
+                      arm,
+                      MechanismPositions::intermediateLowPosition,
+                      elevatorAccel,
+                      armAccel);
                 }
               }
             }
@@ -164,8 +206,28 @@ public class MechanismActions {
   private static void goToPositionParallelSimple(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
     MechanismPosition targetPos = position.get();
-    elevator.setHeight(targetPos.elevatorHeight());
-    arm.setAngle(targetPos.armAngle());
+    elevator.setHeight(targetPos.elevatorHeight(), -1);
+    arm.setAngle(targetPos.armAngle(), -1);
+  }
+
+  private static void goToPositionParallelSimple(
+      Elevator elevator,
+      Arm arm,
+      Supplier<MechanismPosition> position,
+      double elevatorAccel,
+      double armAccel) {
+    MechanismPosition targetPos = position.get();
+    if (elevatorAccel == -1) {
+      elevator.setHeight(targetPos.elevatorHeight());
+    } else {
+      elevator.setHeight(targetPos.elevatorHeight(), elevatorAccel);
+    }
+
+    if (armAccel == -1) {
+      arm.setAngle(targetPos.armAngle());
+    } else {
+      arm.setAngle(targetPos.armAngle(), armAccel);
+    }
   }
 
   private static MechSection getMechSection(MechanismPosition position) {
