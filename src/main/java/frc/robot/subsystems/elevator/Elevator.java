@@ -79,8 +79,8 @@ public class Elevator extends SubsystemBase {
       kD.initDefault(0.12);
       kG.initDefault(0.35);
 
-      maxVelocityConfig.initDefault(1000.0);
-      targetAccelerationConfig.initDefault(1000.0);
+      maxVelocityConfig.initDefault(8000.0);
+      targetAccelerationConfig.initDefault(10000.0);
     }
   }
 
@@ -148,6 +148,7 @@ public class Elevator extends SubsystemBase {
       io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
       setAccel = accel;
     }
+
     io.setHeight(height);
     targetHeight = height;
     logTargetHeight.info(targetHeight.in(Units.Inches));

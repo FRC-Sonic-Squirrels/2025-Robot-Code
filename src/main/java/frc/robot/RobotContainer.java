@@ -224,7 +224,7 @@ public class RobotContainer {
           new LED(
               () -> brakeModeTriggered,
               drivetrain::isGyroConnected,
-              () -> elevator.getHeight().in(Units.Inches) < 0.1);
+              () -> elevator.getHeight().in(Units.Inches) < 0.3);
     } else { // REAL and SIM robots HERE
       switch (robotType) {
         case ROBOT_SIMBOT_REAL_CAMERAS:
@@ -290,7 +290,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
           break;
 
         case ROBOT_2023_RETIRED_ROBER:
@@ -322,7 +322,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
           break;
 
         case ROBOT_2024_RETIRED_MAESTRO:
@@ -354,7 +354,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
           break;
 
         case ROBOT_2025_HOLO:
@@ -386,7 +386,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
           break;
 
         default:
@@ -417,7 +417,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
           break;
       }
     }
