@@ -33,6 +33,9 @@ public class AutosManager {
   private static final LoggerEntry.EnumValue<SysIdRoutineLog.State> logSwerveSysidState =
       logGroupSysid.buildEnum("swervesysidstate");
 
+  private static final LoggerGroup logGroupCustom = LoggerGroup.build("AutoCustom");
+  private static final LoggerEntry.Text logCustomAutoPlan = logGroupCustom.buildString("Plan");
+
   private final AutosSubsystems subsystems;
   private final RobotConfig config;
   private final BooleanSupplier flipAuto;
@@ -136,6 +139,22 @@ public class AutosManager {
 
   private Auto customAuto(
       List<ScoringLocation> scoringLocations, List<CoralStationLocation> coralStationLocations) {
+
+    String print = "";
+    if (scoringLocations.get(0).side() != null) {
+      print = scoringLocations.get(0).side().name() + " . ";
+
+      for (int i = 0; i < coralStationLocations.size(); i++) {
+        print +=
+            scoringLocations.get(i + 1).side().name()
+                + " "
+                + coralStationLocations.get(i).name()
+                + " . ";
+      }
+    }
+
+    logCustomAutoPlan.info(print);
+
     var state =
         new AutoStateMachine(
             subsystems,
