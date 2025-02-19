@@ -288,7 +288,8 @@ public class Drivetrain extends SubsystemBase {
       gyroIO.updateInputs(gyroInputs);
       gyroIO2.updateInputs(gyroInputs2);
 
-      var gyro1Healthy = gyroInputs.wasUpdatedRecently(0.1);
+      var gyro1Healthy = true;
+      // gyroInputs.wasUpdatedRecently(0.1); //TODO: fix gyro healing
       var gyro2Healthy = gyroInputs2.wasUpdatedRecently(0.1);
 
       // Switch to the selected gyro, if healthy
