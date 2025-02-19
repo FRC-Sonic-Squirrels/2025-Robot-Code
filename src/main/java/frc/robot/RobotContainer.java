@@ -166,10 +166,6 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private double kP = 0.0;
-  private double kI = 0.0;
-  private double kD = 0.0;
-
   private static LoggerGroup robotStateLogGroup = LoggerGroup.build("RobotState");
   private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
       robotStateLogGroup.buildEnum("Levels/Level");
@@ -702,10 +698,13 @@ public class RobotContainer {
             new RotateToAngle(
                 drivetrainWrapper,
                 () -> {
+                  Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
+                  double kP = 0.0;
+                  double kI = 0.0;
+                  double kD = 0.0;
+                  double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
                   // ! means face center; else, rotate to side of reef
                   if (!Constants.unusedCode) {
-                    Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
-                    double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
                     double coralStationRotationValue =
                         findNearestCoralStation(robotTranslation, coralStationPose)
                             .getRotation()
@@ -720,8 +719,6 @@ public class RobotContainer {
                       return new Rotation2d(finalRotationValue);
                     }
                   } else {
-                    Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
-                    double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
                     double finalRotationValue =
                         RobotStates.coralInRobot
                             ? findNearestReefAprilTag(robotTranslation, reefAprilTagPose)
