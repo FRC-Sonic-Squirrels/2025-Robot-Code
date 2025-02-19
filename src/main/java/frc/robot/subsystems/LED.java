@@ -57,7 +57,7 @@ public class LED extends SubsystemBase {
   private LoggedTunableNumber tunableG = group.build("tunableColor/g", 0);
   private LoggedTunableNumber tunableB = group.build("tunableColor/b", 0);
   private int robotLoops = 0;
-  private final int robotLoopsTillReady = 20;
+  private final int robotLoopsTillReady = 30;
   private final Supplier<Boolean> brakeMode;
   private final Supplier<Boolean> gyroConnected;
   private final Supplier<Boolean> motorsZeroed;
