@@ -177,9 +177,7 @@ public class MechanismActions {
 
   private static void goToPositionParallelSimple(
       Elevator elevator, Arm arm, Supplier<MechanismPosition> position) {
-    MechanismPosition targetPos = position.get();
-    elevator.setHeight(targetPos.elevatorHeight(), -1);
-    arm.setAngle(targetPos.armAngle(), -1);
+    goToPositionParallelSimple(elevator, arm, position, -1, -1);
   }
 
   private static void goToPositionParallelSimple(
