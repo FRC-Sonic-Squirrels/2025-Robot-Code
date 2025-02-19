@@ -143,13 +143,13 @@ public class RobotConfig2025 extends RobotConfig {
 
   private final com.pathplanner.lib.config.RobotConfig PATH_PLANNER_CONFIG =
       new com.pathplanner.lib.config.RobotConfig(
-          Units.Kilogram.of(1),
-          Units.KilogramSquareMeters.of(1),
+          Units.Kilogram.of(115),
+          Units.KilogramSquareMeters.of(5.3598424503),
           new ModuleConfig(
               WHEEL_RADIUS,
-              Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND),
+              Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND), // TODO: find actual value
               0.65,
-              DCMotor.getKrakenX60Foc(4),
+              DCMotor.getKrakenX60Foc(1),
               SwerveModuleConstants.MK4I.LEVEL_2_GEARING_DRIVE_GEAR_RATIO,
               Units.Amps.of(DRIVE_TALON_CURRENT_LIMIT_CONFIGS.SupplyCurrentLimit),
               1),
