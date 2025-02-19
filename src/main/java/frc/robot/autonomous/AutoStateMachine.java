@@ -232,7 +232,7 @@ public class AutoStateMachine extends StateMachine {
                 intakingPoseSupplier)
             .alongWith(
                 CommandComposer.intakeCoralFromStation(
-                    wrapper, endEffector, elevator, arm, led, null)),
+                    wrapper, endEffector, elevator, arm, led, null, false)),
         (c) -> null);
 
     return stateWithName("IntakeCoral", () -> intakeCoral());

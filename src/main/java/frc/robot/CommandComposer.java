@@ -22,14 +22,18 @@ public class CommandComposer {
       Elevator elevator,
       Arm arm,
       LED led,
-      XboxControllerWrapper driverController) {
+      XboxControllerWrapper driverController,
+      boolean moveMech) {
 
     return Commands.runOnce(
             () -> {
               initPose = wrapper.getRawOdometryPose();
             })
         .andThen(
-            MechanismActions.coralStationPosition(elevator, arm)
+            Commands.either(
+                    MechanismActions.coralStationPosition(elevator, arm),
+                    Commands.none(),
+                    () -> moveMech)
                 .alongWith(
                     new IntakeGamepieceCoralStation(
                         endEffector,
