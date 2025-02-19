@@ -702,7 +702,7 @@ public class RobotContainer {
                   double kP = 0.0;
                   double kI = 0.0;
                   double kD = 0.0;
-                  double controlOutput = calculateControlOutput(kP, kI, kD, robotTranslation);
+                  double controlOutput = calculatePIDOutput(kP, kI, kD, robotTranslation);
                   // ! means face center; else, rotate to side of reef
                   if (!Constants.unusedCode) {
                     double coralStationRotationValue =
@@ -1093,7 +1093,7 @@ public class RobotContainer {
    * @param robotTranslation - Current robot translation
    * @return PID control output
    */
-  public static double calculateControlOutput(
+  public static double calculatePIDOutput(
       double kP, double kI, double kD, Pose2d robotTranslation) {
     Pose2d centerPose = new Pose2d();
     AllianceFlipUtil.flipPoseForAlliance(centerPose);
