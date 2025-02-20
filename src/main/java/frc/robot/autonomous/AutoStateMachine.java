@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
@@ -28,6 +29,8 @@ import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
+import frc.robot.commands.mechanism.MechanismPositions;
+import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.arm.Arm;
@@ -224,6 +227,8 @@ public class AutoStateMachine extends StateMachine {
                 ? getClosestCoralStationPose()
                 : getCoralStationPose(coralStationLocations.get(intakingIndex));
 
+    MechanismPosition coralStationPos = MechanismPositions.coralStationPosition();
+
     spawnCommand(
         new DriveToPosePathing(
                 wrapper,
@@ -231,8 +236,14 @@ public class AutoStateMachine extends StateMachine {
                 () -> wrapper.getCoralStationPoseEstimatorPose(true),
                 intakingPoseSupplier)
             .alongWith(
-                CommandComposer.intakeCoralFromStation(
-                    wrapper, endEffector, elevator, arm, led, null, false)),
+                Commands.waitUntil(
+                        () ->
+                            elevator.isAtTarget(coralStationPos.elevatorHeight())
+                                && arm.isAtTargetAngle(coralStationPos.armAngle()))
+                    .andThen(
+                        CommandComposer.intakeCoralFromStation(
+                                wrapper, endEffector, elevator, arm, led, null, false)
+                            .asProxy())),
         (c) -> null);
 
     return stateWithName("IntakeCoral", () -> intakeCoral());

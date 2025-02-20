@@ -6,6 +6,7 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
+import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
@@ -38,12 +39,13 @@ public class MechanismActions {
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
   public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
+    boolean slowerMotion = scoringLevel == ScoringLevel.L4 && !RobotMode.isSimBot();
     return goToPositionParallel(
         elevator,
         arm,
         () -> MechanismPositions.reefPosition(scoringLevel),
-        scoringLevel == ScoringLevel.L4 ? 1000 : -1,
-        scoringLevel == ScoringLevel.L4 ? 3 : -1);
+        slowerMotion ? 1000 : -1,
+        slowerMotion ? 3 : -1);
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {
