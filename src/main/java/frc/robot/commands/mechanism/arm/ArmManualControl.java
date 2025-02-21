@@ -6,15 +6,16 @@ package frc.robot.commands.mechanism.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.arm.Arm;
+import java.util.function.DoubleSupplier;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ArmManualControl extends Command {
   /** Creates a new ArmPercentOut. */
-  double armPercentOut;
+  DoubleSupplier armPercentOut;
 
   Arm arm;
 
-  public ArmManualControl(double percentPower, Arm arm) {
+  public ArmManualControl(DoubleSupplier percentPower, Arm arm) {
     // Use addRequirements() here to declare subsystem dependencies.
     armPercentOut = percentPower;
     addRequirements(arm);
@@ -28,8 +29,7 @@ public class ArmManualControl extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    arm.setArmManualControl(armPercentOut);
-    System.out.println(armPercentOut);
+    arm.setArmManualControl(armPercentOut.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.

@@ -6,15 +6,16 @@ package frc.robot.commands.mechanism.elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevator.Elevator;
+import java.util.function.DoubleSupplier;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ElevatorManualControl extends Command {
   /** Creates a new ElevatorPercentOut. */
-  double elevatorPercentOut;
+  DoubleSupplier elevatorPercentOut;
 
   Elevator elevator;
 
-  public ElevatorManualControl(double percentPower, Elevator elevator) {
+  public ElevatorManualControl(DoubleSupplier percentPower, Elevator elevator) {
     this.elevator = elevator;
 
     elevatorPercentOut = percentPower;
@@ -29,8 +30,7 @@ public class ElevatorManualControl extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    elevator.setElevatorManualControl(elevatorPercentOut);
-    System.out.println(elevatorPercentOut);
+    elevator.setElevatorManualControl(elevatorPercentOut.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
