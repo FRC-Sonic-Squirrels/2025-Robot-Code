@@ -48,7 +48,6 @@ import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.RotateToAngle;
-import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
@@ -711,7 +710,7 @@ public class RobotContainer {
 
     // Intake positions
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Intake Pivot Out")
+        .registerTrigger(XboxControllerWrapper.Button.a, "Intake Pivot Out")
         .onTrue(
             new IntakeSetPivotAngle(
                 intake, Constants.IntakeConstants.PivotConstants.MAX_PIVOT_ANGLE));
@@ -723,8 +722,8 @@ public class RobotContainer {
 
     // End Effector Rotation
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.a, "End Effector")
-        .whileTrue(new EndEffectorSetRPM(endEffector, -5000));
+        .registerTrigger(XboxControllerWrapper.Button.start, "End Effector Out")
+        .whileTrue(new EndEffectorSetRPM(endEffector, -1000));
 
     // Climber in
     // operatorController
@@ -742,19 +741,20 @@ public class RobotContainer {
     //     .registerTrigger(XboxControllerWrapper.Button.a, "Elevator")
     //     .onTrue(new ElevatorSetHeight(elevator, Units.Inches.of(30)));
 
-    if (!DriverStation.isFMSAttached()) {
-      operatorController
-          .registerTrigger(XboxControllerWrapper.Button.start, "Wheel Radius Characterization")
-          .whileTrue(
-              new WheelRadiusCharacterization(
-                  drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
-    }
+    // if (!DriverStation.isFMSAttached()) {
+    //  operatorController
+    //      .registerTrigger(XboxControllerWrapper.Button.start, "Wheel Radius Characterization")
+    //      .whileTrue(
+    //          new WheelRadiusCharacterization(
+    //              drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
+    // }
 
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.back, "Manual arm and elevator override")
+        .registerTrigger(
+            XboxControllerWrapper.Button.leftTrigger, "Manual arm and elevator override")
         .whileTrue(
-            new ArmManualControl(operatorController.getRightX(), arm)
-                .alongWith(new ElevatorManualControl(operatorController.getLeftX(), elevator)));
+            new ArmManualControl(operatorController::getRightX, arm)
+                .alongWith(new ElevatorManualControl(operatorController::getLeftX, elevator)));
 
     // ---------- NON-CONTROLLER TRIGGERS
 
