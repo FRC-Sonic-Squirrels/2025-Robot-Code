@@ -171,6 +171,10 @@ public class Elevator extends SubsystemBase {
     io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
   }
 
+  public void setElevatorManualControl(double percent) {
+    setPercentOut(percent + kG.get());
+  }
+
   // Getters
 
   public boolean isAtTarget() {

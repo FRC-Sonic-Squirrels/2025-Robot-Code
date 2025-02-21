@@ -56,6 +56,8 @@ import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.WaitUntilMovedDist;
+import frc.robot.commands.mechanism.arm.ArmManualControl;
+import frc.robot.commands.mechanism.elevator.ElevatorManualControl;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -775,6 +777,12 @@ public class RobotContainer {
               new WheelRadiusCharacterization(
                   drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
     }
+
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.back, "Manual arm and elevator override")
+        .whileTrue(
+            new ArmManualControl(operatorController.getRightX(), arm)
+                .alongWith(new ElevatorManualControl(operatorController.getLeftX(), elevator)));
 
     // ---------- NON-CONTROLLER TRIGGERS
 
