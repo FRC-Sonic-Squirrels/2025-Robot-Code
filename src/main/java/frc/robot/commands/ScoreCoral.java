@@ -143,8 +143,7 @@ public class ScoreCoral extends StateMachine {
         Optional.of(reefSideToScoringSide(side)),
         rumble,
         config,
-        true);
-    gamepieceMemory = true;
+        false);
   }
 
   public ScoreCoral(
@@ -166,7 +165,7 @@ public class ScoreCoral extends StateMachine {
         Optional.empty(),
         rumble,
         config,
-        false);
+        true);
   }
 
   public ScoreCoral(
@@ -232,13 +231,18 @@ public class ScoreCoral extends StateMachine {
 
     prepMechanismForScoring =
         spawnCommand(
-            Commands.waitUntil(
-                    () ->
-                        GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                            < (RobotStates.scoringLevel == ScoringLevel.L4
-                                ? distToRaiseMech.get()
-                                : 100))
-                .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
+            MechanismActions.scorePrepPosition(elevator, arm)
+                .alongWith(
+                    Commands.waitUntil(
+                            () ->
+                                GeometryUtil.getDist(
+                                        wrapper.getReefPoseEstimatorPose(true), scoringPose)
+                                    < (RobotStates.scoringLevel == ScoringLevel.L4
+                                        ? distToRaiseMech.get()
+                                        : 100))
+                        .andThen(
+                            MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)
+                                .asProxy())),
             (command) -> null);
 
     scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(0.75);
