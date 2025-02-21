@@ -72,6 +72,8 @@ public class ScoreCoral extends StateMachine {
 
   private Trigger scoringTrigger;
 
+  private final boolean confirmation;
+
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
       group.build("DistToRaiseMechMeters", 1);
@@ -117,7 +119,8 @@ public class ScoreCoral extends StateMachine {
         Optional.empty(),
         Optional.empty(),
         rumble,
-        config);
+        config,
+        false);
     gamepieceMemory = true;
   }
 
@@ -139,7 +142,8 @@ public class ScoreCoral extends StateMachine {
         Optional.of(reefSideToScoringDirection(side)),
         Optional.of(reefSideToScoringSide(side)),
         rumble,
-        config);
+        config,
+        true);
     gamepieceMemory = true;
   }
 
@@ -161,7 +165,8 @@ public class ScoreCoral extends StateMachine {
         Optional.of(scoringDirection),
         Optional.empty(),
         rumble,
-        config);
+        config,
+        false);
   }
 
   public ScoreCoral(
@@ -173,7 +178,8 @@ public class ScoreCoral extends StateMachine {
       Optional<ScoringDirection> scoringDirection,
       Optional<ScoringSide> side,
       Consumer<Double> rumble,
-      RobotConfig config) {
+      RobotConfig config,
+      boolean driverConfirmation) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
@@ -186,6 +192,7 @@ public class ScoreCoral extends StateMachine {
     this.optionalScoringDirection = scoringDirection;
     this.rumble = rumble;
     this.optionalScoringSide = side;
+    confirmation = driverConfirmation;
 
     setInterruptedState(stateWithName("End", () -> end(true)));
     setInitialState(stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
@@ -234,7 +241,7 @@ public class ScoreCoral extends StateMachine {
                 .andThen(MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)),
             (command) -> null);
 
-    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(1.5);
+    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(0.75);
 
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
@@ -245,7 +252,7 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler score() {
 
-    if (scoringTrigger.getAsBoolean()) {
+    if (scoringTrigger.getAsBoolean() && !confirmation) {
       endEffector.setVelocity(scoringVelocityRPM.get());
       if (RobotMode.isSimBot()) {
         RobotStates.coralInEndEffectorNonScoringSide = false;
@@ -253,7 +260,7 @@ public class ScoreCoral extends StateMachine {
       }
     }
 
-    if (RobotStates.coralInEndEffector) return null;
+    if (RobotStates.coralInEndEffector && !confirmation) return null;
 
     FieldStates.setScoringLocationFilled(
         new ScoringLocation(
@@ -264,8 +271,8 @@ public class ScoreCoral extends StateMachine {
 
     led.setRobotState(RobotState.SCORE_SUCCESS);
 
-    return RobotStates.clearingAlgae
-            && !(gamepieceMemory && !FieldStates.isAlgaeInScoringSide(scoringSide))
+    return (RobotStates.clearingAlgae
+            && !(gamepieceMemory && !FieldStates.isAlgaeInScoringSide(scoringSide)))
         ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
         : stateWithName("End", () -> end(false));
   }
@@ -444,7 +451,9 @@ public class ScoreCoral extends StateMachine {
 
       Translation2d offset =
           new Translation2d(
-              Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters),
+              Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters)
+                  + Units.Inches.of(1).in(Units.Meter)
+                      * (direction == ScoringDirection.LEFT ? 1 : -1),
               scoringSidePose.getRotation().plus(objectiveScoringDirection));
       Translation2d translation = scoringSidePose.getTranslation().plus(offset);
       newSides[i] =

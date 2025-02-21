@@ -532,7 +532,18 @@ public class RobotContainer {
                             ScoringDirection.LEFT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get()))
-                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)))
+        .onFalse(
+            Commands.waitSeconds(2)
+                .deadlineFor(
+                    Commands.runOnce(
+                            () -> {
+                              if (RobotMode.isSimBot()) {
+                                RobotStates.coralInEndEffectorNonScoringSide = false;
+                                RobotStates.coralInEndEffectorScoringSide = false;
+                              }
+                            })
+                        .andThen(new EndEffectorSetRPM(endEffector, -6000))));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Score Coral")
@@ -548,7 +559,18 @@ public class RobotContainer {
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get()))
-                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)))
+        .onFalse(
+            Commands.waitSeconds(2)
+                .deadlineFor(
+                    Commands.runOnce(
+                            () -> {
+                              if (RobotMode.isSimBot()) {
+                                RobotStates.coralInEndEffectorNonScoringSide = false;
+                                RobotStates.coralInEndEffectorScoringSide = false;
+                              }
+                            })
+                        .andThen(new EndEffectorSetRPM(endEffector, -6000))));
 
     // Change scoring height
     var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);

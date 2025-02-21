@@ -49,7 +49,7 @@ public class MechanismActions {
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition);
+    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition, 2000, 3);
   }
 
   public static Command stowPosition(Elevator elevator, Arm arm) {

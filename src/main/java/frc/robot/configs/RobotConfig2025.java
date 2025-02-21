@@ -143,7 +143,7 @@ public class RobotConfig2025 extends RobotConfig {
 
   private final com.pathplanner.lib.config.RobotConfig PATH_PLANNER_CONFIG =
       new com.pathplanner.lib.config.RobotConfig(
-          Units.Kilogram.of(115),
+          Units.Kilogram.of(113),
           Units.KilogramSquareMeters.of(5.3598424503),
           new ModuleConfig(
               WHEEL_RADIUS,

@@ -208,7 +208,7 @@ public class Drivetrain extends SubsystemBase {
     int[] reefTags = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
     int[] coralStationTags = {1, 2, 12, 13};
 
-    reefPoseEstimator = new PoseEstimator(0.6, 0.6, 0.3, reefTags); // TODO: refine these numbers?
+    reefPoseEstimator = new PoseEstimator(0.1, 0.1, 0.1, reefTags); // TODO: refine these numbers?
     coralStationPoseEstimator =
         new PoseEstimator(0.6, 0.6, 0.3, coralStationTags); // TODO: refine these numbers?
 
