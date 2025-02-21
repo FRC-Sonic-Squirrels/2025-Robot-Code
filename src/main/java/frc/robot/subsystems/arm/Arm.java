@@ -159,6 +159,10 @@ public class Arm extends SubsystemBase {
     return io.setNeutralMode(value);
   }
 
+  public void setArmManualControl(double percent) {
+    setVoltage(percent + kG.get() * Math.cos(getAngle().getRadians()));
+  }
+
   // Getters
 
   public Rotation2d getAngle() {
