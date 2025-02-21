@@ -160,7 +160,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmManualControl(double percent) {
-    setVoltage(5 * (percent + kG.get() * 0.8 * Math.cos(getAngle().getRadians())));
+    setVoltage(10 * (percent + kG.get() * Math.cos(getAngle().getRadians())));
   }
 
   // Getters
