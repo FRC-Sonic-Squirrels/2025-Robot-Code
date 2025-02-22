@@ -5,6 +5,7 @@
 package frc.robot.commands.climber;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -13,13 +14,14 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.climber.Climber;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class Climb extends Command {
-  /** Creates a new Climb. */
+public class PrepClimb extends Command {
+  /** Creates a new PrepClimb. */
   private static final LoggerGroup logGroup = LoggerGroup.build("Climb");
 
   private static final TunableNumberGroup group = new TunableNumberGroup("Climb");
 
   private static final LoggedTunableNumber winchSpeed = group.build("winchSpeed", 1.0);
+  private static final LoggedTunableNumber grabberSpeed = group.build("grabberSpeed", 100);
 
   private Climber climber;
 
@@ -27,7 +29,7 @@ public class Climb extends Command {
 
   private boolean shouldEnd;
 
-  public Climb(Climber climber) {
+  public PrepClimb(Climber climber) {
     this.climber = climber;
     addRequirements(climber);
   }
@@ -38,21 +40,30 @@ public class Climb extends Command {
     shouldEnd = false;
     intitialWinchAngle = climber.getWinchAngle();
     // servo cannot sense its angle so just assume its there
-    climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE);
+    climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    climber.setWinchVoltage(-winchSpeed.get());
-    shouldEnd =
-        Math.abs(climber.getWinchAngle().getRotations() - intitialWinchAngle.getRotations())
-            >= ClimberConstants.TOTAL_WINCH_ROTATIONS.getRotations();
+    if (Math.abs(climber.getWinchAngle().getRotations() - intitialWinchAngle.getRotations())
+        >= ClimberConstants.TOTAL_WINCH_ROTATIONS.getRotations()) {
+      climber.setWinchVoltage(0.0);
+      climber.setGrabberVelocity(grabberSpeed.get());
+      // TODO: find an actual method to find if the grabber has a thing
+      shouldEnd = climber.getGrabberCurrentDraw().in(Units.Amps) > 2;
+    } else {
+      climber.setWinchVoltage(winchSpeed.get());
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    climber.setWinchVoltage(0.0);
+    climber.setGrabberPercentOut(0.0);
+    climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE);
+  }
 
   // Returns true when the command should end.
   @Override

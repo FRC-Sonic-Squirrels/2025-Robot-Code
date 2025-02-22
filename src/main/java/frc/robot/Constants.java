@@ -392,6 +392,10 @@ public final class Constants {
 
     public static final Rotation2d SERVO_UNLOCK_ANGLE = Rotation2d.fromDegrees(20);
 
+    public static final String SERO_ROOT_TABLE = "ClimberServo";
+
+    public static final Rotation2d TOTAL_WINCH_ROTATIONS = Rotation2d.fromRotations(6);
+
     public static final String WINCH_ROOT_TABLE = "ClimberWinch";
 
     public static final double GRABBING_PERCENT_OUT = 1.0;
