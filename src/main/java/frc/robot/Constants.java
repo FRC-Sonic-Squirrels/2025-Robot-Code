@@ -388,6 +388,10 @@ public final class Constants {
 
     public static final Distance CLIMBER_LENGTH = Units.Inches.of(14);
 
+    public static final Rotation2d SERVO_LOCK_ANGLE = Rotation2d.fromDegrees(0);
+
+    public static final Rotation2d SERVO_UNLOCK_ANGLE = Rotation2d.fromDegrees(20);
+
     public static final String WINCH_ROOT_TABLE = "ClimberWinch";
 
     public static final double GRABBING_PERCENT_OUT = 1.0;

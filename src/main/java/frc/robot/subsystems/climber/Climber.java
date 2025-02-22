@@ -221,6 +221,10 @@ public class Climber extends SubsystemBase {
     return io.setWinchNeutralMode(value);
   }
 
+  public void setServoAngle(Rotation2d angle) {
+    io.setClimberServoAngle(angle);
+  }
+
   public void setGrabberPercentOut(double percent) {
     io.setGrabberVoltage(percent * Constants.MAX_VOLTAGE);
     grabberControlMode = ControlMode.OPEN_LOOP;
