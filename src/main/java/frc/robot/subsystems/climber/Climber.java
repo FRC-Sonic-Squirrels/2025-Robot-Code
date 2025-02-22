@@ -128,7 +128,7 @@ public class Climber extends SubsystemBase {
   private double grabberTargetRPM;
 
   // This also acts as its current angle because the servo cannot tell us where it is
-  private Rotation2d servoTargetAngle;
+  private Rotation2d servoTargetAngle = Constants.ClimberConstants.SERVO_LOCK_ANGLE;
 
   private ControlMode grabberControlMode = ControlMode.OPEN_LOOP;
 
