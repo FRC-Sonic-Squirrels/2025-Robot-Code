@@ -72,6 +72,10 @@ public class DriveToPosePathing extends Command {
   private boolean debugGenerateStartAndEndRotations = false;
   private boolean debugIsRobotNextToReef = false;
 
+  private double finalOffsetErrorLimit = Double.NaN;
+  private double finalTargetErrorLimit = Double.NaN;
+  private double finalErrorMaxWait = 2;
+
   /** Creates a new DriveToPosePathing. */
   public DriveToPosePathing(
       DrivetrainWrapper wrapper,
@@ -85,17 +89,17 @@ public class DriveToPosePathing extends Command {
   }
 
   public DriveToPosePathing setFinalOffsetError(double maxError) {
-    helper.setFinalOffsetError(maxError);
+    this.finalOffsetErrorLimit = maxError;
     return this;
   }
 
   public DriveToPosePathing setFinalTargetError(double maxError) {
-    helper.setFinalTargetError(maxError);
+    this.finalTargetErrorLimit = maxError;
     return this;
   }
 
   public DriveToPosePathing setFinalErrorMaxWait(double maxWait) {
-    helper.setFinalErrorMaxWait(maxWait);
+    this.finalErrorMaxWait = maxWait;
     return this;
   }
 
@@ -119,6 +123,10 @@ public class DriveToPosePathing extends Command {
             config.getAutoTranslationPidController(),
             config.getAutoTranslationPidController(),
             config.getAutoThetaPidController());
+
+    helper.setFinalErrorMaxWait(finalErrorMaxWait);
+    helper.setFinalOffsetError(finalOffsetErrorLimit);
+    helper.setFinalTargetError(finalTargetErrorLimit);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
