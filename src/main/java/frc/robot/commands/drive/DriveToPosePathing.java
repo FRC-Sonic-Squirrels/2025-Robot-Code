@@ -55,7 +55,7 @@ public class DriveToPosePathing extends Command {
                   .in(Units.Meters)
               + 0.1);
   private static LoggedTunableNumber headingToleranceNearElements =
-      tunableGroup.build("HeadingToleranceNearElements", 70.0);
+      tunableGroup.build("HeadingToleranceNearElements", 40.0);
 
   private static LoggerGroup logGroup = LoggerGroup.build("DriveToPosePathing");
   private static LoggerEntry.Struct<Pose2d> log_intermediatePose =

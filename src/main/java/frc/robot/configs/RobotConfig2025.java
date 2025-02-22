@@ -124,7 +124,7 @@ public class RobotConfig2025 extends RobotConfig {
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
       group.build("AUTO_MAX_SPEED", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 1.0);
+      group.build("AUTO_MAX_ACCEL", 4.0);
   private static final LoggedTunableNumber AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND =
       group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 4);
   private static final LoggedTunableNumber
@@ -132,12 +132,12 @@ public class RobotConfig2025 extends RobotConfig {
           group.build("AUTO_MAX_ANGULAR_ACCEL_RAD_PER_SECOND_SQUARED", Math.PI * 8);
 
   private static final LoggedTunableNumber AUTO_TRANSLATION_KP = // TODO: tune these
-      group.build("AUTO_TRANSLATION_KP", 2.4);
+      group.build("AUTO_TRANSLATION_KP", 5.0);
   private static final LoggedTunableNumber AUTO_TRANSLATION_KI =
       group.build("AUTO_TRANSLATION_KI", 0.0);
   private static final LoggedTunableNumber AUTO_TRANSLATION_KD =
       group.build("AUTO_TRANSLATION_KD", 0.0);
-  private static final LoggedTunableNumber AUTO_THETA_KP = group.build("AUTO_THETA_KP", 4.0);
+  private static final LoggedTunableNumber AUTO_THETA_KP = group.build("AUTO_THETA_KP", 6.0);
   private static final LoggedTunableNumber AUTO_THETA_KI = group.build("AUTO_THETA_KI", 0.0);
   private static final LoggedTunableNumber AUTO_THETA_KD = group.build("AUTO_THETA_KD", 0.0);
 
@@ -175,25 +175,25 @@ public class RobotConfig2025 extends RobotConfig {
   public static final Transform3d CORAL_STATION_SIDE_LEFT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(2.143069).in(Units.Meters),
-              Units.Inches.of(12.127149).in(Units.Meters),
-              Units.Inches.of(24.990728).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(-22.0), Math.toRadians(35.0)));
+              Units.Inches.of(-4.563).in(Units.Meters),
+              Units.Inches.of(9.063).in(Units.Meters),
+              Units.Inches.of(39.750).in(Units.Meters)),
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(-20.0), Math.toRadians(25.0)));
 
   public static final Transform3d CORAL_STATION_SIDE_RIGHT =
       new Transform3d(
           new Translation3d(
-              Units.Inches.of(2.143069).in(Units.Meters),
-              Units.Inches.of(-12.127149).in(Units.Meters),
-              Units.Inches.of(24.990728).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(-22.0), Math.toRadians(325.0)));
+              Units.Inches.of(-4.558).in(Units.Meters),
+              Units.Inches.of(-9.063).in(Units.Meters),
+              Units.Inches.of(39.750).in(Units.Meters)),
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(-20.0), Math.toRadians(-25.0)));
 
   public static final String OBJECT_DETECTION_CAMERA_NAME =
       "0_Object_Detection_ELP"; // TODO: input new cam names
   public static final String REEF_SIDE_LEFT_CAMERA_NAME = "1_Reef_Left";
   public static final String REEF_SIDE_RIGHT_CAMERA_NAME = "2_Reef_Right";
-  public static final String CORAL_STATION_SIDE_LEFT_CAMERA_NAME = "3_Coral_Left";
-  public static final String CORAL_STATION_SIDE_RIGHT_CAMERA_NAME = "4_Coral_Right";
+  public static final String CORAL_STATION_SIDE_LEFT_CAMERA_NAME = "1_Coral_Left";
+  public static final String CORAL_STATION_SIDE_RIGHT_CAMERA_NAME = "2_Coral_Right";
 
   public static final AprilTagFields APRIL_TAG_FIELD = AprilTagFields.k2025ReefscapeWelded;
 

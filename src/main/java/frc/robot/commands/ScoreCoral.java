@@ -245,7 +245,7 @@ public class ScoreCoral extends StateMachine {
                                 .asProxy())),
             (command) -> null);
 
-    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(2.0);
+    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(3.0);
 
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
