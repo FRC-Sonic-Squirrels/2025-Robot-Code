@@ -33,6 +33,8 @@ public interface ClimberIO {
 
   public default void setWinchClosedLoopPosition(Rotation2d angle) {}
 
+  public default void setClimberServoAngle(Rotation2d angle) {}
+
   public default void setWinchClosedLoopConstants(
       double kP, double kD, double kG, MotionMagicConfigs mmConfigs) {}
 

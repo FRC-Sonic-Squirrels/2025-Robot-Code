@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Servo;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
@@ -52,6 +53,8 @@ public class ClimberIOReal implements ClimberIO {
 
   private final MotionMagicVelocityVoltage grabberClosedLoopControl =
       new MotionMagicVelocityVoltage(0).withEnableFOC(true);
+
+  private Servo climberServo = new Servo(0);
 
   private final BaseStatusSignal[] grabberRefreshSet;
 
@@ -191,6 +194,11 @@ public class ClimberIOReal implements ClimberIO {
 
     winchMotor.getConfigurator().apply(config);
     return true;
+  }
+
+  @Override
+  public void setClimberServoAngle(Rotation2d angle) {
+    climberServo.setAngle(angle.getDegrees());
   }
 
   // Grabber
