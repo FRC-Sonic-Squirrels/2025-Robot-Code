@@ -10,6 +10,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.lib.team2930.TunableNumberGroup;
+import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 
@@ -21,9 +23,13 @@ public class WheelRadiusCharacterization extends Command {
   private static final LoggerEntry.Decimal loggerCurrentEstimatedRadius =
       loggerGroup.buildDecimal("CurrentEstimatedRadius");
 
-  private final DrivetrainWrapper drivetrainWrapper;
+  private static final TunableNumberGroup group =
+      new TunableNumberGroup("WheelRadiusCharacterization");
   // radians per second
-  private final double characterizationSpeed;
+  private static final LoggedTunableNumber characterizationSpeed =
+      group.build("characterizationSpeed", 0.5);
+
+  private final DrivetrainWrapper drivetrainWrapper;
   // inches
   private final double driveBaseRadius;
   // radians
@@ -35,9 +41,7 @@ public class WheelRadiusCharacterization extends Command {
 
   // rotates the robot in place at characterizationSpeed rads/sec
   // and outputs the radius of the wheels in inches
-  public WheelRadiusCharacterization(
-      DrivetrainWrapper drivetrainWrapper, RobotConfig config, double characterizationSpeed) {
-    this.characterizationSpeed = characterizationSpeed;
+  public WheelRadiusCharacterization(DrivetrainWrapper drivetrainWrapper, RobotConfig config) {
     this.drivetrainWrapper = drivetrainWrapper;
     driveBaseRadius = Units.Meters.of(config.getDriveBaseRadius()).in(Units.Inches);
   }
@@ -49,7 +53,7 @@ public class WheelRadiusCharacterization extends Command {
     totalYaw = 0.0;
     initialWheelRotations = drivetrainWrapper.getModuleRotations();
 
-    drivetrainWrapper.setRotationOverride(characterizationSpeed);
+    drivetrainWrapper.setRotationOverride(characterizationSpeed.get());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -83,6 +87,7 @@ public class WheelRadiusCharacterization extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    // do two rotations before ending
+    return totalYaw > Math.PI * 4;
   }
 }
