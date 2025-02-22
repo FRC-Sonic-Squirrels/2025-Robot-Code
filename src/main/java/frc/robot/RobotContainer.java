@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.lib.team6328.LoggedTunableNumber;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
@@ -886,6 +887,11 @@ public class RobotContainer {
               intake.resetPivotSensorToHomePosition();
               led.setRobotState(RobotState.ZERO_SUBSYSTEMS);
             }));
+
+    SmartDashboard.putData(
+        "Zero Servo",
+        new RunsWhenDisabledInstantCommand(
+            () -> climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE)));
 
     var endEffectorSim = endEffector.getSim();
     if (endEffectorSim != null) {
