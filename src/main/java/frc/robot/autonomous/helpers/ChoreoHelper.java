@@ -39,6 +39,8 @@ public class ChoreoHelper {
       logGroup.buildStruct(Pose2d.class, "desiredVelocity");
   private static final LoggerEntry.Decimal log_distanceError =
       logGroup.buildDecimal("distanceError");
+  private static final LoggerEntry.Decimal log_offsetError = logGroup.buildDecimal("offsetError");
+  private static final LoggerEntry.Decimal log_targetError = logGroup.buildDecimal("targetError");
   private static final LoggerEntry.Decimal log_headingError = logGroup.buildDecimal("headingError");
   private static final LoggerEntry.Decimal log_pidXVelEffort =
       logGroup.buildDecimal("pidXVelEffort");
@@ -64,6 +66,11 @@ public class ChoreoHelper {
   private double timeOffset;
   private double pausedTime = Double.NaN;
   private SwerveSample stateTooBehind;
+
+  private double finalOffsetErrorLimit = Double.NaN;
+  private double finalTargetErrorLimit = Double.NaN;
+  private double finalErrorMaxWait = 2;
+  private double finalErrorWaitDeadline = Double.NaN;
 
   public record ChassisSpeedsWithPathEnd(ChassisSpeeds chassisSpeeds, boolean atEndOfPath) {}
 
@@ -124,6 +131,18 @@ public class ChoreoHelper {
     this.initialTime = initialTime;
     var poses = trajWithName.states().getPoses();
     log_path.info(poses);
+  }
+
+  public void setFinalOffsetError(double maxError) {
+    this.finalOffsetErrorLimit = Math.abs(maxError);
+  }
+
+  public void setFinalTargetError(double maxError) {
+    this.finalTargetErrorLimit = Math.abs(maxError);
+  }
+
+  public void setFinalErrorMaxWait(double maxWait) {
+    this.finalErrorMaxWait = Math.abs(maxWait);
   }
 
   public boolean isPaused() {
@@ -189,7 +208,14 @@ public class ChoreoHelper {
 
     var distanceError = Math.hypot(xDesired - xRobot, yDesired - yRobot);
 
+    var statePose = new Pose2d(state.x, state.y, new Rotation2d(state.heading));
+    var robotToStatePose = robotPose.relativeTo(statePose);
+
+    double targetError = robotToStatePose.getX();
+    double offsetError = robotToStatePose.getY();
     log_distanceError.info(distanceError);
+    log_targetError.info(targetError);
+    log_offsetError.info(offsetError);
 
     boolean useCorrection = ChoreoHelper.useCorrection.get() != 0;
     if (useCorrection) {
@@ -199,10 +225,12 @@ public class ChoreoHelper {
           resume(timestamp);
         }
       } else {
-        var velMagnitude = Math.hypot(state.vx, state.vy);
-        if (stateTooBehind == null && velMagnitude >= minVelToPause.get() && state.t > 0.25) {
-          stateTooBehind = state;
-          pause(timestamp);
+        if (stateTooBehind == null) {
+          var velMagnitude = Math.hypot(state.vx, state.vy);
+          if (velMagnitude >= minVelToPause.get() && state.t > 0.25) {
+            stateTooBehind = state;
+            pause(timestamp);
+          }
         }
       }
     }
@@ -216,6 +244,29 @@ public class ChoreoHelper {
 
       // If we are paused, scale down the velocity, to avoid fighting the Feedback PID.
       scaleVelocity *= Math.exp(-(timestamp - pausedTime));
+    }
+
+    if (atTheEndOfPath) {
+      var waitForOffset = Double.isFinite(finalOffsetErrorLimit);
+      var waitForTarget = Double.isFinite(finalTargetErrorLimit);
+
+      if (waitForOffset || waitForTarget) {
+        if (!Double.isFinite(finalErrorWaitDeadline)) {
+          // Start timer, we don't want to get stuck here forever.
+          finalErrorWaitDeadline = timestamp + finalErrorMaxWait;
+        }
+
+        // Only delay end of path if timer has not fired.
+        if (timestamp < finalErrorWaitDeadline) {
+          if (waitForOffset && Math.abs(offsetError) > finalOffsetErrorLimit) {
+            atTheEndOfPath = false;
+          }
+
+          if (waitForTarget && Math.abs(targetError) > finalTargetErrorLimit) {
+            atTheEndOfPath = false;
+          }
+        }
+      }
     }
 
     log_stateScaleVel.info(scaleVelocity);

@@ -84,6 +84,21 @@ public class DriveToPosePathing extends Command {
     this.targetPose = targetPose;
   }
 
+  public DriveToPosePathing setFinalOffsetError(double maxError) {
+    helper.setFinalOffsetError(maxError);
+    return this;
+  }
+
+  public DriveToPosePathing setFinalTargetError(double maxError) {
+    helper.setFinalTargetError(maxError);
+    return this;
+  }
+
+  public DriveToPosePathing setFinalErrorMaxWait(double maxWait) {
+    helper.setFinalErrorMaxWait(maxWait);
+    return this;
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
