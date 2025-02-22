@@ -30,6 +30,7 @@ import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.drive.DriveToPosePathing;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -245,7 +246,13 @@ public class ScoreCoral extends StateMachine {
                                 .asProxy())),
             (command) -> null);
 
-    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(3.0);
+    scoringTrigger =
+        new Trigger(
+                () ->
+                    arm.isAtTargetAngle(
+                        MechanismPositions.reefPosition(RobotStates.scoringLevel).armAngle(),
+                        Rotation2d.fromDegrees(1.5)))
+            .debounce(0.5);
 
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
@@ -456,9 +463,8 @@ public class ScoreCoral extends StateMachine {
       Translation2d offset =
           new Translation2d(
               Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters)
-              // + Units.Inches.of(1).in(Units.Meter)
-              //     * (direction == ScoringDirection.LEFT ? 1 : -1)
-              ,
+                  + Units.Inches.of(1).in(Units.Meter)
+                      * (direction == ScoringDirection.LEFT ? -1 : 1),
               scoringSidePose.getRotation().plus(objectiveScoringDirection));
       Translation2d translation = scoringSidePose.getTranslation().plus(offset);
       newSides[i] =
