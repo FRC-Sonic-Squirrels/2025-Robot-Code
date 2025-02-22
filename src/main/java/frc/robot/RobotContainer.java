@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.lib.team6328.LoggedTunableNumber;
+import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
@@ -55,7 +56,6 @@ import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechanismActions;
-import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.configs.SimulatorRobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -138,7 +138,6 @@ public class RobotContainer {
   private final AutosManager autoManager;
 
   private Trigger gamepieceInRobot = new Trigger(() -> RobotStates.coralInRobot);
-  private Trigger gamepieceInEndEffector = new Trigger(() -> RobotStates.coralInEndEffector);
 
   public DigitalInput brakeModeButton = new DigitalInput(0);
   public DigitalInput zeroSensorsButton = new DigitalInput(1);
@@ -224,7 +223,7 @@ public class RobotContainer {
           new LED(
               () -> brakeModeTriggered,
               drivetrain::isGyroConnected,
-              () -> elevator.getHeight().in(Units.Inches) < 0.3);
+              () -> elevator.getHeight().in(Units.Inches) < 0.1);
     } else { // REAL and SIM robots HERE
       switch (robotType) {
         case ROBOT_SIMBOT_REAL_CAMERAS:
@@ -290,7 +289,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         case ROBOT_2023_RETIRED_ROBER:
@@ -322,7 +321,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         case ROBOT_2024_RETIRED_MAESTRO:
@@ -354,7 +353,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         case ROBOT_2025_HOLO:
@@ -386,7 +385,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
 
         default:
@@ -417,7 +416,7 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.1);
           break;
       }
     }
@@ -577,35 +576,55 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.y, "Score L4")
-        .onTrue(
+        .whileTrue(
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L4;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                }))
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  endEffector.setPercentOut(EndEffectorConstants.OUTAKING_PERCENT_OUT);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.x, "Score L3")
-        .onTrue(
+        .whileTrue(
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L3;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                }))
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  endEffector.setPercentOut(EndEffectorConstants.OUTAKING_PERCENT_OUT);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.a, "Score L2")
-        .onTrue(
+        .whileTrue(
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L2;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                }))
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  endEffector.setPercentOut(EndEffectorConstants.OUTAKING_PERCENT_OUT);
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.b, "Score L1")
-        .onTrue(
+        .whileTrue(
             Commands.runOnce(
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L1;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                }))
+        .onFalse(
+            Commands.runOnce(
+                () -> {
+                  endEffector.setPercentOut(EndEffectorConstants.OUTAKING_PERCENT_OUT);
                 }));
 
     driverController
@@ -747,15 +766,6 @@ public class RobotContainer {
               new WheelRadiusCharacterization(
                   drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
     }
-
-    // ---------- NON-CONTROLLER TRIGGERS
-
-    gamepieceInEndEffector.onTrue(
-        new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-            .andThen(MechanismActions.scorePrepPosition(elevator, arm)));
-    gamepieceInEndEffector.onFalse(
-        new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-            .andThen(MechanismActions.coralStationPosition(elevator, arm)));
 
     // ---------- ON-ROBOT CONTROLS ------------
 
@@ -987,9 +997,6 @@ public class RobotContainer {
     resetSubsystems();
     vision.useMaxDistanceAwayFromExistingEstimate(false);
     vision.useGyroBasedFilteringForVision(false);
-
-    arm.setVoltage(0);
-    elevator.setPercentOut(0);
 
     is_teleop = false;
     is_autonomous = false;
