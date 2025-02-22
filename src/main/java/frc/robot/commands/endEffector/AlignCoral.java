@@ -4,7 +4,6 @@
 
 package frc.robot.commands.endEffector;
 
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -17,26 +16,20 @@ public class AlignCoral extends Command {
   /** Creates a new AlignCoral. */
   private static final LoggerGroup logGroup = LoggerGroup.build("AlignCoral");
 
-  private static final LoggerEntry.Bool logInputs_inititalMovementDone =
-      logGroup.buildBoolean("inititalMovementDone");
-  private static final LoggerEntry.Bool logInputs_done = logGroup.buildBoolean("done");
+  private static final LoggerEntry.Bool log_InitialAlignment =
+      logGroup.buildBoolean("InitialAlignment");
+  private static final LoggerEntry.Bool log_MidMovementDone =
+      logGroup.buildBoolean("MidMovementDone");
 
   private static final TunableNumberGroup group = new TunableNumberGroup("AlignCoral");
 
   private static final LoggedTunableNumber correctionVelocity =
       group.build("correctionVelocity", 400);
-  private static final LoggedTunableNumber minTOFDistanceInches =
-      group.build("minTOFDistanceInches", 3);
-  private static final LoggedTunableNumber maxTOFDistanceInches =
-      group.build("maxTOFDistanceInches", 0);
-  private static final LoggedTunableNumber maxTurns = group.build("maxTurns", 10);
 
   private EndEffector endEffector;
-  private double initialPosition;
-  private boolean aligned;
   private boolean fullyIn = false;
   private boolean shouldEnd = false;
-  private boolean inititalMovementDone = false;
+  private boolean midMovementDone = false;
 
   public AlignCoral(EndEffector endEffector) {
     this.endEffector = endEffector;
@@ -49,23 +42,20 @@ public class AlignCoral extends Command {
   public void initialize() {
     // minDist>aligned>maxDist
     shouldEnd = false;
-    inititalMovementDone = false;
+    midMovementDone = false;
     fullyIn =
         endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
-    aligned =
-        endEffector.scoringSideTofDistance().lt(Units.Inches.of(maxTOFDistanceInches.get()))
-            && endEffector.scoringSideTofDistance().gt(Units.Inches.of(minTOFDistanceInches.get()));
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (inititalMovementDone && fullyIn) {
+    if (midMovementDone && fullyIn) {
       endEffector.setVelocity(correctionVelocity.get());
       shouldEnd = endEffector.nonScoringSideTOFSeenGamepiece();
     } else if (fullyIn) {
       endEffector.setVelocity(-correctionVelocity.get());
-      inititalMovementDone =
+      midMovementDone =
           !endEffector.nonScoringSideTOFSeenGamepiece()
               && endEffector.scoringSideTofSeenGamepiece();
       shouldEnd =
@@ -76,8 +66,8 @@ public class AlignCoral extends Command {
       fullyIn =
           endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
     }
-    logInputs_done.info(shouldEnd);
-    logInputs_inititalMovementDone.info(inititalMovementDone);
+    log_InitialAlignment.info(fullyIn);
+    log_MidMovementDone.info(midMovementDone);
   }
 
   // Called once the command ends or is interrupted.
