@@ -48,6 +48,7 @@ import frc.robot.commands.climber.Climb;
 import frc.robot.commands.climber.ClimberSetAngle;
 import frc.robot.commands.climber.PrepClimb;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
+import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
@@ -770,14 +771,6 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.b, "Climber In")
         .onTrue(new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE));
 
-    // if (!DriverStation.isFMSAttached()) {
-    //  operatorController
-    //      .registerTrigger(XboxControllerWrapper.Button.start, "Wheel Radius Characterization")
-    //      .whileTrue(
-    //          new WheelRadiusCharacterization(
-    //              drivetrainWrapper, Constants.RobotMode.getRobot().config.get(), 0.5));
-    // }
-
     operatorController
         .registerTrigger(
             XboxControllerWrapper.Button.leftTrigger, "Manual arm and elevator override")
@@ -877,6 +870,11 @@ public class RobotContainer {
         "Swerve Coast", new RunsWhenDisabledInstantCommand(() -> drivetrain.setBrakeMode(false)));
     SmartDashboard.putData(
         "Swerve Brake", new RunsWhenDisabledInstantCommand(() -> drivetrain.setBrakeMode(true)));
+
+    SmartDashboard.putData(
+        "WheelRadiusCharacterisation",
+        new WheelRadiusCharacterization(
+            drivetrainWrapper, Constants.RobotMode.getRobot().config.get()));
 
     SmartDashboard.putData(
         "Zero Mech",
