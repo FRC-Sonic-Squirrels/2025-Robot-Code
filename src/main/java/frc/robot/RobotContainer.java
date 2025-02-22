@@ -513,7 +513,7 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
-                drivetrainWrapper, endEffector, elevator, arm, led, driverController));
+                drivetrainWrapper, endEffector, elevator, arm, led, driverController, true));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
