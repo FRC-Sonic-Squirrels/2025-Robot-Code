@@ -358,18 +358,23 @@ public class RobotContainer {
           break;
 
         case ROBOT_2025_HOLO:
-          drivetrain =
-              new Drivetrain(
-                  config,
-                  new GyroIOPigeon2(config, config.getGyroCANID()),
-                  new GyroIOPigeon2(config, Constants.CanIDs.GYRO_2_CAN_ID),
-                  config.getSwerveModuleObjects(),
-                  () -> is_autonomous);
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            System.out.println("sleep interrupted");
+          }
           intake = new Intake(new IntakeIO() {});
           endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
           climber = new Climber(new ClimberIO() {});
+          drivetrain =
+              new Drivetrain(
+                  config,
+                  new GyroIOPigeon2(config, config.getGyroCANID()),
+                  new GyroIO.Fake(),
+                  config.getSwerveModuleObjects(),
+                  () -> is_autonomous);
           vision =
               new Vision(
                   aprilTagLayout,
@@ -387,6 +392,7 @@ public class RobotContainer {
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
                   () -> elevator.getHeight().in(Units.Inches) > 0.3);
+
           break;
 
         default:

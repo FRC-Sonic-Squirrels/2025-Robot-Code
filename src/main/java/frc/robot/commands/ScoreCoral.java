@@ -245,7 +245,7 @@ public class ScoreCoral extends StateMachine {
                                 .asProxy())),
             (command) -> null);
 
-    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(0.75);
+    scoringTrigger = new Trigger(() -> !prepMechanismForScoring.isScheduled()).debounce(2.0);
 
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
@@ -456,8 +456,9 @@ public class ScoreCoral extends StateMachine {
       Translation2d offset =
           new Translation2d(
               Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters)
-                  + Units.Inches.of(1).in(Units.Meter)
-                      * (direction == ScoringDirection.LEFT ? 1 : -1),
+              // + Units.Inches.of(1).in(Units.Meter)
+              //     * (direction == ScoringDirection.LEFT ? 1 : -1)
+              ,
               scoringSidePose.getRotation().plus(objectiveScoringDirection));
       Translation2d translation = scoringSidePose.getTranslation().plus(offset);
       newSides[i] =

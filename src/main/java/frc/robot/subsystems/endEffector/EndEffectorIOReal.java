@@ -96,7 +96,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     canRangeConfigScoringSide.ProximityParams.ProximityThreshold =
         Units.Inches.of(5).in(Units.Meters);
     canRangeConfigScoringSide.ProximityParams.ProximityHysteresis = 0.01;
-    canRangeConfigScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 4000;
+    canRangeConfigScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 30000;
 
     canRangeConfigScoringSide.ToFParams.UpdateFrequency = 100;
     canRangeConfigScoringSide.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
@@ -107,7 +107,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     canRangeConfigNonScoringSide.ProximityParams.ProximityThreshold =
         Units.Inches.of(5).in(Units.Meters);
     canRangeConfigNonScoringSide.ProximityParams.ProximityHysteresis = 0.01;
-    canRangeConfigNonScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 4000;
+    canRangeConfigNonScoringSide.ProximityParams.MinSignalStrengthForValidMeasurement = 30000;
 
     canRangeConfigNonScoringSide.ToFParams.UpdateFrequency = 100;
     canRangeConfigNonScoringSide.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
