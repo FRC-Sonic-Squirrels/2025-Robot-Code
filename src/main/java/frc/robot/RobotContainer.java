@@ -43,7 +43,9 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
+import frc.robot.commands.climber.Climb;
 import frc.robot.commands.climber.ClimberSetAngle;
+import frc.robot.commands.climber.PrepClimb;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGround;
@@ -699,6 +701,10 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
         .whileTrue(new IntakeGround(intake));
 
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
+        .whileTrue(new PrepClimb(climber))
+        .onFalse(new Climb(climber));
     // ---------- OPERATOR CONTROLS -----------
 
     // Manual mech positions

@@ -56,6 +56,11 @@ public class Climber extends SubsystemBase {
   private static final LoggerEntry.EnumValue<ControlMode> logGrabberControlMode =
       grabberLogGroup.buildEnum("ControlMode");
 
+  private static final LoggerGroup servoLogGroup =
+      LoggerGroup.build(ClimberConstants.SERO_ROOT_TABLE);
+  private static final LoggerEntry.Decimal log_servoTargetAngle =
+      winchLogGroup.buildDecimal("TargetAngle");
+
   // Tunable Numbers
   private static final TunableNumberGroup winchGroup =
       new TunableNumberGroup(ClimberConstants.WINCH_ROOT_TABLE);
@@ -122,6 +127,9 @@ public class Climber extends SubsystemBase {
 
   private double grabberTargetRPM;
 
+  // This also acts as its current angle because the servo cannot tell us where it is
+  private Rotation2d servoTargetAngle;
+
   private ControlMode grabberControlMode = ControlMode.OPEN_LOOP;
 
   /** Creates a new ClimberSubsystem. */
@@ -176,6 +184,7 @@ public class Climber extends SubsystemBase {
         setConstants();
       }
     }
+    log_servoTargetAngle.info(servoTargetAngle);
   }
 
   // setters
@@ -223,6 +232,11 @@ public class Climber extends SubsystemBase {
 
   public void setServoAngle(Rotation2d angle) {
     io.setClimberServoAngle(angle);
+    servoTargetAngle = angle;
+  }
+
+  public Rotation2d getServoAngle() {
+    return servoTargetAngle;
   }
 
   public void setGrabberPercentOut(double percent) {
