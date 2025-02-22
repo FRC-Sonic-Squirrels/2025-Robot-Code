@@ -703,13 +703,14 @@ public class RobotContainer {
                   double kI = 0.0;
                   double kD = 0.0;
                   double controlOutput = calculatePIDOutput(kP, kI, kD, robotTranslation);
+                  double coralStationRotationValue =
+                      findNearestCoralStation(robotTranslation, coralStationPose)
+                          .getRotation()
+                          .getRadians();
+                  double finalRotationValue;
+
                   // ! means face center; else, rotate to side of reef
-                  if (!Constants.unusedCode) {
-                    double coralStationRotationValue =
-                        findNearestCoralStation(robotTranslation, coralStationPose)
-                            .getRotation()
-                            .getRadians();
-                    double finalRotationValue;
+                  if (Constants.unusedCode) {
 
                     if (RobotStates.coralInRobot) {
                       finalRotationValue = controlOutput;
@@ -719,7 +720,7 @@ public class RobotContainer {
                       return new Rotation2d(finalRotationValue);
                     }
                   } else {
-                    double finalRotationValue =
+                    finalRotationValue =
                         RobotStates.coralInRobot
                             ? findNearestReefAprilTag(robotTranslation, reefAprilTagPose)
                                 .getRotation()
