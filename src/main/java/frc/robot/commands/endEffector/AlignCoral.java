@@ -16,20 +16,18 @@ public class AlignCoral extends Command {
   /** Creates a new AlignCoral. */
   private static final LoggerGroup logGroup = LoggerGroup.build("AlignCoral");
 
-  private static final LoggerEntry.Bool log_InitialAlignment =
-      logGroup.buildBoolean("InitialAlignment");
-  private static final LoggerEntry.Bool log_MidMovementDone =
-      logGroup.buildBoolean("MidMovementDone");
+  private static final LoggerEntry.Integer log_Stage = logGroup.buildInteger("Stage");
 
   private static final TunableNumberGroup group = new TunableNumberGroup("AlignCoral");
 
   private static final LoggedTunableNumber correctionVelocity =
       group.build("correctionVelocity", 400);
+  private static final LoggedTunableNumber maxTurns = group.build("maxTurns", 400);
 
   private EndEffector endEffector;
-  private boolean fullyIn = false;
+  private double initialPosition;
+  private int stage;
   private boolean shouldEnd = false;
-  private boolean midMovementDone = false;
 
   public AlignCoral(EndEffector endEffector) {
     this.endEffector = endEffector;
@@ -41,33 +39,50 @@ public class AlignCoral extends Command {
   @Override
   public void initialize() {
     // minDist>aligned>maxDist
+    stage = 0;
     shouldEnd = false;
-    midMovementDone = false;
-    fullyIn =
-        endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (midMovementDone && fullyIn) {
-      endEffector.setVelocity(correctionVelocity.get());
-      shouldEnd = endEffector.nonScoringSideTOFSeenGamepiece();
-    } else if (fullyIn) {
-      endEffector.setVelocity(-correctionVelocity.get());
-      midMovementDone =
-          !endEffector.nonScoringSideTOFSeenGamepiece()
-              && endEffector.scoringSideTofSeenGamepiece();
-      shouldEnd =
-          !endEffector.nonScoringSideTOFSeenGamepiece()
-              && !endEffector.scoringSideTofSeenGamepiece();
-    } else {
-      endEffector.setVelocity(correctionVelocity.get());
-      fullyIn =
-          endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
+    switch (stage) {
+        // no alignment
+      case 0:
+        endEffector.setVelocity(correctionVelocity.get());
+        if (endEffector.scoringSideTofSeenGamepiece()
+            && endEffector.nonScoringSideTOFSeenGamepiece()) {
+          stage = 1;
+        }
+        break;
+        // both tof have seen it
+      case 1:
+        endEffector.setVelocity(-correctionVelocity.get());
+        if (!endEffector.nonScoringSideTOFSeenGamepiece()
+            && endEffector.scoringSideTofSeenGamepiece()) {
+          stage = 2;
+        }
+        break;
+        // moved out of nonScoring tof
+      case 2:
+        endEffector.setVelocity(correctionVelocity.get());
+        if (endEffector.nonScoringSideTOFSeenGamepiece()) {
+          stage = 3;
+          initialPosition = endEffector.getMotorPosition();
+        }
+        break;
+        // moved back in
+      case 3:
+        endEffector.setVelocity(-correctionVelocity.get());
+        if (Math.abs(endEffector.getMotorPosition() - initialPosition) >= maxTurns.get()) {
+          shouldEnd = true;
+        }
+        break;
+      default:
+        shouldEnd = true;
+        break;
     }
-    log_InitialAlignment.info(fullyIn);
-    log_MidMovementDone.info(midMovementDone);
+    log_Stage.info(stage);
   }
 
   // Called once the command ends or is interrupted.
@@ -79,6 +94,8 @@ public class AlignCoral extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return shouldEnd;
+    return shouldEnd
+        || !endEffector.nonScoringSideTOFSeenGamepiece()
+            && !endEffector.scoringSideTofSeenGamepiece();
   }
 }
