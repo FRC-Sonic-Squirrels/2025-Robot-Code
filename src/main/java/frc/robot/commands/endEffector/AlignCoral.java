@@ -17,14 +17,14 @@ public class AlignCoral extends Command {
   /** Creates a new AlignCoral. */
   private static final LoggerGroup logGroup = LoggerGroup.build("AlignCoral");
 
-  private static final LoggerEntry.Bool logInputs_intitalMovementDone =
-      logGroup.buildBoolean("intitalMovementDone");
+  private static final LoggerEntry.Bool logInputs_inititalMovementDone =
+      logGroup.buildBoolean("inititalMovementDone");
   private static final LoggerEntry.Bool logInputs_done = logGroup.buildBoolean("done");
 
   private static final TunableNumberGroup group = new TunableNumberGroup("AlignCoral");
 
   private static final LoggedTunableNumber correctionVelocity =
-      group.build("correctionVelocity", 10);
+      group.build("correctionVelocity", 400);
   private static final LoggedTunableNumber minTOFDistanceInches =
       group.build("minTOFDistanceInches", 3);
   private static final LoggedTunableNumber maxTOFDistanceInches =
@@ -34,10 +34,9 @@ public class AlignCoral extends Command {
   private EndEffector endEffector;
   private double initialPosition;
   private boolean aligned;
-  private boolean fullyIn =
-      endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
+  private boolean fullyIn = false;
   private boolean shouldEnd = false;
-  private boolean intitalMovementDone = false;
+  private boolean inititalMovementDone = false;
 
   public AlignCoral(EndEffector endEffector) {
     this.endEffector = endEffector;
@@ -49,6 +48,10 @@ public class AlignCoral extends Command {
   @Override
   public void initialize() {
     // minDist>aligned>maxDist
+    shouldEnd = false;
+    inititalMovementDone = false;
+    fullyIn =
+        endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
     aligned =
         endEffector.scoringSideTofDistance().lt(Units.Inches.of(maxTOFDistanceInches.get()))
             && endEffector.scoringSideTofDistance().gt(Units.Inches.of(minTOFDistanceInches.get()));
@@ -57,23 +60,24 @@ public class AlignCoral extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (intitalMovementDone && fullyIn) {
-      endEffector.setVelocity(-correctionVelocity.get());
+    if (inititalMovementDone && fullyIn) {
+      endEffector.setVelocity(correctionVelocity.get());
       shouldEnd = endEffector.nonScoringSideTOFSeenGamepiece();
     } else if (fullyIn) {
-      endEffector.setVelocity(correctionVelocity.get());
-      intitalMovementDone =
+      endEffector.setVelocity(-correctionVelocity.get());
+      inititalMovementDone =
           !endEffector.nonScoringSideTOFSeenGamepiece()
               && endEffector.scoringSideTofSeenGamepiece();
       shouldEnd =
           !endEffector.nonScoringSideTOFSeenGamepiece()
               && !endEffector.scoringSideTofSeenGamepiece();
     } else {
+      endEffector.setVelocity(correctionVelocity.get());
       fullyIn =
           endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
     }
     logInputs_done.info(shouldEnd);
-    logInputs_intitalMovementDone.info(intitalMovementDone);
+    logInputs_inititalMovementDone.info(inititalMovementDone);
   }
 
   // Called once the command ends or is interrupted.
