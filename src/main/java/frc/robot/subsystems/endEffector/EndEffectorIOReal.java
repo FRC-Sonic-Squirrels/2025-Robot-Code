@@ -83,7 +83,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
     // Update status signals
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50, appliedVoltage, current, velocity);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, appliedVoltage, current, velocity, position);
     BaseStatusSignal.setUpdateFrequencyForAll(1, deviceTemp);
 
     motor.optimizeBusUtilization();
@@ -139,9 +139,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     nonScoringSideEndEffectorTOF.optimizeBusUtilization();
 
     refreshSetMotor =
-        new BaseStatusSignal[] {
-          current, deviceTemp, appliedVoltage, velocity,
-        };
+        new BaseStatusSignal[] {current, deviceTemp, appliedVoltage, velocity, position};
 
     refreshSetSensors =
         new BaseStatusSignal[] {

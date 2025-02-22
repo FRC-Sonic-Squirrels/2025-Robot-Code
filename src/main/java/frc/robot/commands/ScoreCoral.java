@@ -50,6 +50,7 @@ public class ScoreCoral extends StateMachine {
   private final EndEffector endEffector;
   private final LED led;
   private final RobotConfig config;
+  private final boolean clearAlgae;
 
   private final Optional<ScoringDirection> optionalScoringDirection;
   private ScoringDirection scoringDirection;
@@ -110,7 +111,8 @@ public class ScoreCoral extends StateMachine {
       EndEffector endEffector,
       LED led,
       Consumer<Double> rumble,
-      RobotConfig config) {
+      RobotConfig config,
+      boolean clearAlgae) {
     this(
         wrapper,
         elevator,
@@ -121,7 +123,8 @@ public class ScoreCoral extends StateMachine {
         Optional.empty(),
         rumble,
         config,
-        false);
+        false,
+        clearAlgae);
     gamepieceMemory = true;
   }
 
@@ -133,7 +136,8 @@ public class ScoreCoral extends StateMachine {
       LED led,
       ReefSide side,
       Consumer<Double> rumble,
-      RobotConfig config) {
+      RobotConfig config,
+      boolean clearAlgae) {
     this(
         wrapper,
         elevator,
@@ -144,7 +148,8 @@ public class ScoreCoral extends StateMachine {
         Optional.of(reefSideToScoringSide(side)),
         rumble,
         config,
-        false);
+        false,
+        clearAlgae);
   }
 
   public ScoreCoral(
@@ -155,7 +160,8 @@ public class ScoreCoral extends StateMachine {
       LED led,
       ScoringDirection scoringDirection,
       Consumer<Double> rumble,
-      RobotConfig config) {
+      RobotConfig config,
+      boolean clearAlgae) {
     this(
         wrapper,
         elevator,
@@ -166,7 +172,8 @@ public class ScoreCoral extends StateMachine {
         Optional.empty(),
         rumble,
         config,
-        true);
+        true,
+        clearAlgae);
   }
 
   public ScoreCoral(
@@ -179,7 +186,8 @@ public class ScoreCoral extends StateMachine {
       Optional<ScoringSide> side,
       Consumer<Double> rumble,
       RobotConfig config,
-      boolean driverConfirmation) {
+      boolean driverConfirmation,
+      boolean clearAlgae) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
@@ -188,6 +196,7 @@ public class ScoreCoral extends StateMachine {
     this.endEffector = endEffector;
     this.led = led;
     this.config = config;
+    this.clearAlgae = clearAlgae;
 
     this.optionalScoringDirection = scoringDirection;
     this.rumble = rumble;
@@ -195,7 +204,11 @@ public class ScoreCoral extends StateMachine {
     confirmation = driverConfirmation;
 
     setInterruptedState(stateWithName("End", () -> end(true)));
-    setInitialState(stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
+    if (clearAlgae) {
+      setInitialState(stateWithName("PrepClearAlgae", () -> prepForAlgaeAlignment()));
+    } else {
+      setInitialState(stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
+    }
   }
 
   // SCORING STATES
@@ -284,8 +297,7 @@ public class ScoreCoral extends StateMachine {
 
     led.setRobotState(RobotState.SCORE_SUCCESS);
 
-    return (RobotStates.clearingAlgae
-            && !(gamepieceMemory && !FieldStates.isAlgaeInScoringSide(scoringSide)))
+    return (false && !(gamepieceMemory && !FieldStates.isAlgaeInScoringSide(scoringSide)))
         ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
         : stateWithName("End", () -> end(false));
   }

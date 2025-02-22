@@ -17,12 +17,13 @@ public class AlignCoral extends Command {
   private static final LoggerGroup logGroup = LoggerGroup.build("AlignCoral");
 
   private static final LoggerEntry.Integer log_Stage = logGroup.buildInteger("Stage");
+  private static final LoggerEntry.Decimal log_Position = logGroup.buildDecimal("PosDif");
 
   private static final TunableNumberGroup group = new TunableNumberGroup("AlignCoral");
 
   private static final LoggedTunableNumber correctionVelocity =
       group.build("correctionVelocity", 400);
-  private static final LoggedTunableNumber maxTurns = group.build("maxTurns", 400);
+  private static final LoggedTunableNumber maxTurns = group.build("maxTurns", 18);
 
   private EndEffector endEffector;
   private double initialPosition;
@@ -73,8 +74,9 @@ public class AlignCoral extends Command {
         break;
         // moved back in
       case 3:
-        endEffector.setVelocity(-correctionVelocity.get());
-        if (Math.abs(endEffector.getMotorPosition() - initialPosition) >= maxTurns.get()) {
+        double dif = Math.abs(endEffector.getMotorPosition() - initialPosition);
+        log_Position.info(dif);
+        if (dif >= maxTurns.get()) {
           shouldEnd = true;
         }
         break;

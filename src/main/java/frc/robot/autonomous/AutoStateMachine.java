@@ -172,7 +172,7 @@ public class AutoStateMachine extends StateMachine {
 
     if (scoringLocations == null) {
 
-      scoreCoral = new ScoreCoral(wrapper, elevator, arm, endEffector, led, rumble, config);
+      scoreCoral = new ScoreCoral(wrapper, elevator, arm, endEffector, led, rumble, config, false);
 
     } else {
 
@@ -186,7 +186,8 @@ public class AutoStateMachine extends StateMachine {
               led,
               scoringLocations.get(scoringIndex).side(),
               (r) -> {},
-              config);
+              config,
+              false);
     }
 
     spawnStateMachineAsCommand(scoreCoral, (s) -> null);
