@@ -15,7 +15,6 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -45,6 +44,7 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
+import frc.robot.commands.climber.ClimberSetAngle;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGround;
@@ -551,30 +551,31 @@ public class RobotContainer {
                             false))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
+    // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+
+    // Pose2d[] reefAprilTagPose = {
+    //   layout.getTagPose(6).get().toPose2d(),
+    //   layout.getTagPose(7).get().toPose2d(),
+    //   layout.getTagPose(8).get().toPose2d(),
+    //   layout.getTagPose(9).get().toPose2d(),
+    //   layout.getTagPose(10).get().toPose2d(),
+    //   layout.getTagPose(11).get().toPose2d(),
+    //   layout.getTagPose(17).get().toPose2d(),
+    //   layout.getTagPose(18).get().toPose2d(),
+    //   layout.getTagPose(19).get().toPose2d(),
+    //   layout.getTagPose(20).get().toPose2d(),
+    //   layout.getTagPose(21).get().toPose2d(),
+    //   layout.getTagPose(22).get().toPose2d()
+    // };
+
+    // Pose2d[] coralStationPose = {
+    //   layout.getTagPose(1).get().toPose2d(),
+    //   layout.getTagPose(2).get().toPose2d(),
+    //   layout.getTagPose(12).get().toPose2d(),
+    //   layout.getTagPose(13).get().toPose2d()
+    // };
+
     // Change scoring height
-    var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
-    Pose2d[] reefAprilTagPose = {
-      layout.getTagPose(6).get().toPose2d(),
-      layout.getTagPose(7).get().toPose2d(),
-      layout.getTagPose(8).get().toPose2d(),
-      layout.getTagPose(9).get().toPose2d(),
-      layout.getTagPose(10).get().toPose2d(),
-      layout.getTagPose(11).get().toPose2d(),
-      layout.getTagPose(17).get().toPose2d(),
-      layout.getTagPose(18).get().toPose2d(),
-      layout.getTagPose(19).get().toPose2d(),
-      layout.getTagPose(20).get().toPose2d(),
-      layout.getTagPose(21).get().toPose2d(),
-      layout.getTagPose(22).get().toPose2d()
-    };
-
-    Pose2d[] coralStationPose = {
-      layout.getTagPose(1).get().toPose2d(),
-      layout.getTagPose(2).get().toPose2d(),
-      layout.getTagPose(12).get().toPose2d(),
-      layout.getTagPose(13).get().toPose2d()
-    };
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.y, "Score L4")
@@ -715,7 +716,7 @@ public class RobotContainer {
 
     // Stow position
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.x, "Stow Position")
+        .registerTrigger(XboxControllerWrapper.Button.x, "Score Prep Position")
         .onTrue(MechanismActions.stowPosition(elevator, arm));
 
     // Eject
@@ -745,21 +746,14 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.start, "End Effector Out")
         .whileTrue(new EndEffectorSetRPM(-1000));
 
-    // Climber in
-    // operatorController
-    //     .registerTrigger(XboxControllerWrapper.Button.b, "Climber In")
-    //     .onTrue(new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE));
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.back, "End Effector In")
+        .whileTrue(new EndEffectorSetRPM(1000));
 
-    // Climber grabber
-    // operatorController
-    //     .registerTrigger(XboxControllerWrapper.Button.b, "Climber Grabber")
-    //     .onTrue(new ClimberSetGrabberRPM(climber, 1000));
-    // operatorController
-    //     .registerTrigger(XboxControllerWrapper.Button.b, "Arm")
-    //     .onTrue(new ArmSetAngle(arm, () -> Rotation2d.fromDegrees(tunableAngle.get())));
-    // operatorController
-    //     .registerTrigger(XboxControllerWrapper.Button.a, "Elevator")
-    //     .onTrue(new ElevatorSetHeight(elevator, Units.Inches.of(30)));
+    // Climber in
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.b, "Climber In")
+        .onTrue(new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE));
 
     // if (!DriverStation.isFMSAttached()) {
     //  operatorController
