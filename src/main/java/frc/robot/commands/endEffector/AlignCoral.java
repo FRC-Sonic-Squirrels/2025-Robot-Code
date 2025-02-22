@@ -6,7 +6,6 @@ package frc.robot.commands.endEffector;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -35,13 +34,10 @@ public class AlignCoral extends Command {
   private EndEffector endEffector;
   private double initialPosition;
   private boolean aligned;
+  private boolean fullyIn =
+      endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
   private boolean shouldEnd = false;
-  private Trigger intitalMovementDone =
-      new Trigger(
-              () ->
-                  !endEffector.nonScoringSideTOFSeenGamepiece()
-                      && endEffector.scoringSideTofSeenGamepiece())
-          .debounce(0.5);
+  private boolean intitalMovementDone = false;
 
   public AlignCoral(EndEffector endEffector) {
     this.endEffector = endEffector;
@@ -61,17 +57,23 @@ public class AlignCoral extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (intitalMovementDone.getAsBoolean()) {
+    if (intitalMovementDone && fullyIn) {
       endEffector.setVelocity(-correctionVelocity.get());
       shouldEnd = endEffector.nonScoringSideTOFSeenGamepiece();
-    } else {
+    } else if (fullyIn) {
       endEffector.setVelocity(correctionVelocity.get());
+      intitalMovementDone =
+          !endEffector.nonScoringSideTOFSeenGamepiece()
+              && endEffector.scoringSideTofSeenGamepiece();
       shouldEnd =
           !endEffector.nonScoringSideTOFSeenGamepiece()
               && !endEffector.scoringSideTofSeenGamepiece();
+    } else {
+      fullyIn =
+          endEffector.scoringSideTofSeenGamepiece() && endEffector.nonScoringSideTOFSeenGamepiece();
     }
     logInputs_done.info(shouldEnd);
-    logInputs_intitalMovementDone.info(intitalMovementDone.getAsBoolean());
+    logInputs_intitalMovementDone.info(intitalMovementDone);
   }
 
   // Called once the command ends or is interrupted.
