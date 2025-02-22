@@ -198,7 +198,7 @@ public class Drivetrain extends SubsystemBase {
 
     String canBusName = config.getCANBusName();
     if (canBusName != null) {
-      isCANFD = com.ctre.phoenix6.CANBus.isNetworkFD(canBusName);
+      isCANFD = new CANBus(canBusName).isNetworkFD();
     } else {
       isCANFD = false;
     }
@@ -279,7 +279,7 @@ public class Drivetrain extends SubsystemBase {
       }
       if (Robot.isReal()) {
         logGyro_canivoreBusUtilization.info(
-            CANBus.getStatus(config.getCANBusName()).BusUtilization);
+            new CANBus(config.getCANBusName()).getStatus().BusUtilization);
       }
     }
   }
@@ -338,8 +338,10 @@ public class Drivetrain extends SubsystemBase {
     while (!switchGyro) {
       if (selectedGyroInputs != null) {
         if (!selectedGyroInputs.wasUpdatedRecently(0.1))
-          // Gyro not reporting, exit.
+        // Gyro not reporting, exit.
+        {
           break;
+        }
       } else {
         if (loopWithoutAnyGyros-- <= 0) {
           // Try checking for gyro again.
