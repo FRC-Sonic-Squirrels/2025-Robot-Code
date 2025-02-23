@@ -42,7 +42,7 @@ public class MechanismPositions {
   private static final LoggedTunableNumber reefL4ElevatorHeightInches =
       group.build("Reef/L4/ElevatorHeightInches");
 
-  private static final LoggedTunableNumber reefPrepArmAngleDegrees =
+  private static final LoggedTunableNumber reefPrepArmOffsetDegrees =
       group.build("Reef/ReefPrepArmAngleDegrees");
 
   private static final LoggedTunableNumber coralStationElevatorHeightInches =
@@ -116,8 +116,6 @@ public class MechanismPositions {
       algaeClearingHigh2ElevatorHeightInches.initDefault(26.2);
       algaeClearingHigh2ArmAngleDegrees.initDefault(32);
     } else {
-      stowElevatorHeightInches.initDefault(11.6);
-      stowArmAngleDegrees.initDefault(11.6);
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
       reefL2ElevatorHeightInches.initDefault(7.5);
@@ -144,17 +142,11 @@ public class MechanismPositions {
       intermediatePoseLowArmAngleDegrees.initDefault(70);
       intermediatePoseLowBackElevatorHeightInches.initDefault(0);
       intermediatePoseLowBackArmAngleDegrees.initDefault(140);
-      reefPrepArmAngleDegrees.initDefault(90);
+      reefPrepArmOffsetDegrees.initDefault(20);
     }
   }
 
   public record MechanismPosition(Distance elevatorHeight, Rotation2d armAngle) {}
-
-  public static MechanismPosition stowPosition() {
-    return new MechanismPosition(
-        Units.Inches.of(stowElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get()));
-  }
 
   public static MechanismPosition reefPosition(ScoringLevel scoringLevel) {
     switch (scoringLevel) {
@@ -186,23 +178,23 @@ public class MechanismPositions {
       case L1:
         return new MechanismPosition(
             Units.Inches.of(reefL1ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+            Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
       case L2:
         return new MechanismPosition(
             Units.Inches.of(reefL2ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+            Rotation2d.fromDegrees(reefL2ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
       case L3:
         return new MechanismPosition(
             Units.Inches.of(reefL3ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+            Rotation2d.fromDegrees(reefL3ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
       case L4:
         return new MechanismPosition(
             Units.Inches.of(reefL4ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+            Rotation2d.fromDegrees(reefL4ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
       default:
         return new MechanismPosition(
             Units.Inches.of(reefL1ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+            Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
     }
   }
 
@@ -236,7 +228,7 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(algaeClearingHigh2ArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition scorePrepPosition() {
+  public static MechanismPosition stowPosition() {
     return new MechanismPosition(
         Units.Inches.of(stowElevatorHeightInches.get()),
         Rotation2d.fromDegrees(stowArmAngleDegrees.get()));

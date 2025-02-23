@@ -260,8 +260,17 @@ public class ScoreCoral extends StateMachine {
                             Commands.waitUntil(
                                 () ->
                                     GeometryUtil.getDist(
-                                            wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                                        < 0.05))
+                                                wrapper.getReefPoseEstimatorPose(true), scoringPose)
+                                            < 0.1
+                                        && arm.isAtTargetAngle(
+                                            MechanismPositions.reefPrepPosition(
+                                                    RobotStates.scoringLevel)
+                                                .armAngle(),
+                                            Rotation2d.fromDegrees(1.5))
+                                        && elevator.isAtTarget(
+                                            MechanismPositions.reefPrepPosition(
+                                                    RobotStates.scoringLevel)
+                                                .elevatorHeight())))
                         .andThen(
                             MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)
                                 .asProxy())),

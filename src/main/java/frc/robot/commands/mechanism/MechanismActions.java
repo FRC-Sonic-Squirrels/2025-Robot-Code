@@ -74,7 +74,7 @@ public class MechanismActions {
   }
 
   public static Command stowPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::scorePrepPosition);
+    return goToPositionParallel(elevator, arm, MechanismPositions::stowPosition);
   }
 
   private static Command goToPositionParallel(
