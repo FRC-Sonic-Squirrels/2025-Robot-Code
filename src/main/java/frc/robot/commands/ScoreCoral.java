@@ -204,11 +204,7 @@ public class ScoreCoral extends StateMachine {
     confirmation = driverConfirmation;
 
     setInterruptedState(stateWithName("End", () -> end(true)));
-    if (clearAlgae) {
-      setInitialState(stateWithName("PrepClearAlgae", () -> prepForAlgaeAlignment()));
-    } else {
-      setInitialState(stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
-    }
+    setInitialState(stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
   }
 
   // SCORING STATES
@@ -236,6 +232,8 @@ public class ScoreCoral extends StateMachine {
 
     led.setBaseRobotState(BaseRobotState.SCORING_ALIGNMENT);
 
+    if (clearAlgae) return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
+
     if (!(RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide)
         || !scorableLevel()) {
       return RobotStates.clearingAlgae && !gamepieceMemory
@@ -245,7 +243,7 @@ public class ScoreCoral extends StateMachine {
 
     prepMechanismForScoring =
         spawnCommand(
-            MechanismActions.scorePrepPosition(elevator, arm)
+            MechanismActions.stowPosition(elevator, arm)
                 .alongWith(
                     Commands.waitUntil(
                             () ->
@@ -254,6 +252,16 @@ public class ScoreCoral extends StateMachine {
                                     < (RobotStates.scoringLevel == ScoringLevel.L4
                                         ? distToRaiseMech.get()
                                         : 100))
+                        .andThen(
+                            MechanismActions.reefPrepPosition(
+                                    elevator, arm, RobotStates.scoringLevel)
+                                .asProxy())
+                        .andThen(
+                            Commands.waitUntil(
+                                () ->
+                                    GeometryUtil.getDist(
+                                            wrapper.getReefPoseEstimatorPose(true), scoringPose)
+                                        < 0.05))
                         .andThen(
                             MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)
                                 .asProxy())),

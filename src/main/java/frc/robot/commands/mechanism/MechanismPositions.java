@@ -13,15 +13,9 @@ public class MechanismPositions {
   private static final TunableNumberGroup group = new TunableNumberGroup("MechanismPositions");
 
   public static final LoggedTunableNumber stowElevatorHeightInches =
-      group.build("Stow/ElevatorHeightInches");
-
-  public static final LoggedTunableNumber stowArmAngleDegrees =
-      group.build("Stow/StowArmAngleDegrees");
-
-  public static final LoggedTunableNumber scorePrepElevatorHeightInches =
       group.build("Reef/ScorePrep/ElevatorHeightInches");
 
-  public static final LoggedTunableNumber scorePrepArmAngleDegrees =
+  public static final LoggedTunableNumber stowArmAngleDegrees =
       group.build("Reef/ScorePrep/StowArmAngleDegrees");
 
   private static final LoggedTunableNumber reefL1ArmAngleDegrees =
@@ -47,6 +41,9 @@ public class MechanismPositions {
 
   private static final LoggedTunableNumber reefL4ElevatorHeightInches =
       group.build("Reef/L4/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber reefPrepArmAngleDegrees =
+      group.build("Reef/ReefPrepArmAngleDegrees");
 
   private static final LoggedTunableNumber coralStationElevatorHeightInches =
       group.build("CoralStation/ElevatorHeightInches");
@@ -139,14 +136,15 @@ public class MechanismPositions {
       algaeClearingHigh1ArmAngleDegrees.initDefault(153);
       algaeClearingHigh2ElevatorHeightInches.initDefault(50);
       algaeClearingHigh2ArmAngleDegrees.initDefault(150);
-      scorePrepElevatorHeightInches.initDefault(26);
-      scorePrepArmAngleDegrees.initDefault(90);
+      stowElevatorHeightInches.initDefault(26);
+      stowArmAngleDegrees.initDefault(90);
       intermediatePoseHighElevatorHeightInches.initDefault(26);
       intermediatePoseHighArmAngleDegrees.initDefault(70);
       intermediatePoseLowElevatorHeightInches.initDefault(0);
       intermediatePoseLowArmAngleDegrees.initDefault(70);
       intermediatePoseLowBackElevatorHeightInches.initDefault(0);
       intermediatePoseLowBackArmAngleDegrees.initDefault(140);
+      reefPrepArmAngleDegrees.initDefault(90);
     }
   }
 
@@ -183,6 +181,31 @@ public class MechanismPositions {
     }
   }
 
+  public static MechanismPosition reefPrepPosition(ScoringLevel scoringLevel) {
+    switch (scoringLevel) {
+      case L1:
+        return new MechanismPosition(
+            Units.Inches.of(reefL1ElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+      case L2:
+        return new MechanismPosition(
+            Units.Inches.of(reefL2ElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+      case L3:
+        return new MechanismPosition(
+            Units.Inches.of(reefL3ElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+      case L4:
+        return new MechanismPosition(
+            Units.Inches.of(reefL4ElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+      default:
+        return new MechanismPosition(
+            Units.Inches.of(reefL1ElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(reefPrepArmAngleDegrees.get()));
+    }
+  }
+
   public static MechanismPosition coralStationPosition() {
     return new MechanismPosition(
         Units.Inches.of(coralStationElevatorHeightInches.get()),
@@ -215,8 +238,8 @@ public class MechanismPositions {
 
   public static MechanismPosition scorePrepPosition() {
     return new MechanismPosition(
-        Units.Inches.of(scorePrepElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(scorePrepArmAngleDegrees.get()));
+        Units.Inches.of(stowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(stowArmAngleDegrees.get()));
   }
 
   public static MechanismPosition intermediateLowPosition() {

@@ -822,8 +822,7 @@ public class RobotContainer {
     gamepieceInEndEffector.onTrue(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(
-                MechanismActions.scorePrepPosition(elevator, arm)
-                    .andThen(new AlignCoral(endEffector)))
+                MechanismActions.stowPosition(elevator, arm).andThen(new AlignCoral(endEffector)))
             .withName("GamepieceIntoEECommand"));
 
     gamepieceInEndEffector.onFalse(

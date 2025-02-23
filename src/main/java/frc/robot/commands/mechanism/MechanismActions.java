@@ -48,12 +48,13 @@ public class MechanismActions {
         slowerMotion ? 3 : -1);
   }
 
-  public static Command coralStationPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition, 2000, 3);
+  public static Command reefPrepPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
+    return goToPositionParallel(
+        elevator, arm, () -> MechanismPositions.reefPrepPosition(scoringLevel));
   }
 
-  public static Command stowPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::stowPosition);
+  public static Command coralStationPosition(Elevator elevator, Arm arm) {
+    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition, 2000, 3);
   }
 
   public static Command clearAlgaeLow1Position(Elevator elevator, Arm arm) {
@@ -72,7 +73,7 @@ public class MechanismActions {
     return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh2Position);
   }
 
-  public static Command scorePrepPosition(Elevator elevator, Arm arm) {
+  public static Command stowPosition(Elevator elevator, Arm arm) {
     return goToPositionParallel(elevator, arm, MechanismPositions::scorePrepPosition);
   }
 
