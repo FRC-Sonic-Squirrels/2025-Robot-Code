@@ -620,6 +620,10 @@ public abstract class LoggerEntry {
     return true;
   }
 
+  void resetDataLogId() {
+    dataLogId = LoggerGroup.dataLogIdNotInitialized;
+  }
+
   void publishIfNeeded() {
     if (shouldNotRefresh()) return;
 
