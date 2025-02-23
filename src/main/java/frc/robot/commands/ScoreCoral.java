@@ -268,6 +268,7 @@ public class ScoreCoral extends StateMachine {
                                                         wrapper.getReefPoseEstimatorPose(true),
                                                         scoringPose)
                                                     < 0.1)
+                                        .andThen(Commands.waitSeconds(0.5))
                                         .andThen(
                                             MechanismActions.reefPosition(
                                                     elevator, arm, RobotStates.scoringLevel)

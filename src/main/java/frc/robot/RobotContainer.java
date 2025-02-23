@@ -637,7 +637,7 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "ScoreCoral")
         .onTrue(
-            Commands.waitSeconds(2)
+            Commands.waitUntil(() -> !RobotStates.coralInEndEffector)
                 .deadlineFor(
                     Commands.runOnce(
                             () -> {

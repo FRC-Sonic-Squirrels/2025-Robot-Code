@@ -125,7 +125,7 @@ public final class Constants {
   public static double MAX_VOLTAGE = 12.0;
 
   public static class RobotDimensions {
-    public static Distance BUMPER_THICKNESS = Units.Inches.of(4);
+    public static Distance BUMPER_THICKNESS = Units.Inches.of(3);
 
     /**
      * x = left to right

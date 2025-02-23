@@ -39,19 +39,18 @@ public class MechanismActions {
       group.build("MechanismActions/tunableArmVoltage", 5.0);
 
   public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
-    boolean slowerMotion = scoringLevel == ScoringLevel.L4 && !RobotMode.isSimBot();
-    return goToPositionParallel(
-            elevator,
-            arm,
-            () -> MechanismPositions.reefPosition(scoringLevel),
-            slowerMotion ? 1000 : -1,
-            slowerMotion ? 3 : -1)
+    return goToPositionParallel(elevator, arm, () -> MechanismPositions.reefPosition(scoringLevel))
         .withName("ReefPosition");
   }
 
   public static Command reefPrepPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
+    boolean slowerMotion = scoringLevel == ScoringLevel.L4 && !RobotMode.isSimBot();
     return goToPositionParallel(
-            elevator, arm, () -> MechanismPositions.reefPrepPosition(scoringLevel))
+            elevator,
+            arm,
+            () -> MechanismPositions.reefPrepPosition(scoringLevel),
+            slowerMotion ? 1000 : -1,
+            slowerMotion ? 3 : -1)
         .withName("ReefPrepPosition");
   }
 
