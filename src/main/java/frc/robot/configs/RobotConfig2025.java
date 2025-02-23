@@ -37,7 +37,7 @@ public class RobotConfig2025 extends RobotConfig {
           1,
           11,
           21,
-          Rotation2d.fromDegrees(130.6),
+          Rotation2d.fromDegrees(129.463),
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 1
@@ -46,7 +46,7 @@ public class RobotConfig2025 extends RobotConfig {
           2,
           12,
           22,
-          Rotation2d.fromDegrees(-53.965),
+          Rotation2d.fromDegrees(-34.365),
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 2
@@ -55,7 +55,7 @@ public class RobotConfig2025 extends RobotConfig {
           3,
           13,
           23,
-          Rotation2d.fromDegrees(132.275),
+          Rotation2d.fromDegrees(126.65),
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 3
@@ -143,8 +143,8 @@ public class RobotConfig2025 extends RobotConfig {
 
   private final com.pathplanner.lib.config.RobotConfig PATH_PLANNER_CONFIG =
       new com.pathplanner.lib.config.RobotConfig(
-          Units.Kilogram.of(113),
-          Units.KilogramSquareMeters.of(5.3598424503),
+          Units.Kilogram.of(121),
+          Units.KilogramSquareMeters.of(4.422493401),
           new ModuleConfig(
               WHEEL_RADIUS,
               Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND), // TODO: find actual value
@@ -162,7 +162,7 @@ public class RobotConfig2025 extends RobotConfig {
               Units.Inches.of(-8.763).in(Units.Meters),
               Units.Inches.of(8.472).in(Units.Meters),
               Units.Inches.of(12.125).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(208.7)));
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(2)));
 
   public static final Transform3d REEF_SIDE_RIGHT =
       new Transform3d(
