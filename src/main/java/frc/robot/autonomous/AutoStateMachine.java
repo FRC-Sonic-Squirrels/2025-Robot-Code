@@ -20,6 +20,8 @@ import frc.lib.team6328.GeomUtil;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.CommandComposer;
 import frc.robot.Constants;
+import frc.robot.Constants.RobotMode;
+import frc.robot.FieldStates;
 import frc.robot.RobotStates;
 import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
@@ -197,6 +199,12 @@ public class AutoStateMachine extends StateMachine {
 
   private StateHandler scoreCoral() {
     if (!scoreCoral.usingDrivetrain()) {
+      if (RobotMode.isSimBot()) {
+        RobotStates.coralInEndEffectorNonScoringSide = false;
+        RobotStates.coralInEndEffectorScoringSide = false;
+        FieldStates.setScoringLocationFilled(
+            new ScoringLocation(RobotStates.targetReefSide, RobotStates.scoringLevel));
+      }
       scoringIndex++;
       return stateWithName("PrepIntakeCoral", () -> prepIntakeCoral());
     }
