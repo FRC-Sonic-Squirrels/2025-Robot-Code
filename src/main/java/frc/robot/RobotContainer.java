@@ -543,7 +543,7 @@ public class RobotContainer {
         .whileTrue(new ScoreAlgae(intake));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Score Coral")
+        .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Scoring Alignment Left")
         .whileTrue(
             new RunStateMachineCommand(
                     () ->
@@ -558,21 +558,9 @@ public class RobotContainer {
                             Constants.RobotMode.getRobot().config.get(),
                             false))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
-    // .onFalse(
-    //     Commands.waitSeconds(2)
-    //         .deadlineFor(
-    //             Commands.runOnce(
-    //                     () -> {
-    //                       if (RobotMode.isSimBot()) {
-    //                         RobotStates.coralInEndEffectorNonScoringSide = false;
-    //                         RobotStates.coralInEndEffectorScoringSide = false;
-    //                       }
-    //                     })
-    //                 .andThen(new EndEffectorSetRPM(endEffector,
-    // -6000))).andThen(Commands.runOnce(() -> endEffector.setPercentOut(0))));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Score Coral")
+        .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Scoring Alignment Right")
         .whileTrue(
             new RunStateMachineCommand(
                     () ->
@@ -587,18 +575,6 @@ public class RobotContainer {
                             Constants.RobotMode.getRobot().config.get(),
                             false))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
-    // .onFalse(
-    //   Commands.waitSeconds(2)
-    //   .deadlineFor(
-    //       Commands.runOnce(
-    //               () -> {
-    //                 if (RobotMode.isSimBot()) {
-    //                   RobotStates.coralInEndEffectorNonScoringSide = false;
-    //                   RobotStates.coralInEndEffectorScoringSide = false;
-    //                 }
-    //               })
-    //           .andThen(new EndEffectorSetRPM(endEffector, -6000))).andThen(Commands.runOnce(() ->
-    // endEffector.setPercentOut(0))));
 
     // Change scoring height
     var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
@@ -659,7 +635,7 @@ public class RobotContainer {
                 }));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Rotate to Angle")
+        .registerTrigger(XboxControllerWrapper.Button.leftStick, "ScoreCoral")
         .onTrue(
             Commands.waitSeconds(2)
                 .deadlineFor(
@@ -668,6 +644,9 @@ public class RobotContainer {
                               if (RobotMode.isSimBot()) {
                                 RobotStates.coralInEndEffectorNonScoringSide = false;
                                 RobotStates.coralInEndEffectorScoringSide = false;
+                                FieldStates.setScoringLocationFilled(
+                                    new ScoringLocation(
+                                        RobotStates.targetReefSide, RobotStates.scoringLevel));
                               }
                             })
                         .andThen(new EndEffectorSetRPM(endEffector, -6000)))

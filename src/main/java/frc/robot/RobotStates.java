@@ -1,5 +1,7 @@
 package frc.robot;
 
+import frc.robot.autonomous.records.ScoringLocation.ReefSide;
+
 public class RobotStates {
   public static boolean clearingAlgae = false;
 
@@ -17,6 +19,8 @@ public class RobotStates {
   public static boolean coralInEndEffectorNonScoringSide = true;
 
   public static boolean coralInIntake = false;
+
+  public static ReefSide targetReefSide = ReefSide.CA;
 
   public enum ScoringLevel {
     L1,

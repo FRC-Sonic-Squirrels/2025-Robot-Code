@@ -241,6 +241,8 @@ public class ScoreCoral extends StateMachine {
           : stateWithName("ScoreFailure", () -> scoreFailure());
     }
 
+    RobotStates.targetReefSide = scoringSideAndDirectionToReefSide(scoringSide, scoringDirection);
+
     prepMechanismForScoring =
         spawnCommand(
             MechanismActions.stowPosition(elevator, arm)
@@ -255,15 +257,17 @@ public class ScoreCoral extends StateMachine {
                         .andThen(
                             MechanismActions.reefPrepPosition(
                                     elevator, arm, RobotStates.scoringLevel)
-                                .asProxy())
-                        .andThen(
-                            Commands.waitUntil(
-                                () ->
-                                    GeometryUtil.getDist(
-                                            wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                                        < 0.1))
-                        .andThen(
-                            MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)
+                                .andThen(
+                                    Commands.waitUntil(
+                                            () ->
+                                                GeometryUtil.getDist(
+                                                        wrapper.getReefPoseEstimatorPose(true),
+                                                        scoringPose)
+                                                    < 0.1)
+                                        .andThen(
+                                            MechanismActions.reefPosition(
+                                                    elevator, arm, RobotStates.scoringLevel)
+                                                .asProxy()))
                                 .asProxy()))
                 .withName("MechScoreCoral"),
             (command) -> null);
@@ -299,18 +303,11 @@ public class ScoreCoral extends StateMachine {
 
     if (confirmation && prepMechanismForScoring.isScheduled()) return null;
 
-    FieldStates.setScoringLocationFilled(
-        new ScoringLocation(
-            scoringSideAndDirectionToReefSide(scoringSide, scoringDirection),
-            RobotStates.scoringLevel));
-
     spawnCommand(new ControllerRumbleForTime(rumble, 0.25, 0.3), (c) -> null);
 
     led.setRobotState(RobotState.SCORE_SUCCESS);
 
-    return (false && !(gamepieceMemory && !FieldStates.isAlgaeInScoringSide(scoringSide)))
-        ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
-        : stateWithName("End", () -> end(false));
+    return stateWithName("End", () -> end(false));
   }
 
   // ALGAE STATES
@@ -488,8 +485,9 @@ public class ScoreCoral extends StateMachine {
       Translation2d offset =
           new Translation2d(
               Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters)
-                  + Units.Inches.of(1).in(Units.Meter)
-                      * (direction == ScoringDirection.LEFT ? -1 : 1),
+              // + Units.Inches.of(1).in(Units.Meter)
+              //     * (direction == ScoringDirection.LEFT ? -1 : 1)
+              ,
               scoringSidePose.getRotation().plus(objectiveScoringDirection));
       Translation2d translation = scoringSidePose.getTranslation().plus(offset);
       newSides[i] =
