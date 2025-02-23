@@ -14,11 +14,6 @@ public interface ClimberIO {
     public double winchTempCelsius;
     public double winchVelocityDegreesPerSecond;
 
-    public double grabberAppliedVolts;
-    public double grabberCurrentAmps;
-    public double grabberTempCelsius;
-    public double grabberVelocityRPM;
-
     public Inputs(LoggerGroup logInputs) {
       super(logInputs);
     }
@@ -39,21 +34,6 @@ public interface ClimberIO {
       double kP, double kD, double kG, MotionMagicConfigs mmConfigs) {}
 
   public default boolean setWinchNeutralMode(NeutralModeValue value) {
-    return false;
-  }
-
-  public default void updateGrabberInputs(Inputs inputs) {}
-
-  public default void setGrabberVelocity(double velocity) {}
-
-  public default void setGrabberVoltage(double volts) {}
-
-  public default void resetGrabberSensorPosition(Rotation2d angle) {}
-
-  public default void setGrabberClosedLoopConstants(
-      double kP, double kV, double kS, double targetAcceleration) {}
-
-  public default boolean setGrabberNeutralMode(NeutralModeValue value) {
     return false;
   }
 }

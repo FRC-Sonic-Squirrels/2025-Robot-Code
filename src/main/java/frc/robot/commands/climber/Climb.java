@@ -4,7 +4,6 @@
 
 package frc.robot.commands.climber;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -23,8 +22,6 @@ public class Climb extends Command {
 
   private Climber climber;
 
-  private Rotation2d intitialWinchAngle;
-
   private boolean shouldEnd;
 
   public Climb(Climber climber) {
@@ -36,7 +33,6 @@ public class Climb extends Command {
   @Override
   public void initialize() {
     shouldEnd = false;
-    intitialWinchAngle = climber.getWinchAngle();
     // servo cannot sense its angle so just assume its there
     climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE);
   }
@@ -46,8 +42,10 @@ public class Climb extends Command {
   public void execute() {
     climber.setWinchVoltage(-winchSpeed.get());
     shouldEnd =
-        Math.abs(climber.getWinchAngle().getRotations() - intitialWinchAngle.getRotations())
-            >= ClimberConstants.TOTAL_WINCH_ROTATIONS.getRotations();
+        Math.abs(
+                climber.getWinchAngle().getRotations()
+                    - ClimberConstants.CLIMB_WINCH_ROTATIONS.getRotations())
+            <= 0.1;
   }
 
   // Called once the command ends or is interrupted.

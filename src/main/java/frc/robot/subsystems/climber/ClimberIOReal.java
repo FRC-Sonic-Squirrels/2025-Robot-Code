@@ -42,21 +42,12 @@ public class ClimberIOReal implements ClimberIO {
 
   private final BaseStatusSignal[] winchRefreshSet;
 
-  private TalonFX grabberMotor = new TalonFX(Constants.CanIDs.CLIMBER_GRABBER_CAN_ID);
-
-  private final StatusSignal<Current> grabberCurrent;
-  private final StatusSignal<Temperature> grabberTemp;
-  private final StatusSignal<Voltage> grabberAppliedVoltage;
-  private final StatusSignal<AngularVelocity> grabberVelocity;
-
   private final VoltageOut grabberOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
   private final MotionMagicVelocityVoltage grabberClosedLoopControl =
       new MotionMagicVelocityVoltage(0).withEnableFOC(true);
 
   private Servo climberServo = new Servo(0);
-
-  private final BaseStatusSignal[] grabberRefreshSet;
 
   public ClimberIOReal() {
     // Winch motor config
@@ -100,8 +91,6 @@ public class ClimberIOReal implements ClimberIO {
 
     grabberConfig.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
 
-    grabberMotor.getConfigurator().apply(grabberConfig);
-
     // Status signals
 
     winchAppliedVoltage = winchMotor.getMotorVoltage();
@@ -110,30 +99,18 @@ public class ClimberIOReal implements ClimberIO {
     winchTemp = winchMotor.getDeviceTemp();
     winchVelocity = winchMotor.getVelocity();
 
-    grabberCurrent = grabberMotor.getStatorCurrent();
-    grabberTemp = grabberMotor.getDeviceTemp();
-    grabberAppliedVoltage = grabberMotor.getMotorVoltage();
-    grabberVelocity = grabberMotor.getVelocity();
-
     // Update status signals
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100, winchAppliedVoltage, winchPosition, winchVelocity);
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50, winchCurrent, grabberCurrent, grabberAppliedVoltage, grabberVelocity);
-    BaseStatusSignal.setUpdateFrequencyForAll(1, winchTemp, grabberTemp);
+    BaseStatusSignal.setUpdateFrequencyForAll(50, winchCurrent);
+    BaseStatusSignal.setUpdateFrequencyForAll(1, winchTemp);
 
     winchMotor.optimizeBusUtilization();
 
     winchRefreshSet =
         new BaseStatusSignal[] {
           winchAppliedVoltage, winchPosition, winchCurrent, winchTemp, winchVelocity
-        };
-
-    grabberMotor.optimizeBusUtilization();
-    grabberRefreshSet =
-        new BaseStatusSignal[] {
-          grabberCurrent, grabberTemp, grabberAppliedVoltage, grabberVelocity
         };
   }
 
@@ -199,48 +176,5 @@ public class ClimberIOReal implements ClimberIO {
   @Override
   public void setClimberServoAngle(Rotation2d angle) {
     climberServo.setAngle(angle.getDegrees());
-  }
-
-  // Grabber
-  public void updateGrabberInputs(Inputs inputs) {
-    inputs.refreshAll(grabberRefreshSet);
-
-    inputs.grabberCurrentAmps = grabberCurrent.getValue().in(Units.Amps);
-    inputs.grabberTempCelsius = grabberTemp.getValue().in(Units.Celsius);
-    inputs.grabberAppliedVolts = grabberAppliedVoltage.getValue().in(Units.Volts);
-    inputs.grabberVelocityRPM = grabberVelocity.getValue().in(Units.RPM);
-  }
-
-  @Override
-  public void setGrabberVoltage(double volts) {
-    grabberMotor.setControl(grabberOpenLoopControl.withOutput(volts));
-  }
-
-  @Override
-  public void setGrabberVelocity(double revPerMin) {
-    grabberMotor.setControl(
-        grabberClosedLoopControl.withVelocity(
-            Units.RPM.of(revPerMin).in(Units.RotationsPerSecond)));
-  }
-
-  @Override
-  public void setGrabberClosedLoopConstants(
-      double kP, double kV, double kS, double targetAccelerationConfig) {
-    Slot0Configs pidConfig = new Slot0Configs();
-    MotionMagicConfigs mmConfig = new MotionMagicConfigs();
-
-    var config = grabberMotor.getConfigurator();
-
-    config.refresh(pidConfig);
-    config.refresh(mmConfig);
-
-    pidConfig.kP = kP;
-    pidConfig.kV = kV;
-    pidConfig.kS = kS;
-
-    mmConfig.MotionMagicAcceleration = targetAccelerationConfig;
-
-    config.apply(pidConfig);
-    config.apply(mmConfig);
   }
 }
