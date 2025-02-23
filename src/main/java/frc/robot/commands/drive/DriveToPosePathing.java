@@ -106,13 +106,20 @@ public class DriveToPosePathing extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (GeometryUtil.getDist(wrapper.getCoralStationPoseEstimatorPose(true), targetPose.get())
-        < 0.0002) this.cancel();
+    Pose2d robotPose = wrapper.getCoralStationPoseEstimatorPose(true);
+    Pose2d targetPose = this.targetPose.get();
+    if (GeometryUtil.getDist(robotPose, targetPose) < 0.0002) {
+      this.cancel();
+      return;
+    }
 
-    Pair<Rotation2d, Rotation2d> rotations =
-        generateStartAndEndRotations(targetPose.get(), currentPose.get());
+    var rotations = generateStartAndEndRotations(targetPose, currentPose.get());
 
-    Trajectory<SwerveSample> traj = generatePath(rotations.getFirst(), rotations.getSecond());
+    var traj = generatePath(rotations.getFirst(), rotations.getSecond());
+    if (traj == null) {
+      this.cancel();
+      return;
+    }
 
     helper =
         new ChoreoHelper(
@@ -132,6 +139,11 @@ public class DriveToPosePathing extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (helper == null) {
+      pathFinished = true;
+      return;
+    }
+
     ChassisSpeedsWithPathEnd result =
         helper.calculateChassisSpeeds(currentPose.get(), Timer.getFPGATimestamp());
     log_targetChassisSpeeds.info(
@@ -358,8 +370,10 @@ public class DriveToPosePathing extends Command {
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startPoint, endPoint);
 
-    Trajectory<SwerveSample> traj =
-        rerouteTrajectory(generateSimplePath(waypoints), startPoint, endPoint);
+    Trajectory<SwerveSample> traj = generateSimplePath(waypoints);
+    if (traj != null) {
+      traj = rerouteTrajectory(traj, startPoint, endPoint);
+    }
 
     return traj;
   }
@@ -389,6 +403,10 @@ public class DriveToPosePathing extends Command {
             );
 
     path.preventFlipping = true;
+
+    if (path.numPoints() < 2) {
+      return null;
+    }
 
     PathPlannerTrajectory traj =
         path.generateTrajectory(
