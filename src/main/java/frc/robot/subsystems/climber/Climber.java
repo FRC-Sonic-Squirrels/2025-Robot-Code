@@ -6,22 +6,18 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
-import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 
 public class Climber extends SubsystemBase {
   // Execution timing
   private static final ExecutionTiming winchTiming =
       new ExecutionTiming(ClimberConstants.WINCH_ROOT_TABLE);
-  private static final ExecutionTiming grabberTiming =
-      new ExecutionTiming(EndEffectorConstants.ROOT_TABLE);
   // Logging
   private static final LoggerGroup winchLogGroup =
       LoggerGroup.build(ClimberConstants.WINCH_ROOT_TABLE);
@@ -40,26 +36,10 @@ public class Climber extends SubsystemBase {
   private static final LoggerEntry.Decimal logTargetAngleDegrees =
       winchLogGroup.buildDecimal("targetAngleDegrees");
 
-  private static final LoggerGroup grabberLogGroup =
-      LoggerGroup.build(ClimberConstants.GRABBER_ROOT_TABLE);
-  private static final LoggerEntry.Decimal logInputs_grabberVelocityRPM =
-      grabberLogGroup.buildDecimal("VelocityRPM");
-  private static final LoggerEntry.Decimal logInputs_grabberCurrentAmps =
-      grabberLogGroup.buildDecimal("CurrentAmps");
-  private static final LoggerEntry.Decimal logInputs_grabberTempCelsius =
-      grabberLogGroup.buildDecimal("TempCelsius");
-  private static final LoggerEntry.Decimal logInputs_grabberAppliedVolts =
-      grabberLogGroup.buildDecimal("AppliedVolts");
-
-  private static final LoggerEntry.Decimal logTargetVelocityRPM =
-      grabberLogGroup.buildDecimal("TargetVelocityRPM");
-  private static final LoggerEntry.EnumValue<ControlMode> logGrabberControlMode =
-      grabberLogGroup.buildEnum("ControlMode");
-
   private static final LoggerGroup servoLogGroup =
       LoggerGroup.build(ClimberConstants.SERO_ROOT_TABLE);
   private static final LoggerEntry.Decimal log_servoTargetAngle =
-      winchLogGroup.buildDecimal("TargetAngle");
+      servoLogGroup.buildDecimal("TargetAngle");
 
   // Tunable Numbers
   private static final TunableNumberGroup winchGroup =
@@ -78,15 +58,6 @@ public class Climber extends SubsystemBase {
 
   // Tunable numbers
 
-  private static final TunableNumberGroup grabberGroup =
-      new TunableNumberGroup(EndEffectorConstants.ROOT_TABLE);
-
-  private static final LoggedTunableNumber grabberkS = grabberGroup.build("kS");
-  private static final LoggedTunableNumber grabberkP = grabberGroup.build("kP");
-  private static final LoggedTunableNumber grabberkV = grabberGroup.build("kV");
-  private static final LoggedTunableNumber grabberTargetAccelerationConfig =
-      grabberGroup.build("MaxAccelerationConstraint");
-
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       winchkP.initDefault(70.0);
@@ -97,11 +68,6 @@ public class Climber extends SubsystemBase {
       maxVelocityConfig.initDefault(10);
       winchTargetAccelerationConfig.initDefault(10);
 
-      grabberkS.initDefault(0);
-      grabberkP.initDefault(0.8);
-      grabberkV.initDefault(0.15);
-      grabberTargetAccelerationConfig.initDefault(300.0);
-
     } else if (Constants.RobotMode.getRobot() == RobotType.ROBOT_SIMBOT) {
 
       winchkP.initDefault(.02);
@@ -110,27 +76,17 @@ public class Climber extends SubsystemBase {
 
       maxVelocityConfig.initDefault(40);
       winchTargetAccelerationConfig.initDefault(80);
-
-      grabberkS.initDefault(0);
-      grabberkP.initDefault(0.0006);
-      grabberkV.initDefault(0.0002);
-      grabberTargetAccelerationConfig.initDefault(0.0);
     }
   }
 
   private final ClimberIO io;
   private final ClimberIO.Inputs winchInputs = new ClimberIO.Inputs(winchLogGroup);
-  private final ClimberIO.Inputs grabberInputs = new ClimberIO.Inputs(grabberLogGroup);
 
   private ControlMode winchControlMode = ControlMode.OPEN_LOOP;
   private Rotation2d winchTargetAngleDegrees = Constants.zeroRotation2d;
 
-  private double grabberTargetRPM;
-
   // This also acts as its current angle because the servo cannot tell us where it is
   private Rotation2d servoTargetAngle = Constants.ClimberConstants.SERVO_LOCK_ANGLE;
-
-  private ControlMode grabberControlMode = ControlMode.OPEN_LOOP;
 
   /** Creates a new ClimberSubsystem. */
   public Climber(ClimberIO io) {
@@ -164,26 +120,6 @@ public class Climber extends SubsystemBase {
         setConstants();
       }
     }
-    try (var ignored = grabberTiming.start()) {
-      // Logging
-      io.updateGrabberInputs(grabberInputs);
-      logInputs_grabberVelocityRPM.info(grabberInputs.grabberVelocityRPM);
-      logInputs_grabberCurrentAmps.info(grabberInputs.grabberCurrentAmps);
-      logInputs_grabberTempCelsius.info(grabberInputs.grabberTempCelsius);
-      logInputs_grabberAppliedVolts.info(grabberInputs.grabberAppliedVolts);
-
-      logGrabberControlMode.info(grabberControlMode);
-
-      // Update tunable numbers
-
-      var hc = hashCode();
-      if (grabberkS.hasChanged(hc)
-          || grabberkP.hasChanged(hc)
-          || grabberkV.hasChanged(hc)
-          || grabberTargetAccelerationConfig.hasChanged(hc)) {
-        setConstants();
-      }
-    }
     log_servoTargetAngle.info(servoTargetAngle);
   }
 
@@ -194,8 +130,6 @@ public class Climber extends SubsystemBase {
     configs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
     configs.MotionMagicAcceleration = winchTargetAccelerationConfig.get();
     io.setWinchClosedLoopConstants(winchkP.get(), winchkD.get(), winchkG.get(), configs);
-    io.setGrabberClosedLoopConstants(
-        grabberkP.get(), grabberkV.get(), grabberkS.get(), grabberTargetAccelerationConfig.get());
   }
 
   public void setWinchAngle(Rotation2d angle) {
@@ -239,27 +173,6 @@ public class Climber extends SubsystemBase {
     return servoTargetAngle;
   }
 
-  public void setGrabberPercentOut(double percent) {
-    io.setGrabberVoltage(percent * Constants.MAX_VOLTAGE);
-    grabberControlMode = ControlMode.OPEN_LOOP;
-  }
-
-  public void setGrabberVelocity(double revPerMin) {
-    io.setGrabberVelocity(revPerMin);
-    grabberTargetRPM = revPerMin;
-    logTargetVelocityRPM.info(grabberTargetRPM);
-    grabberControlMode = ControlMode.CLOSED_LOOP;
-  }
-
-  public void resetGrabberSubsystem() {
-    grabberControlMode = ControlMode.OPEN_LOOP;
-    io.setGrabberVoltage(0);
-  }
-
-  public boolean setGrabberNeutralMode(NeutralModeValue value) {
-    return io.setGrabberNeutralMode(value);
-  }
-
   // Winch getters
 
   public Rotation2d getWinchAngle() {
@@ -285,18 +198,5 @@ public class Climber extends SubsystemBase {
 
   public AngularVelocity getWinchVelocity() {
     return Units.DegreesPerSecond.of(winchInputs.winchVelocityDegreesPerSecond);
-  }
-
-  // Grabber getters
-  public Current getGrabberCurrentDraw() {
-    return Units.Amps.of(grabberInputs.grabberCurrentAmps);
-  }
-
-  public AngularVelocity getVelocity() {
-    return Units.RPM.of(grabberInputs.grabberVelocityRPM);
-  }
-
-  public Voltage getGrabberVoltage() {
-    return Units.Volts.of(winchInputs.grabberAppliedVolts);
   }
 }

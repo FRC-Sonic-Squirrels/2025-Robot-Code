@@ -394,7 +394,11 @@ public final class Constants {
 
     public static final String SERO_ROOT_TABLE = "ClimberServo";
 
-    public static final Rotation2d TOTAL_WINCH_ROTATIONS = Rotation2d.fromRotations(6);
+    public static final Rotation2d OUT_WINCH_ROTATIONS = Rotation2d.fromRotations(6);
+
+    public static final Rotation2d IN_WINCH_ROTATIONS = Rotation2d.fromRotations(0);
+
+    public static final Rotation2d CLIMB_WINCH_ROTATIONS = Rotation2d.fromRotations(3);
 
     public static final String WINCH_ROOT_TABLE = "ClimberWinch";
 
