@@ -172,7 +172,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setElevatorManualControl(double percent) {
-    setPercentOut(percent + kG.get());
+    setPercentOut(2 * percent + kG.get());
   }
 
   // Getters

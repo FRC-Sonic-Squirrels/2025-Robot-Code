@@ -782,7 +782,7 @@ public class RobotContainer {
             XboxControllerWrapper.Button.leftTrigger, "Manual arm and elevator override")
         .whileTrue(
             new ArmManualControl(operatorController::getRightX, arm)
-                .alongWith(new ElevatorManualControl(operatorController::getLeftX, elevator)));
+                .alongWith(new ElevatorManualControl(operatorController::getLeftY, elevator)));
 
     // ---------- NON-CONTROLLER TRIGGERS
 
