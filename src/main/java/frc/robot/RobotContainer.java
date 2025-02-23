@@ -1064,9 +1064,6 @@ public class RobotContainer {
   }
 
   public void updateVisualization() {
-    // Disable visualization for real robot
-    if (Robot.isReal()) return;
-
     MechanismVisualization.logMechanism();
     SimpleMechanismVisualization.updateVisualization(elevator.getHeight(), arm.getAngle());
     SimpleMechanismVisualization.logMechanism();
