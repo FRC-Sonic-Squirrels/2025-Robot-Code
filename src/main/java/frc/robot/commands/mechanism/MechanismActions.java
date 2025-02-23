@@ -124,7 +124,7 @@ public class MechanismActions {
                 log_currentMotionState.info("Getting out of S2");
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateLowPosition);
-              } else if (currentMechSection == MechSection.S6) {
+              } else if (currentMechSection == MechSection.S7) {
                 log_currentMotionState.info("Getting out of S6");
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateHighPosition);
@@ -132,13 +132,15 @@ public class MechanismActions {
                 log_currentMotionState.info("Getting into S2");
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateLowPosition);
-              } else if (targetMechSection == MechSection.S6) {
+              } else if (targetMechSection == MechSection.S7) {
                 log_currentMotionState.info("Getting into S6");
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateHighPosition);
               } else {
                 log_currentMotionState.info("Getting into S1");
-                if (targetMechSection == MechSection.S1 && currentMechSection == MechSection.S3) {
+                if (targetMechSection == MechSection.S1
+                    && (currentMechSection == MechSection.S4
+                        || currentMechSection == MechSection.S3)) {
                   goToPositionParallelSimple(
                       elevator, arm, MechanismPositions::intermediateLowBackPosition);
                 } else {
@@ -167,17 +169,17 @@ public class MechanismActions {
 
   private static boolean compatibleMechSections(MechSection mech1, MechSection mech2) {
     if (mech1 == mech2) return true;
-    if ((mech1 == MechSection.S3 || mech1 == MechSection.S4 || mech1 == MechSection.S5)
-        && (mech2 == MechSection.S3 || mech2 == MechSection.S4 || mech2 == MechSection.S5))
+    if ((mech1 == MechSection.S4 || mech1 == MechSection.S5 || mech1 == MechSection.S6)
+        && (mech2 == MechSection.S4 || mech2 == MechSection.S5 || mech2 == MechSection.S6))
       return true;
 
-    if (mech1 == MechSection.S5 && mech2 == MechSection.S6) return true;
+    if ((mech1 == MechSection.S2 || mech1 == MechSection.S3 || mech1 == MechSection.S4)
+        && (mech2 == MechSection.S2 || mech2 == MechSection.S3 || mech2 == MechSection.S4))
+      return true;
 
-    if (mech1 == MechSection.S6 && mech2 == MechSection.S5) return true;
+    if (mech1 == MechSection.S6 && mech2 == MechSection.S7) return true;
 
-    if (mech1 == MechSection.S2 && mech2 == MechSection.S3) return true;
-
-    if (mech1 == MechSection.S3 && mech2 == MechSection.S2) return true;
+    if (mech1 == MechSection.S7 && mech2 == MechSection.S6) return true;
 
     if (mech1 == MechSection.S1 && mech2 == MechSection.S2) return true;
 
@@ -212,27 +214,31 @@ public class MechanismActions {
   }
 
   private static MechSection getMechSection(MechanismPosition position) {
-    if (position.armAngle().getDegrees() > 90) {
+    if (position.armAngle().getDegrees() > 125) {
       if (position.elevatorHeight().in(Units.Inches) < 0.1) {
         return MechSection.S2;
       } else if (position.elevatorHeight().in(Units.Inches) < 25) {
         return MechSection.S1;
-      } else return MechSection.S6;
+      } else return MechSection.S7;
+    } else if (position.armAngle().getDegrees() > 75
+        && position.elevatorHeight().in(Units.Inches) < 25) {
+      return MechSection.S3;
     } else {
       if (position.elevatorHeight().in(Units.Inches) < 0.1) {
-        return MechSection.S3;
-      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
         return MechSection.S4;
-      } else return MechSection.S5;
+      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+        return MechSection.S5;
+      } else return MechSection.S6;
     }
   }
 
   private enum MechSection {
     S1, // elevator below 0.1, arm is back
     S2, // elevator above 0.1, below top tube, arm is back
-    S3, // elevator below 0.1, arm is forward
-    S4, // below top tube, elevator above 0.1, arm is forward
-    S5, // above top tube, arm is forward
-    S6 // above top tube, arm is back
+    S3, // elevator below top tube, arm under top tube
+    S4, // elevator below 0.1, arm is forward
+    S5, // below top tube, elevator above 0.1, arm is forward
+    S6, // above top tube, arm is forward
+    S7 // above top tube, arm is back
   }
 }

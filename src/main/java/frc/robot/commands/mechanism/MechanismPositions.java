@@ -141,7 +141,7 @@ public class MechanismPositions {
       intermediatePoseLowElevatorHeightInches.initDefault(0);
       intermediatePoseLowArmAngleDegrees.initDefault(70);
       intermediatePoseLowBackElevatorHeightInches.initDefault(0);
-      intermediatePoseLowBackArmAngleDegrees.initDefault(140);
+      intermediatePoseLowBackArmAngleDegrees.initDefault(130);
       reefPrepArmOffsetDegrees.initDefault(20);
     }
   }
@@ -178,11 +178,11 @@ public class MechanismPositions {
       case L1:
         return new MechanismPosition(
             Units.Inches.of(reefL1ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
+            Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get()));
       case L2:
         return new MechanismPosition(
             Units.Inches.of(reefL2ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefL2ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
+            Rotation2d.fromDegrees(reefL2ArmAngleDegrees.get()));
       case L3:
         return new MechanismPosition(
             Units.Inches.of(reefL3ElevatorHeightInches.get()),
@@ -194,7 +194,7 @@ public class MechanismPositions {
       default:
         return new MechanismPosition(
             Units.Inches.of(reefL1ElevatorHeightInches.get()),
-            Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get() - reefPrepArmOffsetDegrees.get()));
+            Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get()));
     }
   }
 
