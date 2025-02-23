@@ -20,10 +20,22 @@ public abstract class BaseInputs {
     log_lastGoodStatus = logInputs.buildDecimal("LastGoodStatus");
   }
 
-  public void refreshAll(BaseStatusSignal[] refreshSet) {
-    var code = BaseStatusSignal.refreshAll(refreshSet);
-    statusCode = code.getDescription();
-    connected = code == StatusCode.OK;
+  public void refreshAll(BaseStatusSignal[]... refreshSetArray) {
+    String statusCode = "";
+    boolean connected = true;
+
+    for (var refreshSet : refreshSetArray) {
+      var setCode = BaseStatusSignal.refreshAll(refreshSet);
+      var setStatusCode = setCode.getDescription();
+      var setConnected = setCode == StatusCode.OK;
+
+      if (!setConnected) {
+        connected = false;
+
+        statusCode = statusCode.isEmpty() ? setStatusCode : statusCode + " / " + setStatusCode;
+      }
+    }
+
     if (connected) {
       lastGoodStatus = LoggerGroup.getCurrentTimestmap();
       log_lastGoodStatus.info(lastGoodStatus);

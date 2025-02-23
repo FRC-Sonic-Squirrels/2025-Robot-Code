@@ -154,8 +154,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
   @Override
   public void updateInputs(Inputs inputs) {
-    inputs.refreshAll(refreshSetMotor);
-    inputs.refreshAll(refreshSetSensors);
+    inputs.refreshAll(refreshSetMotor, refreshSetSensors);
 
     inputs.currentAmps = current.getValue().in(Units.Amps);
     inputs.tempCelsius = deviceTemp.getValue().in(Units.Celsius);
