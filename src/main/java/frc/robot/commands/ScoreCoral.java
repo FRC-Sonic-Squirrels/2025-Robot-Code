@@ -83,6 +83,10 @@ public class ScoreCoral extends StateMachine {
       group.build("ScoringVelocityRPM", -3000);
   private static final LoggedTunableNumber predictiveTime =
       group.build("PredictiveTimeSeconds", 0.5);
+  private static final LoggedTunableNumber leftAdjustmentInches =
+      group.build("A Adjustment Inches", 0.0);
+  private static final LoggedTunableNumber rightAdjustmentInches =
+      group.build("B Adjustment Inches", 0.0);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -485,9 +489,11 @@ public class ScoreCoral extends StateMachine {
       Translation2d offset =
           new Translation2d(
               Constants.FieldConstants.REEF_BRANCH_OFFSET.in(Units.Meters)
-              // + Units.Inches.of(1).in(Units.Meter)
-              //     * (direction == ScoringDirection.LEFT ? -1 : 1)
-              ,
+                  + Units.Inches.of(
+                          direction == ScoringDirection.LEFT
+                              ? -leftAdjustmentInches.get()
+                              : rightAdjustmentInches.get())
+                      .in(Units.Meter),
               scoringSidePose.getRotation().plus(objectiveScoringDirection));
       Translation2d translation = scoringSidePose.getTranslation().plus(offset);
       newSides[i] =
