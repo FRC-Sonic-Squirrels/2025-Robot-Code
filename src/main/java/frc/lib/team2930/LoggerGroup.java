@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import org.littletonrobotics.junction.LogDataReceiver;
 import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.Logger;
 
 public class LoggerGroup {
   private static final String logWriter_extraHeader = "AdvantageKit";
@@ -35,10 +33,14 @@ public class LoggerGroup {
   private static final Object g_lock = new Object();
   private static final Map<Class<?>, Struct<?>> structTypeCache;
   private static final List<Struct<?>> structTypePendingSchema;
+  private static final List<Struct<?>> structTypePendingSchemaForDataLog;
+  private static final List<Struct<?>> structTypeSchemaForDataLog;
 
   static {
     structTypeCache = new HashMap<>();
     structTypePendingSchema = new ArrayList<>();
+    structTypePendingSchemaForDataLog = new ArrayList<>();
+    structTypeSchemaForDataLog = new ArrayList<>();
   }
 
   static int dataLogIdNotInitialized = -2;
@@ -57,16 +59,14 @@ public class LoggerGroup {
   private static long currentTimestmapLog;
 
   private static DataLog dataLog_handle;
-  private static boolean dataLog_autoRename;
+  private static int dataLog_flushDelay;
   private static String dataLog_folder;
   private static String dataLog_filename;
-  private static String dataLog_randomIdentifier;
-  private static double dataLog_writePeriodSecs;
+  private static boolean dataLog_syncedDriverStation;
+  private static Double dataLog_initialTime;
   private static Double dataLog_dsAttachedTime;
-
   private static LocalDateTime dataLog_logDate;
-  private static String dataLog_logMatchText;
-  private static int dataLog_timestampID;
+  private static Throwable dataLog_failure;
 
   //
 
@@ -219,53 +219,122 @@ public class LoggerGroup {
   //
 
   public static void setDataLog(String filePath) {
-    dataLog_writePeriodSecs =
-        RobotBase.isSimulation()
-            ? logWriter_defaultWritePeriodSim
-            : logWriter_defaultWritePeriodRio;
-
-    // Create random identifier
-    var random = new Random();
-    StringBuilder randomIdentifierBuilder = new StringBuilder();
-    for (int i = 0; i < 4; i++) {
-      randomIdentifierBuilder.append(String.format("%04x", random.nextInt(0x10000)));
-    }
-    dataLog_randomIdentifier = randomIdentifierBuilder.toString();
-
-    // Set up folder and filename
-    if (filePath.endsWith(".wpilog")) {
-      File pathFile = new File(filePath);
-      dataLog_folder = pathFile.getParent();
-      dataLog_filename = pathFile.getName();
-      dataLog_autoRename = false;
-    } else {
-      dataLog_folder = filePath;
-      dataLog_filename = "Log_" + dataLog_randomIdentifier + ".wpilog";
-      dataLog_autoRename = true;
-    }
-
-    // Create folder if necessary
-    File logFolder = new File(dataLog_folder);
-    if (!logFolder.exists()) {
-      logFolder.mkdirs();
-    }
-
-    // Delete log if it already exists
-    File logFile = new File(dataLog_folder, dataLog_filename);
-    if (logFile.exists()) {
-      logFile.delete();
-    }
-
-    // Create new log
-    try {
-      dataLog_handle = new DataLogWriter(logFile.getAbsolutePath(), logWriter_extraHeader);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    dataLog_folder = filePath;
 
     // Reset data
     dataLog_logDate = null;
-    dataLog_logMatchText = null;
+  }
+
+  private static void refreshLogFilename() {
+    if (dataLog_syncedDriverStation) {
+      return;
+    }
+
+    if (!RobotController.isSystemTimeValid()) {
+      return;
+    }
+
+    double robotTime = RobotController.getFPGATime() / 1000000.0;
+
+    if (dataLog_initialTime == null) {
+      dataLog_initialTime = robotTime;
+    }
+
+    if (!dataLog_syncedDriverStation) {
+      if (DriverStation.isDSAttached()) {
+        if (dataLog_dsAttachedTime == null) {
+          dataLog_dsAttachedTime = robotTime;
+        } else if (robotTime - dataLog_dsAttachedTime > logWriter_timestampUpdateDelay) {
+          dataLog_logDate = LocalDateTime.now();
+          dataLog_syncedDriverStation = true;
+        } else {
+          dataLog_dsAttachedTime = null;
+        }
+      }
+
+      if (RobotBase.isSimulation()) {
+        dataLog_logDate = LocalDateTime.now();
+        dataLog_syncedDriverStation = true;
+      }
+    }
+
+    if (dataLog_logDate == null) {
+      dataLog_logDate = LocalDateTime.now();
+    }
+
+    // Update filename
+    StringBuilder newFilenameBuilder = new StringBuilder();
+    newFilenameBuilder.append("Log_");
+    var timeFormatter = DateTimeFormatter.ofPattern("yy-MM-dd_HH-mm-ss");
+    newFilenameBuilder.append(timeFormatter.format(dataLog_logDate));
+    // Update match
+    var matchType = DriverStation.getMatchType();
+    if (matchType != DriverStation.MatchType.None) {
+      String logMatchText =
+          switch (matchType) {
+            case Practice -> "p";
+            case Qualification -> "q";
+            case Elimination -> "e";
+            default -> "";
+          };
+      logMatchText += DriverStation.getMatchNumber();
+      newFilenameBuilder.append("_");
+      newFilenameBuilder.append(logMatchText);
+    }
+
+    newFilenameBuilder.append(".wpilog");
+    String newFilename = newFilenameBuilder.toString();
+
+    if (!newFilename.equals(dataLog_filename)) {
+      System.out.printf("############ LOG FILE UPDATED TO %s\n", newFilename);
+      closeLogFile();
+      dataLog_filename = newFilename;
+    }
+  }
+
+  private static void closeLogFile() {
+    if (dataLog_handle != null) {
+      dataLog_handle.close();
+      dataLog_handle = null;
+
+      synchronized (g_lock) {
+        root.resetDataLogId();
+
+        // Since we are closing the data log file, we need to resend all the structure schemas.
+        structTypePendingSchemaForDataLog.clear();
+        structTypePendingSchemaForDataLog.addAll(structTypeSchemaForDataLog);
+      }
+    }
+  }
+
+  private static void ensureLogFile() throws Exception {
+    if (dataLog_handle != null) {
+      return;
+    }
+
+    String dataLogFolder = dataLog_folder;
+    if (dataLogFolder == null) {
+      return;
+    }
+
+    // Create folder if necessary
+    File logFolder = new File(dataLogFolder);
+    if (!logFolder.exists()) {
+      if (!logFolder.mkdirs()) {
+        throw new RuntimeException("Unable to create folder " + logFolder.getAbsolutePath());
+      }
+    }
+
+    // Delete log if it already exists
+    File logFile = new File(dataLogFolder, dataLog_filename);
+    if (logFile.exists()) {
+      if (!logFile.delete()) {
+        throw new RuntimeException("Unable to delete file " + logFile.getAbsolutePath());
+      }
+    }
+
+    // Create new log
+    dataLog_handle = new DataLogWriter(logFile.getAbsolutePath(), logWriter_extraHeader);
   }
 
   public static double getCurrentTimestmap() {
@@ -303,70 +372,12 @@ public class LoggerGroup {
           }
         }
 
+        refreshLogFilename();
+        ensureLogFile();
+
         if (dataLog_handle != null) {
-          // Auto rename
-          if (dataLog_autoRename) {
-            // Update timestamp
-            if (dataLog_logDate == null) {
-              if ((DriverStation.isDSAttached() && RobotController.isSystemTimeValid())
-                  || RobotBase.isSimulation()) {
-                if (dataLog_dsAttachedTime == null) {
-                  dataLog_dsAttachedTime = Logger.getRealTimestamp() / 1000000.0;
-                } else if (Logger.getRealTimestamp() / 1000000.0 - dataLog_dsAttachedTime
-                        > logWriter_timestampUpdateDelay
-                    || RobotBase.isSimulation()) {
-                  dataLog_logDate = LocalDateTime.now();
-                }
-              } else {
-                dataLog_dsAttachedTime = null;
-              }
-            }
-
-            // Update match
-            var matchType = DriverStation.getMatchType();
-            if (dataLog_logMatchText == null && matchType != DriverStation.MatchType.None) {
-              dataLog_logMatchText = "";
-              switch (matchType) {
-                case Practice:
-                  dataLog_logMatchText = "p";
-                  break;
-                case Qualification:
-                  dataLog_logMatchText = "q";
-                  break;
-                case Elimination:
-                  dataLog_logMatchText = "e";
-                  break;
-                default:
-                  break;
-              }
-              dataLog_logMatchText += DriverStation.getMatchNumber();
-            }
-
-            // Update filename
-            StringBuilder newFilenameBuilder = new StringBuilder();
-            newFilenameBuilder.append("Log_");
-            if (dataLog_logDate == null) {
-              newFilenameBuilder.append(dataLog_randomIdentifier);
-            } else {
-              var timeFormatter = DateTimeFormatter.ofPattern("yy-MM-dd_HH-mm-ss");
-              newFilenameBuilder.append(timeFormatter.format(dataLog_logDate));
-            }
-            if (dataLog_logMatchText != null) {
-              newFilenameBuilder.append("_");
-              newFilenameBuilder.append(dataLog_logMatchText);
-            }
-            newFilenameBuilder.append(".wpilog");
-            String newFilename = newFilenameBuilder.toString();
-            if (!newFilename.equals(dataLog_filename)) {
-              // TODO: figure out how to fix this file name issue
-              // dataLog_handle.(newFilename);
-              dataLog_filename = newFilename;
-            }
-          }
-
           // Save timestamp
-          dataLog_handle.appendInteger(
-              dataLog_timestampID, currentTimestmapLog, currentTimestmapLog);
+          dataLog_handle.appendInteger(0, currentTimestmapLog, currentTimestmapLog);
         }
 
         synchronized (g_lock) {
@@ -374,21 +385,33 @@ public class LoggerGroup {
             for (var struct : structTypePendingSchema) {
               publishSchema(struct, new HashSet<>());
 
-              if (dataLog_handle != null) {
-                dataLog_handle.addSchema(struct, currentTimestmapLog);
-              }
+              structTypePendingSchemaForDataLog.add(struct);
+              structTypeSchemaForDataLog.add(struct);
             }
             structTypePendingSchema.clear();
+          }
+
+          if (dataLog_handle != null && !structTypePendingSchemaForDataLog.isEmpty()) {
+            for (var struct : structTypePendingSchemaForDataLog) {
+              dataLog_handle.addSchema(struct, currentTimestmapLog);
+            }
+            structTypePendingSchemaForDataLog.clear();
           }
         }
 
         root.publishInner();
 
         if (dataLog_handle != null) {
-          dataLog_handle.flush();
+          if (dataLog_flushDelay++ > 50) {
+            dataLog_handle.flush();
+            dataLog_flushDelay = 0;
+          }
         }
       } catch (Throwable e) {
-        e.printStackTrace();
+        if (dataLog_failure == null) {
+          dataLog_failure = e;
+          e.printStackTrace();
+        }
       }
     }
   }
@@ -409,6 +432,16 @@ public class LoggerGroup {
       publishSchema(inner, seen);
     }
     seen.remove(typeString);
+  }
+
+  private void resetDataLogId() {
+    for (var group : groups) {
+      group.resetDataLogId();
+    }
+
+    for (var entry : entries) {
+      entry.resetDataLogId();
+    }
   }
 
   private void publishInner() {
