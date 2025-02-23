@@ -41,40 +41,48 @@ public class MechanismActions {
   public static Command reefPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
     boolean slowerMotion = scoringLevel == ScoringLevel.L4 && !RobotMode.isSimBot();
     return goToPositionParallel(
-        elevator,
-        arm,
-        () -> MechanismPositions.reefPosition(scoringLevel),
-        slowerMotion ? 1000 : -1,
-        slowerMotion ? 3 : -1);
+            elevator,
+            arm,
+            () -> MechanismPositions.reefPosition(scoringLevel),
+            slowerMotion ? 1000 : -1,
+            slowerMotion ? 3 : -1)
+        .withName("ReefPosition");
   }
 
   public static Command reefPrepPosition(Elevator elevator, Arm arm, ScoringLevel scoringLevel) {
     return goToPositionParallel(
-        elevator, arm, () -> MechanismPositions.reefPrepPosition(scoringLevel));
+            elevator, arm, () -> MechanismPositions.reefPrepPosition(scoringLevel))
+        .withName("ReefPrepPosition");
   }
 
   public static Command coralStationPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition, 2000, 3);
+    return goToPositionParallel(elevator, arm, MechanismPositions::coralStationPosition, 2000, 3)
+        .withName("CoralStation");
   }
 
   public static Command clearAlgaeLow1Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow1Position);
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow1Position)
+        .withName("ClearAlgaeLow1Position");
   }
 
   public static Command clearAlgaeLow2Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow2Position);
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeLow2Position)
+        .withName("ClearAlgaeLow2Position");
   }
 
   public static Command clearAlgaeHigh1Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh1Position);
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh1Position)
+        .withName("ClearAlgaeHigh1Position");
   }
 
   public static Command clearAlgaeHigh2Position(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh2Position);
+    return goToPositionParallel(elevator, arm, MechanismPositions::clearAlgaeHigh2Position)
+        .withName("ClearAlgaeHigh2Position");
   }
 
   public static Command stowPosition(Elevator elevator, Arm arm) {
-    return goToPositionParallel(elevator, arm, MechanismPositions::stowPosition);
+    return goToPositionParallel(elevator, arm, MechanismPositions::stowPosition)
+        .withName("StowPosition");
   }
 
   private static Command goToPositionParallel(

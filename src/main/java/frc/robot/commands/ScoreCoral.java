@@ -260,20 +260,12 @@ public class ScoreCoral extends StateMachine {
                             Commands.waitUntil(
                                 () ->
                                     GeometryUtil.getDist(
-                                                wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                                            < 0.1
-                                        && arm.isAtTargetAngle(
-                                            MechanismPositions.reefPrepPosition(
-                                                    RobotStates.scoringLevel)
-                                                .armAngle(),
-                                            Rotation2d.fromDegrees(1.5))
-                                        && elevator.isAtTarget(
-                                            MechanismPositions.reefPrepPosition(
-                                                    RobotStates.scoringLevel)
-                                                .elevatorHeight())))
+                                            wrapper.getReefPoseEstimatorPose(true), scoringPose)
+                                        < 0.1))
                         .andThen(
                             MechanismActions.reefPosition(elevator, arm, RobotStates.scoringLevel)
-                                .asProxy())),
+                                .asProxy()))
+                .withName("MechScoreCoral"),
             (command) -> null);
 
     scoringTrigger =
@@ -304,6 +296,8 @@ public class ScoreCoral extends StateMachine {
     }
 
     if (RobotStates.coralInEndEffector && !confirmation) return null;
+
+    if (confirmation && prepMechanismForScoring.isScheduled()) return null;
 
     FieldStates.setScoringLocationFilled(
         new ScoringLocation(
