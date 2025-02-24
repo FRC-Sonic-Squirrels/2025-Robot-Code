@@ -1,6 +1,5 @@
 package frc.robot.subsystems.climber;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.team2930.LoggerGroup;
@@ -30,8 +29,7 @@ public interface ClimberIO {
 
   public default void setClimberServoAngle(Rotation2d angle) {}
 
-  public default void setWinchClosedLoopConstants(
-      double kP, double kD, double kG, MotionMagicConfigs mmConfigs) {}
+  public default void setWinchClosedLoopConstants(double kP, double kD, double kG) {}
 
   public default boolean setWinchNeutralMode(NeutralModeValue value) {
     return false;

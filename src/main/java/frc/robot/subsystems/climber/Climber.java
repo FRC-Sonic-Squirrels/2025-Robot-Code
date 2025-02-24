@@ -1,12 +1,12 @@
 package frc.robot.subsystems.climber;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -76,6 +76,10 @@ public class Climber extends SubsystemBase {
 
       maxVelocityConfig.initDefault(40);
       winchTargetAccelerationConfig.initDefault(80);
+    } else {
+      winchkP.initDefault(4);
+      winchkD.initDefault(0);
+      winchkG.initDefault(0.0);
     }
   }
 
@@ -110,13 +114,17 @@ public class Climber extends SubsystemBase {
 
       logWinchControlMode.info(winchControlMode);
 
+      if (DriverStation.isEnabled()) {
+        if (isWinchAtTargetAngle()) {
+          setServoAngle(Constants.ClimberConstants.SERVO_LOCK_ANGLE);
+        } else {
+          setServoAngle(Constants.ClimberConstants.SERVO_UNLOCK_ANGLE);
+        }
+      }
+
       // Updating tunable numbers
       var hc = hashCode();
-      if (winchkP.hasChanged(hc)
-          || winchkD.hasChanged(hc)
-          || winchkG.hasChanged(hc)
-          || maxVelocityConfig.hasChanged(hc)
-          || winchTargetAccelerationConfig.hasChanged(hc)) {
+      if (winchkP.hasChanged(hc) || winchkD.hasChanged(hc) || winchkG.hasChanged(hc)) {
         setConstants();
       }
     }
@@ -126,10 +134,7 @@ public class Climber extends SubsystemBase {
   // setters
 
   private void setConstants() {
-    MotionMagicConfigs configs = new MotionMagicConfigs();
-    configs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
-    configs.MotionMagicAcceleration = winchTargetAccelerationConfig.get();
-    io.setWinchClosedLoopConstants(winchkP.get(), winchkD.get(), winchkG.get(), configs);
+    io.setWinchClosedLoopConstants(winchkP.get(), winchkD.get(), winchkG.get());
   }
 
   public void setWinchAngle(Rotation2d angle) {

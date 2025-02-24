@@ -4,12 +4,10 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -34,18 +32,13 @@ public class ClimberIOReal implements ClimberIO {
   private final StatusSignal<Temperature> winchTemp;
   private final StatusSignal<AngularVelocity> winchVelocity;
 
-  private final MotionMagicVoltage winchClosedLoopControl =
-      new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private final PositionVoltage winchClosedLoopControl =
+      new PositionVoltage(0.0).withEnableFOC(true);
   private final VoltageOut winchOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
   private final TalonFX winchMotor = new TalonFX(Constants.CanIDs.CLIMBER_WINCH_CAN_ID);
 
   private final BaseStatusSignal[] winchRefreshSet;
-
-  private final VoltageOut grabberOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
-
-  private final MotionMagicVelocityVoltage grabberClosedLoopControl =
-      new MotionMagicVelocityVoltage(0).withEnableFOC(true);
 
   private Servo climberServo = new Servo(0);
 
@@ -82,6 +75,9 @@ public class ClimberIOReal implements ClimberIO {
 
     grabberCurrentLimitConfig.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
     grabberCurrentLimitConfig.SupplyCurrentLimitEnable = true;
+
+    grabberCurrentLimitConfig.StatorCurrentLimit = ClimberConstants.STATOR_CURRENT_LIMIT;
+    grabberCurrentLimitConfig.StatorCurrentLimitEnable = true;
 
     grabberConfig.CurrentLimits = grabberCurrentLimitConfig;
 
@@ -134,19 +130,16 @@ public class ClimberIOReal implements ClimberIO {
   }
 
   @Override
-  public void setWinchClosedLoopConstants(
-      double kP, double kD, double kG, MotionMagicConfigs mmConfigs) {
+  public void setWinchClosedLoopConstants(double kP, double kD, double kG) {
     var slot0Configs = new Slot0Configs();
 
     winchMotor.getConfigurator().refresh(slot0Configs);
-    winchMotor.getConfigurator().refresh(mmConfigs);
 
     slot0Configs.kP = kP;
     slot0Configs.kD = kD;
     slot0Configs.kG = kG;
 
     winchMotor.getConfigurator().apply(slot0Configs);
-    winchMotor.getConfigurator().apply(mmConfigs);
   }
 
   @Override
