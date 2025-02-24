@@ -374,14 +374,15 @@ public final class Constants {
   }
 
   public static class ClimberConstants {
-    public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+    public static final double SUPPLY_CURRENT_LIMIT = 60.0;
+    public static final double STATOR_CURRENT_LIMIT = 90.0;
     // TODO: update constants and dimensions for new robot design
     public static final double WINCH_GEAR_RATIO = (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0);
 
     public static final double WINCH_MOI = 0.15;
 
-    public static final Rotation2d MAX_CLIMBER_ANGLE = Rotation2d.fromDegrees(165);
-    public static final Rotation2d MIN_CLIMBER_ANGLE = Rotation2d.fromDegrees(-90);
+    public static final Rotation2d MAX_CLIMBER_ANGLE = Rotation2d.fromRotations(0);
+    public static final Rotation2d MIN_CLIMBER_ANGLE = Rotation2d.fromRotations(3.5);
     public static final Rotation2d HOME_POSITION = MIN_CLIMBER_ANGLE;
 
     public static final Rotation2d CLIMBER_SAFE_ANGLE = Rotation2d.fromDegrees(-87);

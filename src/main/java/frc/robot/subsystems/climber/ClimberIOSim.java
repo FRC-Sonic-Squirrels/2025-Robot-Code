@@ -1,6 +1,5 @@
 package frc.robot.subsystems.climber;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -44,8 +43,7 @@ public class ClimberIOSim implements ClimberIO {
   }
 
   @Override
-  public void setWinchClosedLoopConstants(
-      double kP, double kD, double kG, MotionMagicConfigs mmConfigs) {
+  public void setWinchClosedLoopConstants(double kP, double kD, double kG) {
     TalonFXConfiguration config = new TalonFXConfiguration();
     Slot0Configs slot0Configs = new Slot0Configs();
 
@@ -54,7 +52,6 @@ public class ClimberIOSim implements ClimberIO {
     slot0Configs.kG = kG;
 
     config.Slot0 = slot0Configs;
-    config.MotionMagic = mmConfigs;
 
     climberSim.setConfig(config);
   }

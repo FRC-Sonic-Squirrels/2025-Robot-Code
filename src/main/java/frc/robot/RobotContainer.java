@@ -44,9 +44,7 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
-import frc.robot.commands.climber.Climb;
 import frc.robot.commands.climber.ClimberSetAngle;
-import frc.robot.commands.climber.PrepClimb;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
@@ -705,8 +703,9 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
-        .whileTrue(new PrepClimb(climber))
-        .onFalse(new Climb(climber));
+        .toggleOnTrue(
+            Commands.run(() -> climber.setWinchAngle(Rotation2d.fromRotations(0)), climber)
+                .finallyDo(() -> climber.setWinchAngle(Rotation2d.fromRotations(-2.75))));
     // ---------- OPERATOR CONTROLS -----------
 
     // Manual mech positions
@@ -779,6 +778,10 @@ public class RobotContainer {
                 .alongWith(
                     new ElevatorManualControl(() -> -operatorController.getLeftY(), elevator)));
 
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.b, "Climber in")
+        .onTrue(new ClimberSetAngle(climber, Rotation2d.fromRotations(0)));
+
     // ---------- NON-CONTROLLER TRIGGERS
 
     RobotStates.triggerForCoralInEndEffector.onTrue(
@@ -806,6 +809,7 @@ public class RobotContainer {
               arm.resetSensorToHomePosition();
               intake.resetPivotSensorToHomePosition();
               led.setRobotState(RobotState.ZERO_SUBSYSTEMS);
+              climber.resetWinchSensorToHomePosition();
             })); // TODO: add climber?
 
     brakeModeButtonTrigger.onTrue(
@@ -815,8 +819,13 @@ public class RobotContainer {
                   boolean armSuccess = arm.setNeutralMode(NeutralModeValue.Coast);
                   boolean elevatorSuccess = elevator.setNeutralMode(NeutralModeValue.Coast);
                   boolean intakePivotSuccess = intake.setPivotNeutralMode(NeutralModeValue.Coast);
+                  boolean climberWinchSuccess = climber.setWinchNeutralMode(NeutralModeValue.Coast);
 
-                  brakeModeFailure = !armSuccess || !elevatorSuccess || !intakePivotSuccess;
+                  brakeModeFailure =
+                      !armSuccess
+                          || !elevatorSuccess
+                          || !intakePivotSuccess
+                          || !climberWinchSuccess;
 
                   brakeModeTriggered = false;
                   led.setRobotState(
@@ -829,8 +838,14 @@ public class RobotContainer {
                   boolean armSuccess = arm.setNeutralMode(NeutralModeValue.Brake);
                   boolean elevatorSuccess = elevator.setNeutralMode(NeutralModeValue.Brake);
                   boolean intakePivotSuccess = intake.setPivotNeutralMode(NeutralModeValue.Brake);
+                  boolean climberWinchSuccess = climber.setWinchNeutralMode(NeutralModeValue.Brake);
 
-                  brakeModeFailure = !armSuccess || !elevatorSuccess || !intakePivotSuccess;
+                  brakeModeFailure =
+                      !armSuccess
+                          || !elevatorSuccess
+                          || !intakePivotSuccess
+                          || !climberWinchSuccess;
+
                   brakeModeTriggered = true;
                   led.setRobotState(
                       brakeModeFailure ? RobotState.BRAKE_MODE_FAILED : RobotState.BRAKE_MODE_ON);
@@ -1081,7 +1096,7 @@ public class RobotContainer {
         elevator.getHeight(),
         arm.getAngle(),
         intake.getPivotAngle(),
-        Rotation2d.kZero); // TODO: add climber to mech visualization
+        climber.getWinchAngle());
     MechanismVisualization.logMechanism();
     FieldStates.logGamepieceVisualization();
   }
