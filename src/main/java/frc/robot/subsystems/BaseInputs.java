@@ -29,11 +29,9 @@ public abstract class BaseInputs {
       var setStatusCode = setCode.getDescription();
       var setConnected = setCode == StatusCode.OK;
 
-      if (!setConnected) {
-        connected = false;
+      if (!setConnected) connected = false;
 
-        statusCode = statusCode.isEmpty() ? setStatusCode : statusCode + " / " + setStatusCode;
-      }
+      statusCode = statusCode.isEmpty() ? setStatusCode : statusCode + " / " + setStatusCode;
     }
 
     if (connected) {
