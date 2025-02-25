@@ -71,9 +71,6 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
-    RobotStates.coralInEndEffectorNonScoringSide = (endEffector.nonScoringSideTOFSeenGamepiece());
-
     if (RobotStates.coralInEndEffectorNonScoringSide) {
       log_Stage.info(1);
       endEffector.setPercentOut(0);
@@ -90,7 +87,10 @@ public class IntakeGamepieceCoralStation extends Command {
       // Sim put gamepiece in end effector
       if (RobotMode.isSimBot()) {
         if (simConditions.getAsBoolean()) {
-          RobotStates.coralInEndEffectorScoringSide = true;
+          var endEffectorSim = endEffector.getSim();
+          if (endEffectorSim != null) {
+            endEffectorSim.scoringSideTofDetecting = true;
+          }
         }
       }
     }

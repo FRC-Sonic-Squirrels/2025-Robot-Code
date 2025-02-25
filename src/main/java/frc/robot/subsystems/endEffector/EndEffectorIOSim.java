@@ -10,15 +10,17 @@ import frc.lib.team2930.TalonFXSim;
 import frc.robot.Constants;
 
 public class EndEffectorIOSim implements EndEffectorIO {
+  public boolean scoringSideTofDetecting = true;
+  public boolean nonScoringSideTofDetecting = true;
 
-  private TalonFXSim motor =
+  private final TalonFXSim motor =
       new TalonFXSim(
           DCMotor.getKrakenX60Foc(1),
           Constants.EndEffectorConstants.GEARING,
           Constants.EndEffectorConstants.MOI);
 
-  private VoltageOut openLoopControl = new VoltageOut(0);
-  private VelocityVoltage closedLoopControl = new VelocityVoltage(0);
+  private final VoltageOut openLoopControl = new VoltageOut(0);
+  private final VelocityVoltage closedLoopControl = new VelocityVoltage(0);
 
   public EndEffectorIOSim() {}
 
@@ -27,6 +29,9 @@ public class EndEffectorIOSim implements EndEffectorIO {
     motor.update(Constants.kDefaultPeriod);
     inputs.appliedVolts = motor.getVoltage();
     inputs.velocityRPM = motor.getVelocity().in(Units.RPM);
+
+    inputs.scoringSideTofDetecting = scoringSideTofDetecting;
+    inputs.nonScoringSideTofDetecting = nonScoringSideTofDetecting;
   }
 
   @Override

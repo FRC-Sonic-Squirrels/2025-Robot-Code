@@ -33,7 +33,6 @@ import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.RobotMode;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
@@ -138,16 +137,13 @@ public class RobotContainer {
   private final HashMap<String, Supplier<Auto>> stringToAutoSupplierMap = new HashMap<>();
   private final AutosManager autoManager;
 
-  private Trigger gamepieceInRobot = new Trigger(() -> RobotStates.coralInRobot);
-  private Trigger gamepieceInEndEffector = new Trigger(() -> RobotStates.coralInEndEffector);
-
   public DigitalInput brakeModeButton = new DigitalInput(0);
   public DigitalInput zeroSensorsButton = new DigitalInput(1);
 
-  private Trigger brakeModeButtonTrigger =
+  private final Trigger brakeModeButtonTrigger =
       new Trigger(() -> !brakeModeButton.get() && !DriverStation.isEnabled());
 
-  private Trigger zeroSensorsButtonTrigger =
+  private final Trigger zeroSensorsButtonTrigger =
       new Trigger(() -> !zeroSensorsButton.get() && !DriverStation.isEnabled());
 
   private boolean brakeModeTriggered = true;
@@ -157,30 +153,10 @@ public class RobotContainer {
 
   private boolean brakeModeFailure = false;
 
-  private static LoggerGroup robotStateLogGroup = LoggerGroup.build("RobotState");
-  private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
-      robotStateLogGroup.buildEnum("Levels/Level");
-  private static LoggerEntry.Bool logL1State = robotStateLogGroup.buildBoolean("Levels/L1");
-  private static LoggerEntry.Bool logL2State = robotStateLogGroup.buildBoolean("Levels/L2");
-  private static LoggerEntry.Bool logL3State = robotStateLogGroup.buildBoolean("Levels/L3");
-  private static LoggerEntry.Bool logL4State = robotStateLogGroup.buildBoolean("Levels/L4");
-  private static LoggerEntry.Bool logAlgaeClearingState =
-      robotStateLogGroup.buildBoolean("AlgaeClearing");
-  private static LoggerEntry.Bool logGamepieceInRobotState =
-      robotStateLogGroup.buildBoolean("GamepieceInRobotState");
-  private static LoggerEntry.Bool logGamepieceInEndEffectorState =
-      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorState");
-  private static LoggerEntry.Bool logGamepieceInEndEffectorScoringSideState =
-      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorScoringSideState");
-  private static LoggerEntry.Bool logGamepieceInEndEffectorNonScoringSideState =
-      robotStateLogGroup.buildBoolean("GamepieceInEndEffectorNonScoringSideState");
-  private static LoggerEntry.Bool logGamepieceInIntakeState =
-      robotStateLogGroup.buildBoolean("GamepieceInIntakeState");
-
-  private static TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
-  private static LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
-  private static LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
-  private static LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
+  private final TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
+  private final LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
+  private final LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
+  private final LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -641,9 +617,10 @@ public class RobotContainer {
                 .deadlineFor(
                     Commands.runOnce(
                             () -> {
-                              if (RobotMode.isSimBot()) {
-                                RobotStates.coralInEndEffectorNonScoringSide = false;
-                                RobotStates.coralInEndEffectorScoringSide = false;
+                              var ioSim = endEffector.getSim();
+                              if (ioSim != null) {
+                                ioSim.scoringSideTofDetecting = false;
+                                ioSim.nonScoringSideTofDetecting = false;
                                 FieldStates.setScoringLocationFilled(
                                     new ScoringLocation(
                                         RobotStates.targetReefSide, RobotStates.scoringLevel));
@@ -798,13 +775,13 @@ public class RobotContainer {
 
     // ---------- NON-CONTROLLER TRIGGERS
 
-    gamepieceInEndEffector.onTrue(
+    RobotStates.triggerForCoralInEndEffector.onTrue(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(
                 MechanismActions.stowPosition(elevator, arm).andThen(new AlignCoral(endEffector)))
             .withName("GamepieceIntoEECommand"));
 
-    gamepieceInEndEffector.onFalse(
+    RobotStates.triggerForCoralInEndEffector.onFalse(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(MechanismActions.coralStationPosition(elevator, arm))
             .withName("GamepieceOutOfEECommand"));
@@ -893,24 +870,21 @@ public class RobotContainer {
               led.setRobotState(RobotState.ZERO_SUBSYSTEMS);
             }));
 
-    if (Constants.RobotMode.isSimBot()) {
+    var endEffectorSim = endEffector.getSim();
+    if (endEffectorSim != null) {
       SmartDashboard.putData(
           "SIM Coral in End Effector",
           new RunsWhenDisabledInstantCommand(
               () -> {
-                RobotStates.coralInRobot = true;
-                RobotStates.coralInEndEffector = true;
-                RobotStates.coralInEndEffectorScoringSide = true;
-                RobotStates.coralInEndEffectorNonScoringSide = true;
+                endEffectorSim.scoringSideTofDetecting = true;
+                endEffectorSim.nonScoringSideTofDetecting = true;
               }));
       SmartDashboard.putData(
           "SIM NO Coral in End Effector",
           new RunsWhenDisabledInstantCommand(
               () -> {
-                RobotStates.coralInRobot = false;
-                RobotStates.coralInEndEffector = false;
-                RobotStates.coralInEndEffectorScoringSide = false;
-                RobotStates.coralInEndEffectorNonScoringSide = false;
+                endEffectorSim.scoringSideTofDetecting = true;
+                endEffectorSim.nonScoringSideTofDetecting = true;
               }));
     }
   }
@@ -1098,35 +1072,13 @@ public class RobotContainer {
   }
 
   public void updateRobotState() {
-    if (!RobotMode.isSimBot()) {
-      RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
+    RobotStates.periodic();
 
-      RobotStates.coralInEndEffectorNonScoringSide = (endEffector.nonScoringSideTOFSeenGamepiece());
-    }
-
-    RobotStates.coralInEndEffector =
-        RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide;
-
-    RobotStates.coralInRobot = RobotStates.coralInEndEffector || RobotStates.coralInIntake;
-
-    ScoringLevel level = RobotStates.scoringLevel;
-    logScoringLevelState.info(level);
-    logL1State.info(level == ScoringLevel.L1);
-    logL2State.info(level == ScoringLevel.L2);
-    logL3State.info(level == ScoringLevel.L3);
-    logL4State.info(level == ScoringLevel.L4);
-    logAlgaeClearingState.info(RobotStates.clearingAlgae);
-    logGamepieceInRobotState.info(RobotStates.coralInRobot);
-    logGamepieceInIntakeState.info(RobotStates.coralInIntake);
-    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
-    logGamepieceInEndEffectorScoringSideState.info(RobotStates.coralInEndEffectorScoringSide);
-    logGamepieceInEndEffectorNonScoringSideState.info(RobotStates.coralInEndEffectorNonScoringSide);
-
-    if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
+    if (RobotStates.triggerForCoralInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
     }
 
-    if (!gamepieceInRobot.getAsBoolean() && led.getGamepieceStatus()) {
+    if (!RobotStates.triggerForCoralInRobot.getAsBoolean() && led.getGamepieceStatus()) {
       led.setGamepieceStatus(false);
     }
   }
