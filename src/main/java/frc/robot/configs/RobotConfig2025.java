@@ -162,7 +162,7 @@ public class RobotConfig2025 extends RobotConfig {
               Units.Inches.of(-8.763).in(Units.Meters),
               Units.Inches.of(8.472).in(Units.Meters),
               Units.Inches.of(12.125).in(Units.Meters)),
-          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(210)));
+          new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(208.7)));
 
   public static final Transform3d REEF_SIDE_RIGHT =
       new Transform3d(
