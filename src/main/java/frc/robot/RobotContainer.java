@@ -339,11 +339,6 @@ public class RobotContainer {
           } catch (InterruptedException e) {
             System.out.println("sleep interrupted");
           }
-          intake = new Intake(new IntakeIO() {});
-          endEffector = new EndEffector(new EndEffectorIOReal());
-          elevator = new Elevator(new ElevatorIOReal());
-          arm = new Arm(new ArmIOReal());
-          climber = new Climber(new ClimberIO() {});
           drivetrain =
               new Drivetrain(
                   config,
@@ -1088,31 +1083,6 @@ public class RobotContainer {
   }
 
   public void updateRobotState() {
-    if (!RobotMode.isSimBot()) {
-      RobotStates.coralInEndEffectorScoringSide = ((endEffector.scoringSideTofSeenGamepiece()));
-
-      RobotStates.coralInEndEffectorNonScoringSide = (endEffector.nonScoringSideTOFSeenGamepiece());
-    }
-
-    RobotStates.coralInEndEffector =
-        RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide;
-
-    RobotStates.coralInRobot = RobotStates.coralInEndEffector || RobotStates.coralInIntake;
-
-    ScoringLevel level = RobotStates.scoringLevel;
-    logScoringLevelState.info(level);
-    logL1State.info(level == ScoringLevel.L1);
-    logL2State.info(level == ScoringLevel.L2);
-    logL3State.info(level == ScoringLevel.L3);
-    logL4State.info(level == ScoringLevel.L4);
-    logAlgaeClearingState.info(RobotStates.clearingAlgae);
-    logGamepieceInRobotState.info(RobotStates.coralInRobot);
-    logGamepieceInIntakeState.info(RobotStates.coralInIntake);
-    logGamepieceInEndEffectorState.info(RobotStates.coralInEndEffector);
-    logGamepieceInEndEffectorScoringSideState.info(RobotStates.coralInEndEffectorScoringSide);
-    logGamepieceInEndEffectorNonScoringSideState.info(RobotStates.coralInEndEffectorNonScoringSide);
-
-    if (gamepieceInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
     RobotStates.periodic();
 
     if (RobotStates.triggerForCoralInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
