@@ -44,6 +44,7 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
+import frc.robot.commands.climber.Climb;
 import frc.robot.commands.climber.ClimberSetAngle;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
@@ -703,9 +704,9 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
-        .toggleOnTrue(
-            Commands.run(() -> climber.setWinchAngle(Rotation2d.fromRotations(0)), climber)
-                .finallyDo(() -> climber.setWinchAngle(Rotation2d.fromRotations(-2.75))));
+        .onTrue(
+            new Climb(
+                climber, driverController.getCommandXboxController().povDown()::getAsBoolean));
     // ---------- OPERATOR CONTROLS -----------
 
     // Manual mech positions

@@ -89,4 +89,8 @@ public class XboxControllerWrapper {
   public double getRightY() {
     return controller.getRightY();
   }
+
+  public CommandXboxController getCommandXboxController() {
+    return controller;
+  }
 }
