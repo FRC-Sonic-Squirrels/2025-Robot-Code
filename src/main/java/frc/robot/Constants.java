@@ -318,10 +318,6 @@ public final class Constants {
     // all these CAN ID's are reserved for the Drivetrain
 
     // TODO: get actual can ids for new season
-    public static final int INTAKE_CAN_ID = 34;
-
-    public static final int SHOOTER_CAN_ID = 33;
-    public static final int SHOOTER_PIVOT_CAN_ID = 32;
 
     public static final int ARM_CAN_ID = 17;
 
@@ -338,7 +334,9 @@ public final class Constants {
 
     public static final int CLIMBER_GRABBER_CAN_ID = 42;
     // TODO: make proper canID
-    public static final int PIVOT_CAN_ID = 1000;
+    public static final int INTAKE_PIVOT_CAN_ID = 19;
+    public static final int INTAKE_ROLLER_CAN_ID = 20;
+    public static final int INTAKE_TOF_CAN_ID = 43;
   }
 
   public static class DIOPorts {}

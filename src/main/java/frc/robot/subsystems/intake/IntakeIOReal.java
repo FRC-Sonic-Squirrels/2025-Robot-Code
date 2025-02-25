@@ -28,7 +28,7 @@ import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
 
 public class IntakeIOReal implements IntakeIO {
-  private TalonFX rollerMotor = new TalonFX(Constants.CanIDs.INTAKE_CAN_ID);
+  private TalonFX rollerMotor = new TalonFX(Constants.CanIDs.INTAKE_ROLLER_CAN_ID);
 
   private final StatusSignal<Current> rollerCurrent;
   private final StatusSignal<Temperature> rollerDeviceTemp;
@@ -50,7 +50,7 @@ public class IntakeIOReal implements IntakeIO {
       new MotionMagicVoltage(0.0).withEnableFOC(true);
   private final VoltageOut pivotOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
-  private final TalonFX pivotMotor = new TalonFX(Constants.CanIDs.PIVOT_CAN_ID);
+  private final TalonFX pivotMotor = new TalonFX(Constants.CanIDs.INTAKE_PIVOT_CAN_ID);
 
   private final BaseStatusSignal[] refreshSet;
 
