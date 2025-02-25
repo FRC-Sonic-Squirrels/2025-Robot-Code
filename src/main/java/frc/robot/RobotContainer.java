@@ -351,6 +351,11 @@ public class RobotContainer {
                   new GyroIO.Fake(),
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
+          intake = new Intake(new IntakeIOReal());
+          endEffector = new EndEffector(new EndEffectorIOReal());
+          elevator = new Elevator(new ElevatorIOReal());
+          arm = new Arm(new ArmIOReal());
+          climber = new Climber(new ClimberIO() {});
           vision =
               new Vision(
                   aprilTagLayout,
