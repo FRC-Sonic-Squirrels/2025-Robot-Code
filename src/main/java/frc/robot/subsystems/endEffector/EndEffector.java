@@ -18,6 +18,7 @@ import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.RobotStates;
 
 public class EndEffector extends SubsystemBase {
   // Execution timing
@@ -102,9 +103,20 @@ public class EndEffector extends SubsystemBase {
     io.setVoltage(0.0);
   }
 
+  public EndEffectorIOSim getSim() {
+    if (io instanceof EndEffectorIOSim) {
+      return (EndEffectorIOSim) io;
+    }
+
+    return null;
+  }
+
   @Override
   public void periodic() {
     try (var ignored = timing.start()) {
+      RobotStates.coralInEndEffectorScoringSide = scoringSideTofSeenGamepiece();
+      RobotStates.coralInEndEffectorNonScoringSide = nonScoringSideTOFSeenGamepiece();
+
       // Logging
       io.updateInputs(inputs);
       logInputs_velocityRPM.info(inputs.velocityRPM);

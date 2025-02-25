@@ -168,8 +168,8 @@ public class EndEffectorIOReal implements EndEffectorIO {
     double nssDist = nonScoringSideTofDistance.getValue().in(Units.Inches);
     if (nssDist != 0) inputs.nonScoringSideTofDistInches = nssDist;
 
-    inputs.scoringSideTofDetecting = scoringSideTofDetected.getValue().booleanValue();
-    inputs.nonScoringSideTofDetecting = nonScoringSideTofDetected.getValue().booleanValue();
+    inputs.scoringSideTofDetecting = scoringSideTofDetected.getValue();
+    inputs.nonScoringSideTofDetecting = nonScoringSideTofDetected.getValue();
     inputs.scoringSideSignalStrength = scoringSideSignalStrength.getValueAsDouble();
     inputs.nonScoringSideSignalStrength = nonScoringSideSignalStrength.getValueAsDouble();
   }
