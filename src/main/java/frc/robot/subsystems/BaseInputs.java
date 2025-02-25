@@ -39,6 +39,9 @@ public abstract class BaseInputs {
       log_lastGoodStatus.info(lastGoodStatus);
     }
 
+    this.connected = connected;
+    this.statusCode = statusCode;
+
     log_connected.info(connected);
     log_statusCode.info(statusCode);
   }
