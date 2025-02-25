@@ -294,12 +294,7 @@ public class ScoreCoral extends StateMachine {
   private StateHandler score() {
 
     if (scoringTrigger.getAsBoolean() && !confirmation) {
-      endEffector.setVelocity(scoringVelocityRPM.get());
-      var endEffectorSim = endEffector.getSim();
-      if (endEffectorSim != null) {
-        endEffectorSim.scoringSideTofDetecting = false;
-        endEffectorSim.nonScoringSideTofDetecting = false;
-      }
+      RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.ScoreFastForward;
     }
 
     if (RobotStates.coralInEndEffector && !confirmation) return null;
@@ -348,7 +343,7 @@ public class ScoreCoral extends StateMachine {
 
     return suspendForCommand(
         Commands.run(() -> {}) // TODO: find a better way to wait
-            .deadlineFor(new EndEffectorSetRPM(endEffector, -6000))
+            .deadlineFor(new EndEffectorSetRPM(-6000))
             .finallyDo(() -> FieldStates.removeAlgaeFromScoringSide(scoringSide))
             .alongWith(driveToAlgaePose),
         (command) -> stateWithName("End", () -> end(false)));
@@ -362,9 +357,9 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler end(boolean interrupted) {
+    RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.Idle;
     led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
     usingDrivetrain = false;
-    endEffector.setPercentOut(0);
     Pose2d initPose = wrapper.getRawOdometryPose();
     return
     // suspendForCommand(

@@ -46,7 +46,6 @@ import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
-import frc.robot.commands.endEffector.AlignCoral;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
@@ -626,8 +625,12 @@ public class RobotContainer {
                                         RobotStates.targetReefSide, RobotStates.scoringLevel));
                               }
                             })
-                        .andThen(new EndEffectorSetRPM(endEffector, -6000)))
-                .andThen(Commands.runOnce(() -> endEffector.setPercentOut(0))));
+                        .andThen(new EndEffectorSetRPM(-6000)))
+                .andThen(
+                    Commands.runOnce(
+                        () ->
+                            RobotStates.endEffectorDesiredAction =
+                                RobotStates.EndEffectorDesiredAction.Idle)));
     // .toggleOnTrue(
     //     new RotateToAngle(
     //         drivetrainWrapper,
@@ -740,7 +743,7 @@ public class RobotContainer {
     // End Effector Rotation
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.start, "End Effector Out")
-        .whileTrue(new EndEffectorSetRPM(endEffector, -1000));
+        .whileTrue(new EndEffectorSetRPM(-1000));
 
     // Climber in
     // operatorController
@@ -778,7 +781,12 @@ public class RobotContainer {
     RobotStates.triggerForCoralInEndEffector.onTrue(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(
-                MechanismActions.stowPosition(elevator, arm).andThen(new AlignCoral(endEffector)))
+                MechanismActions.stowPosition(elevator, arm)
+                    .finallyDo(
+                        () -> {
+                          RobotStates.endEffectorDesiredAction =
+                              RobotStates.EndEffectorDesiredAction.AlignCoral;
+                        }))
             .withName("GamepieceIntoEECommand"));
 
     RobotStates.triggerForCoralInEndEffector.onFalse(

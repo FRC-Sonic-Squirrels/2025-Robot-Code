@@ -5,26 +5,22 @@
 package frc.robot.commands.endEffector;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.RobotStates;
 import java.util.function.DoubleSupplier;
 
 public class EndEffectorSetRPM extends Command {
-
-  private EndEffector endEffector;
-  private DoubleSupplier RPM;
+  private final DoubleSupplier RPM;
 
   /** Creates a new IntakeSetRPM. */
-  public EndEffectorSetRPM(EndEffector endEffector, DoubleSupplier RPM) {
-
-    this.endEffector = endEffector;
+  public EndEffectorSetRPM(DoubleSupplier RPM) {
     this.RPM = RPM;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(endEffector);
+    addRequirements();
   }
 
-  public EndEffectorSetRPM(EndEffector endEffector, double RPM) {
-    this(endEffector, () -> RPM);
+  public EndEffectorSetRPM(double RPM) {
+    this(() -> RPM);
   }
 
   // Called when the command is initially scheduled.
@@ -34,13 +30,14 @@ public class EndEffectorSetRPM extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    endEffector.setVelocity(RPM.getAsDouble());
+    RobotStates.endEffectorOverrideVelocity = RPM.getAsDouble();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    endEffector.setPercentOut(0);
+    RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+    RobotStates.endEffectorOverrideVelocity = Double.NaN;
   }
 
   // Returns true when the command should end.

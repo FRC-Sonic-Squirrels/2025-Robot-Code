@@ -12,8 +12,6 @@ import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
-import frc.lib.team2930.TunableNumberGroup;
-import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
 import frc.robot.commands.mechanism.MechanismPositions;
@@ -27,10 +25,6 @@ public class IntakeGamepieceCoralStation extends Command {
   private static final LoggerGroup logGroup = LoggerGroup.build("IntakeGamepiece");
   private static final LoggerEntry.Integer log_Stage = logGroup.buildInteger("Stage");
 
-  private static final TunableNumberGroup group = new TunableNumberGroup("IntakeGamepiece");
-  private static final LoggedTunableNumber intakingVelocitySlow =
-      group.build("intakingVelocitySlow", 800);
-  private static final LoggedTunableNumber intakingVelocity = group.build("intakingVelocity", 2500);
   private final EndEffector endEffector;
   private final Trigger gamepieceInRobot =
       new Trigger(() -> RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInIntake)
@@ -65,32 +59,18 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    log_Stage.info(0);
+    RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.CoralStationIntake;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (RobotStates.coralInEndEffectorNonScoringSide) {
-      log_Stage.info(1);
-      endEffector.setPercentOut(0);
-      endEffector.setGamepieceInRobot(true);
-    } else if (RobotStates.coralInEndEffectorScoringSide) {
-      log_Stage.info(2);
-      endEffector.setVelocity(intakingVelocitySlow.get());
-      endEffector.setGamepieceInRobot(false);
-    } else {
-      log_Stage.info(3);
-      endEffector.setVelocity(intakingVelocity.get());
-      endEffector.setGamepieceInRobot(false);
-
-      // Sim put gamepiece in end effector
-      if (RobotMode.isSimBot()) {
-        if (simConditions.getAsBoolean()) {
-          var endEffectorSim = endEffector.getSim();
-          if (endEffectorSim != null) {
-            endEffectorSim.scoringSideTofDetecting = true;
-          }
+    // Sim put gamepiece in end effector
+    if (RobotMode.isSimBot()) {
+      if (simConditions.getAsBoolean()) {
+        var endEffectorSim = endEffector.getSim();
+        if (endEffectorSim != null) {
+          endEffectorSim.scoringSideTofDetecting = true;
         }
       }
     }
@@ -99,13 +79,13 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    endEffector.setPercentOut(0.0);
+    RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.Idle;
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return endEffector.isGamepieceFullyInEndEffector();
+    return RobotStates.endEffectorDesiredAction != RobotStates.EndEffectorDesiredAction.CoralStationIntake;
   }
 
   private double distToHumanPlayerStation(Translation2d translation) {

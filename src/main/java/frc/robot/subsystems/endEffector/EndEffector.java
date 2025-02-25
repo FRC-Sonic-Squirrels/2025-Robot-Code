@@ -8,12 +8,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.team2930.ControlMode;
-import frc.lib.team2930.ExecutionTiming;
-import frc.lib.team2930.LoggerEntry;
-import frc.lib.team2930.LoggerGroup;
-import frc.lib.team2930.TunableNumberGroup;
+import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
@@ -52,7 +49,6 @@ public class EndEffector extends SubsystemBase {
       logGroup.buildDecimal("TargetVelocityRPM");
   private static final LoggerEntry.EnumValue<ControlMode> logControlMode =
       logGroup.buildEnum("ControlMode");
-  private boolean gamepieceInRobot = false;
 
   // Tunable numbers
 
@@ -67,6 +63,19 @@ public class EndEffector extends SubsystemBase {
   private static final LoggedTunableNumber kV = group.build("kV");
   private static final LoggedTunableNumber targetAccelerationConfig =
       group.build("MaxAccelerationConstraint");
+
+  private static final LoggedTunableNumber intakingVelocitySlow =
+      group.build("intakingVelocitySlow", 800);
+  private static final LoggedTunableNumber intakingVelocityHigh =
+      group.build("intakingVelocity", 2500);
+
+  private static final LoggedTunableNumber scoringVelocityRPM =
+      group.build("ScoringVelocityRPM", -3000);
+
+  private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 400);
+  private static final LoggedTunableNumber maxTurns = group.build("alignMaxTurns", 18);
+
+  // -- //
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -90,9 +99,8 @@ public class EndEffector extends SubsystemBase {
   private final EndEffectorIO io;
   private final EndEffectorIO.Inputs inputs = new EndEffectorIO.Inputs(logGroup);
 
-  private double targetRPM;
-
   private ControlMode controlMode = ControlMode.OPEN_LOOP;
+  private double zeroCoralPosition;
 
   /** Creates a new EndEffector. */
   public EndEffector(EndEffectorIO io) {
@@ -141,28 +149,117 @@ public class EndEffector extends SubsystemBase {
           || targetAccelerationConfig.hasChanged(hc)) {
         setConstants();
       }
+
+      if (DriverStation.isDisabled()) {
+        RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+        RobotStates.endEffectorOverrideVelocity = Double.NaN;
+      }
+
+      if (Double.isFinite(RobotStates.endEffectorOverrideVelocity)) {
+        setVelocity(RobotStates.endEffectorOverrideVelocity);
+      } else {
+        var endEffectorSim = getSim();
+        var desiredAction = RobotStates.endEffectorDesiredAction;
+        switch (desiredAction) {
+          case Idle:
+            setPercentOut(0);
+            break;
+
+          case CoralStationIntake:
+            if (RobotStates.coralInEndEffectorNonScoringSide) {
+              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+            } else if (RobotStates.coralInEndEffectorScoringSide) {
+              setVelocity(intakingVelocitySlow.get());
+            } else {
+              setVelocity(intakingVelocityHigh.get());
+            }
+            break;
+
+          case AlignCoral:
+            if (!RobotStates.coralInEndEffector) {
+              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+            } else if (!RobotStates.coralInEndEffectorNonScoringSide) {
+              // Keep moving the coral in.
+              setVelocity(correctionVelocity.get());
+            } else {
+              // Start backtracking the coral.
+              setVelocity(-correctionVelocity.get());
+              desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase2;
+            }
+            break;
+
+          case AlignCoralPhase2:
+            if (!RobotStates.coralInEndEffectorNonScoringSide) {
+              // Now reverse until we see it again.
+              setVelocity(correctionVelocity.get());
+
+              desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase3;
+            }
+            break;
+
+          case AlignCoralPhase3:
+            if (RobotStates.coralInEndEffectorNonScoringSide) {
+              zeroCoralPosition = getMotorPosition();
+
+              desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase4;
+            }
+
+          case AlignCoralPhase4:
+            double diff = Math.abs(getMotorPosition() - zeroCoralPosition);
+            //          log_Position.info(dif);
+            if (diff >= maxTurns.get()) {
+              desiredAction = RobotStates.EndEffectorDesiredAction.AlignedCoral;
+            }
+            break;
+
+          case AlignedCoral:
+            setPercentOut(0);
+            break;
+
+          case ScoreFastForward:
+            setVelocity(scoringVelocityRPM.get());
+            if (!RobotStates.coralInEndEffector) {
+              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+            }
+
+            if (endEffectorSim != null) {
+              endEffectorSim.scoringSideTofDetecting = false;
+              endEffectorSim.nonScoringSideTofDetecting = false;
+            }
+            break;
+
+          case ScoreFastBackward:
+            setVelocity(-scoringVelocityRPM.get());
+            if (!RobotStates.coralInEndEffector) {
+              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+            }
+
+            if (endEffectorSim != null) {
+              endEffectorSim.scoringSideTofDetecting = false;
+              endEffectorSim.nonScoringSideTofDetecting = false;
+            }
+            break;
+        }
+
+        RobotStates.endEffectorDesiredAction = desiredAction;
+      }
     }
   }
 
   // Setters
 
-  public void setGamepieceInRobot(boolean value) {
-    gamepieceInRobot = value;
-  }
-
   private void setConstants() {
     io.setClosedLoopConstants(kP.get(), kV.get(), kS.get(), targetAccelerationConfig.get());
   }
 
-  public void setPercentOut(double percent) {
+  private void setPercentOut(double percent) {
     io.setVoltage(percent * Constants.MAX_VOLTAGE);
     controlMode = ControlMode.OPEN_LOOP;
   }
 
-  public void setVelocity(double revPerMin) {
+  private void setVelocity(double revPerMin) {
     io.setVelocity(revPerMin);
-    targetRPM = revPerMin;
-    logTargetVelocityRPM.info(targetRPM);
+    logTargetVelocityRPM.info(revPerMin);
     controlMode = ControlMode.CLOSED_LOOP;
   }
 
@@ -189,10 +286,6 @@ public class EndEffector extends SubsystemBase {
 
   public boolean nonScoringSideTOFSeenGamepiece() {
     return inputs.nonScoringSideTofDetecting;
-  }
-
-  public boolean isGamepieceFullyInEndEffector() {
-    return gamepieceInRobot;
   }
 
   public double getMotorPosition() {

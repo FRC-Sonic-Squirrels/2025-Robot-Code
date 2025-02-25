@@ -30,7 +30,7 @@ public class CommandComposer {
         .alongWith(
             Commands.run(
                     () -> {
-                      if (endEffector.isGamepieceFullyInEndEffector()) { // If the gamepiece is in
+                      if (RobotStates.coralInEndEffector) { // If the gamepiece is in
                         // robot, set
                         // rumble
                         if (driverController != null)

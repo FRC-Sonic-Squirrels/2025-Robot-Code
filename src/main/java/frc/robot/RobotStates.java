@@ -6,6 +6,20 @@ import frc.lib.team2930.LoggerGroup;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 
 public class RobotStates {
+  public enum EndEffectorDesiredAction {
+    Idle,
+    CoralStationIntake,
+    GroundIntake,
+    AlignCoral,
+    AlignCoralPhase2,
+    AlignCoralPhase3,
+    AlignCoralPhase4,
+    AlignedCoral,
+    ScoreFastForward,
+    ScoreFastBackward,
+    ScoreSlowForward,
+    ScoreSlowBackward,
+  }
 
   public enum ScoringLevel {
     L1,
@@ -28,6 +42,9 @@ public class RobotStates {
   private static LoggerEntry.Bool logGamepieceInIntakeState =
       logGroup.buildBoolean("GamepieceInIntakeState");
 
+  private static LoggerEntry.EnumValue<EndEffectorDesiredAction> logEndEffectorDesiredAction =
+      logGroup.buildEnum("EndEffectorDesiredAction");
+
   private static LoggerGroup logGroupLevels = logGroup.subgroup("Levels");
   private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
       logGroupLevels.buildEnum("Level");
@@ -39,6 +56,9 @@ public class RobotStates {
   public static boolean clearingAlgae;
 
   public static ScoringLevel scoringLevel = ScoringLevel.L4;
+
+  public static EndEffectorDesiredAction endEffectorDesiredAction = EndEffectorDesiredAction.Idle;
+  public static double endEffectorOverrideVelocity = Double.NaN;
 
   public static boolean algaeInRobot;
 
@@ -60,6 +80,8 @@ public class RobotStates {
   public static void periodic() {
     coralInEndEffector = coralInEndEffectorScoringSide || coralInEndEffectorNonScoringSide;
     coralInRobot = coralInEndEffector || coralInIntake;
+
+    logEndEffectorDesiredAction.info(endEffectorDesiredAction);
 
     var level = scoringLevel;
     logScoringLevelState.info(level);
