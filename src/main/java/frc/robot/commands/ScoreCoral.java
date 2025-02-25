@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -345,17 +344,12 @@ public class ScoreCoral extends StateMachine {
 
     DriveToPose driveToAlgaePose =
         new DriveToPose(
-            wrapper,
-            () -> algaeClearPose,
-            () ->
-                wrapper
-                    .getReefPoseEstimatorPose(true)
-                    .transformBy(new Transform2d(-0.05, 0, Rotation2d.kZero)));
+            wrapper, () -> algaeClearPose, () -> wrapper.getReefPoseEstimatorPose(true));
 
     return suspendForCommand(
-        Commands.waitSeconds(2) // TODO: find a better way to wait
+        Commands.run(() -> {}) // TODO: find a better way to wait
             .deadlineFor(new EndEffectorSetRPM(endEffector, -6000))
-            .andThen(Commands.runOnce(() -> FieldStates.removeAlgaeFromScoringSide(scoringSide)))
+            .finallyDo(() -> FieldStates.removeAlgaeFromScoringSide(scoringSide))
             .alongWith(driveToAlgaePose),
         (command) -> stateWithName("End", () -> end(false)));
   }
