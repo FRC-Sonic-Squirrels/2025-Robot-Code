@@ -37,7 +37,7 @@ public class RobotConfig2025 extends RobotConfig {
           1,
           11,
           21,
-          Rotation2d.fromDegrees(129.463),
+          Rotation2d.fromDegrees(131.396), // 129.463
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 1
@@ -46,7 +46,7 @@ public class RobotConfig2025 extends RobotConfig {
           2,
           12,
           22,
-          Rotation2d.fromDegrees(-34.365),
+          Rotation2d.fromDegrees(-59.238), // -34.365
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 2
@@ -55,7 +55,7 @@ public class RobotConfig2025 extends RobotConfig {
           3,
           13,
           23,
-          Rotation2d.fromDegrees(126.65),
+          Rotation2d.fromDegrees(134.736), // 126.65
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 3
@@ -64,7 +64,7 @@ public class RobotConfig2025 extends RobotConfig {
           4,
           14,
           24,
-          Rotation2d.fromDegrees(-63.984),
+          Rotation2d.fromDegrees(-64.336), // -63.984
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
 
@@ -124,7 +124,7 @@ public class RobotConfig2025 extends RobotConfig {
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
       group.build("AUTO_MAX_SPEED", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 4.0);
+      group.build("AUTO_MAX_ACCEL", 2.0);
   private static final LoggedTunableNumber AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND =
       group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 4);
   private static final LoggedTunableNumber
@@ -143,7 +143,7 @@ public class RobotConfig2025 extends RobotConfig {
 
   private final com.pathplanner.lib.config.RobotConfig PATH_PLANNER_CONFIG =
       new com.pathplanner.lib.config.RobotConfig(
-          Units.Kilogram.of(121),
+          Units.Kilogram.of(100),
           Units.KilogramSquareMeters.of(4.422493401),
           new ModuleConfig(
               WHEEL_RADIUS,

@@ -49,6 +49,8 @@ public class EndEffector extends SubsystemBase {
       logGroup.buildDecimal("TargetVelocityRPM");
   private static final LoggerEntry.EnumValue<ControlMode> logControlMode =
       logGroup.buildEnum("ControlMode");
+  private static final LoggerEntry.Decimal logVelocityOverride =
+      logGroup.buildDecimal("VelocityOverride");
 
   // Tunable numbers
 
@@ -144,6 +146,8 @@ public class EndEffector extends SubsystemBase {
       logInputs_nonScoringSideTOFSignalStrength.info(inputs.nonScoringSideSignalStrength);
 
       logControlMode.info(controlMode);
+
+      logVelocityOverride.info(RobotStates.endEffectorOverrideVelocity);
 
       // Update tunable numbers
 

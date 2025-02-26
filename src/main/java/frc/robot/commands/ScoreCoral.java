@@ -280,7 +280,7 @@ public class ScoreCoral extends StateMachine {
                     arm.isAtTargetAngle(
                         MechanismPositions.reefPosition(RobotStates.scoringLevel).armAngle(),
                         Rotation2d.fromDegrees(1.5)))
-            .debounce(0.5);
+            .debounce(0);
 
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
