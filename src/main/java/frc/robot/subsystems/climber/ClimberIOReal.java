@@ -40,7 +40,7 @@ public class ClimberIOReal implements ClimberIO {
 
   private final BaseStatusSignal[] winchRefreshSet;
 
-  private Servo climberServo = new Servo(0);
+  private Servo climberServo = new Servo(8);
 
   public ClimberIOReal() {
     // Winch motor config
