@@ -67,6 +67,7 @@ import frc.robot.subsystems.arm.ArmIOReal;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOReal;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -342,6 +343,11 @@ public class RobotContainer {
           } catch (InterruptedException e) {
             System.out.println("sleep interrupted");
           }
+          intake = new Intake(new IntakeIO() {});
+          endEffector = new EndEffector(new EndEffectorIOReal());
+          elevator = new Elevator(new ElevatorIOReal());
+          arm = new Arm(new ArmIOReal());
+          climber = new Climber(new ClimberIOReal());
           drivetrain =
               new Drivetrain(
                   config,
@@ -349,11 +355,6 @@ public class RobotContainer {
                   new GyroIO.Fake(),
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
-          intake = new Intake(new IntakeIOReal());
-          endEffector = new EndEffector(new EndEffectorIOReal());
-          elevator = new Elevator(new ElevatorIOReal());
-          arm = new Arm(new ArmIOReal());
-          climber = new Climber(new ClimberIO() {});
           vision =
               new Vision(
                   aprilTagLayout,

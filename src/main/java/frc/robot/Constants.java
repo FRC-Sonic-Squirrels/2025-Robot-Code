@@ -383,15 +383,15 @@ public final class Constants {
 
     public static final Rotation2d MAX_CLIMBER_ANGLE = Rotation2d.fromRotations(0);
     public static final Rotation2d MIN_CLIMBER_ANGLE = Rotation2d.fromRotations(-3.5);
-    public static final Rotation2d HOME_POSITION = MIN_CLIMBER_ANGLE;
+    public static final Rotation2d HOME_POSITION = MAX_CLIMBER_ANGLE;
 
     public static final Rotation2d CLIMBER_SAFE_ANGLE = Rotation2d.fromDegrees(-87);
 
     public static final Distance CLIMBER_LENGTH = Units.Inches.of(14);
 
-    public static final Rotation2d SERVO_LOCK_ANGLE = Rotation2d.fromDegrees(0);
+    public static final Rotation2d SERVO_LOCK_ANGLE = Rotation2d.fromDegrees(90);
 
-    public static final Rotation2d SERVO_UNLOCK_ANGLE = Rotation2d.fromDegrees(20);
+    public static final Rotation2d SERVO_UNLOCK_ANGLE = Rotation2d.fromDegrees(0);
 
     public static final String SERO_ROOT_TABLE = "ClimberServo";
 
