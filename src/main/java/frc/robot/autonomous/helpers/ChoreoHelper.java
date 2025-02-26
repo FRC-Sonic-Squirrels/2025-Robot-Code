@@ -49,6 +49,7 @@ public class ChoreoHelper {
   private static final LoggerEntry.Decimal log_pidVelEffort = logGroup.buildDecimal("pidVelEffort");
   private static final LoggerEntry.StructArray<Pose2d> log_path =
       logGroup.buildStructArray(Pose2d.class, "Path");
+  private static final LoggerEntry.Text log_stallReason = logGroup.buildString("stallReason");
 
   private static final LoggerEntry.Bool log_isPaused = logGroup.buildBoolean("isPaused");
 
@@ -69,6 +70,7 @@ public class ChoreoHelper {
 
   private double finalOffsetErrorLimit = Double.NaN;
   private double finalTargetErrorLimit = Double.NaN;
+  private double finalHeadingErrorLimit = Double.NaN;
   private double finalErrorMaxWait = 2;
   private double finalErrorWaitDeadline = Double.NaN;
 
@@ -139,6 +141,10 @@ public class ChoreoHelper {
 
   public void setFinalTargetError(double maxError) {
     this.finalTargetErrorLimit = Math.abs(maxError);
+  }
+
+  public void setFinalHeadingError(double maxError) {
+    this.finalHeadingErrorLimit = Math.abs(maxError);
   }
 
   public void setFinalErrorMaxWait(double maxWait) {
@@ -246,29 +252,6 @@ public class ChoreoHelper {
       scaleVelocity *= Math.exp(-(timestamp - pausedTime));
     }
 
-    if (atTheEndOfPath) {
-      var waitForOffset = Double.isFinite(finalOffsetErrorLimit);
-      var waitForTarget = Double.isFinite(finalTargetErrorLimit);
-
-      if (waitForOffset || waitForTarget) {
-        if (!Double.isFinite(finalErrorWaitDeadline)) {
-          // Start timer, we don't want to get stuck here forever.
-          finalErrorWaitDeadline = timestamp + finalErrorMaxWait;
-        }
-
-        // Only delay end of path if timer has not fired.
-        if (timestamp < finalErrorWaitDeadline) {
-          if (waitForOffset && Math.abs(offsetError) > finalOffsetErrorLimit) {
-            atTheEndOfPath = false;
-          }
-
-          if (waitForTarget && Math.abs(targetError) > finalTargetErrorLimit) {
-            atTheEndOfPath = false;
-          }
-        }
-      }
-    }
-
     log_stateScaleVel.info(scaleVelocity);
 
     double pidXVel = xFeedback.calculate(xRobot, xDesired);
@@ -291,14 +274,49 @@ public class ChoreoHelper {
     Rotation2d rotation = robotPose.getRotation();
     double theta = rotation.getRadians();
     double omegaVel = state.omega + rotationalFeedback.calculate(theta, state.heading);
+    double headingError = Math.toDegrees(GeometryUtil.optimizeRotation(theta - state.heading));
+
+    String waitingOn = "";
+
+    if (atTheEndOfPath) {
+      var waitForOffset = Double.isFinite(finalOffsetErrorLimit);
+      var waitForTarget = Double.isFinite(finalTargetErrorLimit);
+      var waitForHeading = Double.isFinite(finalHeadingErrorLimit);
+
+      if (waitForOffset || waitForTarget || waitForHeading) {
+        if (!Double.isFinite(finalErrorWaitDeadline)) {
+          // Start timer, we don't want to get stuck here forever.
+          finalErrorWaitDeadline = timestamp + finalErrorMaxWait;
+        }
+
+        // Only delay end of path if timer has not fired.
+        if (timestamp < finalErrorWaitDeadline) {
+          if (waitForOffset && Math.abs(offsetError) > finalOffsetErrorLimit) {
+            waitingOn = (waitingOn + " Offset").trim();
+            atTheEndOfPath = false;
+          }
+
+          if (waitForTarget && Math.abs(targetError) > finalTargetErrorLimit) {
+            waitingOn = (waitingOn + " Target").trim();
+            atTheEndOfPath = false;
+          }
+
+          if (waitForOffset && Math.abs(headingError) > finalHeadingErrorLimit) {
+            waitingOn = (waitingOn + " Heading").trim();
+            atTheEndOfPath = false;
+          }
+        }
+      }
+    }
 
     log_optimalPose.info(state.getPose());
     log_desiredVelocity.info(new Pose2d(xVel, yVel, Rotation2d.fromRadians(omegaVel)));
-    log_headingError.info(Math.toDegrees(GeometryUtil.optimizeRotation(theta - state.heading)));
+    log_headingError.info(headingError);
+    log_stallReason.info(waitingOn);
 
-    return new ChassisSpeedsWithPathEnd(
-        ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(xVel, yVel, omegaVel), rotation),
-        atTheEndOfPath);
+    var chassisSpeeds = new ChassisSpeeds(xVel, yVel, omegaVel);
+    chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, rotation);
+    return new ChassisSpeedsWithPathEnd(chassisSpeeds, atTheEndOfPath);
   }
 
   private SwerveSample isFutureStateCloser(

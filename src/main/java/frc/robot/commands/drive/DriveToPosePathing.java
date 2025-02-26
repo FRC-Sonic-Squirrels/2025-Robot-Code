@@ -74,6 +74,7 @@ public class DriveToPosePathing extends Command {
 
   private double finalOffsetErrorLimit = Double.NaN;
   private double finalTargetErrorLimit = Double.NaN;
+  private double finalHeadingErrorLimit = Double.NaN;
   private double finalErrorMaxWait = 2;
 
   /** Creates a new DriveToPosePathing. */
@@ -95,6 +96,11 @@ public class DriveToPosePathing extends Command {
 
   public DriveToPosePathing setFinalTargetError(double maxError) {
     this.finalTargetErrorLimit = maxError;
+    return this;
+  }
+
+  public DriveToPosePathing setFinalHeadingError(double maxError) {
+    this.finalHeadingErrorLimit = maxError;
     return this;
   }
 
@@ -134,6 +140,7 @@ public class DriveToPosePathing extends Command {
     helper.setFinalErrorMaxWait(finalErrorMaxWait);
     helper.setFinalOffsetError(finalOffsetErrorLimit);
     helper.setFinalTargetError(finalTargetErrorLimit);
+    helper.setFinalHeadingError(finalHeadingErrorLimit);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
