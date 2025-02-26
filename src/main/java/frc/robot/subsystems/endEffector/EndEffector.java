@@ -72,9 +72,9 @@ public class EndEffector extends SubsystemBase {
   private static final LoggedTunableNumber scoringVelocityRPM =
       group.build("ScoringVelocityRPM", -3000);
 
-  private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 400);
+  private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 800);
   private static final LoggedTunableNumber maxTurns = group.build("alignMaxTurns", 18);
-  private static final LoggedTunableNumber alignTolerance = group.build("alignTolerance", 0.1);
+  private static final LoggedTunableNumber alignTolerance = group.build("alignTolerance", 2);
   private static final LoggedTunableNumber alignL1Turns = group.build("alignL1Turns", 1);
   private static final LoggedTunableNumber alignL2Turns = group.build("alignL2Turns", 2);
   private static final LoggedTunableNumber alignL3Turns = group.build("alignL3Turns", 3);
