@@ -699,10 +699,7 @@ public class RobotContainer {
                 drivetrainWrapper,
                 () -> {
                   Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
-                  double kP = 0.0;
-                  double kI = 0.0;
-                  double kD = 0.0;
-                  double controlOutput = calculatePIDOutput(kP, kI, kD, robotTranslation);
+
                   double coralStationRotationValue =
                       findNearestCoralStation(robotTranslation, coralStationPose)
                           .getRotation()
@@ -711,10 +708,8 @@ public class RobotContainer {
 
                   // ! means face center; else, rotate to side of reef
                   if (Constants.unusedCode) {
-
                     if (RobotStates.coralInRobot) {
-                      finalRotationValue = controlOutput;
-                      return new Rotation2d(finalRotationValue).rotateBy(Rotation2d.k180deg);
+                      return faceTowardsCenter(robotTranslation);
                     } else {
                       finalRotationValue = coralStationRotationValue;
                       return new Rotation2d(finalRotationValue);
@@ -729,11 +724,7 @@ public class RobotContainer {
                                 .getRotation()
                                 .getRadians();
 
-                    if (RobotStates.coralInRobot) {
-                      return new Rotation2d(finalRotationValue + controlOutput);
-                    } else {
-                      return new Rotation2d(finalRotationValue);
-                    }
+                    return new Rotation2d(finalRotationValue);
                   }
                 },
                 () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
@@ -1065,7 +1056,7 @@ public class RobotContainer {
    * @param reefAprilTagPose - List of all april tag positions
    * @return Rotates robot to face center
    */
-  public static Rotation2d faceTowardsCenter(Pose2d robotTranslation, double controlOutput) {
+  public static Rotation2d faceTowardsCenter(Pose2d robotTranslation) {
     var center = FieldConstants.BLUE_REEF_CENTER_POSE;
     Pose2d centerPose = new Pose2d();
 
@@ -1080,49 +1071,9 @@ public class RobotContainer {
     double angleToCenter = Math.atan2(robotY - targetY, robotX - targetX);
     double normalizedAngleToCenter = Math.atan2(Math.sin(angleToCenter), Math.cos(angleToCenter));
 
-    double finalRotationValue = normalizedAngleToCenter + controlOutput;
+    double finalRotationValue = normalizedAngleToCenter;
     Rotation2d finalRotation = new Rotation2d(finalRotationValue);
     return finalRotation;
-  }
-
-  /**
-   * Calculates the PID control variable
-   *
-   * @param kP - Proportional gain
-   * @param kI - Integral gain
-   * @param kD - Derivative gain
-   * @param robotTranslation - Current robot translation
-   * @return PID control output
-   */
-  public static double calculatePIDOutput(
-      double kP, double kI, double kD, Pose2d robotTranslation) {
-    Pose2d centerPose = new Pose2d();
-    AllianceFlipUtil.flipPoseForAlliance(centerPose);
-
-    double cumulativeError = 0.0;
-    double previousError = 0.0;
-    long previousTime = System.nanoTime();
-    long currentTime = System.nanoTime();
-    double timeInterval = (currentTime - previousTime) / 1_000_000.0;
-
-    double currentRotation = robotTranslation.getRotation().getRadians();
-    double targetRotation = centerPose.getRotation().getRadians();
-
-    double currentError = targetRotation - currentRotation;
-    double proportionalOutput = kP * currentError;
-
-    cumulativeError += currentError * timeInterval;
-    double integralOutput = kI * cumulativeError;
-
-    double rateOfChangeError = (currentError - previousError) / timeInterval;
-    double derivativeOutput = kD * rateOfChangeError;
-
-    double controlOutput = proportionalOutput + integralOutput + derivativeOutput;
-
-    previousError = currentError;
-    previousTime = currentTime;
-
-    return controlOutput;
   }
 
   /**
