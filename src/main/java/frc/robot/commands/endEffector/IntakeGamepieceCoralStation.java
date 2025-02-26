@@ -85,7 +85,8 @@ public class IntakeGamepieceCoralStation extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotStates.endEffectorDesiredAction != RobotStates.EndEffectorDesiredAction.CoralStationIntake;
+    return RobotStates.endEffectorDesiredAction
+        != RobotStates.EndEffectorDesiredAction.CoralStationIntake;
   }
 
   private double distToHumanPlayerStation(Translation2d translation) {

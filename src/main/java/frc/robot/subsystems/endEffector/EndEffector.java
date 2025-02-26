@@ -74,6 +74,11 @@ public class EndEffector extends SubsystemBase {
 
   private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 400);
   private static final LoggedTunableNumber maxTurns = group.build("alignMaxTurns", 18);
+  private static final LoggedTunableNumber alignTolerance = group.build("alignTolerance", 0.1);
+  private static final LoggedTunableNumber alignL1Turns = group.build("alignL1Turns", 1);
+  private static final LoggedTunableNumber alignL2Turns = group.build("alignL2Turns", 2);
+  private static final LoggedTunableNumber alignL3Turns = group.build("alignL3Turns", 3);
+  private static final LoggedTunableNumber alignL4Turns = group.build("alignL4Turns", 4);
 
   // -- //
 
@@ -203,17 +208,44 @@ public class EndEffector extends SubsystemBase {
 
               desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase4;
             }
+            break;
 
           case AlignCoralPhase4:
             double diff = Math.abs(getMotorPosition() - zeroCoralPosition);
             //          log_Position.info(dif);
             if (diff >= maxTurns.get()) {
+              zeroCoralPosition = getMotorPosition();
               desiredAction = RobotStates.EndEffectorDesiredAction.AlignedCoral;
             }
             break;
 
           case AlignedCoral:
-            setPercentOut(0);
+            double pos = getMotorPosition() - zeroCoralPosition;
+            double desiredPos = 0;
+            switch (RobotStates.scoringLevel) {
+              case L1:
+                desiredPos = alignL1Turns.get();
+                break;
+              case L2:
+                desiredPos = alignL2Turns.get();
+                break;
+              case L3:
+                desiredPos = alignL3Turns.get();
+                break;
+              case L4:
+                desiredPos = alignL4Turns.get();
+                break;
+              default:
+                setPercentOut(0);
+                break;
+            }
+            if (Math.abs(pos - desiredPos) < alignTolerance.get()) {
+              setPercentOut(0);
+            } else if (pos > desiredPos) {
+              setVelocity(-correctionVelocity.get());
+            } else if (pos < desiredPos) {
+              setVelocity(correctionVelocity.get());
+            }
             break;
 
           case ScoreFastForward:
