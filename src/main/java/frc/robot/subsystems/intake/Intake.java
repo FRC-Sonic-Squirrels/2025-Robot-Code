@@ -106,6 +106,18 @@ public class Intake extends SubsystemBase {
 
       pivotMaxVelocityConfig.initDefault(40);
       pivotTargetAccelerationConfig.initDefault(80);
+    } else {
+      rKS.initDefault(0);
+      rKP.initDefault(0.4);
+      rKV.initDefault(0.13);
+      rollerTargetAccelerationConfig.initDefault(200);
+
+      pKP.initDefault(200);
+      pKD.initDefault(5);
+      pKG.initDefault(0.4);
+
+      pivotMaxVelocityConfig.initDefault(100);
+      pivotTargetAccelerationConfig.initDefault(100);
     }
   }
 
@@ -223,7 +235,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void resetPivotSensorToHomePosition() {
-    io.resetPivotSensorPosition(PivotConstants.MAX_PIVOT_ANGLE);
+    io.resetPivotSensorPosition(PivotConstants.HOME_POSITION);
   }
 
   public boolean setPivotNeutralMode(NeutralModeValue value) {

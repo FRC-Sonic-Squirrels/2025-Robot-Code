@@ -20,7 +20,7 @@ public class IntakeIOSim implements IntakeIO {
   private TalonFXSim rollerMotor =
       new TalonFXSim(
           DCMotor.getKrakenX60Foc(1),
-          Constants.IntakeConstants.GEARING,
+          Constants.IntakeConstants.ROLLER_GEARING,
           Constants.IntakeConstants.MOI);
 
   private TalonFXArmSim pivotSim =

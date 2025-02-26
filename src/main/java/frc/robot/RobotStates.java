@@ -91,7 +91,7 @@ public class RobotStates {
     logL4State.info(level == ScoringLevel.L4);
     logAlgaeClearingState.info(clearingAlgae);
     logGamepieceInRobotState.info(coralInRobot);
-    logGamepieceInIntakeState.info(coralInIntake);
+    logGamepieceInIntakeState.info(coralInIntake || algaeInRobot);
     logGamepieceInEndEffectorState.info(coralInEndEffector);
     logGamepieceInEndEffectorScoringSideState.info(coralInEndEffectorScoringSide);
     logGamepieceInEndEffectorNonScoringSideState.info(coralInEndEffectorNonScoringSide);

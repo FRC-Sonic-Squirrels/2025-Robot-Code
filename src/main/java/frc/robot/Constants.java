@@ -230,27 +230,27 @@ public final class Constants {
   public static class IntakeConstants { // TODO: check all constants for new season
     public static final double INTAKING_PERCENT_OUT = 1.0;
 
-    public static final double GEARING = 1.0;
+    public static final double ROLLER_GEARING = 10.4167;
     public static final double MOI = 0.05;
 
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
     public static final String ROOT_TABLE = "Intake";
 
     public static class PivotConstants { // TODO: check all constants
-      public static final double SUPPLY_CURRENT_LIMIT = 0;
+      public static final double SUPPLY_CURRENT_LIMIT = 60;
 
-      public static final double GEAR_RATIO = (16.0 / 42.0) * (16.0 / 56.0);
+      public static final double GEAR_RATIO = 79.693;
 
       public static final double MOI = .00001;
 
-      public static final double GAMEPIECE_INTAKE_SPEED_RPM = -1000;
+      public static final double GAMEPIECE_INTAKE_SPEED_RPM = 1000;
 
-      public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(91);
-      public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(-80);
-      public static final Rotation2d HOME_POSITION = MAX_PIVOT_ANGLE;
+      public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(129);
+      public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(0);
+      public static final Rotation2d HOME_POSITION = MIN_PIVOT_ANGLE;
 
-      public static final Rotation2d INITIAL_PIVOT_ANGLE = Rotation2d.fromDegrees(-30);
-      public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(-30);
+      public static final Rotation2d INITIAL_PIVOT_ANGLE = Rotation2d.fromDegrees(120);
+      public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(120);
 
       public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
 

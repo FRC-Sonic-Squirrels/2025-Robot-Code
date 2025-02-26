@@ -64,7 +64,7 @@ public class IntakeIOReal implements IntakeIO {
 
     rollerConfig.CurrentLimits = rollerCurrentLimitConfig;
 
-    rollerConfig.Feedback.SensorToMechanismRatio = IntakeConstants.GEARING;
+    rollerConfig.Feedback.SensorToMechanismRatio = IntakeConstants.ROLLER_GEARING;
     rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
