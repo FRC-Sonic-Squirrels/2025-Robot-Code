@@ -699,6 +699,12 @@ public class RobotContainer {
                 drivetrainWrapper,
                 () -> {
                   Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
+                  Translation2d targetTranslation = FieldConstants.BLUE_REEF_CENTER_POSE;
+                  Pose2d centerPose = new Pose2d();
+                  AllianceFlipUtil.flipPoseForAlliance(centerPose);
+
+                  double robotXVelocity = drivetrainWrapper.getFieldRelativeVelocities().getX();
+                  double robotYVelocity = drivetrainWrapper.getFieldRelativeVelocities().getY();
 
                   double coralStationRotationValue =
                       findNearestCoralStation(robotTranslation, coralStationPose)
@@ -707,9 +713,10 @@ public class RobotContainer {
                   double finalRotationValue;
 
                   // ! means face center; else, rotate to side of reef
-                  if (Constants.unusedCode) {
+                  if (!Constants.unusedCode) {
                     if (RobotStates.coralInRobot) {
-                      return faceTowardsCenter(robotTranslation);
+                      return faceTowardsCenter(
+                          robotTranslation, targetTranslation, robotXVelocity, robotYVelocity);
                     } else {
                       finalRotationValue = coralStationRotationValue;
                       return new Rotation2d(finalRotationValue);
@@ -1009,13 +1016,12 @@ public class RobotContainer {
     Pose2d nearestAprilTag = null;
     int start;
     double minDistance = 10000000000.0;
-
     start = Constants.isRedAlliance() ? 6 : 0;
 
     for (int i = start; i < start + 6; i++) {
       Translation2d aprilTag = reefAprilTagPose[i].getTranslation();
-
       double distance = robotTranslation.getTranslation().getDistance(aprilTag);
+
       if (distance < minDistance) {
         minDistance = distance;
         nearestAprilTag = reefAprilTagPose[i];
@@ -1056,24 +1062,25 @@ public class RobotContainer {
    * @param reefAprilTagPose - List of all april tag positions
    * @return Rotates robot to face center
    */
-  public static Rotation2d faceTowardsCenter(Pose2d robotTranslation) {
-    var center = FieldConstants.BLUE_REEF_CENTER_POSE;
-    Pose2d centerPose = new Pose2d();
-
-    AllianceFlipUtil.flipPoseForAlliance(centerPose);
-
-    double targetX = center.getX();
-    double targetY = center.getY();
+  public static Rotation2d faceTowardsCenter(
+      Pose2d robotTranslation,
+      Translation2d targetTranslation,
+      double robotXVelocity,
+      double robotYVelocity) {
+    double targetX = targetTranslation.getX();
+    double targetY = targetTranslation.getY();
 
     double robotX = robotTranslation.getX();
     double robotY = robotTranslation.getY();
 
     double angleToCenter = Math.atan2(robotY - targetY, robotX - targetX);
     double normalizedAngleToCenter = Math.atan2(Math.sin(angleToCenter), Math.cos(angleToCenter));
+    double diagonalRobotVelocity =
+        Math.sqrt((robotXVelocity * robotXVelocity) + (robotYVelocity * robotYVelocity));
 
+    double angularVelocity = diagonalRobotVelocity / normalizedAngleToCenter;
     double finalRotationValue = normalizedAngleToCenter;
-    Rotation2d finalRotation = new Rotation2d(finalRotationValue);
-    return finalRotation;
+    return new Rotation2d(finalRotationValue + angularVelocity);
   }
 
   /**
