@@ -2,7 +2,6 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
@@ -14,9 +13,6 @@ import frc.robot.subsystems.intake.Intake;
 public class IntakeGround extends Command {
   // boolean coralInIntake = RobotStates.coralInIntake;
   private final Intake intake;
-  private final Trigger gamepieceInIntake =
-      new Trigger(() -> RobotStates.coralInIntake || RobotStates.algaeInRobot).debounce(0.25);
-
   private static final LoggerGroup logGroup = LoggerGroup.build("Intake Gamepiece");
 
   private static final LoggerEntry.Bool logInputs_algaeInRobot =
@@ -51,7 +47,7 @@ public class IntakeGround extends Command {
   public void execute() {
     logInputs_algaeInRobot.info(RobotStates.algaeInRobot);
     logInputs_coralInIntake.info(RobotStates.coralInIntake);
-    if (gamepieceInIntake.getAsBoolean()) {
+    if (intake.intakeTimeOfFlight() || RobotStates.algaeInRobot) {
       intake.setPivotAngle(PivotConstants.ALGAE_SCORE_ANGLE);
       intake.setRollerPercentOut(0);
     }
@@ -64,6 +60,6 @@ public class IntakeGround extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return gamepieceInIntake.getAsBoolean() && intake.isPivotAtTargetAngle();
+    return intake.intakeTimeOfFlight() || RobotStates.algaeInRobot && intake.isPivotAtTargetAngle();
   }
 }

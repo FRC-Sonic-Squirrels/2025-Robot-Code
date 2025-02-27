@@ -283,6 +283,6 @@ public class Intake extends SubsystemBase {
 
   public boolean intakeTimeOfFlight() {
     // TODO: get an actual value fot this this code is only for testing purposes
-    return inputs.tofDistanceInches <= 1;
+    return inputs.intakeTofDetected;
   }
 }

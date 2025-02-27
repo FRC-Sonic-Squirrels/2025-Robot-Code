@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -11,17 +12,21 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.UpdateModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
@@ -39,12 +44,19 @@ public class IntakeIOReal implements IntakeIO {
 
   private final MotionMagicVelocityVoltage rollerClosedLoopControl =
       new MotionMagicVelocityVoltage(0).withEnableFOC(true);
+  private final CANrange intakeTOF = new CANrange(Constants.CanIDs.INTAKE_TOF_CAN_ID, "CANivore");
+
+  private final StatusSignal<Distance> intakeTofDistance;
+  private final StatusSignal<Boolean> intakeTofDetected;
+  private final StatusSignal<Double> intakeTofSignalStrength;
 
   private final StatusSignal<Voltage> pivotAppliedVoltage;
   private final StatusSignal<Angle> pivotPosition;
   private final StatusSignal<Current> pivotCurrent;
   private final StatusSignal<Temperature> pivotTemp;
   private final StatusSignal<AngularVelocity> pivotVelocity;
+
+  private final Trigger stallDetected;
 
   private final MotionMagicVoltage pivotClosedLoopControl =
       new MotionMagicVoltage(0.0).withEnableFOC(true);
@@ -53,6 +65,7 @@ public class IntakeIOReal implements IntakeIO {
   private final TalonFX pivotMotor = new TalonFX(Constants.CanIDs.INTAKE_PIVOT_CAN_ID);
 
   private final BaseStatusSignal[] refreshSet;
+  private final BaseStatusSignal[] refreshSetSensors;
 
   public IntakeIOReal() {
     // Motor config
@@ -139,24 +152,63 @@ public class IntakeIOReal implements IntakeIO {
           pivotVelocity,
           pivotPosition
         };
+    // Time of Flight
+    CANrangeConfiguration canRangeConfigIntake = new CANrangeConfiguration();
+
+    canRangeConfigIntake.FovParams.FOVRangeX = 6.75;
+    canRangeConfigIntake.FovParams.FOVRangeY = 6.75;
+
+    canRangeConfigIntake.ProximityParams.ProximityThreshold = Units.Inches.of(2.5).in(Units.Meters);
+    canRangeConfigIntake.ProximityParams.ProximityHysteresis = 0.01;
+    canRangeConfigIntake.ProximityParams.MinSignalStrengthForValidMeasurement = 30000;
+
+    canRangeConfigIntake.ToFParams.UpdateFrequency = 100;
+    canRangeConfigIntake.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq;
+
+    intakeTOF.getConfigurator().apply(canRangeConfigIntake);
+
+    intakeTofDistance = intakeTOF.getDistance();
+    intakeTofDetected = intakeTOF.getIsDetected();
+    intakeTofSignalStrength = intakeTOF.getSignalStrength();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(20, intakeTofSignalStrength);
+
+    BaseStatusSignal.setUpdateFrequencyForAll(100, intakeTofDistance, intakeTofDetected);
+
+    intakeTOF.optimizeBusUtilization();
+
+    refreshSetSensors =
+        new BaseStatusSignal[] {
+          intakeTofDistance, intakeTofDetected, intakeTofSignalStrength,
+        };
+    stallDetected =
+        new Trigger(
+                () ->
+                    rollerVelocity.getValueAsDouble() <= 1
+                        && rollerAppliedVoltage.getValueAsDouble() != 0)
+            .debounce(.1);
   }
 
   @Override
   public void updateInputs(Inputs inputs) {
     inputs.refreshAll(refreshSet);
+    inputs.refreshAll(refreshSetSensors);
 
     inputs.rollerCurrentAmps = rollerCurrent.getValue().in(Units.Amps);
     inputs.rollerTempCelsius = rollerDeviceTemp.getValue().in(Units.Celsius);
     inputs.rollerAppliedVolts = rollerAppliedVoltage.getValue().in(Units.Volts);
     inputs.rollerVelocityRPM = rollerVelocity.getValue().in(Units.RPM);
-    inputs.rollerStallDetected =
-        rollerVelocity.getValueAsDouble() <= 10 && rollerAppliedVoltage.getValueAsDouble() != 0;
+    inputs.rollerStallDetected = stallDetected.getAsBoolean();
 
     inputs.pivotPosition = Rotation2d.fromRotations(pivotPosition.getValue().in(Units.Rotations));
     inputs.pivotAppliedVolts = pivotAppliedVoltage.getValue().in(Units.Volts);
     inputs.pivotCurrentAmps = pivotCurrent.getValue().in(Units.Amps);
     inputs.pivotTempCelsius = pivotTemp.getValue().in(Units.Celsius);
     inputs.pivotVelocityDegreesPerSecond = pivotVelocity.getValue().in(Units.DegreesPerSecond);
+
+    inputs.intakeTofDetected = intakeTofDetected.getValue();
+    inputs.intakeTofDistanceInches = intakeTofDistance.getValueAsDouble();
+    inputs.intakeTofSignalStrength = intakeTofSignalStrength.getValueAsDouble();
   }
 
   @Override
