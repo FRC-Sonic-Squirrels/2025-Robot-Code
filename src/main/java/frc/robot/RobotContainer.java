@@ -343,7 +343,7 @@ public class RobotContainer {
           } catch (InterruptedException e) {
             System.out.println("sleep interrupted");
           }
-          intake = new Intake(new IntakeIO() {});
+          intake = new Intake(new IntakeIOReal());
           endEffector = new EndEffector(new EndEffectorIOReal());
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
