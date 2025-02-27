@@ -35,7 +35,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.ScoringLevel;
-import frc.robot.autonomous.AutoStateMachine;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
@@ -481,7 +480,7 @@ public class RobotContainer {
                 drivetrain));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.start, "Clear")
+        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Clear Algae")
         .whileTrue(
             new RunStateMachineCommand(
                     () ->
@@ -497,18 +496,18 @@ public class RobotContainer {
                             true))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
-        .whileTrue(
-            new RunStateMachineCommand(
-                () ->
-                    new AutoStateMachine(
-                        new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
-                        Constants.RobotMode.getRobot().config.get(),
-                        (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
+    //     .whileTrue(
+    //         new RunStateMachineCommand(
+    //             () ->
+    //                 new AutoStateMachine(
+    //                     new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
+    //                     Constants.RobotMode.getRobot().config.get(),
+    //                     (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
+        .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake Coral Station")
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
                 drivetrainWrapper, endEffector, elevator, arm, led, driverController, true));
@@ -671,21 +670,21 @@ public class RobotContainer {
     //     .onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
 
     // Automatic Algae Clearing
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.povUp, "Clearing Algae")
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  RobotStates.clearingAlgae = true;
-                }));
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.povUp, "Clearing Algae")
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               RobotStates.clearingAlgae = true;
+    //             }));
 
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.povDown, "Done Clearing Algae")
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  RobotStates.clearingAlgae = false;
-                }));
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.povDown, "Done Clearing Algae")
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               RobotStates.clearingAlgae = false;
+    //             }));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
