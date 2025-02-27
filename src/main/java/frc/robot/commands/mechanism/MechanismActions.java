@@ -119,20 +119,26 @@ public class MechanismActions {
                 log_currentMotionState.info("Getting out of S1");
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateLowBackPosition);
-              } else if (currentMechSection == MechSection.S2) {
-                log_currentMotionState.info("Getting out of S2");
+              } else if (currentMechSection == MechSection.S2
+                  || (currentMechSection == MechSection.S3
+                      && targetMechSection != MechSection.S1)) {
+                log_currentMotionState.info("Getting out of " + currentMechSection.name());
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateLowPosition);
-              } else if (currentMechSection == MechSection.S7) {
-                log_currentMotionState.info("Getting out of S6");
+              } else if (currentMechSection == MechSection.S9
+                  || currentMechSection == MechSection.S8
+                  || currentMechSection == MechSection.S5) {
+                log_currentMotionState.info("Getting out of " + currentMechSection.name());
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateHighPosition);
-              } else if (targetMechSection == MechSection.S2) {
-                log_currentMotionState.info("Getting into S2");
+              } else if (targetMechSection == MechSection.S2
+                  || targetMechSection == MechSection.S3) {
+                log_currentMotionState.info("Getting into " + targetMechSection.name());
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateLowPosition);
-              } else if (targetMechSection == MechSection.S7) {
-                log_currentMotionState.info("Getting into S6");
+              } else if (targetMechSection == MechSection.S9
+                  || targetMechSection == MechSection.S8) {
+                log_currentMotionState.info("Getting into " + targetMechSection.name());
                 goToPositionParallelSimple(
                     elevator, arm, MechanismPositions::intermediateHighPosition);
               } else {
@@ -168,17 +174,17 @@ public class MechanismActions {
 
   private static boolean compatibleMechSections(MechSection mech1, MechSection mech2) {
     if (mech1 == mech2) return true;
-    if ((mech1 == MechSection.S4 || mech1 == MechSection.S5 || mech1 == MechSection.S6)
-        && (mech2 == MechSection.S4 || mech2 == MechSection.S5 || mech2 == MechSection.S6))
+    if ((mech1 == MechSection.S4 || mech1 == MechSection.S6 || mech1 == MechSection.S7)
+        && (mech2 == MechSection.S4 || mech2 == MechSection.S6 || mech2 == MechSection.S7))
       return true;
 
     if ((mech1 == MechSection.S2 || mech1 == MechSection.S3 || mech1 == MechSection.S4)
         && (mech2 == MechSection.S2 || mech2 == MechSection.S3 || mech2 == MechSection.S4))
       return true;
 
-    if (mech1 == MechSection.S6 && mech2 == MechSection.S7) return true;
-
-    if (mech1 == MechSection.S7 && mech2 == MechSection.S6) return true;
+    if ((mech1 == MechSection.S7 || mech1 == MechSection.S8 || mech1 == MechSection.S9)
+        && (mech2 == MechSection.S7 || mech2 == MechSection.S8 || mech2 == MechSection.S9))
+      return true;
 
     if (mech1 == MechSection.S1 && mech2 == MechSection.S2) return true;
 
@@ -218,26 +224,31 @@ public class MechanismActions {
         return MechSection.S2;
       } else if (position.elevatorHeight().in(Units.Inches) < 25) {
         return MechSection.S1;
-      } else return MechSection.S7;
-    } else if (position.armAngle().getDegrees() > 75
-        && position.elevatorHeight().in(Units.Inches) < 25) {
-      return MechSection.S3;
+      } else return MechSection.S9;
+    } else if (position.armAngle().getDegrees() > 75) {
+      if (position.elevatorHeight().in(Units.Inches) < 0.1) {
+        return MechSection.S3;
+      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+        return MechSection.S5;
+      } else return MechSection.S8;
     } else {
       if (position.elevatorHeight().in(Units.Inches) < 0.1) {
         return MechSection.S4;
       } else if (position.elevatorHeight().in(Units.Inches) < 25) {
-        return MechSection.S5;
-      } else return MechSection.S6;
+        return MechSection.S6;
+      } else return MechSection.S7;
     }
   }
 
   private enum MechSection {
-    S1, // elevator below 0.1, arm is back
-    S2, // elevator above 0.1, below top tube, arm is back
+    S1, // elevator above 0.1, below top tube, arm is back
+    S2, // elevator below 0.1, arm is back
     S3, // elevator below top tube, arm under top tube
     S4, // elevator below 0.1, arm is forward
-    S5, // below top tube, elevator above 0.1, arm is forward
-    S6, // above top tube, arm is forward
-    S7 // above top tube, arm is back
+    S5, // below top tube, elevator above 0.1, arm is up
+    S6, // below top tube, elevator above 0.1, arm is forward
+    S7, // above top tube, arm is forward
+    S8, // above top tube, arm is near straight up
+    S9 // above top tube, arm is back
   }
 }

@@ -74,13 +74,13 @@ public class EndEffector extends SubsystemBase {
   private static final LoggedTunableNumber scoringVelocityRPM =
       group.build("ScoringVelocityRPM", -3000);
 
-  private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 800);
-  private static final LoggedTunableNumber maxTurns = group.build("alignMaxTurns", 18);
+  private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 500);
+  private static final LoggedTunableNumber maxTurns = group.build("alignMaxTurns", 1);
   private static final LoggedTunableNumber alignTolerance = group.build("alignTolerance", 2);
-  private static final LoggedTunableNumber alignL1Turns = group.build("alignL1Turns", 1);
-  private static final LoggedTunableNumber alignL2Turns = group.build("alignL2Turns", 2);
-  private static final LoggedTunableNumber alignL3Turns = group.build("alignL3Turns", 3);
-  private static final LoggedTunableNumber alignL4Turns = group.build("alignL4Turns", 4);
+  private static final LoggedTunableNumber alignL1Turns = group.build("alignL1Turns", 5);
+  private static final LoggedTunableNumber alignL2Turns = group.build("alignL2Turns", 1);
+  private static final LoggedTunableNumber alignL3Turns = group.build("alignL3Turns", 12);
+  private static final LoggedTunableNumber alignL4Turns = group.build("alignL4Turns", 12);
 
   // -- //
 
@@ -126,12 +126,14 @@ public class EndEffector extends SubsystemBase {
     return null;
   }
 
+  private int counter = 0;
+  private LoggerEntry.Integer counterLog = logGroup.buildInteger("counter");
+
   @Override
   public void periodic() {
     try (var ignored = timing.start()) {
-      RobotStates.coralInEndEffectorScoringSide = scoringSideTofSeenGamepiece();
-      RobotStates.coralInEndEffectorNonScoringSide = nonScoringSideTOFSeenGamepiece();
-
+      counter++;
+      counterLog.info(counter % 100);
       // Logging
       io.updateInputs(inputs);
       logInputs_velocityRPM.info(inputs.velocityRPM);
@@ -144,6 +146,9 @@ public class EndEffector extends SubsystemBase {
       logInputs_nonScoringSideTOFActivated.info(inputs.nonScoringSideTofDetecting);
       logInputs_scoringSideTofSignalStrength.info(inputs.scoringSideSignalStrength);
       logInputs_nonScoringSideTOFSignalStrength.info(inputs.nonScoringSideSignalStrength);
+
+      RobotStates.coralInEndEffectorScoringSide = scoringSideTofSeenGamepiece();
+      RobotStates.coralInEndEffectorNonScoringSide = nonScoringSideTOFSeenGamepiece();
 
       logControlMode.info(controlMode);
 

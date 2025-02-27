@@ -118,7 +118,7 @@ public class MechanismPositions {
     } else {
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
-      reefL2ElevatorHeightInches.initDefault(7.5);
+      reefL2ElevatorHeightInches.initDefault(8.5);
       reefL2ArmAngleDegrees.initDefault(132.71);
       reefL3ElevatorHeightInches.initDefault(26.94);
       reefL3ArmAngleDegrees.initDefault(138.69);
