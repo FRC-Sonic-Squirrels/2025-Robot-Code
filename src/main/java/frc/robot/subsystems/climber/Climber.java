@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -114,13 +113,13 @@ public class Climber extends SubsystemBase {
 
       logWinchControlMode.info(winchControlMode);
 
-      if (DriverStation.isEnabled()) {
-        if (isWinchAtTargetAngle()) {
-          setServoAngle(Constants.ClimberConstants.SERVO_LOCK_ANGLE);
-        } else {
-          setServoAngle(Constants.ClimberConstants.SERVO_UNLOCK_ANGLE);
-        }
-      }
+      // if (DriverStation.isEnabled()) {
+      //   if (isWinchAtTargetAngle()) {
+      //     setServoAngle(Constants.ClimberConstants.SERVO_LOCK_ANGLE);
+      //   } else {
+      //     setServoAngle(Constants.ClimberConstants.SERVO_UNLOCK_ANGLE);
+      //   }
+      // }
 
       // Updating tunable numbers
       var hc = hashCode();

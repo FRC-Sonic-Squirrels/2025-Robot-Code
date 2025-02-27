@@ -10,6 +10,7 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
+import frc.robot.Constants;
 import frc.robot.subsystems.climber.Climber;
 import java.util.function.BooleanSupplier;
 
@@ -25,7 +26,7 @@ public class Climb extends Command {
 
   private final LoggedTunableNumber firstAngle = tunableGroup.build("Stage1AngleRot", 3);
   private final LoggedTunableNumber secondAngle = tunableGroup.build("Stage2AngleRot", 5);
-  private final LoggedTunableNumber thirdAngle = tunableGroup.build("Stage3AngleRot", 1);
+  private final LoggedTunableNumber thirdAngle = tunableGroup.build("Stage3AngleRot", 2.25);
 
   private final LoggerGroup logGroup = LoggerGroup.build("Climb");
   private final LoggerEntry.Bool logConfirm = logGroup.buildBoolean("Confirm");
@@ -63,6 +64,8 @@ public class Climb extends Command {
       climber.setWinchAngle(Rotation2d.fromRotations(secondAngle.get()));
     } else {
       climber.setWinchAngle(Rotation2d.fromRotations(thirdAngle.get()));
+      if (climber.isWinchAtTargetAngle(Rotation2d.fromDegrees(thirdAngle.get())))
+        climber.setServoAngle(Constants.ClimberConstants.SERVO_LOCK_ANGLE);
     }
 
     logStage.info(stage);
