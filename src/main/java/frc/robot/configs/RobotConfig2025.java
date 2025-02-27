@@ -37,7 +37,7 @@ public class RobotConfig2025 extends RobotConfig {
           1,
           11,
           21,
-          Rotation2d.fromDegrees(131.396), // 129.463
+          Rotation2d.fromDegrees(67.939),
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 1
@@ -46,7 +46,7 @@ public class RobotConfig2025 extends RobotConfig {
           2,
           12,
           22,
-          Rotation2d.fromDegrees(-59.238), // -34.365
+          Rotation2d.fromDegrees(-56.514),
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 2
@@ -55,7 +55,7 @@ public class RobotConfig2025 extends RobotConfig {
           3,
           13,
           23,
-          Rotation2d.fromDegrees(134.736), // 126.65
+          Rotation2d.fromDegrees(130.43),
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
   // 3
@@ -64,7 +64,7 @@ public class RobotConfig2025 extends RobotConfig {
           4,
           14,
           24,
-          Rotation2d.fromDegrees(-64.336), // -63.984
+          Rotation2d.fromDegrees(-84.199),
           InvertedValue.CounterClockwise_Positive,
           InvertedValue.Clockwise_Positive);
 
