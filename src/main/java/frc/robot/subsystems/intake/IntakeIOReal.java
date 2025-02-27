@@ -191,8 +191,7 @@ public class IntakeIOReal implements IntakeIO {
 
   @Override
   public void updateInputs(Inputs inputs) {
-    inputs.refreshAll(refreshSet);
-    inputs.refreshAll(refreshSetSensors);
+    inputs.refreshAll(refreshSet, refreshSetSensors);
 
     inputs.rollerCurrentAmps = rollerCurrent.getValue().in(Units.Amps);
     inputs.rollerTempCelsius = rollerDeviceTemp.getValue().in(Units.Celsius);
