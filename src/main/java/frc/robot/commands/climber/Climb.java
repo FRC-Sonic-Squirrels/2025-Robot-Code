@@ -23,9 +23,9 @@ public class Climb extends Command {
 
   private final TunableNumberGroup tunableGroup = new TunableNumberGroup("Climb");
 
-  private final LoggedTunableNumber firstAngle = tunableGroup.build("Stage1AngleRot", -1.5);
-  private final LoggedTunableNumber secondAngle = tunableGroup.build("Stage2AngleRot", 0);
-  private final LoggedTunableNumber thirdAngle = tunableGroup.build("Stage3AngleRot", -2.75);
+  private final LoggedTunableNumber firstAngle = tunableGroup.build("Stage1AngleRot", 3);
+  private final LoggedTunableNumber secondAngle = tunableGroup.build("Stage2AngleRot", 5);
+  private final LoggedTunableNumber thirdAngle = tunableGroup.build("Stage3AngleRot", 1);
 
   private final LoggerGroup logGroup = LoggerGroup.build("Climb");
   private final LoggerEntry.Bool logConfirm = logGroup.buildBoolean("Confirm");
@@ -37,12 +37,14 @@ public class Climb extends Command {
     this.confirmButton = confirmButton;
 
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(climber);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     stage = 1;
+    prevConfirm = true;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
