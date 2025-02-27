@@ -7,18 +7,24 @@ import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 
 public class RobotStates {
   public enum EndEffectorDesiredAction {
-    Idle,
-    CoralStationIntake,
-    GroundIntake,
-    AlignCoral,
-    AlignCoralPhase2,
-    AlignCoralPhase3,
-    AlignCoralPhase4,
-    AlignedCoral,
-    ScoreFastForward,
-    ScoreFastBackward,
-    ScoreSlowForward,
-    ScoreSlowBackward,
+    Idle(false),
+    CoralStationIntake(false),
+    GroundIntake(false),
+    AlignCoral(true),
+    AlignCoralPhase2(true),
+    AlignCoralPhase3(true),
+    AlignCoralPhase4(true),
+    AlignedCoral(true),
+    ScoreFastForward(false),
+    ScoreFastBackward(false),
+    ScoreSlowForward(false),
+    ScoreSlowBackward(false);
+
+    public final boolean alignmentActive;
+
+    EndEffectorDesiredAction(boolean alignmentActive) {
+      this.alignmentActive = alignmentActive;
+    }
   }
 
   public enum ScoringLevel {
@@ -77,8 +83,13 @@ public class RobotStates {
   public static Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
   public static Trigger triggerForCoralInEndEffector = new Trigger(() -> coralInEndEffector);
 
+  public static void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
+    if (!endEffectorDesiredAction.alignmentActive) {
+      endEffectorDesiredAction = action;
+    }
+  }
+
   public static void periodic() {
-    coralInEndEffector = coralInEndEffectorScoringSide || coralInEndEffectorNonScoringSide;
     coralInRobot = coralInEndEffector || coralInIntake;
 
     logEndEffectorDesiredAction.info(endEffectorDesiredAction);

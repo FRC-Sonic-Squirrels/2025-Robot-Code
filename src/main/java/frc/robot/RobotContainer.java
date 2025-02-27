@@ -670,12 +670,7 @@ public class RobotContainer {
                                         RobotStates.targetReefSide, RobotStates.scoringLevel));
                               }
                             })
-                        .andThen(new EndEffectorSetRPM(-6000)))
-                .andThen(
-                    Commands.runOnce(
-                        () ->
-                            RobotStates.endEffectorDesiredAction =
-                                RobotStates.EndEffectorDesiredAction.Idle)));
+                        .andThen(new EndEffectorSetRPM(-6000))));
     // .toggleOnTrue(
     //     new RotateToAngle(
     //         drivetrainWrapper,
@@ -829,8 +824,8 @@ public class RobotContainer {
                 MechanismActions.stowPosition(elevator, arm)
                     .finallyDo(
                         () -> {
-                          RobotStates.endEffectorDesiredAction =
-                              RobotStates.EndEffectorDesiredAction.AlignCoral;
+                          RobotStates.changeEndEffectorIfNotAligning(
+                              RobotStates.EndEffectorDesiredAction.AlignCoral);
                         }))
             .withName("GamepieceIntoEECommand"));
 

@@ -357,7 +357,6 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler end(boolean interrupted) {
-    RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.Idle;
     led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
     usingDrivetrain = false;
     Pose2d initPose = wrapper.getRawOdometryPose();

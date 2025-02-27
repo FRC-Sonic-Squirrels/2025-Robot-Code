@@ -59,7 +59,8 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.CoralStationIntake;
+    RobotStates.changeEndEffectorIfNotAligning(
+        RobotStates.EndEffectorDesiredAction.CoralStationIntake);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -79,7 +80,7 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+    RobotStates.changeEndEffectorIfNotAligning(RobotStates.EndEffectorDesiredAction.Idle);
   }
 
   // Returns true when the command should end.
