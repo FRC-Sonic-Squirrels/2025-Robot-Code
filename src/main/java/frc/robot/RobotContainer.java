@@ -197,9 +197,15 @@ public class RobotContainer {
       intake = new Intake(new IntakeIO() {});
       endEffector = new EndEffector(new EndEffectorIO() {});
       climber = new Climber(new ClimberIO() {});
-      visionGamepiece =
-          new VisionGamepiece(
-              new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+
+      if (Constants.unusedCode) {
+        visionGamepiece =
+            new VisionGamepiece(
+                new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+      } else {
+        visionGamepiece = null;
+      }
+
       led =
           new LED(
               () -> brakeModeTriggered,
@@ -229,9 +235,13 @@ public class RobotContainer {
                     drivetrain::addVisionEstimate,
                     config.getVisionModuleObjects());
 
-            visionGamepiece =
-                new VisionGamepiece(
-                    new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+            if (Constants.unusedCode) {
+              visionGamepiece =
+                  new VisionGamepiece(
+                      new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+            } else {
+              visionGamepiece = null;
+            }
 
           } else {
             VisionModuleConfiguration[] visionModules = {
@@ -255,10 +265,14 @@ public class RobotContainer {
                     drivetrain::addVisionEstimate,
                     visionModules);
 
-            visionGamepiece =
-                new VisionGamepiece(
-                    new VisionGamepieceIOSim(config, drivetrain::getReefPoseEstimatorPose),
-                    drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+            if (Constants.unusedCode) {
+              visionGamepiece =
+                  new VisionGamepiece(
+                      new VisionGamepieceIOSim(config, drivetrain::getReefPoseEstimatorPose),
+                      drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+            } else {
+              visionGamepiece = null;
+            }
           }
 
           arm = new Arm(new ArmIOSim());
@@ -294,9 +308,14 @@ public class RobotContainer {
           intake = new Intake(new IntakeIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
           climber = new Climber(new ClimberIO() {});
-          visionGamepiece =
-              new VisionGamepiece(
-                  new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+
+          if (Constants.unusedCode) {
+            visionGamepiece =
+                new VisionGamepiece(
+                    new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+          } else {
+            visionGamepiece = null;
+          }
 
           led =
               new LED(
@@ -326,9 +345,13 @@ public class RobotContainer {
                   drivetrain::addVisionEstimate,
                   config.getVisionModuleObjects());
 
-          visionGamepiece =
-              new VisionGamepiece(
-                  new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+          if (Constants.unusedCode) {
+            visionGamepiece =
+                new VisionGamepiece(
+                    new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+          } else {
+            visionGamepiece = null;
+          }
 
           led =
               new LED(
@@ -363,9 +386,13 @@ public class RobotContainer {
                   drivetrain::addVisionEstimate,
                   config.getVisionModuleObjects());
 
-          visionGamepiece =
-              new VisionGamepiece(
-                  new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+          if (Constants.unusedCode) {
+            visionGamepiece =
+                new VisionGamepiece(
+                    new VisionGamepieceIOReal(), drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+          } else {
+            visionGamepiece = null;
+          }
 
           led =
               new LED(
@@ -395,9 +422,14 @@ public class RobotContainer {
           intake = new Intake(new IntakeIO() {});
           endEffector = new EndEffector(new EndEffectorIO() {});
           climber = new Climber(new ClimberIO() {});
-          visionGamepiece =
-              new VisionGamepiece(
-                  new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+
+          if (Constants.unusedCode) {
+            visionGamepiece =
+                new VisionGamepiece(
+                    new VisionGamepieceIO() {}, drivetrain::getReefPoseEstimatorPoseAtTimestamp);
+          } else {
+            visionGamepiece = null;
+          }
 
           led =
               new LED(
@@ -1062,7 +1094,9 @@ public class RobotContainer {
     vision.useMaxDistanceAwayFromExistingEstimate(true);
     vision.useGyroBasedFilteringForVision(true);
 
-    visionGamepiece.setPipelineIndex(0);
+    if (visionGamepiece != null) {
+      visionGamepiece.setPipelineIndex(0);
+    }
 
     is_teleop = false;
     is_autonomous = true;
@@ -1076,7 +1110,9 @@ public class RobotContainer {
 
     led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
 
-    visionGamepiece.setPipelineIndex(1);
+    if (visionGamepiece != null) {
+      visionGamepiece.setPipelineIndex(1);
+    }
 
     is_teleop = true;
     is_autonomous = false;
