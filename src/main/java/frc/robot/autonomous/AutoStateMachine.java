@@ -133,6 +133,19 @@ public class AutoStateMachine extends StateMachine {
     this.config = config;
 
     setInitialState(stateWithName("PrepScorePathing", () -> prepScoreCoralPathing()));
+
+    preloadCode();
+  }
+
+  private void preloadCode() {
+    // Pretend to create a path, to load all the pathing code.
+    var cmd =
+        new DriveToPosePathing(
+            wrapper,
+            config,
+            () -> wrapper.getCoralStationPoseEstimatorPose(true),
+            this::getClosestCoralStationPose);
+    cmd.initializeNoCheck();
   }
 
   // CORAL SCORING STATES

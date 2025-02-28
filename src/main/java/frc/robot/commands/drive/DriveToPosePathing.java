@@ -119,6 +119,11 @@ public class DriveToPosePathing extends Command {
       return;
     }
 
+    initializeNoCheck();
+  }
+
+  public void initializeNoCheck() {
+    Pose2d targetPose = this.targetPose.get();
     var rotations = generateStartAndEndRotations(targetPose, currentPose.get());
 
     var traj = generatePath(rotations.getFirst(), rotations.getSecond());
