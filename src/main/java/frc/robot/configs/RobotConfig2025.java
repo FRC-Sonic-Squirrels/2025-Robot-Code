@@ -124,7 +124,7 @@ public class RobotConfig2025 extends RobotConfig {
   private static final LoggedTunableNumber AUTO_MAX_SPEED_METERS_PER_SECOND =
       group.build("AUTO_MAX_SPEED", 5.0);
   private static final LoggedTunableNumber AUTO_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED =
-      group.build("AUTO_MAX_ACCEL", 2.0);
+      group.build("AUTO_MAX_ACCEL", 16.0);
   private static final LoggedTunableNumber AUTO_MAX_ANGULAR_VEL_RADIANS_PER_SECOND =
       group.build("AUTO_MAX_ANGULAR_VEL_RAD_PER_SECOND", Math.PI * 4);
   private static final LoggedTunableNumber

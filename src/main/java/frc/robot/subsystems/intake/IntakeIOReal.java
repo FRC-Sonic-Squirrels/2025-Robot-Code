@@ -254,7 +254,6 @@ public class IntakeIOReal implements IntakeIO {
     var slot0Configs = new Slot0Configs();
 
     pivotMotor.getConfigurator().refresh(slot0Configs);
-    pivotMotor.getConfigurator().refresh(mmConfigs);
 
     slot0Configs.kP = kP;
     slot0Configs.kD = kD;

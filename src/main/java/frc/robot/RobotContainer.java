@@ -778,15 +778,15 @@ public class RobotContainer {
 
     // Intake positions
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.a, "Intake Pivot Out")
+        .registerTrigger(XboxControllerWrapper.Button.a, "Intake Pivot In")
         .onTrue(
             new IntakeSetPivotAngle(
-                intake, Constants.IntakeConstants.PivotConstants.MAX_PIVOT_ANGLE));
+                intake, Constants.IntakeConstants.PivotConstants.PIVOT_STOWED_ANGLE));
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Intake Pivot In")
+        .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Intake Pivot Out")
         .onTrue(
             new IntakeSetPivotAngle(
-                intake, Constants.IntakeConstants.PivotConstants.HOME_POSITION));
+                intake, Constants.IntakeConstants.PivotConstants.MIN_PIVOT_ANGLE));
 
     // End Effector Rotation
     operatorController
@@ -800,7 +800,12 @@ public class RobotContainer {
     // Climber in
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.b, "Climber In")
-        .onTrue(new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE));
+        .onTrue(
+            Commands.runOnce(
+                    () -> climber.setServoAngle(Constants.ClimberConstants.SERVO_UNLOCK_ANGLE))
+                .andThen(Commands.waitSeconds(0.15))
+                .andThen(
+                    new ClimberSetAngle(climber, Constants.ClimberConstants.MIN_CLIMBER_ANGLE)));
 
     operatorController
         .registerTrigger(
@@ -1084,6 +1089,7 @@ public class RobotContainer {
 
     arm.setVoltage(0);
     elevator.setPercentOut(0);
+    climber.setWinchVoltage(0);
 
     is_teleop = false;
     is_autonomous = false;
@@ -1104,6 +1110,7 @@ public class RobotContainer {
 
   public void enterTeleop() {
     // setBrakeMode();
+    climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
     resetDrivetrainResetOverrides();
     vision.useMaxDistanceAwayFromExistingEstimate(true);
     vision.useGyroBasedFilteringForVision(true);

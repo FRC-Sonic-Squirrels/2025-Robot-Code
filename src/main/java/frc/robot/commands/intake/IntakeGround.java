@@ -23,8 +23,8 @@ public class IntakeGround extends Command {
 
   private static final TunableNumberGroup group = new TunableNumberGroup("Intake Gamepiece");
 
-  private static final LoggedTunableNumber maximumPivotAngle =
-      group.build("maxPivotAngle", PivotConstants.MAX_PIVOT_ANGLE.getDegrees());
+  private static final LoggedTunableNumber intakingPivotAngle =
+      group.build("IntakingAngleDeg", PivotConstants.MIN_PIVOT_ANGLE.getDegrees());
 
   /** Creates a new IntakeGround */
   public IntakeGround(Intake intake) {
@@ -38,7 +38,7 @@ public class IntakeGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intake.setPivotAngle(Rotation2d.fromDegrees(maximumPivotAngle.get()));
+    intake.setPivotAngle(Rotation2d.fromDegrees(intakingPivotAngle.get()));
     intake.setRollerVelocity(PivotConstants.GAMEPIECE_INTAKE_SPEED_RPM);
   }
 
@@ -47,15 +47,17 @@ public class IntakeGround extends Command {
   public void execute() {
     logInputs_algaeInRobot.info(RobotStates.algaeInRobot);
     logInputs_coralInIntake.info(RobotStates.coralInIntake);
-    if (intake.intakeTimeOfFlight() || RobotStates.algaeInRobot) {
-      intake.setPivotAngle(PivotConstants.ALGAE_SCORE_ANGLE);
-      intake.setRollerPercentOut(0);
-    }
+    // if (intake.intakeTimeOfFlight() || RobotStates.algaeInRobot) {
+    //   intake.setPivotAngle(PivotConstants.ALGAE_SCORE_ANGLE);
+    //   intake.setRollerPercentOut(0);
+    // }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intake.setRollerPercentOut(0);
+  }
 
   // Returns true when the command should end.
   @Override

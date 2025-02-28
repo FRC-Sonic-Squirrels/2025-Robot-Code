@@ -250,7 +250,7 @@ public final class Constants {
       public static final Rotation2d HOME_POSITION = MIN_PIVOT_ANGLE;
 
       public static final Rotation2d INITIAL_PIVOT_ANGLE = Rotation2d.fromDegrees(120);
-      public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(120);
+      public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(105);
 
       public static final Rotation2d PIVOT_SAFE_ANGLE = Rotation2d.fromDegrees(90);
 
@@ -379,7 +379,7 @@ public final class Constants {
 
     public static final double WINCH_MOI = 0.15;
 
-    public static final Rotation2d MAX_CLIMBER_ANGLE = Rotation2d.fromRotations(8.0);
+    public static final Rotation2d MAX_CLIMBER_ANGLE = Rotation2d.fromRotations(12.0);
     public static final Rotation2d MIN_CLIMBER_ANGLE = Rotation2d.fromRotations(0);
     public static final Rotation2d HOME_POSITION = MAX_CLIMBER_ANGLE;
 

@@ -25,8 +25,8 @@ public class Climb extends Command {
 
   private final TunableNumberGroup tunableGroup = new TunableNumberGroup("Climb");
 
-  private final LoggedTunableNumber firstAngle = tunableGroup.build("Stage2AngleRot", 5);
-  private final LoggedTunableNumber secondAngle = tunableGroup.build("Stage3AngleRot", 2.25);
+  private final LoggedTunableNumber firstAngle = tunableGroup.build("Stage2AngleRot", 5.4);
+  private final LoggedTunableNumber secondAngle = tunableGroup.build("Stage3AngleRot", 2.0);
 
   private final LoggerGroup logGroup = LoggerGroup.build("Climb");
   private final LoggerEntry.Bool logConfirm = logGroup.buildBoolean("Confirm");
