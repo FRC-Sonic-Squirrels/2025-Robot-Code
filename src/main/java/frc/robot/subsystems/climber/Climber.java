@@ -53,7 +53,7 @@ public class Climber extends SubsystemBase {
   private static final LoggedTunableNumber winchTargetAccelerationConfig =
       winchGroup.build("TargetAccelerationConfig");
   private static final LoggedTunableNumber toleranceDegrees =
-      winchGroup.build("ToleranceDegrees", 1);
+      winchGroup.build("ToleranceDegrees", 40);
 
   // Tunable numbers
 
@@ -98,6 +98,7 @@ public class Climber extends SubsystemBase {
     io.setWinchVoltage(0.0);
 
     setConstants();
+    setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
   }
 
   @Override
@@ -189,7 +190,7 @@ public class Climber extends SubsystemBase {
 
   public boolean isWinchAtTargetAngle(Rotation2d target, Rotation2d tolerance) {
     var error = winchInputs.winchPosition - target.getDegrees();
-    return Math.abs(error) <= tolerance.getRadians();
+    return Math.abs(error) <= tolerance.getDegrees();
   }
 
   public boolean isWinchAtTargetAngle(Rotation2d target) {
