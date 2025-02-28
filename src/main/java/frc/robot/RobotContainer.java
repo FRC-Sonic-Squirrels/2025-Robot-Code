@@ -705,9 +705,7 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
-        .onTrue(
-            new Climb(
-                climber, driverController.getCommandXboxController().povDown()::getAsBoolean));
+        .onTrue(new Climb(climber, driverController.getPovDown()));
     // ---------- OPERATOR CONTROLS -----------
 
     // Manual mech positions
