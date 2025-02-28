@@ -5,12 +5,13 @@
 package frc.robot.commands.climber;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
-import frc.robot.Constants;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.climber.Climber;
 import java.util.function.BooleanSupplier;
 
@@ -32,6 +33,8 @@ public class Climb extends Command {
   private final LoggerEntry.Bool logConfirm = logGroup.buildBoolean("Confirm");
   private final LoggerEntry.Integer logStage = logGroup.buildInteger("Stage");
 
+  private final Timer servoTimer = new Timer();
+
   /** Creates a new Climb. */
   public Climb(Climber climber, BooleanSupplier confirmButton) {
     this.climber = climber;
@@ -44,8 +47,10 @@ public class Climb extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
     stage = 1;
     prevConfirm = true;
+    servoTimer.reset();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -64,8 +69,8 @@ public class Climb extends Command {
       climber.setWinchAngle(Rotation2d.fromRotations(secondAngle.get()));
     } else {
       climber.setWinchAngle(Rotation2d.fromRotations(thirdAngle.get()));
-      if (climber.isWinchAtTargetAngle(Rotation2d.fromDegrees(thirdAngle.get())))
-        climber.setServoAngle(Constants.ClimberConstants.SERVO_LOCK_ANGLE);
+      servoTimer.start();
+      if (servoTimer.get() > 2) climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE);
     }
 
     logStage.info(stage);
