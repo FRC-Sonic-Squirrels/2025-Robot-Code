@@ -3,7 +3,6 @@ package frc.robot.subsystems.climber;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -68,24 +67,6 @@ public class ClimberIOReal implements ClimberIO {
     winchConfig.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
 
     winchMotor.getConfigurator().apply(winchConfig);
-
-    // Grabber motor config
-    TalonFXConfiguration grabberConfig = new TalonFXConfiguration();
-    CurrentLimitsConfigs grabberCurrentLimitConfig = new CurrentLimitsConfigs();
-
-    grabberCurrentLimitConfig.SupplyCurrentLimit = ClimberConstants.SUPPLY_CURRENT_LIMIT;
-    grabberCurrentLimitConfig.SupplyCurrentLimitEnable = true;
-
-    grabberCurrentLimitConfig.StatorCurrentLimit = ClimberConstants.STATOR_CURRENT_LIMIT;
-    grabberCurrentLimitConfig.StatorCurrentLimitEnable = true;
-
-    grabberConfig.CurrentLimits = grabberCurrentLimitConfig;
-
-    grabberConfig.Feedback.SensorToMechanismRatio = ClimberConstants.GRABBER_GEAR_RATIO;
-    grabberConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    grabberConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-
-    grabberConfig.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
 
     // Status signals
 

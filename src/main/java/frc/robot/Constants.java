@@ -333,8 +333,6 @@ public final class Constants {
     public static final int GYRO_2_CAN_ID = 41;
 
     public static final int CLIMBER_WINCH_CAN_ID = 40;
-
-    public static final int CLIMBER_GRABBER_CAN_ID = 42;
     // TODO: make proper canID
     public static final int INTAKE_PIVOT_CAN_ID = 19;
     public static final int INTAKE_ROLLER_CAN_ID = 20;
@@ -376,7 +374,7 @@ public final class Constants {
   public static class ClimberConstants {
     public static final double SUPPLY_CURRENT_LIMIT = 60.0;
     public static final double STATOR_CURRENT_LIMIT = 90.0;
-    // TODO: update constants and dimensions for new robot design
+
     public static final double WINCH_GEAR_RATIO = (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0);
 
     public static final double WINCH_MOI = 0.15;
@@ -402,13 +400,6 @@ public final class Constants {
     public static final Rotation2d CLIMB_WINCH_ROTATIONS = Rotation2d.fromRotations(3);
 
     public static final String WINCH_ROOT_TABLE = "ClimberWinch";
-
-    public static final double GRABBING_PERCENT_OUT = 1.0;
-
-    public static final double GRABBER_GEAR_RATIO = 1.0;
-    public static final double GRABBER_MOI = 0.05;
-
-    public static final String GRABBER_ROOT_TABLE = "Grabber";
   }
 
   public static class VisionGamepieceConstants { // TODO: check all constants for new season
