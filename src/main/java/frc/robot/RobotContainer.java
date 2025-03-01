@@ -733,7 +733,8 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
-        .whileTrue(new IntakeGround(intake));
+        .whileTrue(
+            new IntakeGround(intake).alongWith(MechanismActions.stowPosition(elevator, arm)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
@@ -781,7 +782,8 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.a, "Intake Pivot In")
         .onTrue(
             new IntakeSetPivotAngle(
-                intake, Constants.IntakeConstants.PivotConstants.PIVOT_STOWED_ANGLE));
+                    intake, Constants.IntakeConstants.PivotConstants.PIVOT_STOWED_ANGLE)
+                .andThen(Commands.runOnce(() -> intake.setHoldAlgae(false))));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Intake Pivot Out")
         .onTrue(
@@ -1090,6 +1092,8 @@ public class RobotContainer {
     arm.setVoltage(0);
     elevator.setPercentOut(0);
     climber.setWinchVoltage(0);
+    intake.setPivotVoltage(0);
+    intake.setRollerPercentOut(0);
 
     is_teleop = false;
     is_autonomous = false;

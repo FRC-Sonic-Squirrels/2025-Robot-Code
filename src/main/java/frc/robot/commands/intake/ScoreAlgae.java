@@ -19,7 +19,8 @@ public class ScoreAlgae extends Command {
   // TEST.
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreAlgae");
 
-  private static final LoggedTunableNumber scoringVelocity = group.build("scoringVelocity", 400.0);
+  private static final LoggedTunableNumber scoringVelocity =
+      group.build("scoringVelocity", -1000.0);
   private static final LoggedTunableNumber algaeScoreAngle =
       group.build("scoringAngle", PivotConstants.ALGAE_SCORE_ANGLE.getDegrees());
 
@@ -34,9 +35,9 @@ public class ScoreAlgae extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (RobotStates.algaeInRobot) {
-      intake.setPivotAngle(Rotation2d.fromDegrees(algaeScoreAngle.get()));
-    }
+    intake.setHoldAlgae(false);
+
+    intake.setPivotAngle(Rotation2d.fromDegrees(algaeScoreAngle.get()));
   }
 
   // Called every time the scheduler runs while the command is scheduled.

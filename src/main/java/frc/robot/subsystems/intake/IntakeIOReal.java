@@ -205,7 +205,7 @@ public class IntakeIOReal implements IntakeIO {
     inputs.pivotTempCelsius = pivotTemp.getValue().in(Units.Celsius);
     inputs.pivotVelocityDegreesPerSecond = pivotVelocity.getValue().in(Units.DegreesPerSecond);
 
-    inputs.intakeTofDetected = intakeTofDetected.getValue();
+    inputs.intakeTofDetected = false; // TODO: reenable tof
     inputs.intakeTofDistanceInches = intakeTofDistance.getValueAsDouble();
     inputs.intakeTofSignalStrength = intakeTofSignalStrength.getValueAsDouble();
   }

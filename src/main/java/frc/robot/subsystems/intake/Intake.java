@@ -59,6 +59,8 @@ public class Intake extends SubsystemBase {
   private static final LoggerEntry.Decimal logPivotTargetAngleDegrees =
       logGroup.buildDecimal("PivotTargetAngleDegrees");
 
+  public boolean holdAlgae;
+
   // Tunable numbers
 
   private static final TunableNumberGroup group =
@@ -80,6 +82,8 @@ public class Intake extends SubsystemBase {
       group.build("PivotTargetAccelerationConfig");
   private static final LoggedTunableNumber pivotToleranceDegrees =
       group.build("PivotToleranceDegrees", 1);
+  private static final LoggedTunableNumber holdAlgaePercentOut =
+      group.build("HoldAlgaePercentOut", 1000);
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -112,8 +116,8 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.13);
       rollerTargetAccelerationConfig.initDefault(200);
 
-      pKP.initDefault(200);
-      pKD.initDefault(5);
+      pKP.initDefault(25);
+      pKD.initDefault(0);
       pKG.initDefault(0.4);
 
       pivotMaxVelocityConfig.initDefault(100);
@@ -181,6 +185,10 @@ public class Intake extends SubsystemBase {
           || pivotTargetAccelerationConfig.hasChanged(phc)) {
         setPivotConstants();
       }
+
+      if (holdAlgae) {
+        setRollerVelocity(holdAlgaePercentOut.get());
+      }
     }
   }
 
@@ -240,6 +248,10 @@ public class Intake extends SubsystemBase {
 
   public boolean setPivotNeutralMode(NeutralModeValue value) {
     return io.setPivotNeutralMode(value);
+  }
+
+  public void setHoldAlgae(boolean holdAlgae) {
+    this.holdAlgae = holdAlgae;
   }
 
   // Getters

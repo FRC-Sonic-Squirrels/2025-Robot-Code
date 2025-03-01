@@ -6,6 +6,7 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.RobotStates;
 import frc.robot.subsystems.intake.Intake;
@@ -23,8 +24,7 @@ public class IntakeGround extends Command {
 
   private static final TunableNumberGroup group = new TunableNumberGroup("Intake Gamepiece");
 
-  private static final LoggedTunableNumber intakingPivotAngle =
-      group.build("IntakingAngleDeg", PivotConstants.MIN_PIVOT_ANGLE.getDegrees());
+  private static final LoggedTunableNumber intakingPivotAngle = group.build("IntakingAngleDeg", 30);
 
   /** Creates a new IntakeGround */
   public IntakeGround(Intake intake) {
@@ -47,21 +47,21 @@ public class IntakeGround extends Command {
   public void execute() {
     logInputs_algaeInRobot.info(RobotStates.algaeInRobot);
     logInputs_coralInIntake.info(RobotStates.coralInIntake);
-    // if (intake.intakeTimeOfFlight() || RobotStates.algaeInRobot) {
-    //   intake.setPivotAngle(PivotConstants.ALGAE_SCORE_ANGLE);
-    //   intake.setRollerPercentOut(0);
-    // }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     intake.setRollerPercentOut(0);
+    intake.setPivotAngle(IntakeConstants.PivotConstants.PIVOT_STOWED_ANGLE);
+    if (RobotStates.algaeInRobot) {
+      intake.setHoldAlgae(true);
+    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return intake.intakeTimeOfFlight() || RobotStates.algaeInRobot && intake.isPivotAtTargetAngle();
+    return false;
   }
 }
