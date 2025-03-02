@@ -21,12 +21,14 @@ public class Climb extends Command {
   private final Climber climber;
   private final BooleanSupplier confirmButton;
   private boolean prevConfirm = true;
-  private int stage = 1;
+  private int stage = 0;
 
   private final TunableNumberGroup tunableGroup = new TunableNumberGroup("Climb");
 
-  private final LoggedTunableNumber firstAngle = tunableGroup.build("Stage2AngleRot", 5.4);
-  private final LoggedTunableNumber secondAngle = tunableGroup.build("Stage3AngleRot", 2.0);
+  private final LoggedTunableNumber zerothAngle = tunableGroup.build("Stage1AngleRot", 3.5);
+  private final LoggedTunableNumber firstAngle = tunableGroup.build("Stage2AngleRot", 2.5);
+  private final LoggedTunableNumber secondAngle = tunableGroup.build("Stage3AngleRot", 5.4);
+  private final LoggedTunableNumber thirdAngle = tunableGroup.build("Stage4AngleRot", 2.0);
 
   private final LoggerGroup logGroup = LoggerGroup.build("Climb");
   private final LoggerEntry.Bool logConfirm = logGroup.buildBoolean("Confirm");
@@ -47,7 +49,7 @@ public class Climb extends Command {
   @Override
   public void initialize() {
     climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
-    stage = 1;
+    stage = 0;
     prevConfirm = true;
     servoTimer.reset();
   }
@@ -62,10 +64,14 @@ public class Climb extends Command {
       stage++;
     }
 
-    if (stage == 1) {
+    if (stage == 0) {
+      climber.setWinchAngle(Rotation2d.fromRotations(zerothAngle.get()));
+    } else if (stage == 1) {
       climber.setWinchAngle(Rotation2d.fromRotations(firstAngle.get()));
-    } else {
+    } else if (stage == 2) {
       climber.setWinchAngle(Rotation2d.fromRotations(secondAngle.get()));
+    } else {
+      climber.setWinchAngle(Rotation2d.fromRotations(thirdAngle.get()));
       servoTimer.start();
       if (servoTimer.get() > 2) climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE);
     }
