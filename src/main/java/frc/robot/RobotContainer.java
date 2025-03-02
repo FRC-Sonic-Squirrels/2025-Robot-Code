@@ -733,7 +733,12 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
-        .onTrue(new Climb(climber, driverController.getPovDown()));
+        .onTrue(new Climb(climber, driverController.getPovDown()))
+        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L3))
+        .onTrue(
+            new IntakeSetPivotAngle(
+                intake, Constants.IntakeConstants.PivotConstants.PIVOT_SAFE_ANGLE));
+
     // ---------- OPERATOR CONTROLS -----------
 
     // Manual mech positions

@@ -24,7 +24,7 @@ public class IntakeGround extends Command {
 
   private static final TunableNumberGroup group = new TunableNumberGroup("Intake Gamepiece");
 
-  private static final LoggedTunableNumber intakingPivotAngle = group.build("IntakingAngleDeg", 30);
+  private static final LoggedTunableNumber intakingPivotAngle = group.build("IntakingAngleDeg", 10);
 
   /** Creates a new IntakeGround */
   public IntakeGround(Intake intake) {
