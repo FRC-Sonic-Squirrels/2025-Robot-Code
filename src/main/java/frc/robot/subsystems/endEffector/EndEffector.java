@@ -183,116 +183,122 @@ public class EndEffector extends SubsystemBase {
         setVelocity(RobotStates.endEffectorOverrideVelocity);
       } else {
         var endEffectorSim = getSim();
-        switch (desiredAction) {
-          case Idle:
-            if (coralInEndEffectorScoringSide && coralInEndEffectorNonScoringSide) {
-              desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoral;
-            } else {
-              setPercentOut(0);
-            }
-            break;
-
-          case CoralStationIntake:
-            if (coralInEndEffectorNonScoringSide) {
-              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
-            } else if (coralInEndEffectorScoringSide) {
-              setVelocity(intakingVelocitySlow.get());
-            } else {
-              setVelocity(intakingVelocityHigh.get());
-            }
-            break;
-
-          case AlignCoral:
-            if (!coralInEndEffector) {
-              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
-            } else if (!coralInEndEffectorNonScoringSide) {
-              // Keep moving the coral in.
-              setVelocity(correctionVelocity.get());
-            } else {
-              // Start backtracking the coral.
-              setVelocity(-correctionVelocity.get());
-              desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase2;
-            }
-            break;
-
-          case AlignCoralPhase2:
-            if (!coralInEndEffectorNonScoringSide) {
-              // Now reverse until we see it again.
-              setVelocity(correctionVelocity.get());
-
-              desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase3;
-            }
-            break;
-
-          case AlignCoralPhase3:
-            if (coralInEndEffectorNonScoringSide) {
-              zeroCoralPosition = getMotorPosition();
-
-              desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase4;
-            }
-            break;
-
-          case AlignCoralPhase4:
-            double diff = Math.abs(getMotorPosition() - zeroCoralPosition);
-            //          log_Position.info(dif);
-            if (diff >= alignTarget.get()) {
-              zeroCoralPosition = getMotorPosition();
-              desiredAction = RobotStates.EndEffectorDesiredAction.AlignedCoral;
-            }
-            break;
-
-          case AlignedCoral:
-            double pos = getMotorPosition() - zeroCoralPosition;
-            double desiredPos = 0;
-            switch (RobotStates.scoringLevel) {
-              case L1:
-                desiredPos = alignL1Turns.get();
-                break;
-              case L2:
-                desiredPos = alignL2Turns.get();
-                break;
-              case L3:
-                desiredPos = alignL3Turns.get();
-                break;
-              case L4:
-                desiredPos = alignL4Turns.get();
-                break;
-              default:
+        while (true) {
+          switch (desiredAction) {
+            case Idle:
+              if (coralInEndEffectorScoringSide && coralInEndEffectorNonScoringSide) {
+                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoral;
+              } else {
                 setPercentOut(0);
-                break;
-            }
-            if (Math.abs(pos - desiredPos) < alignTolerance.get()) {
-              setPercentOut(0);
-            } else if (pos > desiredPos) {
-              setVelocity(-correctionVelocity.get());
-            } else if (pos < desiredPos) {
-              setVelocity(correctionVelocity.get());
-            }
+              }
+              break;
+
+            case CoralStationIntake:
+              if (coralInEndEffectorNonScoringSide) {
+                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoral;
+              } else if (coralInEndEffectorScoringSide) {
+                setVelocity(intakingVelocitySlow.get());
+              } else {
+                setVelocity(intakingVelocityHigh.get());
+              }
+              break;
+
+            case AlignCoral:
+              if (!coralInEndEffector) {
+                desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+              } else if (!coralInEndEffectorNonScoringSide) {
+                // Keep moving the coral in.
+                setVelocity(correctionVelocity.get());
+              } else {
+                // Start backtracking the coral.
+                setVelocity(-correctionVelocity.get());
+                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase2;
+              }
+              break;
+
+            case AlignCoralPhase2:
+              if (!coralInEndEffectorNonScoringSide) {
+                // Now reverse until we see it again.
+                setVelocity(correctionVelocity.get());
+
+                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase3;
+              }
+              break;
+
+            case AlignCoralPhase3:
+              if (coralInEndEffectorNonScoringSide) {
+                zeroCoralPosition = getMotorPosition();
+
+                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase4;
+              }
+              break;
+
+            case AlignCoralPhase4:
+              double diff = Math.abs(getMotorPosition() - zeroCoralPosition);
+              //          log_Position.info(dif);
+              if (diff >= alignTarget.get()) {
+                zeroCoralPosition = getMotorPosition();
+                desiredAction = RobotStates.EndEffectorDesiredAction.AlignedCoral;
+              }
+              break;
+
+            case AlignedCoral:
+              double pos = getMotorPosition() - zeroCoralPosition;
+              double desiredPos = 0;
+              switch (RobotStates.scoringLevel) {
+                case L1:
+                  desiredPos = alignL1Turns.get();
+                  break;
+                case L2:
+                  desiredPos = alignL2Turns.get();
+                  break;
+                case L3:
+                  desiredPos = alignL3Turns.get();
+                  break;
+                case L4:
+                  desiredPos = alignL4Turns.get();
+                  break;
+                default:
+                  setPercentOut(0);
+                  break;
+              }
+              if (Math.abs(pos - desiredPos) < alignTolerance.get()) {
+                setPercentOut(0);
+              } else if (pos > desiredPos) {
+                setVelocity(-correctionVelocity.get());
+              } else if (pos < desiredPos) {
+                setVelocity(correctionVelocity.get());
+              }
+              break;
+
+            case ScoreFastForward:
+              setVelocity(scoringVelocityRPM.get());
+              if (!coralInEndEffector) {
+                desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+              }
+
+              if (endEffectorSim != null) {
+                endEffectorSim.scoringSideTofDetecting = false;
+                endEffectorSim.nonScoringSideTofDetecting = false;
+              }
+              break;
+
+            case ScoreFastBackward:
+              setVelocity(-scoringVelocityRPM.get());
+              if (!coralInEndEffector) {
+                desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+              }
+
+              if (endEffectorSim != null) {
+                endEffectorSim.scoringSideTofDetecting = false;
+                endEffectorSim.nonScoringSideTofDetecting = false;
+              }
+              break;
+          }
+          if (RobotStates.endEffectorDesiredAction == desiredAction) {
             break;
-
-          case ScoreFastForward:
-            setVelocity(scoringVelocityRPM.get());
-            if (!coralInEndEffector) {
-              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
-            }
-
-            if (endEffectorSim != null) {
-              endEffectorSim.scoringSideTofDetecting = false;
-              endEffectorSim.nonScoringSideTofDetecting = false;
-            }
-            break;
-
-          case ScoreFastBackward:
-            setVelocity(-scoringVelocityRPM.get());
-            if (!coralInEndEffector) {
-              desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
-            }
-
-            if (endEffectorSim != null) {
-              endEffectorSim.scoringSideTofDetecting = false;
-              endEffectorSim.nonScoringSideTofDetecting = false;
-            }
-            break;
+          }
+          RobotStates.endEffectorDesiredAction = desiredAction;
         }
       }
 
