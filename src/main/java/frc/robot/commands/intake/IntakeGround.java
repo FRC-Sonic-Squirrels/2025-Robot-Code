@@ -24,7 +24,7 @@ public class IntakeGround extends Command {
 
   private static final TunableNumberGroup group = new TunableNumberGroup("Intake Gamepiece");
 
-  private static final LoggedTunableNumber intakingPivotAngle = group.build("IntakingAngleDeg", 10);
+  private static final LoggedTunableNumber intakingPivotAngle = group.build("IntakingAngleDeg", 0);
 
   /** Creates a new IntakeGround */
   public IntakeGround(Intake intake) {
@@ -54,14 +54,15 @@ public class IntakeGround extends Command {
   public void end(boolean interrupted) {
     intake.setRollerPercentOut(0);
     intake.setPivotAngle(IntakeConstants.PivotConstants.PIVOT_STOWED_ANGLE);
-    if (RobotStates.algaeInRobot) {
-      intake.setHoldAlgae(true);
-    }
+    // if (RobotStates.algaeInRobot && !RobotStates.coralInIntake) {
+    //   intake.setHoldAlgae(true);
+    // }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;
+    // RobotStates.coralInIntake;
   }
 }

@@ -81,6 +81,12 @@ public class MechanismPositions {
   private static final LoggedTunableNumber intermediatePoseLowBackArmAngleDegrees =
       group.build("IntermediatePoses/LowBack/ArmAngleDegrees");
 
+  private static final LoggedTunableNumber passOffElevatorHeightInches =
+      group.build("PassOff/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber passOffArmAngleDegrees =
+      group.build("PassOff/ArmAngleDegrees");
+
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       stowElevatorHeightInches.initDefault(2);
@@ -123,6 +129,8 @@ public class MechanismPositions {
       intermediatePoseLowBackElevatorHeightInches.initDefault(0);
       intermediatePoseLowBackArmAngleDegrees.initDefault(130);
       reefPrepArmOffsetDegrees.initDefault(20);
+      passOffArmAngleDegrees.initDefault(9.756);
+      passOffElevatorHeightInches.initDefault(11.922);
     }
   }
 
@@ -184,10 +192,10 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(coralStationArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition clearAlgaeLowPosition() {
+  public static MechanismPosition intakeToEndEffectorPassOffPosition() {
     return new MechanismPosition(
-        Units.Inches.of(algaeClearingLowElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(algaeClearingLowArmAngleDegrees.get()));
+        Units.Inches.of(passOffElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(passOffArmAngleDegrees.get()));
   }
 
   public static MechanismPosition clearAlgaeHighPosition() {
