@@ -31,33 +31,38 @@ public class Intake extends SubsystemBase {
   // Logging
   private static final LoggerGroup logGroup = LoggerGroup.build(IntakeConstants.ROOT_TABLE);
   private static final LoggerEntry.Decimal logInputs_rollerVelocityRPM =
-      logGroup.buildDecimal("RollerVelocityRPM");
+      logGroup.buildDecimal("Roller/VelocityRPM");
   private static final LoggerEntry.Decimal logInputs_rollerCurrentAmps =
-      logGroup.buildDecimal("RollerCurrentAmps");
+      logGroup.buildDecimal("Roller/CurrentAmps");
   private static final LoggerEntry.Decimal logInputs_rollerTempCelsius =
-      logGroup.buildDecimal("RollerTempCelsius");
+      logGroup.buildDecimal("Roller/TempCelsius");
   private static final LoggerEntry.Decimal logInputs_rollerAppliedVolts =
-      logGroup.buildDecimal("RollerAppliedVolts");
+      logGroup.buildDecimal("Roller/AppliedVolts");
 
   private static final LoggerEntry.Decimal logRollerTargetVelocityRPM =
-      logGroup.buildDecimal("RollerTargetVelocityRPM");
+      logGroup.buildDecimal("Roller/TargetVelocityRPM");
   private static final LoggerEntry.EnumValue<ControlMode> logRollerControlMode =
-      logGroup.buildEnum("RollerControlMode");
+      logGroup.buildEnum("Roller/ControlMode");
 
   private static final LoggerEntry.Decimal logInputs_pivotAngle =
-      logGroup.buildDecimal("PivotAngle");
+      logGroup.buildDecimal("Pivot/Angle");
   private static final LoggerEntry.Decimal logInputs_pivotAppliedVolts =
-      logGroup.buildDecimal("PivotAppliedVolts");
+      logGroup.buildDecimal("Pivot/AppliedVolts");
   private static final LoggerEntry.Decimal logInputs_pivotCurrentAmps =
-      logGroup.buildDecimal("PivotCurrentAmps");
+      logGroup.buildDecimal("Pivot/CurrentAmps");
   private static final LoggerEntry.Decimal logInputs_pivotTempCelsius =
-      logGroup.buildDecimal("PivotTempCelsius");
+      logGroup.buildDecimal("Pivot/TempCelsius");
   private static final LoggerEntry.Decimal logInputs_pivotVelocityDegreesPerSecond =
-      logGroup.buildDecimal("PivotVelocityDegreesPerSecond");
+      logGroup.buildDecimal("Pivot/VelocityDegreesPerSecond");
   private static final LoggerEntry.EnumValue<ControlMode> logPivotControlMode =
-      logGroup.buildEnum("PivotControlMode");
+      logGroup.buildEnum("Pivot/ControlMode");
   private static final LoggerEntry.Decimal logPivotTargetAngleDegrees =
-      logGroup.buildDecimal("PivotTargetAngleDegrees");
+      logGroup.buildDecimal("Pivot/TargetAngleDegrees");
+
+  private static final LoggerEntry.Decimal logToFDistance = logGroup.buildDecimal("ToF/Distance");
+  private static final LoggerEntry.Bool logToFActivated = logGroup.buildBoolean("ToF/Activated");
+  private static final LoggerEntry.Decimal logToFSignalStrength =
+      logGroup.buildDecimal("ToF/SignalStrength");
 
   public boolean holdAlgae;
 
@@ -116,9 +121,9 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.13);
       rollerTargetAccelerationConfig.initDefault(200);
 
-      pKP.initDefault(25);
-      pKD.initDefault(0);
-      pKG.initDefault(0.5);
+      pKP.initDefault(50);
+      pKD.initDefault(0.3);
+      pKG.initDefault(0.4);
 
       pivotMaxVelocityConfig.initDefault(200);
       pivotTargetAccelerationConfig.initDefault(200);
@@ -167,6 +172,10 @@ public class Intake extends SubsystemBase {
       logInputs_pivotVelocityDegreesPerSecond.info(inputs.pivotVelocityDegreesPerSecond);
 
       logPivotControlMode.info(pivotControlMode);
+
+      logToFActivated.info(inputs.intakeTofDetected);
+      logToFDistance.info(inputs.intakeTofDistanceInches);
+      logToFSignalStrength.info(inputs.intakeTofSignalStrength);
 
       // Update tunable numbers
 

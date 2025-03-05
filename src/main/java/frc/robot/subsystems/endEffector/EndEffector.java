@@ -16,6 +16,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates;
+import frc.robot.commands.mechanism.PassToEndEffector;
 
 public class EndEffector extends SubsystemBase {
   // Execution timing
@@ -72,6 +73,8 @@ public class EndEffector extends SubsystemBase {
       group.build("intakingVelocity", 2500);
 
   private static final LoggedTunableNumber scoringVelocityRPM =
+      group.build("ScoringVelocityRPM", -3000);
+  private static final LoggedTunableNumber passOffVelocityRPM =
       group.build("ScoringVelocityRPM", -3000);
 
   private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 500);
@@ -302,6 +305,9 @@ public class EndEffector extends SubsystemBase {
                 endEffectorSim.scoringSideTofDetecting = false;
                 endEffectorSim.nonScoringSideTofDetecting = false;
               }
+              break;
+            case PassToEndEffector:
+              setVelocity(passOffVelocityRPM.get());
               break;
           }
           if (RobotStates.endEffectorDesiredAction == desiredAction) {

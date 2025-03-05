@@ -18,7 +18,8 @@ public class RobotStates {
     ScoreFastForward(false),
     ScoreFastBackward(false),
     ScoreSlowForward(false),
-    ScoreSlowBackward(false);
+    ScoreSlowBackward(false),
+    PassToEndEffector(false);
 
     public final boolean alignmentActive;
 
@@ -63,6 +64,8 @@ public class RobotStates {
       logGroup.buildBoolean("GamepieceInEndEffectorNonScoringSideState");
   private static LoggerEntry.Bool logGamepieceInIntakeState =
       logGroup.buildBoolean("GamepieceInIntakeState");
+  private static LoggerEntry.Bool logCoralInIntakeState =
+      logGroup.buildBoolean("CoralInIntakeState");
 
   private static LoggerEntry.EnumValue<EndEffectorDesiredAction> logEndEffectorDesiredAction =
       logGroup.buildEnum("EndEffectorDesiredAction");
@@ -123,6 +126,7 @@ public class RobotStates {
     logAlgaeClearingState.info(clearingAlgae);
     logGamepieceInRobotState.info(coralInRobot);
     logGamepieceInIntakeState.info(coralInIntake || algaeInRobot);
+    logCoralInIntakeState.info(coralInIntake);
     logGamepieceInEndEffectorState.info(coralInEndEffector);
     logGamepieceInEndEffectorScoringSideState.info(coralInEndEffectorScoringSide);
     logGamepieceInEndEffectorNonScoringSideState.info(coralInEndEffectorNonScoringSide);

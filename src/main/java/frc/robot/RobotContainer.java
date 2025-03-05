@@ -165,6 +165,8 @@ public class RobotContainer {
   private final LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
   private final LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
 
+  private final Trigger passOffTrigger;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
@@ -504,10 +506,6 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
-
-    if (RobotStates.coralInIntake && !RobotStates.coralInEndEffector) {
-      new PassToEndEffector(intake, arm, elevator);
-    }
   }
 
   /**
@@ -852,6 +850,11 @@ public class RobotContainer {
         new MechToPosition(mech, MechState.CoralStationPosition)
             .withName("GamepieceOutOfEECommand"));
 
+    passOffTrigger.onTrue(
+        new PassToEndEffector(intake, arm, elevator)
+            .alongWith(MechanismActions.passOffPosition(elevator, arm))
+            .andThen(MechanismActions.stowPosition(elevator, arm).asProxy()));
+
     // ---------- ON-ROBOT CONTROLS ------------
 
     zeroSensorsButtonTrigger.onTrue(
@@ -1184,9 +1187,7 @@ public class RobotContainer {
       RobotStates.algaeInRobot = true;
     }
 
-    if (intake.intakeTimeOfFlight()) {
-      RobotStates.coralInIntake = true;
-    }
+    RobotStates.coralInIntake = intake.intakeTimeOfFlight();
   }
 
   public List<ScoringLocation> getCustomScoringLocations() {
