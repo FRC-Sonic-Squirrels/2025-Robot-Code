@@ -23,6 +23,9 @@ import frc.robot.FieldStates;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.MechState;
 import frc.robot.RobotStates.ScoringLevel;
+import frc.robot.autonomous.helpers.ChoreoHelper;
+import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
+import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.drive.DriveToPose;
@@ -60,12 +63,11 @@ public class ScoreCoral extends StateMachine {
   private ScoringSideWithPoseAndDirection scoringPoseSideAndDirection;
   private Pose2d algaeClearPose;
   private Pose2d scoringPose;
+  private final Optional<ChoreoTrajectoryWithName> optionalPath;
 
-  private Command prepMechanismForAlgae;
   private Command prepMechanismForScoring;
 
   private Command clearAlgae1Position;
-  private Command clearAlgae2Position;
 
   private boolean usingDrivetrain = true;
 
@@ -76,6 +78,8 @@ public class ScoreCoral extends StateMachine {
   private Trigger scoringTrigger;
 
   private final boolean confirmation;
+
+  private ChoreoHelper choreoHelper;
 
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
@@ -88,6 +92,12 @@ public class ScoreCoral extends StateMachine {
       group.build("A Adjustment Inches", 0.0);
   private static final LoggedTunableNumber rightAdjustmentInches =
       group.build("B Adjustment Inches", 0.0);
+  private static final LoggedTunableNumber finalErrorMaxWait =
+      group.build("FinalErrorMaxWait", 1.0);
+  private static final LoggedTunableNumber finalHeadingError =
+      group.build("FinalHeadingError", 0.5);
+  private static final LoggedTunableNumber finalOffsetError = group.build("FinalOffsetError", 0.01);
+  private static final LoggedTunableNumber finalTargetError = group.build("FinalTargetError", 0.01);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -131,7 +141,8 @@ public class ScoreCoral extends StateMachine {
         rumble,
         config,
         false,
-        clearAlgae);
+        clearAlgae,
+        Optional.empty());
     gamepieceMemory = true;
   }
 
@@ -145,7 +156,8 @@ public class ScoreCoral extends StateMachine {
       ReefSide side,
       Consumer<Double> rumble,
       RobotConfig config,
-      boolean clearAlgae) {
+      boolean clearAlgae,
+      Optional<ChoreoTrajectoryWithName> optionalTraj) {
     this(
         wrapper,
         mech,
@@ -158,7 +170,8 @@ public class ScoreCoral extends StateMachine {
         rumble,
         config,
         false,
-        clearAlgae);
+        clearAlgae,
+        optionalTraj);
   }
 
   public ScoreCoral(
@@ -184,7 +197,8 @@ public class ScoreCoral extends StateMachine {
         rumble,
         config,
         true,
-        clearAlgae);
+        clearAlgae,
+        Optional.empty());
   }
 
   public ScoreCoral(
@@ -199,7 +213,8 @@ public class ScoreCoral extends StateMachine {
       Consumer<Double> rumble,
       RobotConfig config,
       boolean driverConfirmation,
-      boolean clearAlgae) {
+      boolean clearAlgae,
+      Optional<ChoreoTrajectoryWithName> optionalPresetPath) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
@@ -223,7 +238,6 @@ public class ScoreCoral extends StateMachine {
   // SCORING STATES
 
   private StateHandler prepForScoringAlignment() {
-
     Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
 
     scoringPoseSideAndDirection =
@@ -292,13 +306,46 @@ public class ScoreCoral extends StateMachine {
                         Rotation2d.fromDegrees(1.5)))
             .debounce(0);
 
-    return suspendForCommand(
-        // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
-        new DriveToPosePathing(
-                wrapper, config, () -> wrapper.getReefPoseEstimatorPose(true), () -> scoringPose)
-            .setFinalErrorMaxWait(1)
-            .setFinalOffsetError(0.01),
-        (command) -> stateWithName("Score", () -> score()));
+    return optionalPath.isPresent()
+        ? stateWithName("InitFollowPath", () -> initFollowPath())
+        : suspendForCommand(
+            new DriveToPosePathing(
+                    wrapper,
+                    config,
+                    () -> wrapper.getReefPoseEstimatorPose(true),
+                    () -> scoringPose)
+                .setFinalErrorMaxWait(finalErrorMaxWait.get())
+                .setFinalOffsetError(finalOffsetError.get())
+                .setFinalHeadingError(finalHeadingError.get())
+                .setFinalTargetError(finalTargetError.get()),
+            (command) -> stateWithName("Score", () -> score()));
+  }
+
+  private StateHandler initFollowPath() {
+    choreoHelper =
+        new ChoreoHelper(
+            timeFromStart(),
+            wrapper.getReefPoseEstimatorPose(true),
+            optionalPath.get(),
+            config.getDriveBaseRadius() / 2,
+            config.getAutoTranslationPidController(),
+            config.getAutoTranslationPidController(),
+            config.getAutoThetaPidController());
+    choreoHelper.setFinalErrorMaxWait(finalErrorMaxWait.get());
+    choreoHelper.setFinalHeadingError(finalHeadingError.get());
+    choreoHelper.setFinalOffsetError(finalOffsetError.get());
+    choreoHelper.setFinalTargetError(finalTargetError.get());
+    return stateWithName("FollowPath", () -> followPath());
+  }
+
+  private StateHandler followPath() {
+    ChassisSpeedsWithPathEnd result =
+        choreoHelper.calculateChassisSpeeds(
+            wrapper.getReefPoseEstimatorPose(true), timeFromStart());
+    wrapper.setVelocityOverride(result.chassisSpeeds());
+    if (!result.atEndOfPath()) return null;
+    wrapper.resetVelocityOverride();
+    return stateWithName("Score", () -> score());
   }
 
   private StateHandler score() {
@@ -358,15 +405,7 @@ public class ScoreCoral extends StateMachine {
   private StateHandler end(boolean interrupted) {
     led.setBaseRobotState(BaseRobotState.GAMEPIECE_STATUS);
     usingDrivetrain = false;
-    Pose2d initPose = wrapper.getRawOdometryPose();
-    return
-    // suspendForCommand(
-    // Commands.waitUntil(() -> GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) > 0.3)
-    //     .andThen(MechanismActions.coralStationPosition(elevator, arm)),
-    // (command) ->
-    stateWithName("Done", setDone())
-    // )
-    ;
+    return stateWithName("Done", setDone());
   }
 
   private ScoringSideWithPoseAndDirection getScoringSide(ScoringSide side) {
