@@ -84,8 +84,6 @@ public class ScoreCoral extends StateMachine {
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
       group.build("DistToRaiseMechMeters", 0.05);
-  private static final LoggedTunableNumber scoringVelocityRPM =
-      group.build("ScoringVelocityRPM", -3000);
   private static final LoggedTunableNumber predictiveTime =
       group.build("PredictiveTimeSeconds", 0.3);
   private static final LoggedTunableNumber leftAdjustmentInches =
