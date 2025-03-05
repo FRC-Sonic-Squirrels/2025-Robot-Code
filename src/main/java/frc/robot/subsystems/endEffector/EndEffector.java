@@ -203,6 +203,15 @@ public class EndEffector extends SubsystemBase {
               }
               break;
 
+            case GroundIntake:
+              if (coralInEndEffectorScoringSide) {
+                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoral;
+              } else if (coralInEndEffectorNonScoringSide) {
+                setVelocity(-(intakingVelocitySlow.get()));
+              } else {
+                setVelocity(-(intakingVelocityHigh.get()));
+              }
+
             case AlignCoral:
               if (!coralInEndEffector) {
                 desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
