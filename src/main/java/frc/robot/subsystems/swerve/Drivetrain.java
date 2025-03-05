@@ -131,8 +131,10 @@ public class Drivetrain extends SubsystemBase {
   private static final LoggerEntry.Struct<Pose2d> logLocalization_CoralStationRobotPosition =
       logGroupLocalization.buildStruct(Pose2d.class, "CoralStationRobotPosition");
 
-  private static final LoggerEntry.Decimal logTimeSinceVision =
-      logGroupLocalization.buildDecimal("timeSinceVision");
+  private static final LoggerEntry.Decimal logTimeSinceVisionReef =
+      logGroupLocalization.buildDecimal("timeSinceVisionReef");
+  private static final LoggerEntry.Decimal logTimeSinceVisionStatiob =
+      logGroupLocalization.buildDecimal("timeSinceVisionStation");
   private static final LoggerEntry.Integer logRejectionCutoff =
       logGroupLocalization.buildInteger("rejectionCutoff");
   private static final LoggerEntry.Integer logRejectionInvalidTags =
@@ -253,8 +255,9 @@ public class Drivetrain extends SubsystemBase {
       prevVel = getFieldRelativeVelocities();
 
       var reefPoseEstimatorPose = getReefPoseEstimatorPose();
-      var coralPoseEstimatorPose = getReefPoseEstimatorPose();
-      var visionStaleness = getReefVisionStaleness();
+      var coralPoseEstimatorPose = getCoralStationPoseEstimatorPose();
+      var reefVisionStaleness = getReefVisionStaleness();
+      var stationVisionStaleness = getCoralStationVisionStaleness();
 
       logLocalization_ReefRobotPosition.info(reefPoseEstimatorPose);
       logLocalization_CoralStationRobotPosition.info(coralPoseEstimatorPose);
@@ -268,7 +271,8 @@ public class Drivetrain extends SubsystemBase {
       logLocalization_RobotPosition_RAW_ODOMETRY.info(rawOdometryPose);
       SmartDashboard.putData("Localization/rawOdometryField2d", rawOdometryField2d);
 
-      logTimeSinceVision.info(visionStaleness);
+      logTimeSinceVisionReef.info(reefVisionStaleness);
+      logTimeSinceVisionStatiob.info(stationVisionStaleness);
       logRejectionCutoff.info(reefPoseEstimator.rejectionCutoff);
       logRejectionInvalidTags.info(reefPoseEstimator.rejectionInvalidTags);
       logRejectionNoDriveData.info(reefPoseEstimator.rejectionNoDriveData);
