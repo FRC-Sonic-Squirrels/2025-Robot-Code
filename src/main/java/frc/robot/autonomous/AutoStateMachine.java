@@ -42,6 +42,7 @@ import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -135,7 +136,7 @@ public class AutoStateMachine extends StateMachine {
 
     this.config = config;
 
-    setInitialState(stateWithName("PrepScorePathing", () -> prepScoreCoralPathing()));
+    setInitialState(stateWithName("PrepScoreCoral", () -> prepScoreCoral()));
 
     preloadCode();
   }
@@ -153,39 +154,10 @@ public class AutoStateMachine extends StateMachine {
 
   // CORAL SCORING STATES
 
-  private StateHandler prepScoreCoralPathing() {
+  private StateHandler prepScoreCoral() {
     if (scoringLocations != null && scoringIndex == scoringLocations.size()) {
       return stateWithName("Done", setDone());
     }
-
-    // spawnCommand(MechanismActions.scorePrepPosition(elevator, arm), (c) -> null);
-
-    if (procedural) return stateWithName("PrepScoreCoral", () -> prepScoreCoral());
-
-    ChoreoTrajectoryWithName traj = scoringPaths.get(scoringIndex);
-    choreoHelper =
-        new ChoreoHelper(
-            timeFromStart(),
-            wrapper.getReefPoseEstimatorPose(true),
-            traj,
-            config.getDriveBaseRadius() / 2,
-            config.getAutoTranslationPidController(),
-            config.getAutoTranslationPidController(),
-            config.getAutoThetaPidController());
-    scoringEndPose = traj.getFinalPose(Constants.isRedAlliance());
-    return stateWithName("ScorePathing", () -> scoreCoralPathing());
-  }
-
-  private StateHandler scoreCoralPathing() {
-    Pose2d currentPose = wrapper.getReefPoseEstimatorPose(true);
-    wrapper.setVelocityOverride(
-        choreoHelper.calculateChassisSpeeds(currentPose, timeFromStart()).chassisSpeeds());
-    if (GeometryUtil.getDist(currentPose, scoringEndPose) < distBeforeScoringMeters.get())
-      return stateWithName("PrepScoreCoral", () -> prepScoreCoral());
-    return null;
-  }
-
-  private StateHandler prepScoreCoral() {
 
     if (scoringLocations == null) {
 
@@ -201,12 +173,12 @@ public class AutoStateMachine extends StateMachine {
               mech,
               elevator,
               arm,
-              endEffector,
               led,
               scoringLocations.get(scoringIndex).side(),
               (r) -> {},
               config,
-              false);
+              false,
+              procedural ? Optional.empty() : Optional.of(scoringPaths.get(scoringIndex)));
     }
 
     spawnStateMachineAsCommand(scoreCoral, (s) -> null);
@@ -257,21 +229,24 @@ public class AutoStateMachine extends StateMachine {
 
     MechanismPosition coralStationPos = MechanismPositions.coralStationPosition();
 
+    if (procedural)
+      spawnCommand(
+          new DriveToPosePathing(
+              wrapper,
+              config,
+              () -> wrapper.getCoralStationPoseEstimatorPose(true),
+              intakingPoseSupplier),
+          (c) -> null);
+
     spawnCommand(
-        new DriveToPosePathing(
-                wrapper,
-                config,
-                () -> wrapper.getCoralStationPoseEstimatorPose(true),
-                intakingPoseSupplier)
-            .alongWith(
-                Commands.waitUntil(
-                        () ->
-                            elevator.isAtTarget(coralStationPos.elevatorHeight())
-                                && arm.isAtTargetAngle(coralStationPos.armAngle()))
-                    .andThen(
-                        CommandComposer.intakeCoralFromStation(
-                                wrapper, endEffector, mech, led, null, false)
-                            .asProxy())),
+        Commands.waitUntil(
+                () ->
+                    elevator.isAtTarget(coralStationPos.elevatorHeight())
+                        && arm.isAtTargetAngle(coralStationPos.armAngle()))
+            .andThen(
+                CommandComposer.intakeCoralFromStation(
+                        wrapper, endEffector, elevator, arm, led, null, false)
+                    .asProxy()),
         (c) -> null);
 
     return stateWithName("IntakeCoral", () -> intakeCoral());
@@ -292,7 +267,7 @@ public class AutoStateMachine extends StateMachine {
 
   private StateHandler returnToScoring() {
     intakingIndex++;
-    return stateWithName("PrepScoreCoralPathing", () -> prepScoreCoralPathing());
+    return stateWithName("PrepScoreCoral", () -> prepScoreCoral());
   }
 
   // Additional Methods
