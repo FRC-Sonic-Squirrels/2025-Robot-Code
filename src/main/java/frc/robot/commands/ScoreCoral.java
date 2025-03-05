@@ -76,7 +76,7 @@ public class ScoreCoral extends StateMachine {
 
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
-      group.build("DistToRaiseMechMeters", 1);
+      group.build("DistToRaiseMechMeters", 0.05);
   private static final LoggedTunableNumber scoringVelocityRPM =
       group.build("ScoringVelocityRPM", -3000);
   private static final LoggedTunableNumber predictiveTime =
@@ -259,13 +259,14 @@ public class ScoreCoral extends StateMachine {
                         .andThen(
                             MechanismActions.reefPrepPosition(
                                     elevator, arm, RobotStates.scoringLevel)
-                                .andThen(
+                                .alongWith(
                                     Commands.waitUntil(
                                             () ->
                                                 GeometryUtil.getDist(
-                                                        wrapper.getReefPoseEstimatorPose(true),
-                                                        scoringPose)
-                                                    < 0.1)
+                                                            wrapper.getReefPoseEstimatorPose(true),
+                                                            scoringPose)
+                                                        < 0.1
+                                                    && elevator.isAtTarget())
                                         .andThen(
                                             MechanismActions.reefPosition(
                                                     elevator, arm, RobotStates.scoringLevel)

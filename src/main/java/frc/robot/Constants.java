@@ -136,7 +136,7 @@ public final class Constants {
       if (RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
         return new Translation2d(Units.Inches.of(27.0), Units.Inches.of(32.5));
       } else {
-        return new Translation2d(Units.Inches.of(28.0), Units.Inches.of(30.0));
+        return new Translation2d(Units.Inches.of(28.5), Units.Inches.of(30.5));
       }
     }
 
