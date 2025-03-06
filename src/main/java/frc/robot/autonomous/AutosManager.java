@@ -51,23 +51,34 @@ public class AutosManager {
       HashMap<String, Supplier<Auto>> stringToAutoSupplierMap,
       BooleanSupplier flipAuto,
       Supplier<List<ScoringLocation>> customScoringLocations,
-      Supplier<List<CoralStationLocation>> customCoralStationLocations) {
+      Supplier<List<CoralStationLocation>> customCoralStationLocations,
+      Supplier<StartingLocation> customStartingLocation) {
     this.subsystems = subsystems;
     this.config = config;
     this.flipAuto = flipAuto;
 
     fillChooserAndMap(
-        chooser, stringToAutoSupplierMap, customScoringLocations, customCoralStationLocations);
+        chooser,
+        stringToAutoSupplierMap,
+        customScoringLocations,
+        customCoralStationLocations,
+        customStartingLocation);
   }
 
   private List<Supplier<Auto>> allCompetitionAutos(
       Supplier<List<ScoringLocation>> customScoringLocations,
-      Supplier<List<CoralStationLocation>> customCoralStationLocations) {
+      Supplier<List<CoralStationLocation>> customCoralStationLocations,
+      Supplier<StartingLocation> customStartingLocation) {
     var list = new ArrayList<Supplier<Auto>>();
 
     list.add(this::doNothing);
     list.add(this::auto_IKLJ);
-    list.add(() -> customAuto(customScoringLocations.get(), customCoralStationLocations.get()));
+    list.add(
+        () ->
+            customChoreoAuto(
+                customScoringLocations.get(),
+                customCoralStationLocations.get(),
+                customStartingLocation.get()));
 
     if (includeDebugPaths) {
       list.add(this::swerveCharacterization);
@@ -89,8 +100,11 @@ public class AutosManager {
       LoggedDashboardChooser<String> chooser,
       HashMap<String, Supplier<Auto>> stringToAutoSupplierMap,
       Supplier<List<ScoringLocation>> customScoringLocations,
-      Supplier<List<CoralStationLocation>> customCoralStationLocations) {
-    var compAutos = allCompetitionAutos(customScoringLocations, customCoralStationLocations);
+      Supplier<List<CoralStationLocation>> customCoralStationLocations,
+      Supplier<StartingLocation> customStartingLocation) {
+    var compAutos =
+        allCompetitionAutos(
+            customScoringLocations, customCoralStationLocations, customStartingLocation);
 
     for (int i = 0; i < compAutos.size(); i++) {
       var supplier = compAutos.get(i);
@@ -166,6 +180,39 @@ public class AutosManager {
             flipAuto.getAsBoolean(),
             true);
     return new Auto("CUSTOM", state.asCommand(), null);
+  }
+
+  private Auto customChoreoAuto(
+      List<ScoringLocation> scoringLocations,
+      List<CoralStationLocation> coralStationLocations,
+      StartingLocation customStartingLocation) {
+
+    String print = "";
+    if (scoringLocations.get(0).side() != null) {
+      print = customStartingLocation + " " + scoringLocations.get(0).side().name() + " . ";
+
+      for (int i = 0; i < coralStationLocations.size(); i++) {
+        print +=
+            coralStationLocations.get(i).name()
+                + " "
+                + scoringLocations.get(i + 1).side().name()
+                + " . ";
+      }
+    }
+
+    logCustomAutoPlan.info(print);
+
+    if (scoringLocations.get(0).side() == null) return new Auto("CUSTOM", Commands.none(), null);
+
+    var state =
+        new AutoStateMachine(
+            subsystems,
+            new AutoDescriptor(scoringLocations, coralStationLocations, customStartingLocation),
+            config,
+            flipAuto.getAsBoolean(),
+            false);
+
+    return stateToAuto("CUSTOM", state);
   }
 
   private Auto testPath(String pathName, boolean useInitialPose) {

@@ -41,6 +41,7 @@ import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
+import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
@@ -57,7 +58,6 @@ import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechToPosition;
-import frc.robot.commands.mechanism.PassToEndEffector;
 import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.commands.mechanism.arm.ArmManualControl;
 import frc.robot.commands.mechanism.elevator.ElevatorManualControl;
@@ -141,6 +141,8 @@ public class RobotContainer {
   private final List<LoggedDashboardChooser<ReefSide>> scoringPosChooser = new ArrayList<>();
   private final List<LoggedDashboardChooser<CoralStationLocation>> coralStationPosChooser =
       new ArrayList<>();
+  private final LoggedDashboardChooser<StartingLocation> startingLocationChooser =
+      new LoggedDashboardChooser<>("CustomStarting");
   private final int customGamepieceCount = 5;
 
   private final HashMap<String, Supplier<Auto>> stringToAutoSupplierMap = new HashMap<>();
@@ -484,7 +486,11 @@ public class RobotContainer {
       coralStationPosChooser.add(chooser);
     }
 
-    var subsystems = new AutosSubsystems(drivetrainWrapper, mech, endEffector, led);
+    startingLocationChooser.addDefaultOption(StartingLocation.S1.name(), StartingLocation.S1);
+    for (StartingLocation location : StartingLocation.values())
+      startingLocationChooser.addOption(location.name(), location);
+
+    var subsystems = new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led);
 
     autoManager =
         new AutosManager(
@@ -500,7 +506,8 @@ public class RobotContainer {
               return false;
             },
             this::getCustomScoringLocations,
-            this::getCustomCoralStationLocations);
+            this::getCustomCoralStationLocations,
+            this::getCustomStartingLocation);
 
     drivetrain.setDefaultCommand(
         new DrivetrainDefaultTeleopDrive(
@@ -607,6 +614,30 @@ public class RobotContainer {
                             Constants.RobotMode.getRobot().config.get(),
                             false))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
+
+    // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+
+    // Pose2d[] reefAprilTagPose = {
+    //   layout.getTagPose(6).get().toPose2d(),
+    //   layout.getTagPose(7).get().toPose2d(),
+    //   layout.getTagPose(8).get().toPose2d(),
+    //   layout.getTagPose(9).get().toPose2d(),
+    //   layout.getTagPose(10).get().toPose2d(),
+    //   layout.getTagPose(11).get().toPose2d(),
+    //   layout.getTagPose(17).get().toPose2d(),
+    //   layout.getTagPose(18).get().toPose2d(),
+    //   layout.getTagPose(19).get().toPose2d(),
+    //   layout.getTagPose(20).get().toPose2d(),
+    //   layout.getTagPose(21).get().toPose2d(),
+    //   layout.getTagPose(22).get().toPose2d()
+    // };
+
+    // Pose2d[] coralStationPose = {
+    //   layout.getTagPose(1).get().toPose2d(),
+    //   layout.getTagPose(2).get().toPose2d(),
+    //   layout.getTagPose(12).get().toPose2d(),
+    //   layout.getTagPose(13).get().toPose2d()
+    // };
 
     // Change scoring height
 
@@ -769,11 +800,9 @@ public class RobotContainer {
                         }))
             .withName("GamepieceIntoEECommand"));
 
-    // RobotStates.triggerForCoralInEndEffector.onFalse(
-    //     new MechToPosition(mech, MechState.CoralStationPosition)
-    //         .withName("GamepieceOutOfEECommand"));
-
-    passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
+    RobotStates.triggerForCoralInEndEffector.onFalse(
+        new MechToPosition(mech, MechState.CoralStationPosition)
+            .withName("GamepieceOutOfEECommand"));
 
     // ---------- ON-ROBOT CONTROLS ------------
 
@@ -894,24 +923,8 @@ public class RobotContainer {
           "SIM NO Coral in End Effector",
           new RunsWhenDisabledInstantCommand(
               () -> {
-                endEffectorSim.scoringSideTofDetecting = false;
-                endEffectorSim.nonScoringSideTofDetecting = false;
-              }));
-    }
-
-    var intakeSim = intake.getSim();
-    if (intakeSim != null) {
-      SmartDashboard.putData(
-          "SIM Coral in Intake",
-          new RunsWhenDisabledInstantCommand(
-              () -> {
-                intakeSim.tofActivated = true;
-              }));
-      SmartDashboard.putData(
-          "SIM NO Coral in Intake",
-          new RunsWhenDisabledInstantCommand(
-              () -> {
-                intakeSim.tofActivated = false;
+                endEffectorSim.scoringSideTofDetecting = true;
+                endEffectorSim.nonScoringSideTofDetecting = true;
               }));
     }
   }
@@ -1147,5 +1160,9 @@ public class RobotContainer {
     }
 
     return coralStationLocations;
+  }
+
+  public StartingLocation getCustomStartingLocation() {
+    return startingLocationChooser.get();
   }
 }

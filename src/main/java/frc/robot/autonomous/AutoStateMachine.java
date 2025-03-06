@@ -69,6 +69,8 @@ public class AutoStateMachine extends StateMachine {
 
   private LoggerEntry.Struct<Pose3d> log_usedCoralTag =
       logGroup.buildStruct(Pose3d.class, "UsedCoralTag");
+  private LoggerEntry.Bool log_foundPath = logGroup.buildBoolean("PathFound");
+  private LoggerEntry.Text log_missingPath = logGroup.buildString("MissingPath");
 
   private final boolean procedural;
   private Consumer<Double> rumble = null;
@@ -110,21 +112,30 @@ public class AutoStateMachine extends StateMachine {
 
     if (!procedural) {
       scoringPaths.add(
-          locationsToPath(descriptor.startingLocation(), descriptor.scoringLocations().get(0))
-              .flipOnAlliance(flipAuto));
+          locationsToPath(descriptor.startingLocation(), descriptor.scoringLocations().get(0)));
 
       for (int i = 1; i < descriptor.scoringLocations().size(); i++)
         scoringPaths.add(
             locationsToPath(
-                    descriptor.coralStationLocations().get(i - 1),
-                    descriptor.scoringLocations().get(i))
-                .flipOnAlliance(flipAuto));
+                descriptor.coralStationLocations().get(i - 1),
+                descriptor.scoringLocations().get(i)));
 
       for (int i = 0; i < descriptor.coralStationLocations().size(); i++)
         coralStationPaths.add(
             locationsToPath(
-                    descriptor.scoringLocations().get(i), descriptor.coralStationLocations().get(i))
-                .flipOnAlliance(flipAuto));
+                descriptor.scoringLocations().get(i), descriptor.coralStationLocations().get(i)));
+    }
+
+    boolean foundPath = scoringPaths.indexOf(null) == -1 && coralStationPaths.indexOf(null) == -1;
+
+    log_foundPath.info(foundPath);
+
+    if (foundPath) {
+      for (int i = 0; i < scoringPaths.size(); i++)
+        scoringPaths.set(i, scoringPaths.get(i).flipOnAlliance(flipAuto).flipForAlliance());
+      for (int i = 0; i < coralStationPaths.size(); i++)
+        coralStationPaths.set(
+            i, coralStationPaths.get(i).flipOnAlliance(flipAuto).flipForAlliance());
     }
 
     this.config = config;
@@ -267,25 +278,71 @@ public class AutoStateMachine extends StateMachine {
 
   private ChoreoTrajectoryWithName locationsToPath(
       ScoringLocation scoring, CoralStationLocation coralStation) {
-    return StringsToPath(scoring.side().toString(), coralStation.toString());
+    return stringsToPath(scoring.side().toString(), coralStation.toString());
   }
 
   private ChoreoTrajectoryWithName locationsToPath(
       CoralStationLocation coralStation, ScoringLocation scoring) {
-    return StringsToPath(coralStation.toString(), scoring.side().toString());
+    return stringsToPath(coralStation.toString(), scoring.side().toString());
   }
 
   private ChoreoTrajectoryWithName locationsToPath(
       StartingLocation starting, ScoringLocation scoring) {
-    return StringsToPath(starting.toString(), scoring.side().toString());
+    return stringsToPath(starting.toString(), scoring.side().toString());
   }
 
-  private ChoreoTrajectoryWithName StringsToPath(String startString, String endString) {
+  private ChoreoTrajectoryWithName stringsToPath(String startString, String endString) {
+    ChoreoTrajectoryWithName traj = stringsToPathSimple(startString, endString);
+    if (traj == null) {
+      String oppositeStartString = oppositeLocation(startString);
+      String oppositeEndString = oppositeLocation(endString);
+      traj = stringsToPathSimple(oppositeStartString, oppositeEndString);
+      if (traj == null) {
+        log_missingPath.info(
+            startString + "_" + endString + " or " + oppositeStartString + "_" + oppositeEndString);
+
+      } else {
+        traj = traj.flipOnAlliance(true);
+      }
+    }
+    return traj;
+  }
+
+  private ChoreoTrajectoryWithName stringsToPathSimple(String startString, String endString) {
     String fullString = startString + "_" + endString;
     return ChoreoTrajectoryWithName.getTrajectory(fullString);
   }
 
+  private String oppositeLocation(String location) {
+    return switch (location) {
+      case "S1" -> "S6";
+      case "S2" -> "S5";
+      case "S3" -> "S4";
+      case "CA" -> "CB";
+      case "CH" -> "CG";
+      case "CI" -> "CF";
+      case "CJ" -> "CE";
+      case "CK" -> "CD";
+      case "CL" -> "CC";
+      case "IA" -> "ID";
+      case "IB" -> "IC";
+      case "S6" -> "S1";
+      case "S5" -> "S2";
+      case "S4" -> "S3";
+      case "CB" -> "CA";
+      case "CG" -> "CH";
+      case "CF" -> "CI";
+      case "CE" -> "CJ";
+      case "CD" -> "CK";
+      case "CC" -> "CL";
+      case "ID" -> "IA";
+      case "IC" -> "IB";
+      default -> "";
+    };
+  }
+
   public Pose2d initPose() {
+    if (scoringPaths.get(0) == null) return null;
     return scoringPaths.get(0).getInitialPose(false);
   }
 
@@ -310,7 +367,7 @@ public class AutoStateMachine extends StateMachine {
             GeomUtil.translationToTransform(
                 new Translation2d(
                     Constants.FieldConstants.CORAL_STATION_WIDTH.div(4).in(Units.Meter),
-                    left ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg))); // TODO: reset this
+                    left ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg)));
     return AllianceFlipUtil.flipPoseForAlliance(offsetPickup);
   }
 

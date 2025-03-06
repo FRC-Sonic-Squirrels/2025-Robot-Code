@@ -9,7 +9,12 @@ public record AutoDescriptor(
     List<CoralStationLocation> coralStationLocations,
     StartingLocation startingLocation) {
   public enum StartingLocation {
-    S1
+    S1,
+    S2,
+    S3,
+    S4,
+    S5,
+    S6
   }
 
   public List<ScoringLocation> flippedScoringLocations() {

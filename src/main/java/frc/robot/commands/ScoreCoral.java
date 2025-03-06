@@ -79,6 +79,8 @@ public class ScoreCoral extends StateMachine {
 
   private ChoreoHelper choreoHelper;
 
+  private boolean inPosition;
+
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
       group.build("DistToRaiseMechMeters", 0.05);
@@ -271,22 +273,11 @@ public class ScoreCoral extends StateMachine {
             new MechToPosition(mech, MechState.StowPosition)
                 .alongWith(
                     Commands.waitUntil(
-                            () ->
-                                GeometryUtil.getDist(
-                                        wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                                    < (RobotStates.scoringLevel == ScoringLevel.L4
-                                        ? distToRaiseMech.get()
-                                        : 100))
+                            () -> !(RobotStates.scoringLevel == ScoringLevel.L4) || inPosition)
                         .andThen(
                             new MechToPosition(mech, MechState.ReefPrepPosition)
                                 .alongWith(
-                                    Commands.waitUntil(
-                                            () ->
-                                                GeometryUtil.getDist(
-                                                            wrapper.getReefPoseEstimatorPose(true),
-                                                            scoringPose)
-                                                        < 0.1
-                                                    && elevator.isAtTarget())
+                                    Commands.waitUntil(() -> inPosition && elevator.isAtTarget())
                                         .andThen(
                                             new MechToPosition(mech, MechState.ReefPosition)
                                                 .asProxy()))
@@ -339,7 +330,8 @@ public class ScoreCoral extends StateMachine {
         choreoHelper.calculateChassisSpeeds(
             wrapper.getReefPoseEstimatorPose(true), timeFromStart());
     wrapper.setVelocityOverride(result.chassisSpeeds());
-    if (!result.atEndOfPath()) return null;
+    inPosition = result.atEndOfPath();
+    if (!inPosition) return null;
     wrapper.resetVelocityOverride();
     return stateWithName("Score", () -> score());
   }
