@@ -67,8 +67,6 @@ public class ScoreCoral extends StateMachine {
 
   private Command prepMechanismForScoring;
 
-  private Command clearAlgae1Position;
-
   private boolean usingDrivetrain = true;
 
   private final Consumer<Double> rumble;
