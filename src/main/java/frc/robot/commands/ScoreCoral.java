@@ -21,19 +21,21 @@ import frc.robot.Constants.FieldConstants.ScoringSideWithPose;
 import frc.robot.Constants.FieldConstants.ScoringSideWithPoseAndDirection;
 import frc.robot.FieldStates;
 import frc.robot.RobotStates;
+import frc.robot.RobotStates.MechState;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.drive.DriveToPose;
 import frc.robot.commands.drive.DriveToPosePathing;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
-import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.commands.mechanism.MechToPosition;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
 import frc.robot.subsystems.LED.RobotState;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.mechanism.Mechanism;
 import frc.robot.subsystems.mechanism.arm.Arm;
 import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
@@ -43,6 +45,7 @@ import java.util.function.Consumer;
 public class ScoreCoral extends StateMachine {
 
   private final DrivetrainWrapper wrapper;
+  private final Mechanism mech;
   private final Elevator elevator;
   private final Arm arm;
   private final EndEffector endEffector;
@@ -108,6 +111,7 @@ public class ScoreCoral extends StateMachine {
 
   public ScoreCoral(
       DrivetrainWrapper wrapper,
+      Mechanism mech,
       Elevator elevator,
       Arm arm,
       EndEffector endEffector,
@@ -117,6 +121,7 @@ public class ScoreCoral extends StateMachine {
       boolean clearAlgae) {
     this(
         wrapper,
+        mech,
         elevator,
         arm,
         endEffector,
@@ -132,6 +137,7 @@ public class ScoreCoral extends StateMachine {
 
   public ScoreCoral(
       DrivetrainWrapper wrapper,
+      Mechanism mech,
       Elevator elevator,
       Arm arm,
       EndEffector endEffector,
@@ -142,6 +148,7 @@ public class ScoreCoral extends StateMachine {
       boolean clearAlgae) {
     this(
         wrapper,
+        mech,
         elevator,
         arm,
         endEffector,
@@ -156,6 +163,7 @@ public class ScoreCoral extends StateMachine {
 
   public ScoreCoral(
       DrivetrainWrapper wrapper,
+      Mechanism mech,
       Elevator elevator,
       Arm arm,
       EndEffector endEffector,
@@ -166,6 +174,7 @@ public class ScoreCoral extends StateMachine {
       boolean clearAlgae) {
     this(
         wrapper,
+        mech,
         elevator,
         arm,
         endEffector,
@@ -180,6 +189,7 @@ public class ScoreCoral extends StateMachine {
 
   public ScoreCoral(
       DrivetrainWrapper wrapper,
+      Mechanism mech,
       Elevator elevator,
       Arm arm,
       EndEffector endEffector,
@@ -193,6 +203,7 @@ public class ScoreCoral extends StateMachine {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
+    this.mech = mech;
     this.elevator = elevator;
     this.arm = arm;
     this.endEffector = endEffector;
@@ -247,7 +258,7 @@ public class ScoreCoral extends StateMachine {
 
     prepMechanismForScoring =
         spawnCommand(
-            MechanismActions.stowPosition(elevator, arm)
+            new MechToPosition(mech, MechState.StowPosition)
                 .alongWith(
                     Commands.waitUntil(
                             () ->
@@ -257,8 +268,7 @@ public class ScoreCoral extends StateMachine {
                                         ? distToRaiseMech.get()
                                         : 100))
                         .andThen(
-                            MechanismActions.reefPrepPosition(
-                                    elevator, arm, RobotStates.scoringLevel)
+                            new MechToPosition(mech, MechState.ReefPrepPosition)
                                 .alongWith(
                                     Commands.waitUntil(
                                             () ->
@@ -268,8 +278,7 @@ public class ScoreCoral extends StateMachine {
                                                         < 0.1
                                                     && elevator.isAtTarget())
                                         .andThen(
-                                            MechanismActions.reefPosition(
-                                                    elevator, arm, RobotStates.scoringLevel)
+                                            new MechToPosition(mech, MechState.ReefPosition)
                                                 .asProxy()))
                                 .asProxy()))
                 .withName("MechScoreCoral"),
@@ -320,12 +329,8 @@ public class ScoreCoral extends StateMachine {
 
     clearAlgae1Position =
         high
-            ? MechanismActions.clearAlgaeHigh1Position(elevator, arm)
-            : MechanismActions.clearAlgaeLow1Position(elevator, arm);
-    clearAlgae2Position =
-        high
-            ? MechanismActions.clearAlgaeHigh2Position(elevator, arm)
-            : MechanismActions.clearAlgaeLow2Position(elevator, arm);
+            ? new MechToPosition(mech, MechState.ClearAlgaeHighPosition)
+            : new MechToPosition(mech, MechState.ClearAlgaeLowPosition);
 
     prepMechanismForAlgae =
         spawnCommand(

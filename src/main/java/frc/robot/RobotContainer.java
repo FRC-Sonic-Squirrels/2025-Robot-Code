@@ -35,6 +35,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.RobotStates.MechState;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
@@ -53,7 +54,7 @@ import frc.robot.commands.intake.IntakeGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
-import frc.robot.commands.mechanism.MechanismActions;
+import frc.robot.commands.mechanism.MechToPosition;
 import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.commands.mechanism.arm.ArmManualControl;
 import frc.robot.commands.mechanism.elevator.ElevatorManualControl;
@@ -73,6 +74,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.mechanism.Mechanism;
 import frc.robot.subsystems.mechanism.arm.Arm;
 import frc.robot.subsystems.mechanism.arm.ArmIO;
 import frc.robot.subsystems.mechanism.arm.ArmIOReal;
@@ -115,6 +117,7 @@ public class RobotContainer {
   private final DrivetrainWrapper drivetrainWrapper;
   private final AprilTagFieldLayout aprilTagLayout;
   private final Vision vision;
+  private final Mechanism mech;
   private final Arm arm;
   private final Elevator elevator;
   private final Intake intake;
@@ -440,6 +443,8 @@ public class RobotContainer {
       }
     }
 
+    mech = new Mechanism(elevator, arm);
+
     algaeInRobot =
         new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())
             .debounce(.1);
@@ -471,7 +476,7 @@ public class RobotContainer {
       coralStationPosChooser.add(chooser);
     }
 
-    var subsystems = new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led);
+    var subsystems = new AutosSubsystems(drivetrainWrapper, mech, elevator, arm, endEffector, led);
 
     autoManager =
         new AutosManager(
@@ -531,6 +536,7 @@ public class RobotContainer {
                     () ->
                         new ScoreCoral(
                             drivetrainWrapper,
+                            mech,
                             elevator,
                             arm,
                             endEffector,
@@ -555,7 +561,7 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake Coral Station")
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
-                drivetrainWrapper, endEffector, elevator, arm, led, driverController, true));
+                drivetrainWrapper, endEffector, elevator, arm, mech, led, driverController, true));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
@@ -568,6 +574,7 @@ public class RobotContainer {
                     () ->
                         new ScoreCoral(
                             drivetrainWrapper,
+                            mech,
                             elevator,
                             arm,
                             endEffector,
@@ -585,6 +592,7 @@ public class RobotContainer {
                     () ->
                         new ScoreCoral(
                             drivetrainWrapper,
+                            mech,
                             elevator,
                             arm,
                             endEffector,
@@ -729,12 +737,12 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
         .whileTrue(
-            new IntakeGround(intake).alongWith(MechanismActions.stowPosition(elevator, arm)));
+            new IntakeGround(intake).alongWith(new MechToPosition(mech, MechState.StowPosition)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
         .onTrue(new Climb(climber, driverController.getPovDown()))
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L3))
+        .onTrue(new MechToPosition(mech, MechState.ClimbPosition))
         .onTrue(
             new IntakeSetPivotAngle(
                 intake, Constants.IntakeConstants.PivotConstants.PIVOT_SAFE_ANGLE));
@@ -746,26 +754,26 @@ public class RobotContainer {
     // Reef positions
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "L1 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L1));
+        .onTrue(new MechToPosition(mech, MechState.ReefL1Position));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povRight, "L2 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L2));
+        .onTrue(new MechToPosition(mech, MechState.ReefL2Position));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "L3 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L3));
+        .onTrue(new MechToPosition(mech, MechState.ReefL3Position));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povUp, "L4 Position")
-        .onTrue(MechanismActions.reefPosition(elevator, arm, ScoringLevel.L4));
+        .onTrue(new MechToPosition(mech, MechState.ReefL4Position));
 
     // Coral Station position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.y, "CoralStation Position")
-        .onTrue(MechanismActions.coralStationPosition(elevator, arm));
+        .onTrue(new MechToPosition(mech, MechState.CoralStationPosition));
 
     // Stow position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.x, "Score Prep Position")
-        .onTrue(MechanismActions.stowPosition(elevator, arm));
+        .onTrue(new MechToPosition(mech, MechState.StowPosition));
 
     // Eject
     operatorController
@@ -812,6 +820,7 @@ public class RobotContainer {
     operatorController
         .registerTrigger(
             XboxControllerWrapper.Button.leftTrigger, "Manual arm and elevator override")
+        .onTrue(Commands.runOnce(() -> RobotStates.mechState = MechState.Override))
         .whileTrue(
             new ArmManualControl(operatorController::getRightX, arm)
                 .alongWith(
@@ -826,7 +835,7 @@ public class RobotContainer {
     RobotStates.triggerForCoralInEndEffector.onTrue(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(
-                MechanismActions.stowPosition(elevator, arm)
+                new MechToPosition(mech, MechState.StowPosition)
                     .finallyDo(
                         () -> {
                           RobotStates.changeEndEffectorIfNotAligning(
@@ -836,7 +845,7 @@ public class RobotContainer {
 
     RobotStates.triggerForCoralInEndEffector.onFalse(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-            .andThen(MechanismActions.coralStationPosition(elevator, arm))
+            .andThen(new MechToPosition(mech, MechState.CoralStationPosition))
             .withName("GamepieceOutOfEECommand"));
 
     // ---------- ON-ROBOT CONTROLS ------------
@@ -1089,11 +1098,12 @@ public class RobotContainer {
     vision.useMaxDistanceAwayFromExistingEstimate(false);
     vision.useGyroBasedFilteringForVision(false);
 
-    arm.setVoltage(0);
+    arm.setPercentOut(0);
     elevator.setPercentOut(0);
     climber.setWinchVoltage(0);
     intake.setPivotVoltage(0);
     intake.setRollerPercentOut(0);
+    RobotStates.mechState = MechState.Idle;
 
     is_teleop = false;
     is_autonomous = false;
@@ -1156,6 +1166,7 @@ public class RobotContainer {
 
   public void updateRobotState() {
     RobotStates.periodic();
+    mech.periodic();
 
     if (RobotStates.triggerForCoralInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
