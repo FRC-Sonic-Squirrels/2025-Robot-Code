@@ -60,7 +60,7 @@ public class SimulatorRobotConfig extends RobotConfig {
   private static final Distance TRACK_WIDTH_Y = Units.Inches.of(30); // 22.625 inches
 
   // ------- ROBOT MAX SPEED --------
-  private static final double MAX_VELOCITY_METERS_PER_SECOND = 4.78;
+  private static final double MAX_VELOCITY_METERS_PER_SECOND = 6.0;
   private static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05;
 
   // ------- AUTONOMOUS CONSTANTS -------

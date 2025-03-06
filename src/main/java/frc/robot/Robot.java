@@ -21,12 +21,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.autonomous.AutosManager.Auto;
+import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import java.util.ArrayList;
@@ -70,6 +70,7 @@ public class Robot extends LoggedRobot {
   private String selectedAutoName;
   private List<ScoringLocation> selectedScoringLocations = new ArrayList<>();
   private List<CoralStationLocation> selectedCoralStationLocations = new ArrayList<>();
+  private StartingLocation selectedStartingLocation;
   private boolean selectedAutoFlipped;
   private Command autoCommand;
   private Pose2d selectedInitialPose;
@@ -202,10 +203,12 @@ public class Robot extends LoggedRobot {
 
     var customScoringLocations = robotContainer.getCustomScoringLocations();
     var customCoralStationLocations = robotContainer.getCustomCoralStationLocations();
+    var customStartingLocation = robotContainer.getCustomStartingLocation();
 
     if (selectedScoringLocations.isEmpty()) {
       selectedScoringLocations = customScoringLocations;
       selectedCoralStationLocations = customCoralStationLocations;
+      selectedStartingLocation = customStartingLocation;
     }
 
     var autoName = autonomousChooser.get();
@@ -214,15 +217,13 @@ public class Robot extends LoggedRobot {
         && (!autoName.equals(selectedAutoName)
             || autoFlipped != selectedAutoFlipped
             || !selectedScoringLocations.equals(customScoringLocations)
-            || !selectedCoralStationLocations.equals(customCoralStationLocations))) {
+            || !selectedCoralStationLocations.equals(customCoralStationLocations)
+            || selectedStartingLocation.equals(customStartingLocation))) {
       Pose2d initialPose;
 
       selectedAuto = robotContainer.getAutoSupplierForString(autoName).get();
       if (selectedAuto != null) {
         initialPose = selectedAuto.initPose();
-        if (initialPose != null) {
-          initialPose = AllianceFlipUtil.flipPoseForAlliance(initialPose);
-        }
 
         logCurrentChooserValue.info(autoName);
         logSelectedAuto.info(selectedAuto.name());
@@ -235,6 +236,7 @@ public class Robot extends LoggedRobot {
       selectedAutoFlipped = autoFlipped;
       selectedScoringLocations = customScoringLocations;
       selectedCoralStationLocations = customCoralStationLocations;
+      selectedStartingLocation = customStartingLocation;
     }
 
     if (desiredInitialPose != null && !desiredInitialPose.equals(selectedInitialPose)) {
