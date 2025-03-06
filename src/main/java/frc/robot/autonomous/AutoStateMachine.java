@@ -15,9 +15,7 @@ import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.StateMachine;
-import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.GeomUtil;
-import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.CommandComposer;
 import frc.robot.Constants;
 import frc.robot.FieldStates;
@@ -66,11 +64,6 @@ public class AutoStateMachine extends StateMachine {
   private int intakingIndex = 0;
 
   private ChoreoHelper choreoHelper;
-
-  private Pose2d scoringEndPose = Pose2d.kZero;
-
-  private TunableNumberGroup group = new TunableNumberGroup("AutoStateMachine");
-  private LoggedTunableNumber distBeforeScoringMeters = group.build("DistBeforeScoringMeters", 1);
 
   private LoggerGroup logGroup = LoggerGroup.build("AutoStateMachine");
 
