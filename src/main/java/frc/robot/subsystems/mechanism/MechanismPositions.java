@@ -82,10 +82,16 @@ public class MechanismPositions {
       group.build("IntermediatePoses/LowBack/ArmAngleDegrees");
 
   private static final LoggedTunableNumber passOffElevatorHeightInches =
-      group.build("PassOff/ElevatorHeightInches");
+      group.build("PassOff/Pass/ElevatorHeightInches");
 
   private static final LoggedTunableNumber passOffArmAngleDegrees =
-      group.build("PassOff/ArmAngleDegrees");
+      group.build("PassOff/Pass/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber prepForPassOffElevatorHeightInches =
+      group.build("PassOff/Prep/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber prepForPassOffArmAngleDegrees =
+      group.build("PassOff/Prep/ArmAngleDegrees");
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -131,6 +137,8 @@ public class MechanismPositions {
       reefPrepArmOffsetDegrees.initDefault(20);
       passOffArmAngleDegrees.initDefault(9.756);
       passOffElevatorHeightInches.initDefault(11.922);
+      prepForPassOffArmAngleDegrees.initDefault(9.756);
+      prepForPassOffElevatorHeightInches.initDefault(14);
     }
   }
 
@@ -208,6 +216,12 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(stowElevatorHeightInches.get()),
         Rotation2d.fromDegrees(stowArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition prepForPassoffPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(prepForPassOffElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(prepForPassOffArmAngleDegrees.get()));
   }
 
   public static MechanismPosition intermediateLowPosition() {

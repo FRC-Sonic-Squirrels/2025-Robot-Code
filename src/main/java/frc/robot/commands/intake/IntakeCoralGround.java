@@ -7,14 +7,14 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.RobotStates;
 import frc.robot.subsystems.intake.Intake;
 
-public class IntakeGround extends Command {
+public class IntakeCoralGround extends Command {
   // boolean coralInIntake = RobotStates.coralInIntake;
   private final Intake intake;
-  private static final LoggerGroup logGroup = LoggerGroup.build("Intake Gamepiece");
+  private static final String root = "Intake Coral Ground";
+  private static final LoggerGroup logGroup = LoggerGroup.build(root);
 
   private static final LoggerEntry.Bool logInputs_algaeInRobot =
       logGroup.buildBoolean("algaeInRobot");
@@ -22,12 +22,13 @@ public class IntakeGround extends Command {
   private static final LoggerEntry.Bool logInputs_coralInIntake =
       logGroup.buildBoolean("coralInIntake");
 
-  private static final TunableNumberGroup group = new TunableNumberGroup("Intake Gamepiece");
+  private static final TunableNumberGroup group = new TunableNumberGroup(root);
 
   private static final LoggedTunableNumber intakingPivotAngle = group.build("IntakingAngleDeg", 0);
+  private static final LoggedTunableNumber intakingVel = group.build("intakingVel", 2000);
 
   /** Creates a new IntakeGround */
-  public IntakeGround(Intake intake) {
+  public IntakeCoralGround(Intake intake) {
 
     this.intake = intake;
 
@@ -39,7 +40,7 @@ public class IntakeGround extends Command {
   @Override
   public void initialize() {
     intake.setPivotAngle(Rotation2d.fromDegrees(intakingPivotAngle.get()));
-    intake.setRollerVelocity(PivotConstants.GAMEPIECE_INTAKE_SPEED_RPM);
+    intake.setRollerVelocity(intakingVel.get());
   }
 
   // Called every time the scheduler runs while the command is scheduled.

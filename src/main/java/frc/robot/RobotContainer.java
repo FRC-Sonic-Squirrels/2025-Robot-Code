@@ -33,6 +33,7 @@ import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates.MechState;
@@ -50,7 +51,8 @@ import frc.robot.commands.climber.ClimberSetAngle;
 import frc.robot.commands.drive.DrivetrainDefaultTeleopDrive;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
-import frc.robot.commands.intake.IntakeGround;
+import frc.robot.commands.intake.IntakeAlgaeGround;
+import frc.robot.commands.intake.IntakeCoralGround;
 import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
@@ -740,7 +742,8 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
         .whileTrue(
-            new IntakeGround(intake).alongWith(new MechToPosition(mech, MechState.StowPosition)));
+            new IntakeCoralGround(intake)
+                .alongWith(MechanismActions.prepForPassOffPosition(elevator, arm)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
@@ -749,6 +752,11 @@ public class RobotContainer {
         .onTrue(
             new IntakeSetPivotAngle(
                 intake, Constants.IntakeConstants.PivotConstants.PIVOT_SAFE_ANGLE));
+
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.povRight, "Intake Algae Ground")
+        .whileTrue(
+            new IntakeAlgaeGround(intake).alongWith(MechanismActions.stowPosition(elevator, arm)));
 
     // ---------- OPERATOR CONTROLS -----------
 
@@ -852,7 +860,12 @@ public class RobotContainer {
 
     passOffTrigger.onTrue(
         new PassToEndEffector(intake, arm, elevator)
-            .alongWith(MechanismActions.passOffPosition(elevator, arm))
+            .alongWith(
+                MechanismActions.prepForPassOffPosition(elevator, arm)
+                    .andThen(
+                        Commands.waitUntil(
+                            () -> intake.isPivotAtTargetAngle(PivotConstants.PASSOFF_PIVOT_ANGLE)))
+                    .andThen(MechanismActions.passOffPosition(elevator, arm)))
             .andThen(MechanismActions.stowPosition(elevator, arm).asProxy()));
 
     // ---------- ON-ROBOT CONTROLS ------------
