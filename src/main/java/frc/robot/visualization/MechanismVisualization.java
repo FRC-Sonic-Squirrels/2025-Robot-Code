@@ -72,7 +72,10 @@ public class MechanismVisualization {
             new Rotation3d(0, Math.toRadians(89 - armAngle.getDegrees()), 0));
     intake =
         new Pose3d(
-            0.342, 0.0, 0.178, new Rotation3d(0, Math.toRadians(intakeAngle.getDegrees() + 43), 0));
+            0.342,
+            0.0,
+            0.178,
+            new Rotation3d(0, Math.toRadians(133 - intakeAngle.getDegrees()), 0));
     climber = new Pose3d(0.0, -0.3303, 0.1235, new Rotation3d(climberAngle.getRadians(), 0, 0));
 
     Pose3d rotatedArmPose = arm.rotateBy(new Rotation3d(robotPose.getRotation()));
