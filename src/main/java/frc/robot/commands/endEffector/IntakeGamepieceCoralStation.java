@@ -14,11 +14,9 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
+import frc.robot.RobotStates.MechState;
 import frc.robot.subsystems.endEffector.EndEffector;
-import frc.robot.subsystems.mechanism.MechanismPositions;
-import frc.robot.subsystems.mechanism.MechanismPositions.MechanismPosition;
-import frc.robot.subsystems.mechanism.arm.Arm;
-import frc.robot.subsystems.mechanism.elevator.Elevator;
+import frc.robot.subsystems.mechanism.Mechanism;
 import java.util.function.Supplier;
 
 public class IntakeGamepieceCoralStation extends Command {
@@ -33,14 +31,13 @@ public class IntakeGamepieceCoralStation extends Command {
 
   /** Creates a new IntakeGamepieceCoralStation. */
   public IntakeGamepieceCoralStation(
-      EndEffector endEffector, Elevator elevator, Arm arm, Supplier<Pose2d> robotPose) {
+      EndEffector endEffector, Mechanism mech, Supplier<Pose2d> robotPose) {
     this.endEffector = endEffector;
     simConditions =
         new Trigger(
                 () -> {
                   Pose2d blueAllianceReferencePose =
                       AllianceFlipUtil.flipPoseForAlliance(robotPose.get());
-                  MechanismPosition targetPos = MechanismPositions.coralStationPosition();
 
                   return Math.min(
                               distToHumanPlayerStation(blueAllianceReferencePose.getTranslation()),
@@ -48,8 +45,7 @@ public class IntakeGamepieceCoralStation extends Command {
                                   GeometryUtil.flipPoseOnAlliance(blueAllianceReferencePose)
                                       .getTranslation()))
                           < 1.0
-                      && elevator.isAtTarget(targetPos.elevatorHeight())
-                      && arm.isAtTargetAngle(targetPos.armAngle());
+                      && mech.mechInPosition();
                 })
             .debounce(0.5);
     addRequirements(endEffector);
@@ -59,6 +55,7 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    RobotStates.mechState = MechState.CoralStationPosition;
     RobotStates.changeEndEffectorIfNotAligning(
         RobotStates.EndEffectorDesiredAction.CoralStationIntake);
   }
