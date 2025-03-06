@@ -36,6 +36,7 @@ import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.mechanism.Mechanism;
 import frc.robot.subsystems.mechanism.arm.Arm;
 import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
@@ -47,6 +48,7 @@ import java.util.function.Supplier;
 public class AutoStateMachine extends StateMachine {
 
   private final DrivetrainWrapper wrapper;
+  private final Mechanism mech;
   private final Elevator elevator;
   private final Arm arm;
   private final EndEffector endEffector;
@@ -94,6 +96,7 @@ public class AutoStateMachine extends StateMachine {
     super("Auto");
 
     wrapper = subsystems.drivetrain();
+    mech = subsystems.mech();
     elevator = subsystems.elevator();
     arm = subsystems.arm();
     endEffector = subsystems.endEffector();
@@ -186,7 +189,8 @@ public class AutoStateMachine extends StateMachine {
 
     if (scoringLocations == null) {
 
-      scoreCoral = new ScoreCoral(wrapper, elevator, arm, endEffector, led, rumble, config, false);
+      scoreCoral =
+          new ScoreCoral(wrapper, mech, elevator, arm, endEffector, led, rumble, config, false);
 
     } else {
 
@@ -194,6 +198,7 @@ public class AutoStateMachine extends StateMachine {
       scoreCoral =
           new ScoreCoral(
               wrapper,
+              mech,
               elevator,
               arm,
               endEffector,
@@ -265,7 +270,7 @@ public class AutoStateMachine extends StateMachine {
                                 && arm.isAtTargetAngle(coralStationPos.armAngle()))
                     .andThen(
                         CommandComposer.intakeCoralFromStation(
-                                wrapper, endEffector, elevator, arm, led, null, false)
+                                wrapper, endEffector, elevator, arm, mech, led, null, false)
                             .asProxy())),
         (c) -> null);
 

@@ -7,6 +7,8 @@ package frc.robot.commands.mechanism;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.GeometryUtil;
+import frc.robot.RobotStates;
+import frc.robot.RobotStates.MechState;
 import frc.robot.subsystems.mechanism.arm.Arm;
 import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
@@ -42,15 +44,13 @@ public class ResetMechToIntakePosition extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    RobotStates.mechState = MechState.CoralStationPosition;
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return GeometryUtil.getDist(initPose, wrapper.getRawOdometryPose()) > 0.3;
-  }
-
-  public Command getAsCommand() {
-    return this.andThen(MechanismActions.coralStationPosition(elevator, arm));
   }
 }

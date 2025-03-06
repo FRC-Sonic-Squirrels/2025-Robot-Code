@@ -27,6 +27,22 @@ public class RobotStates {
     }
   }
 
+  public enum MechState {
+    Idle,
+    Override,
+    ReefPosition,
+    ReefL1Position,
+    ReefL2Position,
+    ReefL3Position,
+    ReefL4Position,
+    ReefPrepPosition,
+    CoralStationPosition,
+    ClearAlgaeLowPosition,
+    ClearAlgaeHighPosition,
+    StowPosition,
+    ClimbPosition
+  }
+
   public enum ScoringLevel {
     L1,
     L2,
@@ -65,6 +81,8 @@ public class RobotStates {
 
   public static EndEffectorDesiredAction endEffectorDesiredAction = EndEffectorDesiredAction.Idle;
   public static double endEffectorOverrideVelocity = Double.NaN;
+
+  public static MechState mechState = MechState.Idle;
 
   public static boolean algaeInRobot;
 

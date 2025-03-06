@@ -51,29 +51,17 @@ public class MechanismPositions {
   private static final LoggedTunableNumber coralStationArmAngleDegrees =
       group.build("CoralStation/ArmAngleDegrees");
 
-  private static final LoggedTunableNumber algaeClearingLow1ElevatorHeightInches =
-      group.build("Reef/AlgaeClearing/Low/Step1/ElevatorHeightInches");
+  private static final LoggedTunableNumber algaeClearingLowElevatorHeightInches =
+      group.build("Reef/AlgaeClearing/Low/ElevatorHeightInches");
 
-  private static final LoggedTunableNumber algaeClearingLow1ArmAngleDegrees =
-      group.build("Reef/AlgaeClearing/Low/Step1/ArmAngleDegrees");
+  private static final LoggedTunableNumber algaeClearingLowArmAngleDegrees =
+      group.build("Reef/AlgaeClearing/Low/ArmAngleDegrees");
 
-  private static final LoggedTunableNumber algaeClearingLow2ElevatorHeightInches =
-      group.build("Reef/AlgaeClearing/Low/Step2/ElevatorHeightInches");
+  private static final LoggedTunableNumber algaeClearingHighElevatorHeightInches =
+      group.build("Reef/AlgaeClearing/High/ElevatorHeightInches");
 
-  private static final LoggedTunableNumber algaeClearingLow2ArmAngleDegrees =
-      group.build("Reef/AlgaeClearing/Low/Step2/ArmAngleDegrees");
-
-  private static final LoggedTunableNumber algaeClearingHigh1ElevatorHeightInches =
-      group.build("Reef/AlgaeClearing/High/Step1/ElevatorHeightInches");
-
-  private static final LoggedTunableNumber algaeClearingHigh1ArmAngleDegrees =
-      group.build("Reef/AlgaeClearing/High/Step1/ArmAngleDegrees");
-
-  private static final LoggedTunableNumber algaeClearingHigh2ElevatorHeightInches =
-      group.build("Reef/AlgaeClearing/High/Step2/ElevatorHeightInches");
-
-  private static final LoggedTunableNumber algaeClearingHigh2ArmAngleDegrees =
-      group.build("Reef/AlgaeClearing/High/Step2/ArmAngleDegrees");
+  private static final LoggedTunableNumber algaeClearingHighArmAngleDegrees =
+      group.build("Reef/AlgaeClearing/High/ArmAngleDegrees");
 
   private static final LoggedTunableNumber intermediatePoseLowElevatorHeightInches =
       group.build("IntermediatePoses/LowForward/ElevatorHeightInches");
@@ -107,14 +95,10 @@ public class MechanismPositions {
       reefL4ArmAngleDegrees.initDefault(120);
       coralStationElevatorHeightInches.initDefault(25.451);
       coralStationArmAngleDegrees.initDefault(-22.324);
-      algaeClearingLow1ElevatorHeightInches.initDefault(17.34);
-      algaeClearingLow1ArmAngleDegrees.initDefault(0);
-      algaeClearingLow2ElevatorHeightInches.initDefault(21.95);
-      algaeClearingLow2ArmAngleDegrees.initDefault(32);
-      algaeClearingHigh1ElevatorHeightInches.initDefault(24.03);
-      algaeClearingHigh1ArmAngleDegrees.initDefault(0);
-      algaeClearingHigh2ElevatorHeightInches.initDefault(26.2);
-      algaeClearingHigh2ArmAngleDegrees.initDefault(32);
+      algaeClearingLowElevatorHeightInches.initDefault(17.34);
+      algaeClearingLowArmAngleDegrees.initDefault(0);
+      algaeClearingHighElevatorHeightInches.initDefault(24.03);
+      algaeClearingHighArmAngleDegrees.initDefault(0);
     } else {
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
@@ -126,14 +110,10 @@ public class MechanismPositions {
       reefL4ArmAngleDegrees.initDefault(151);
       coralStationElevatorHeightInches.initDefault(33);
       coralStationArmAngleDegrees.initDefault(-40);
-      algaeClearingLow1ElevatorHeightInches.initDefault(8);
-      algaeClearingLow1ArmAngleDegrees.initDefault(166);
-      algaeClearingLow2ElevatorHeightInches.initDefault(25);
-      algaeClearingLow2ArmAngleDegrees.initDefault(150);
-      algaeClearingHigh1ElevatorHeightInches.initDefault(27.2);
-      algaeClearingHigh1ArmAngleDegrees.initDefault(153);
-      algaeClearingHigh2ElevatorHeightInches.initDefault(50);
-      algaeClearingHigh2ArmAngleDegrees.initDefault(150);
+      algaeClearingLowElevatorHeightInches.initDefault(8);
+      algaeClearingLowArmAngleDegrees.initDefault(166);
+      algaeClearingHighElevatorHeightInches.initDefault(27.2);
+      algaeClearingHighArmAngleDegrees.initDefault(153);
       stowElevatorHeightInches.initDefault(26);
       stowArmAngleDegrees.initDefault(90);
       intermediatePoseHighElevatorHeightInches.initDefault(26);
@@ -204,28 +184,16 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(coralStationArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition clearAlgaeLow1Position() {
+  public static MechanismPosition clearAlgaeLowPosition() {
     return new MechanismPosition(
-        Units.Inches.of(algaeClearingLow1ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(algaeClearingLow1ArmAngleDegrees.get()));
+        Units.Inches.of(algaeClearingLowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(algaeClearingLowArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition clearAlgaeLow2Position() {
+  public static MechanismPosition clearAlgaeHighPosition() {
     return new MechanismPosition(
-        Units.Inches.of(algaeClearingLow2ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(algaeClearingLow2ArmAngleDegrees.get()));
-  }
-
-  public static MechanismPosition clearAlgaeHigh1Position() {
-    return new MechanismPosition(
-        Units.Inches.of(algaeClearingHigh1ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(algaeClearingHigh1ArmAngleDegrees.get()));
-  }
-
-  public static MechanismPosition clearAlgaeHigh2Position() {
-    return new MechanismPosition(
-        Units.Inches.of(algaeClearingHigh2ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(algaeClearingHigh2ArmAngleDegrees.get()));
+        Units.Inches.of(algaeClearingHighElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(algaeClearingHighArmAngleDegrees.get()));
   }
 
   public static MechanismPosition stowPosition() {

@@ -64,7 +64,7 @@ public class HomeMechanism extends Command {
       }
     } else {
       if (beginHomingArm) {
-        arm.setVoltage(homingVoltageArm.get());
+        arm.setPercentOut(homingVoltageArm.get());
         if (Math.abs(arm.getVoltage().in(Units.Volts)) >= Math.abs(homingVoltageArm.get()) / 2.0
             && Math.abs(arm.getVelocity().in(Units.DegreesPerSecond))
                 <= homingVelocityMaxToResetArm.get()) {

@@ -162,9 +162,9 @@ public class Arm extends SubsystemBase {
     io.setVoltage(0);
   }
 
-  public void setVoltage(double percent) {
+  public void setPercentOut(double percent) {
     controlMode = ControlMode.OPEN_LOOP;
-    io.setVoltage(percent);
+    io.setVoltage(percent * Constants.MAX_VOLTAGE);
   }
 
   public void resetSensorToHomePosition() {
@@ -176,7 +176,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmManualControl(double percent) {
-    setVoltage(2 * (percent) + kG.get() * Math.cos(getAngle().getRadians()));
+    setPercentOut((percent) / 6.0 + kG.get() * Math.cos(getAngle().getRadians()));
   }
 
   // Getters
