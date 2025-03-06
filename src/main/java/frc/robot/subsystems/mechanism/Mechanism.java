@@ -9,8 +9,7 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
-import frc.robot.commands.mechanism.MechanismPositions;
-import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
+import frc.robot.subsystems.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.mechanism.arm.Arm;
 import frc.robot.subsystems.mechanism.elevator.Elevator;
 
