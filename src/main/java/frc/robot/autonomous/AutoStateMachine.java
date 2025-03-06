@@ -97,8 +97,8 @@ public class AutoStateMachine extends StateMachine {
 
     wrapper = subsystems.drivetrain();
     mech = subsystems.mech();
-    elevator = subsystems.elevator();
-    arm = subsystems.arm();
+    elevator = mech.getElevator();
+    arm = mech.getArm();
     endEffector = subsystems.endEffector();
     led = subsystems.led();
 
@@ -270,7 +270,7 @@ public class AutoStateMachine extends StateMachine {
                                 && arm.isAtTargetAngle(coralStationPos.armAngle()))
                     .andThen(
                         CommandComposer.intakeCoralFromStation(
-                                wrapper, endEffector, elevator, arm, mech, led, null, false)
+                                wrapper, endEffector, mech, led, null, false)
                             .asProxy())),
         (c) -> null);
 

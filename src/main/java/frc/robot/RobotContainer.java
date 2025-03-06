@@ -476,7 +476,7 @@ public class RobotContainer {
       coralStationPosChooser.add(chooser);
     }
 
-    var subsystems = new AutosSubsystems(drivetrainWrapper, mech, elevator, arm, endEffector, led);
+    var subsystems = new AutosSubsystems(drivetrainWrapper, mech, endEffector, led);
 
     autoManager =
         new AutosManager(
@@ -561,7 +561,7 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake Coral Station")
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
-                drivetrainWrapper, endEffector, elevator, arm, mech, led, driverController, true));
+                drivetrainWrapper, endEffector, mech, led, driverController, true));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")

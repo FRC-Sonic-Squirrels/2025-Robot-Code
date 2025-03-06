@@ -88,6 +88,14 @@ public class Mechanism {
     return elevatorInPosition && armInPosition;
   }
 
+  public Elevator getElevator() {
+    return elevator;
+  }
+
+  public Arm getArm() {
+    return arm;
+  }
+
   private void goToPositionParallel(MechanismPosition position) {
     goToPositionParallel(position, -1, -1);
   }
