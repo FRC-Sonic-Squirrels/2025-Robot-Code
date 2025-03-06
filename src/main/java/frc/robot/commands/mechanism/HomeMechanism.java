@@ -9,8 +9,8 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.mechanism.arm.Arm;
+import frc.robot.subsystems.mechanism.elevator.Elevator;
 
 public class HomeMechanism extends Command {
   private static final TunableNumberGroup group = new TunableNumberGroup("HomeMechanism");

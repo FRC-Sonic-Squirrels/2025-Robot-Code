@@ -7,8 +7,8 @@ package frc.robot.commands.mechanism;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.team2930.GeometryUtil;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.mechanism.arm.Arm;
+import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */

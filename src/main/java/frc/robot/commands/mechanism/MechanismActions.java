@@ -9,8 +9,8 @@ import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.mechanism.arm.Arm;
+import frc.robot.subsystems.mechanism.elevator.Elevator;
 import java.util.function.Supplier;
 
 public class MechanismActions {

@@ -6,7 +6,7 @@ package frc.robot.commands.mechanism.elevator;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.mechanism.elevator.Elevator;
 import java.util.function.Supplier;
 
 public class ElevatorSetHeight extends Command {

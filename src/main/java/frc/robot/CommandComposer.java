@@ -7,9 +7,9 @@ import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.mechanism.arm.Arm;
+import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 
 public class CommandComposer {
