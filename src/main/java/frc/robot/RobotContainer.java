@@ -449,6 +449,9 @@ public class RobotContainer {
     }
 
     mech = new Mechanism(elevator, arm);
+    passOffTrigger =
+        new Trigger(() -> RobotStates.coralInIntake && !RobotStates.coralInEndEffector)
+            .debounce(.5);
 
     algaeInRobot =
         new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())
@@ -743,7 +746,7 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
         .whileTrue(
             new IntakeCoralGround(intake)
-                .alongWith(MechanismActions.prepForPassOffPosition(elevator, arm)));
+                .alongWith(MechanismActions.passOffPosition(elevator, arm)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")

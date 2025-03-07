@@ -23,6 +23,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.RobotStates;
 
 public class Intake extends SubsystemBase {
   // Execution timing
@@ -65,6 +66,7 @@ public class Intake extends SubsystemBase {
       logGroup.buildDecimal("ToF/SignalStrength");
 
   public boolean holdAlgae;
+  public boolean holdCoral;
 
   // Tunable numbers
 
@@ -89,6 +91,8 @@ public class Intake extends SubsystemBase {
       group.build("PivotToleranceDegrees", 1);
   private static final LoggedTunableNumber holdAlgaePercentOut =
       group.build("HoldAlgaePercentOut", 1000);
+  private static final LoggedTunableNumber holdCoralPercentOut =
+      group.build("HoldCoralPercentOut", 200);
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -197,6 +201,8 @@ public class Intake extends SubsystemBase {
 
       if (holdAlgae) {
         setRollerVelocity(holdAlgaePercentOut.get());
+      } else if (holdCoral && RobotStates.coralInIntake) {
+        setRollerVelocity(holdCoralPercentOut.get());
       }
     }
   }

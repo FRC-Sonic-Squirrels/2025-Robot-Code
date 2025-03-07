@@ -40,8 +40,11 @@ public class PassToEndEffector extends Command {
     intake.setPivotAngle(PivotConstants.PASSOFF_PIVOT_ANGLE);
     MechanismPosition handOffPosition = MechanismPositions.intakeToEndEffectorPassOffPosition();
     if (elevator.isAtTarget(handOffPosition.elevatorHeight())
-        && arm.isAtTargetAngle(handOffPosition.armAngle(), Rotation2d.fromDegrees(3)))
+        && arm.isAtTargetAngle(handOffPosition.armAngle(), Rotation2d.fromDegrees(3))) {
       intake.setRollerVelocity(intakeVelocity.get());
+      intake.holdCoral = false;
+    }
+
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
   }
 

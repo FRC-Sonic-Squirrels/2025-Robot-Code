@@ -55,6 +55,7 @@ public class IntakeCoralGround extends Command {
   public void end(boolean interrupted) {
     intake.setRollerPercentOut(0);
     intake.setPivotAngle(IntakeConstants.PivotConstants.PIVOT_STOWED_ANGLE);
+    intake.holdCoral = true;
     // if (RobotStates.algaeInRobot && !RobotStates.coralInIntake) {
     //   intake.setHoldAlgae(true);
     // }
