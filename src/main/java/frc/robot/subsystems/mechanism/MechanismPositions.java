@@ -12,11 +12,17 @@ import frc.robot.RobotStates.ScoringLevel;
 public class MechanismPositions {
   private static final TunableNumberGroup group = new TunableNumberGroup("MechanismPositions");
 
-  public static final LoggedTunableNumber stowElevatorHeightInches =
-      group.build("Reef/ScorePrep/ElevatorHeightInches");
+  public static final LoggedTunableNumber lowStowElevatorHeightInches =
+      group.build("Reef/ScorePrep/Low/ElevatorHeightInches");
 
-  public static final LoggedTunableNumber stowArmAngleDegrees =
-      group.build("Reef/ScorePrep/StowArmAngleDegrees");
+  public static final LoggedTunableNumber lowStowArmAngleDegrees =
+      group.build("Reef/ScorePrep/Low/StowArmAngleDegrees");
+
+  public static final LoggedTunableNumber highStowElevatorHeightInches =
+      group.build("Reef/ScorePrep/High/ElevatorHeightInches");
+
+  public static final LoggedTunableNumber highStowArmAngleDegrees =
+      group.build("Reef/ScorePrep/High/StowArmAngleDegrees");
 
   private static final LoggedTunableNumber reefL1ArmAngleDegrees =
       group.build("Reef/L1/ArmAngleDegrees");
@@ -83,8 +89,8 @@ public class MechanismPositions {
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
-      stowElevatorHeightInches.initDefault(2);
-      stowArmAngleDegrees.initDefault(80);
+      lowStowElevatorHeightInches.initDefault(2);
+      lowStowArmAngleDegrees.initDefault(80);
       reefL1ElevatorHeightInches.initDefault(16);
       reefL1ArmAngleDegrees.initDefault(43);
       reefL2ElevatorHeightInches.initDefault(16);
@@ -114,8 +120,10 @@ public class MechanismPositions {
       algaeClearingLowArmAngleDegrees.initDefault(166);
       algaeClearingHighElevatorHeightInches.initDefault(27.2);
       algaeClearingHighArmAngleDegrees.initDefault(153);
-      stowElevatorHeightInches.initDefault(26);
-      stowArmAngleDegrees.initDefault(90);
+      lowStowElevatorHeightInches.initDefault(0);
+      lowStowArmAngleDegrees.initDefault(90);
+      highStowElevatorHeightInches.initDefault(26);
+      highStowArmAngleDegrees.initDefault(90);
       intermediatePoseHighElevatorHeightInches.initDefault(26);
       intermediatePoseHighArmAngleDegrees.initDefault(70);
       intermediatePoseLowElevatorHeightInches.initDefault(0);
@@ -196,10 +204,16 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(algaeClearingHighArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition stowPosition() {
+  public static MechanismPosition lowStowPosition() {
     return new MechanismPosition(
-        Units.Inches.of(stowElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(stowArmAngleDegrees.get()));
+        Units.Inches.of(lowStowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(lowStowArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition highStowPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(highStowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(highStowArmAngleDegrees.get()));
   }
 
   public static MechanismPosition intermediateLowPosition() {
