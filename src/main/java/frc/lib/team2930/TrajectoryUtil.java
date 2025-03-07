@@ -79,7 +79,8 @@ public class TrajectoryUtil {
       ChassisSpeeds initSpeedsRobotRel) {
 
     if (GeometryUtil.getDist(currentPose, targetPose) < 0.0002) {
-      return new Trajectory<>("EMPTY", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+      return new Trajectory<SwerveSample>(
+          "EMPTY", new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     var rotations = generateStartAndEndRotations(targetPose, currentPose, currentPose, vel, config);
