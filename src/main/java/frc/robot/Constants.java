@@ -228,15 +228,19 @@ public final class Constants {
   }
 
   public static class IntakeConstants { // TODO: check all constants for new season
-    public static final double INTAKING_PERCENT_OUT = 1.0;
-
-    public static final double ROLLER_GEARING = 10.4167;
-    public static final double MOI = 0.05;
-
-    public static final double SUPPLY_CURRENT_LIMIT = 40.0;
     public static final String ROOT_TABLE = "Intake";
 
-    public static class PivotConstants { // TODO: check all constants
+    public static class RollerConstants {
+
+      public static final double ROLLER_GEARING = 10.4167;
+      public static final double MOI = 0.05;
+
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+
+      public static final String ROOT_TABLE = "Roller";
+    }
+
+    public static class PivotConstants {
       public static final double SUPPLY_CURRENT_LIMIT = 60;
 
       public static final double GEAR_RATIO = 79.693;
@@ -260,7 +264,7 @@ public final class Constants {
 
       public static final Distance PIVOT_LENGTH = Units.Inches.of(6.215);
 
-      public static final String ROOT_TABLE = "IntakePivot";
+      public static final String ROOT_TABLE = "Pivot";
     }
   }
 

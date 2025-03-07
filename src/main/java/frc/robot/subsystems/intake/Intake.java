@@ -22,6 +22,7 @@ import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
+import frc.robot.Constants.IntakeConstants.RollerConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates;
 
@@ -31,68 +32,75 @@ public class Intake extends SubsystemBase {
 
   // Logging
   private static final LoggerGroup logGroup = LoggerGroup.build(IntakeConstants.ROOT_TABLE);
+  // Rollers
+  private static final LoggerGroup rollerLogGroup = logGroup.subgroup(RollerConstants.ROOT_TABLE);
   private static final LoggerEntry.Decimal logInputs_rollerVelocityRPM =
-      logGroup.buildDecimal("Roller/VelocityRPM");
+      rollerLogGroup.buildDecimal("VelocityRPM");
   private static final LoggerEntry.Decimal logInputs_rollerCurrentAmps =
-      logGroup.buildDecimal("Roller/CurrentAmps");
+      rollerLogGroup.buildDecimal("CurrentAmps");
   private static final LoggerEntry.Decimal logInputs_rollerTempCelsius =
-      logGroup.buildDecimal("Roller/TempCelsius");
+      rollerLogGroup.buildDecimal("TempCelsius");
   private static final LoggerEntry.Decimal logInputs_rollerAppliedVolts =
-      logGroup.buildDecimal("Roller/AppliedVolts");
+      rollerLogGroup.buildDecimal("AppliedVolts");
 
   private static final LoggerEntry.Decimal logRollerTargetVelocityRPM =
-      logGroup.buildDecimal("Roller/TargetVelocityRPM");
+      rollerLogGroup.buildDecimal("TargetVelocityRPM");
   private static final LoggerEntry.EnumValue<ControlMode> logRollerControlMode =
-      logGroup.buildEnum("Roller/ControlMode");
+      rollerLogGroup.buildEnum("ControlMode");
 
+  // Pivot
+  private static final LoggerGroup pivotLogGroup = logGroup.subgroup(PivotConstants.ROOT_TABLE);
   private static final LoggerEntry.Decimal logInputs_pivotAngle =
-      logGroup.buildDecimal("Pivot/Angle");
+      pivotLogGroup.buildDecimal("Angle");
   private static final LoggerEntry.Decimal logInputs_pivotAppliedVolts =
-      logGroup.buildDecimal("Pivot/AppliedVolts");
+      pivotLogGroup.buildDecimal("AppliedVolts");
   private static final LoggerEntry.Decimal logInputs_pivotCurrentAmps =
-      logGroup.buildDecimal("Pivot/CurrentAmps");
+      pivotLogGroup.buildDecimal("CurrentAmps");
   private static final LoggerEntry.Decimal logInputs_pivotTempCelsius =
-      logGroup.buildDecimal("Pivot/TempCelsius");
+      pivotLogGroup.buildDecimal("TempCelsius");
   private static final LoggerEntry.Decimal logInputs_pivotVelocityDegreesPerSecond =
-      logGroup.buildDecimal("Pivot/VelocityDegreesPerSecond");
+      pivotLogGroup.buildDecimal("VelocityDegreesPerSecond");
   private static final LoggerEntry.EnumValue<ControlMode> logPivotControlMode =
-      logGroup.buildEnum("Pivot/ControlMode");
+      pivotLogGroup.buildEnum("ControlMode");
   private static final LoggerEntry.Decimal logPivotTargetAngleDegrees =
-      logGroup.buildDecimal("Pivot/TargetAngleDegrees");
+      pivotLogGroup.buildDecimal("TargetAngleDegrees");
 
-  private static final LoggerEntry.Decimal logToFDistance = logGroup.buildDecimal("ToF/Distance");
-  private static final LoggerEntry.Bool logToFActivated = logGroup.buildBoolean("ToF/Activated");
+  // ToF
+  private static final LoggerGroup tofLogGroup = logGroup.subgroup("ToF");
+  private static final LoggerEntry.Decimal logToFDistance = tofLogGroup.buildDecimal("Distance");
+  private static final LoggerEntry.Bool logToFActivated = tofLogGroup.buildBoolean("Activated");
   private static final LoggerEntry.Decimal logToFSignalStrength =
-      logGroup.buildDecimal("ToF/SignalStrength");
-
-  public boolean holdAlgae;
-  public boolean holdCoral;
+      tofLogGroup.buildDecimal("SignalStrength");
 
   // Tunable numbers
 
   private static final TunableNumberGroup group =
       new TunableNumberGroup(IntakeConstants.ROOT_TABLE);
 
-  private static final LoggedTunableNumber rKS = group.build("rKS");
-  private static final LoggedTunableNumber rKP = group.build("rKP");
-  private static final LoggedTunableNumber rKV = group.build("rKV");
+  // Roller
+  private static final TunableNumberGroup rollerSubgroup =
+      group.subgroup(RollerConstants.ROOT_TABLE);
+  private static final LoggedTunableNumber rKS = rollerSubgroup.build("KS");
+  private static final LoggedTunableNumber rKP = rollerSubgroup.build("KP");
+  private static final LoggedTunableNumber rKV = rollerSubgroup.build("KV");
   private static final LoggedTunableNumber rollerTargetAccelerationConfig =
-      group.build("RollerMaxAccelerationConstraint");
+      rollerSubgroup.build("MaxAccelerationConstraint");
+  private static final LoggedTunableNumber holdAlgaeVel =
+      rollerSubgroup.build("HoldAlgaeVel", 1000);
+  private static final LoggedTunableNumber holdCoralVel = rollerSubgroup.build("HoldCoralVel", 200);
 
-  private static final LoggedTunableNumber pKP = group.build("pKP");
-  private static final LoggedTunableNumber pKD = group.build("pKD");
-  private static final LoggedTunableNumber pKG = group.build("pKG");
+  // Pivot
+  private static final TunableNumberGroup pivotSubgroup = group.subgroup(PivotConstants.ROOT_TABLE);
+  private static final LoggedTunableNumber pKP = pivotSubgroup.build("KP");
+  private static final LoggedTunableNumber pKD = pivotSubgroup.build("KD");
+  private static final LoggedTunableNumber pKG = pivotSubgroup.build("KG");
 
   private static final LoggedTunableNumber pivotMaxVelocityConfig =
-      group.build("PivotMaxVelocityConfig");
+      pivotSubgroup.build("MaxVelocityConfig");
   private static final LoggedTunableNumber pivotTargetAccelerationConfig =
-      group.build("PivotTargetAccelerationConfig");
+      pivotSubgroup.build("TargetAccelerationConfig");
   private static final LoggedTunableNumber pivotToleranceDegrees =
-      group.build("PivotToleranceDegrees", 1);
-  private static final LoggedTunableNumber holdAlgaePercentOut =
-      group.build("HoldAlgaePercentOut", 1000);
-  private static final LoggedTunableNumber holdCoralPercentOut =
-      group.build("HoldCoralPercentOut", 200);
+      pivotSubgroup.build("ToleranceDegrees", 1);
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -143,6 +151,9 @@ public class Intake extends SubsystemBase {
   private Rotation2d pivotTargetAngle = PivotConstants.HOME_POSITION;
 
   private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
+
+  public boolean holdAlgae;
+  public boolean holdCoral;
 
   /** Creates a new Intake. */
   public Intake(IntakeIO io) {
@@ -200,9 +211,9 @@ public class Intake extends SubsystemBase {
       }
 
       if (holdAlgae) {
-        setRollerVelocity(holdAlgaePercentOut.get());
+        setRollerVelocity(holdAlgaeVel.get());
       } else if (holdCoral && RobotStates.coralInIntake) {
-        setRollerVelocity(holdCoralPercentOut.get());
+        setRollerVelocity(holdCoralVel.get());
       }
     }
   }
