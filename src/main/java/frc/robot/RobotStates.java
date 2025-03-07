@@ -66,6 +66,7 @@ public class RobotStates {
 
   private static LoggerEntry.EnumValue<EndEffectorDesiredAction> logEndEffectorDesiredAction =
       logGroup.buildEnum("EndEffectorDesiredAction");
+  private static LoggerEntry.EnumValue<MechState> logMechState = logGroup.buildEnum("MechState");
 
   private static LoggerGroup logGroupLevels = logGroup.subgroup("Levels");
   private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
@@ -111,6 +112,7 @@ public class RobotStates {
     coralInRobot = coralInEndEffector || coralInIntake;
 
     logEndEffectorDesiredAction.info(endEffectorDesiredAction);
+    logMechState.info(mechState);
 
     var level = scoringLevel;
     logScoringLevelState.info(level);
