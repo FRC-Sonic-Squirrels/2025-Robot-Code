@@ -237,7 +237,7 @@ public final class Constants {
 
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
 
-      public static final String ROOT_TABLE = "Roller";
+      public static final String ROOT_TABLE = "Rollers";
     }
 
     public static class PivotConstants {
