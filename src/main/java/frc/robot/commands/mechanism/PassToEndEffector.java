@@ -8,14 +8,17 @@ import frc.robot.RobotStates.IntakeState;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.intake.Intake;
 
 public class PassToEndEffector extends Command {
   private final Arm arm;
   private final Elevator elevator;
+  private final Intake intake;
 
-  public PassToEndEffector(Arm arm, Elevator elevator) {
+  public PassToEndEffector(Arm arm, Elevator elevator, Intake intake) {
     this.arm = arm;
     this.elevator = elevator;
+    this.intake = intake;
   }
 
   @Override
@@ -29,7 +32,8 @@ public class PassToEndEffector extends Command {
   public void execute() {
     MechanismPosition handOffPosition = MechanismPositions.intakeToEndEffectorPassOffPosition();
     if (elevator.isAtTarget(handOffPosition.elevatorHeight())
-        && arm.isAtTargetAngle(handOffPosition.armAngle(), Rotation2d.fromDegrees(3))) {
+        && arm.isAtTargetAngle(handOffPosition.armAngle(), Rotation2d.fromDegrees(3))
+        && intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle())) {
       RobotStates.intakeState = IntakeState.Passoff;
     }
 
@@ -39,6 +43,7 @@ public class PassToEndEffector extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    RobotStates.intakeState = IntakeState.Stow;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
   }
 

@@ -83,7 +83,7 @@ public class ScoreCoral extends StateMachine {
   private static final LoggedTunableNumber scoringVelocityRPM =
       group.build("ScoringVelocityRPM", -3000);
   private static final LoggedTunableNumber predictiveTime =
-      group.build("PredictiveTimeSeconds", 0.5);
+      group.build("PredictiveTimeSeconds", 0.3);
   private static final LoggedTunableNumber leftAdjustmentInches =
       group.build("A Adjustment Inches", 0.0);
   private static final LoggedTunableNumber rightAdjustmentInches =
