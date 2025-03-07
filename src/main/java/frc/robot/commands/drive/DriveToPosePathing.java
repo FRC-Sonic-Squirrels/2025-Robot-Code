@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.autonomous.helpers.ChoreoHelper;
@@ -69,13 +68,6 @@ public class DriveToPosePathing extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    Pose2d robotPose = wrapper.getCoralStationPoseEstimatorPose(true);
-    Pose2d targetPose = this.targetPose.get();
-    if (GeometryUtil.getDist(robotPose, targetPose) < 0.0002) {
-      this.cancel();
-      return;
-    }
-
     initializeNoCheck();
   }
 
