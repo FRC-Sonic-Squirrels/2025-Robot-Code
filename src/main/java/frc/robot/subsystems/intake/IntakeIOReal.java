@@ -28,8 +28,8 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
+import frc.robot.Constants.IntakeConstants.RollerConstants;
 import frc.robot.Constants.MotorConstants.KrakenConstants;
 
 public class IntakeIOReal implements IntakeIO {
@@ -72,12 +72,12 @@ public class IntakeIOReal implements IntakeIO {
     TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
     CurrentLimitsConfigs rollerCurrentLimitConfig = new CurrentLimitsConfigs();
 
-    rollerCurrentLimitConfig.SupplyCurrentLimit = IntakeConstants.SUPPLY_CURRENT_LIMIT;
+    rollerCurrentLimitConfig.SupplyCurrentLimit = RollerConstants.SUPPLY_CURRENT_LIMIT;
     rollerCurrentLimitConfig.SupplyCurrentLimitEnable = true;
 
     rollerConfig.CurrentLimits = rollerCurrentLimitConfig;
 
-    rollerConfig.Feedback.SensorToMechanismRatio = IntakeConstants.ROLLER_GEARING;
+    rollerConfig.Feedback.SensorToMechanismRatio = RollerConstants.ROLLER_GEARING;
     rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
