@@ -844,8 +844,7 @@ public class RobotContainer {
             .withName("GamepieceIntoEECommand"));
 
     RobotStates.triggerForCoralInEndEffector.onFalse(
-        new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-            .andThen(new MechToPosition(mech, MechState.CoralStationPosition))
+        new MechToPosition(mech, MechState.CoralStationPosition)
             .withName("GamepieceOutOfEECommand"));
 
     // ---------- ON-ROBOT CONTROLS ------------

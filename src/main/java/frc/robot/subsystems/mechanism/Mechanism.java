@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.mechanism;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -115,7 +116,9 @@ public class Mechanism {
     log_currentSection.info(currentMechSection.name());
     log_targetSection.info(targetMechSection.name());
 
-    if (compatibleMechSections(currentMechSection, targetMechSection)) {
+    if (currentMechPos.armAngle().getDegrees() > 130 && position.armAngle().getDegrees() <= 130) {
+      arm.setAngle(Rotation2d.fromDegrees(0));
+    } else if (compatibleMechSections(currentMechSection, targetMechSection)) {
       log_currentMotionState.info("Compatible");
       goToPositionParallelSimple(position, elevatorAccel, armAccel);
     } else {
