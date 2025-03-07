@@ -26,7 +26,7 @@ import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.drive.DriveToPose;
-import frc.robot.commands.drive.DriveToPosePathing;
+import frc.robot.commands.drive.FollowPath;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.mechanism.MechanismActions;
 import frc.robot.commands.mechanism.MechanismPositions;
@@ -285,7 +285,7 @@ public class ScoreCoral extends StateMachine {
             .debounce(0);
 
     return suspendForCommand(
-        new DriveToPosePathing(
+        new FollowPath(
                 wrapper,
                 () -> wrapper.getReefPoseEstimatorPose(true),
                 config,

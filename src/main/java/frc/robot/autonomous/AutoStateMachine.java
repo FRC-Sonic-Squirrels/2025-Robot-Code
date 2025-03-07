@@ -31,7 +31,7 @@ import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.commands.ScoreCoral;
-import frc.robot.commands.drive.DriveToPosePathing;
+import frc.robot.commands.drive.FollowPath;
 import frc.robot.commands.mechanism.MechanismPositions;
 import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.configs.RobotConfig;
@@ -141,7 +141,7 @@ public class AutoStateMachine extends StateMachine {
   private void preloadCode() {
     // Pretend to create a path, to load all the pathing code.
     var cmd =
-        new DriveToPosePathing(
+        new FollowPath(
             wrapper,
             () -> wrapper.getCoralStationPoseEstimatorPose(true),
             config,
@@ -259,7 +259,7 @@ public class AutoStateMachine extends StateMachine {
     MechanismPosition coralStationPos = MechanismPositions.coralStationPosition();
 
     spawnCommand(
-        new DriveToPosePathing(
+        new FollowPath(
                 wrapper,
                 () -> wrapper.getCoralStationPoseEstimatorPose(true),
                 config,
