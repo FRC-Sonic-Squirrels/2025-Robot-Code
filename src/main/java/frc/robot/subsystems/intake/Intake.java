@@ -88,6 +88,18 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber holdAlgaeVel =
       rollerSubgroup.build("HoldAlgaeVel", 1000);
   private static final LoggedTunableNumber holdCoralVel = rollerSubgroup.build("HoldCoralVel", 200);
+  private static final LoggedTunableNumber intakingCoralVel =
+      group.build("Intaking/Coral/Vel", 2000);
+  private static final LoggedTunableNumber intakingAlgaeVel =
+      group.build("Intaking/Algae/Vel", 2000);
+  private static final LoggedTunableNumber intakingCoralPivotAngle =
+      group.build("Intaking/Coral/AngleDeg", 0);
+  private static final LoggedTunableNumber intakingAlgaePivotAngle =
+      group.build("Intaking/Algae/AngleDeg", 20);
+  private static final LoggedTunableNumber passOffPivotAngle =
+      group.build("PassOff/AngleDeg", 92.5);
+  private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -500);
+  private static final LoggedTunableNumber stowPivotAngle = group.build("StowAngleDeg", 105);
 
   // Pivot
   private static final TunableNumberGroup pivotSubgroup = group.subgroup(PivotConstants.ROOT_TABLE);
@@ -153,7 +165,6 @@ public class Intake extends SubsystemBase {
   private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
 
   public boolean holdAlgae;
-  public boolean holdCoral;
 
   /** Creates a new Intake. */
   public Intake(IntakeIO io) {
@@ -210,10 +221,35 @@ public class Intake extends SubsystemBase {
         setPivotConstants();
       }
 
-      if (holdAlgae) {
-        setRollerVelocity(holdAlgaeVel.get());
-      } else if (holdCoral && RobotStates.coralInIntake) {
-        setRollerVelocity(holdCoralVel.get());
+      switch (RobotStates.intakeState) {
+        case Idle:
+          setPivotVoltage(0);
+          setRollerPercentOut(0);
+          break;
+        case IntakeCoral:
+          setRollerVelocity(intakingCoralVel.get());
+          setPivotAngle(Rotation2d.fromDegrees(intakingCoralPivotAngle.get()));
+          break;
+        case IntakeAlgae:
+          setRollerVelocity(intakingAlgaeVel.get());
+          setPivotAngle(Rotation2d.fromDegrees(intakingAlgaePivotAngle.get()));
+          break;
+        case PrepPassoff:
+          setRollerVelocity(holdCoralVel.get());
+          setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
+          break;
+        case Passoff:
+          setRollerVelocity(passOffVelocity.get());
+          setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
+          break;
+        case Stow:
+          if (holdAlgae) {
+            setRollerVelocity(holdAlgaeVel.get());
+          } else setRollerPercentOut(0);
+          setPivotAngle(Rotation2d.fromDegrees(stowPivotAngle.get()));
+          break;
+        default:
+          break;
       }
     }
   }

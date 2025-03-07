@@ -33,9 +33,9 @@ import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.RobotStates.IntakeState;
 import frc.robot.RobotStates.MechState;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.AutosManager;
@@ -862,13 +862,8 @@ public class RobotContainer {
             .withName("GamepieceOutOfEECommand"));
 
     passOffTrigger.onTrue(
-        new PassToEndEffector(intake, arm, elevator)
-            .alongWith(
-                MechanismActions.prepForPassOffPosition(elevator, arm)
-                    .andThen(
-                        Commands.waitUntil(
-                            () -> intake.isPivotAtTargetAngle(PivotConstants.PASSOFF_PIVOT_ANGLE)))
-                    .andThen(MechanismActions.passOffPosition(elevator, arm)))
+        new PassToEndEffector(arm, elevator)
+            .alongWith(MechanismActions.passOffPosition(elevator, arm))
             .andThen(MechanismActions.stowPosition(elevator, arm).asProxy()));
 
     // ---------- ON-ROBOT CONTROLS ------------
@@ -1127,6 +1122,8 @@ public class RobotContainer {
     intake.setPivotVoltage(0);
     intake.setRollerPercentOut(0);
     RobotStates.mechState = MechState.Idle;
+
+    RobotStates.intakeState = IntakeState.Idle;
 
     is_teleop = false;
     is_autonomous = false;
