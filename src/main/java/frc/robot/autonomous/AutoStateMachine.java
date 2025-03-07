@@ -15,6 +15,7 @@ import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.StateMachine;
+import frc.lib.team2930.TrajectoryUtil;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.GeomUtil;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -142,9 +143,14 @@ public class AutoStateMachine extends StateMachine {
     var cmd =
         new DriveToPosePathing(
             wrapper,
-            config,
             () -> wrapper.getCoralStationPoseEstimatorPose(true),
-            this::getClosestCoralStationPose);
+            config,
+            TrajectoryUtil.generateTrajectory(
+                wrapper.getCoralStationPoseEstimatorPose(true),
+                getClosestCoralStationPose(),
+                wrapper.getFieldRelativeVelocities().getTranslation(),
+                config,
+                wrapper.getCurrentRobotRelativeChassisSpeeds()));
     cmd.initializeNoCheck();
   }
 
@@ -255,9 +261,14 @@ public class AutoStateMachine extends StateMachine {
     spawnCommand(
         new DriveToPosePathing(
                 wrapper,
-                config,
                 () -> wrapper.getCoralStationPoseEstimatorPose(true),
-                intakingPoseSupplier)
+                config,
+                TrajectoryUtil.generateTrajectory(
+                    wrapper.getCoralStationPoseEstimatorPose(true),
+                    intakingPoseSupplier.get(),
+                    wrapper.getFieldRelativeVelocities().getTranslation(),
+                    config,
+                    wrapper.getCurrentRobotRelativeChassisSpeeds()))
             .alongWith(
                 Commands.waitUntil(
                         () ->

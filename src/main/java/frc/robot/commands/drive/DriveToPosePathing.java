@@ -17,11 +17,13 @@ import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
+import java.util.function.Supplier;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveToPosePathing extends Command {
 
   private final DrivetrainWrapper wrapper;
+  private final Supplier<Pose2d> currentPose;
   private final RobotConfig config;
   private final Trajectory<SwerveSample> traj;
 
@@ -39,8 +41,12 @@ public class DriveToPosePathing extends Command {
 
   /** Creates a new DriveToPosePathing. */
   public DriveToPosePathing(
-      DrivetrainWrapper wrapper, RobotConfig config, Trajectory<SwerveSample> traj) {
+      DrivetrainWrapper wrapper,
+      Supplier<Pose2d> currentPose,
+      RobotConfig config,
+      Trajectory<SwerveSample> traj) {
     this.wrapper = wrapper;
+    this.currentPose = currentPose;
     this.config = config;
     this.traj = traj;
   }
