@@ -247,7 +247,7 @@ public final class Constants {
       public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(0);
       public static final Rotation2d HOME_POSITION = MIN_PIVOT_ANGLE;
 
-      public static final Rotation2d PASSOFF_PIVOT_ANGLE = Rotation2d.fromDegrees(117.9);
+      public static final Rotation2d PASSOFF_PIVOT_ANGLE = Rotation2d.fromDegrees(94);
 
       public static final Rotation2d INITIAL_PIVOT_ANGLE = Rotation2d.fromDegrees(120);
       public static final Rotation2d PIVOT_STOWED_ANGLE = Rotation2d.fromDegrees(105);
