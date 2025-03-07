@@ -129,11 +129,11 @@ public class Intake extends SubsystemBase {
       pivotTargetAccelerationConfig.initDefault(10);
     } else if (Constants.RobotMode.isSimBot()) {
       rKS.initDefault(0);
-      rKP.initDefault(0.0006);
+      rKP.initDefault(0.00006);
       rKV.initDefault(0.0002);
       rollerTargetAccelerationConfig.initDefault(0.0);
 
-      pKP.initDefault(.01);
+      pKP.initDefault(50);
       pKD.initDefault(0);
       pKG.initDefault(0.0);
 
@@ -358,5 +358,17 @@ public class Intake extends SubsystemBase {
   public boolean intakeTimeOfFlight() {
     // TODO: get an actual value fot this this code is only for testing purposes
     return inputs.intakeTofDetected;
+  }
+
+  public Rotation2d getPassOffPivotAngle() {
+    return Rotation2d.fromDegrees(passOffPivotAngle.get());
+  }
+
+  public IntakeIOSim getSim() {
+    if (io instanceof IntakeIOSim) {
+      return (IntakeIOSim) io;
+    }
+
+    return null;
   }
 }

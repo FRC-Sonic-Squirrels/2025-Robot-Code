@@ -862,7 +862,7 @@ public class RobotContainer {
             .withName("GamepieceOutOfEECommand"));
 
     passOffTrigger.onTrue(
-        new PassToEndEffector(arm, elevator)
+        new PassToEndEffector(arm, elevator, intake)
             .alongWith(MechanismActions.passOffPosition(elevator, arm))
             .andThen(MechanismActions.stowPosition(elevator, arm).asProxy()));
 
@@ -985,8 +985,24 @@ public class RobotContainer {
           "SIM NO Coral in End Effector",
           new RunsWhenDisabledInstantCommand(
               () -> {
-                endEffectorSim.scoringSideTofDetecting = true;
-                endEffectorSim.nonScoringSideTofDetecting = true;
+                endEffectorSim.scoringSideTofDetecting = false;
+                endEffectorSim.nonScoringSideTofDetecting = false;
+              }));
+    }
+
+    var intakeSim = intake.getSim();
+    if (intakeSim != null) {
+      SmartDashboard.putData(
+          "SIM Coral in Intake",
+          new RunsWhenDisabledInstantCommand(
+              () -> {
+                intakeSim.tofActivated = true;
+              }));
+      SmartDashboard.putData(
+          "SIM NO Coral in Intake",
+          new RunsWhenDisabledInstantCommand(
+              () -> {
+                intakeSim.tofActivated = false;
               }));
     }
   }
