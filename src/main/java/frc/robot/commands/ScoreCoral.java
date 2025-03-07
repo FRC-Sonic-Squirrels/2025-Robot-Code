@@ -12,6 +12,7 @@ import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.StateMachine;
+import frc.lib.team2930.TrajectoryUtil;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team2930.lib.controller_rumble.ControllerRumbleForTime;
 import frc.lib.team6328.GeomUtil;
@@ -286,7 +287,11 @@ public class ScoreCoral extends StateMachine {
     return suspendForCommand(
         // new DriveToPose(wrapper, () -> scoringPose, () -> wrapper.getReefPoseEstimatorPose(true))
         new DriveToPosePathing(
-                wrapper, config, () -> wrapper.getReefPoseEstimatorPose(true), () -> scoringPose)
+                wrapper,
+                config,
+                TrajectoryUtil.generateTrajectory(robotPose, robotPose, null, config, null),
+                () -> wrapper.getReefPoseEstimatorPose(true),
+                () -> scoringPose)
             .setFinalErrorMaxWait(1)
             .setFinalOffsetError(0.01),
         (command) -> stateWithName("Score", () -> score()));
