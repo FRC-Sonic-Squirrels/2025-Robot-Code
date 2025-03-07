@@ -44,6 +44,15 @@ public class RobotStates {
     ClimbPosition
   }
 
+  public enum IntakeState {
+    Idle,
+    IntakeCoral,
+    IntakeAlgae,
+    PrepPassoff,
+    Passoff,
+    Stow
+  }
+
   public enum ScoringLevel {
     L1,
     L2,
@@ -70,6 +79,8 @@ public class RobotStates {
   private static LoggerEntry.EnumValue<EndEffectorDesiredAction> logEndEffectorDesiredAction =
       logGroup.buildEnum("EndEffectorDesiredAction");
   private static LoggerEntry.EnumValue<MechState> logMechState = logGroup.buildEnum("MechState");
+  private static LoggerEntry.EnumValue<IntakeState> logIntakeState =
+      logGroup.buildEnum("IntakeState");
 
   private static LoggerGroup logGroupLevels = logGroup.subgroup("Levels");
   private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
@@ -88,6 +99,8 @@ public class RobotStates {
 
   public static MechState mechState = MechState.Idle;
 
+  public static IntakeState intakeState = IntakeState.Idle;
+
   public static boolean algaeInRobot;
 
   // TODO: update these coral values
@@ -104,6 +117,7 @@ public class RobotStates {
 
   public static Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
   public static Trigger triggerForCoralInEndEffector = new Trigger(() -> coralInEndEffector);
+  public static Trigger triggerForCoralInIntake = new Trigger(() -> coralInIntake).debounce(0.5);
 
   public static void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
     if (!endEffectorDesiredAction.alignmentActive) {
@@ -116,6 +130,7 @@ public class RobotStates {
 
     logEndEffectorDesiredAction.info(endEffectorDesiredAction);
     logMechState.info(mechState);
+    logIntakeState.info(intakeState);
 
     var level = scoringLevel;
     logScoringLevelState.info(level);
