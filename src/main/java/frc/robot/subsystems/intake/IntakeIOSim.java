@@ -14,14 +14,13 @@ import frc.lib.team2930.TalonFXArmSim;
 import frc.lib.team2930.TalonFXSim;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
+import frc.robot.Constants.IntakeConstants.RollerConstants;
 
 public class IntakeIOSim implements IntakeIO {
 
   private TalonFXSim rollerMotor =
       new TalonFXSim(
-          DCMotor.getKrakenX60Foc(1),
-          Constants.IntakeConstants.ROLLER_GEARING,
-          Constants.IntakeConstants.MOI);
+          DCMotor.getKrakenX60Foc(1), RollerConstants.ROLLER_GEARING, RollerConstants.MOI);
 
   private TalonFXArmSim pivotSim =
       new TalonFXArmSim(
