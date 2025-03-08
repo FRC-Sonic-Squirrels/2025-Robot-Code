@@ -25,7 +25,6 @@ import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.IntakeConstants.RollerConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates;
-import frc.robot.commands.intake.ScoreAlgae;
 
 public class Intake extends SubsystemBase {
   // Execution timing
@@ -78,17 +77,6 @@ public class Intake extends SubsystemBase {
   private static final TunableNumberGroup group =
       new TunableNumberGroup(IntakeConstants.ROOT_TABLE);
 
-  // Roller
-  private static final TunableNumberGroup rollerSubgroup =
-      group.subgroup(RollerConstants.ROOT_TABLE);
-  private static final LoggedTunableNumber rKS = rollerSubgroup.build("KS");
-  private static final LoggedTunableNumber rKP = rollerSubgroup.build("KP");
-  private static final LoggedTunableNumber rKV = rollerSubgroup.build("KV");
-  private static final LoggedTunableNumber rollerTargetAccelerationConfig =
-      rollerSubgroup.build("MaxAccelerationConstraint");
-  private static final LoggedTunableNumber holdAlgaeVel =
-      rollerSubgroup.build("HoldAlgaeVel", 1000);
-  private static final LoggedTunableNumber holdCoralVel = rollerSubgroup.build("HoldCoralVel", 200);
   private static final LoggedTunableNumber intakingCoralVel =
       group.build("Intaking/Coral/Vel", 2000);
   private static final LoggedTunableNumber intakingAlgaeVel =
@@ -107,6 +95,18 @@ public class Intake extends SubsystemBase {
       group.build("ScoreAlgae/Angle", PivotConstants.ALGAE_SCORE_ANGLE.getDegrees());
   private static final LoggedTunableNumber climbAngle =
       group.build("ClimbAngle", PivotConstants.PIVOT_SAFE_ANGLE.getDegrees());
+
+  // Roller
+  private static final TunableNumberGroup rollerSubgroup =
+      group.subgroup(RollerConstants.ROOT_TABLE);
+  private static final LoggedTunableNumber rKS = rollerSubgroup.build("KS");
+  private static final LoggedTunableNumber rKP = rollerSubgroup.build("KP");
+  private static final LoggedTunableNumber rKV = rollerSubgroup.build("KV");
+  private static final LoggedTunableNumber rollerTargetAccelerationConfig =
+      rollerSubgroup.build("MaxAccelerationConstraint");
+  private static final LoggedTunableNumber holdAlgaeVel =
+      rollerSubgroup.build("HoldAlgaeVel", 1000);
+  private static final LoggedTunableNumber holdCoralVel = rollerSubgroup.build("HoldCoralVel", 200);
 
   // Pivot
   private static final TunableNumberGroup pivotSubgroup = group.subgroup(PivotConstants.ROOT_TABLE);
