@@ -16,7 +16,7 @@ import frc.robot.subsystems.mechanism.elevator.Elevator;
 
 /** Add your docs here. */
 public class Mechanism {
-  private static final String ROOT_TABLE = "MechanismActions";
+  private static final String ROOT_TABLE = "Mechanism";
 
   private static final LoggerGroup logGroup = LoggerGroup.build(ROOT_TABLE);
 
@@ -84,7 +84,7 @@ public class Mechanism {
         goToPositionParallel(MechanismPositions.prepForPassoffPosition());
         break;
       case PassoffPosition:
-        goToPositionParallel(MechanismPositions.passoffPosition());
+        goToPositionParallel(MechanismPositions.intakeToEndEffectorPassOffPosition());
         break;
       default:
         break;
@@ -108,7 +108,7 @@ public class Mechanism {
   }
 
   private void goToPositionParallel(
-      MechanismPosition position, double elevatorAccel, double armAccel) {
+      MechanismPosition position, Double elevatorAccel, Double armAccel) {
 
     MechSection targetMechSection = getMechSection(position);
     MechanismPosition currentMechPos = new MechanismPosition(elevator.getHeight(), arm.getAngle());
@@ -140,7 +140,10 @@ public class Mechanism {
         goToPositionParallelSimple(MechanismPositions.intermediateLowPosition());
       } else if (targetMechSection == MechSection.S9 || targetMechSection == MechSection.S8) {
         log_currentMotionState.info("Getting into " + targetMechSection.name());
-        goToPositionParallelSimple(MechanismPositions.intermediateHighPosition());
+        goToPositionParallelSimple(
+            new MechanismPosition(
+                position.elevatorHeight(),
+                MechanismPositions.intermediateHighPosition().armAngle()));
       } else {
         log_currentMotionState.info("Getting into S1");
         if (targetMechSection == MechSection.S1
@@ -184,15 +187,15 @@ public class Mechanism {
   }
 
   private void goToPositionParallelSimple(
-      MechanismPosition position, double elevatorAccel, double armAccel) {
+      MechanismPosition position, Double elevatorAccel, Double armAccel) {
     MechanismPosition targetPos = position;
-    if (elevatorAccel == Double.NaN) {
+    if (elevatorAccel.equals(Double.NaN)) {
       elevator.setHeight(targetPos.elevatorHeight());
     } else {
       elevator.setHeight(targetPos.elevatorHeight(), elevatorAccel);
     }
 
-    if (armAccel == Double.NaN) {
+    if (armAccel.equals(Double.NaN)) {
       arm.setAngle(targetPos.armAngle());
     } else {
       arm.setAngle(targetPos.armAngle(), armAccel);
