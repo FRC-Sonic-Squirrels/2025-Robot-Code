@@ -103,7 +103,7 @@ public class Mechanism {
   }
 
   private void goToPositionParallel(MechanismPosition position) {
-    goToPositionParallel(position, -1, -1);
+    goToPositionParallel(position, Double.NaN, Double.NaN);
   }
 
   private void goToPositionParallel(
@@ -179,19 +179,19 @@ public class Mechanism {
   }
 
   private void goToPositionParallelSimple(MechanismPosition position) {
-    goToPositionParallelSimple(position, -1, -1);
+    goToPositionParallelSimple(position, Double.NaN, Double.NaN);
   }
 
   private void goToPositionParallelSimple(
       MechanismPosition position, double elevatorAccel, double armAccel) {
     MechanismPosition targetPos = position;
-    if (elevatorAccel == -1) {
+    if (elevatorAccel == Double.NaN) {
       elevator.setHeight(targetPos.elevatorHeight());
     } else {
       elevator.setHeight(targetPos.elevatorHeight(), elevatorAccel);
     }
 
-    if (armAccel == -1) {
+    if (armAccel == Double.NaN) {
       arm.setAngle(targetPos.armAngle());
     } else {
       arm.setAngle(targetPos.armAngle(), armAccel);
