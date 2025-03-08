@@ -34,9 +34,12 @@ public class PassToEndEffector extends Command {
   @Override
   public void execute() {
     MechanismPosition handOffPosition = MechanismPositions.intakeToEndEffectorPassOffPosition();
-    if (elevator.isAtTarget(handOffPosition.elevatorHeight())
-        && arm.isAtTargetAngle(handOffPosition.armAngle(), Rotation2d.fromDegrees(3))
-        && intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle())) {
+    boolean ele = elevator.isAtTarget(handOffPosition.elevatorHeight());
+    boolean armp = arm.isAtTargetAngle(handOffPosition.armAngle(), Rotation2d.fromDegrees(3));
+    boolean inta =
+        intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle(), Rotation2d.fromDegrees(5));
+    System.out.println("ele: " + ele + "arm: " + armp + "intake: " + inta);
+    if (ele && armp && inta) {
       RobotStates.intakeState = IntakeState.Passoff;
     }
 

@@ -662,7 +662,8 @@ public class RobotContainer {
                                         RobotStates.targetReefSide, RobotStates.scoringLevel));
                               }
                             })
-                        .andThen(new EndEffectorSetRPM(-6000))));
+                        .andThen(new EndEffectorSetRPM(-6000)))
+                .finallyDo(() -> RobotStates.mechState = MechState.CoralStationPosition));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
         .whileTrue(new IntakeCoralGround(intake));
@@ -771,9 +772,9 @@ public class RobotContainer {
                         }))
             .withName("GamepieceIntoEECommand"));
 
-    RobotStates.triggerForCoralInEndEffector.onFalse(
-        new MechToPosition(mech, MechState.CoralStationPosition)
-            .withName("GamepieceOutOfEECommand"));
+    // RobotStates.triggerForCoralInEndEffector.onFalse(
+    //     new MechToPosition(mech, MechState.CoralStationPosition)
+    //         .withName("GamepieceOutOfEECommand"));
 
     passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
 

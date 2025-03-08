@@ -243,13 +243,13 @@ public final class Constants {
     public static class PivotConstants {
       public static final double SUPPLY_CURRENT_LIMIT = 60;
 
-      public static final double GEAR_RATIO = 79.693;
+      public static final double GEAR_RATIO = 57.9586;
 
       public static final double MOI = .00001;
 
       public static final Rotation2d MAX_PIVOT_ANGLE = Rotation2d.fromDegrees(129);
       public static final Rotation2d MIN_PIVOT_ANGLE = Rotation2d.fromDegrees(0);
-      public static final Rotation2d HOME_POSITION = Rotation2d.fromDegrees(124.45);
+      public static final Rotation2d HOME_POSITION = Rotation2d.fromDegrees(134.296875);
 
       public static final Rotation2d PASSOFF_PIVOT_ANGLE = Rotation2d.fromDegrees(92.5);
 
