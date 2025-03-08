@@ -42,7 +42,7 @@ public class IntakeCoralGround extends Command {
   @Override
   public void end(boolean interrupted) {
     if (interrupted) {
-      RobotStates.intakeState = IntakeState.Stow;
+      RobotStates.intakeState = IntakeState.PrepPassoff;
     } else RobotStates.intakeState = IntakeState.PrepPassoff;
   }
 
