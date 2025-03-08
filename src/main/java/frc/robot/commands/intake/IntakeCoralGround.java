@@ -5,6 +5,7 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.IntakeState;
+import frc.robot.RobotStates.MechState;
 import frc.robot.subsystems.intake.Intake;
 
 public class IntakeCoralGround extends Command {
@@ -31,6 +32,7 @@ public class IntakeCoralGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    RobotStates.mechState = MechState.PassoffPosition;
     RobotStates.intakeState = IntakeState.IntakeCoral;
   }
 

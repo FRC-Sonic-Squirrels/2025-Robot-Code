@@ -4,7 +4,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.RobotStates.MechState;
 import frc.robot.commands.endEffector.IntakeGamepieceCoralStation;
+import frc.robot.commands.mechanism.MechToPosition;
 import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
@@ -41,7 +43,7 @@ public class CommandComposer {
         .andThen(
             new WaitUntilMovedDist(wrapper, Units.Meters.of(0.3))
                 .andThen(
-                    MechanismActions.stowPosition(elevator, arm)
+                    new MechToPosition(mech, MechState.StowPosition)
                         .finallyDo(
                             () -> {
                               RobotStates.changeEndEffectorIfNotAligning(

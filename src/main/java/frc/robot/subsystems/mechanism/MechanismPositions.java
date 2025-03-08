@@ -206,6 +206,12 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(passOffArmAngleDegrees.get()));
   }
 
+  public static MechanismPosition clearAlgaeLowPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(algaeClearingLowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(algaeClearingLowArmAngleDegrees.get()));
+  }
+
   public static MechanismPosition clearAlgaeHighPosition() {
     return new MechanismPosition(
         Units.Inches.of(algaeClearingHighElevatorHeightInches.get()),
@@ -222,6 +228,12 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(prepForPassOffElevatorHeightInches.get()),
         Rotation2d.fromDegrees(prepForPassOffArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition passoffPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(passOffElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(passOffArmAngleDegrees.get()));
   }
 
   public static MechanismPosition intermediateLowPosition() {

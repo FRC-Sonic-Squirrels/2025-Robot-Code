@@ -3,6 +3,7 @@ package frc.robot.commands.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.IntakeState;
+import frc.robot.RobotStates.MechState;
 import frc.robot.subsystems.intake.Intake;
 
 public class IntakeAlgaeGround extends Command {
@@ -20,6 +21,7 @@ public class IntakeAlgaeGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    RobotStates.mechState = MechState.StowPosition;
     RobotStates.intakeState = IntakeState.IntakeAlgae;
   }
 

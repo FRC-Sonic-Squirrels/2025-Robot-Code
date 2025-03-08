@@ -6,6 +6,8 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotStates;
+import frc.robot.RobotStates.IntakeState;
 import frc.robot.subsystems.intake.Intake;
 import java.util.function.Supplier;
 
@@ -25,6 +27,11 @@ public class IntakeSetPivotAngle extends Command {
     this.angleSupplier = angleSupplier;
 
     addRequirements(intake);
+  }
+
+  @Override
+  public void initialize() {
+    RobotStates.intakeState = IntakeState.Override;
   }
 
   // Called every time the scheduler runs while the command is scheduled.

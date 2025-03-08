@@ -611,30 +611,6 @@ public class RobotContainer {
                             false))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
-    // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
-    // Pose2d[] reefAprilTagPose = {
-    //   layout.getTagPose(6).get().toPose2d(),
-    //   layout.getTagPose(7).get().toPose2d(),
-    //   layout.getTagPose(8).get().toPose2d(),
-    //   layout.getTagPose(9).get().toPose2d(),
-    //   layout.getTagPose(10).get().toPose2d(),
-    //   layout.getTagPose(11).get().toPose2d(),
-    //   layout.getTagPose(17).get().toPose2d(),
-    //   layout.getTagPose(18).get().toPose2d(),
-    //   layout.getTagPose(19).get().toPose2d(),
-    //   layout.getTagPose(20).get().toPose2d(),
-    //   layout.getTagPose(21).get().toPose2d(),
-    //   layout.getTagPose(22).get().toPose2d()
-    // };
-
-    // Pose2d[] coralStationPose = {
-    //   layout.getTagPose(1).get().toPose2d(),
-    //   layout.getTagPose(2).get().toPose2d(),
-    //   layout.getTagPose(12).get().toPose2d(),
-    //   layout.getTagPose(13).get().toPose2d()
-    // };
-
     // Change scoring height
 
     driverController
@@ -687,79 +663,17 @@ public class RobotContainer {
                               }
                             })
                         .andThen(new EndEffectorSetRPM(-6000))));
-    // .toggleOnTrue(
-    //     new RotateToAngle(
-    //         drivetrainWrapper,
-    //         () -> {
-    //           Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
-
-    //           Rotation2d finalRotationValue =
-    //               RobotStates.coralInEndEffector
-    //                   ? findNearestAprilTag(robotTranslation, reefAprilTagPose).getRotation()
-    //                   : findNearestCoralStation(robotTranslation, coralStationPose)
-    //                       .getRotation();
-    //           return finalRotationValue;
-    //         },
-    //         () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
-
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.leftStick, "Face center")
-    //     .toggleOnTrue(
-    //         new RotateToAngle(
-    //             drivetrainWrapper,
-    //             () -> {
-    //               Pose2d robotTranslation = drivetrainWrapper.getReefPoseEstimatorPose(true);
-
-    //               return faceTowardsCenter(robotTranslation, reefAprilTagPose);
-    //             },
-    //             () -> drivetrainWrapper.getReefPoseEstimatorPose(true)));
-
-    // Manual Algae Clearing
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.povUp, "Clear Algae High Position")
-    //     .onTrue(MechanismActions.clearAlgaeHigh1Position(elevator, arm))
-    //     .onFalse(MechanismActions.clearAlgaeHigh2Position(elevator, arm));
-
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.povDown, "Clear Algae Low Position")
-    //     .onTrue(MechanismActions.clearAlgaeLow1Position(elevator, arm))
-    //     .onFalse(MechanismActions.clearAlgaeLow2Position(elevator, arm));
-
-    // Automatic Algae Clearing
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.povUp, "Clearing Algae")
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () -> {
-    //               RobotStates.clearingAlgae = true;
-    //             }));
-
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.povDown, "Done Clearing Algae")
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () -> {
-    //               RobotStates.clearingAlgae = false;
-    //             }));
-
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
-        .whileTrue(
-            new IntakeCoralGround(intake)
-                .alongWith(MechanismActions.passOffPosition(elevator, arm)));
+        .whileTrue(new IntakeCoralGround(intake));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
-        .onTrue(new Climb(climber, driverController.getPovDown()))
-        .onTrue(new MechToPosition(mech, MechState.ClimbPosition))
-        .onTrue(
-            new IntakeSetPivotAngle(
-                intake, Constants.IntakeConstants.PivotConstants.PIVOT_SAFE_ANGLE));
+        .onTrue(new Climb(climber, driverController.getPovDown()));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povRight, "Intake Algae Ground")
-        .whileTrue(
-            new IntakeAlgaeGround(intake).alongWith(MechanismActions.stowPosition(elevator, arm)));
+        .whileTrue(new IntakeAlgaeGround(intake));
 
     // ---------- OPERATOR CONTROLS -----------
 
@@ -861,10 +775,7 @@ public class RobotContainer {
         new MechToPosition(mech, MechState.CoralStationPosition)
             .withName("GamepieceOutOfEECommand"));
 
-    passOffTrigger.onTrue(
-        new PassToEndEffector(arm, elevator, intake)
-            .alongWith(MechanismActions.passOffPosition(elevator, arm))
-            .andThen(MechanismActions.stowPosition(elevator, arm).asProxy()));
+    passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
 
     // ---------- ON-ROBOT CONTROLS ------------
 

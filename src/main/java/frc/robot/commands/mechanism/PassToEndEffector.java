@@ -5,10 +5,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.EndEffectorDesiredAction;
 import frc.robot.RobotStates.IntakeState;
-import frc.robot.commands.mechanism.MechanismPositions.MechanismPosition;
-import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.RobotStates.MechState;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.mechanism.MechanismPositions;
+import frc.robot.subsystems.mechanism.MechanismPositions.MechanismPosition;
+import frc.robot.subsystems.mechanism.arm.Arm;
+import frc.robot.subsystems.mechanism.elevator.Elevator;
 
 public class PassToEndEffector extends Command {
   private final Arm arm;
@@ -23,6 +25,7 @@ public class PassToEndEffector extends Command {
 
   @Override
   public void initialize() {
+    RobotStates.mechState = MechState.PassoffPosition;
     RobotStates.intakeState = IntakeState.PrepPassoff;
     if (!RobotStates.coralInIntake) this.cancel();
   }
@@ -45,6 +48,7 @@ public class PassToEndEffector extends Command {
   public void end(boolean interrupted) {
     RobotStates.intakeState = IntakeState.Stow;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
+    RobotStates.mechState = MechState.StowPosition;
   }
 
   // Returns true when the command should end.
