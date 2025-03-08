@@ -12,6 +12,9 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.RobotStates;
+import frc.robot.RobotStates.IntakeState;
+import frc.robot.RobotStates.MechState;
 import frc.robot.subsystems.climber.Climber;
 import java.util.function.BooleanSupplier;
 
@@ -48,6 +51,8 @@ public class Climb extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    RobotStates.mechState = MechState.ClimbPosition;
+    RobotStates.intakeState = IntakeState.Climb;
     climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
     stage = 0;
     prevConfirm = true;

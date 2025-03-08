@@ -75,15 +75,16 @@ public class Mechanism {
         goToPositionParallel(MechanismPositions.clearAlgaeHighPosition());
         break;
       case StowPosition:
-        if (RobotStates.scoringLevel == ScoringLevel.L1
-            || RobotStates.scoringLevel == ScoringLevel.L2) {
-          goToPositionParallel(MechanismPositions.lowStowPosition());
-        } else {
-          goToPositionParallel(MechanismPositions.highStowPosition());
-        }
+        goToPositionParallel(MechanismPositions.stowPosition());
         break;
       case ClimbPosition:
         goToPositionParallel(MechanismPositions.reefPrepPosition(ScoringLevel.L3));
+        break;
+      case PrepPassoffPosition:
+        goToPositionParallel(MechanismPositions.prepForPassoffPosition());
+        break;
+      case PassoffPosition:
+        goToPositionParallel(MechanismPositions.passoffPosition());
         break;
       default:
         break;

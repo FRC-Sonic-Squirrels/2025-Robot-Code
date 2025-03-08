@@ -41,17 +41,21 @@ public class RobotStates {
     ClearAlgaeLowPosition,
     ClearAlgaeHighPosition,
     StowPosition,
-    ClimbPosition
+    ClimbPosition,
+    PrepPassoffPosition,
+    PassoffPosition
   }
 
   public enum IntakeState {
     Idle,
+    Override,
     IntakeCoral,
     IntakeAlgae,
     PrepPassoff,
     Passoff,
     Stow,
-    ScoreAlgae
+    ScoreAlgae,
+    Climb
   }
 
   public enum ScoringLevel {

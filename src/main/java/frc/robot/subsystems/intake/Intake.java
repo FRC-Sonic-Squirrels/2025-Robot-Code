@@ -105,6 +105,8 @@ public class Intake extends SubsystemBase {
       group.build("ScoreAlgae/Velocity", -1000.0);
   private static final LoggedTunableNumber algaeScoreAngle =
       group.build("ScoreAlgae/Angle", PivotConstants.ALGAE_SCORE_ANGLE.getDegrees());
+  private static final LoggedTunableNumber climbAngle =
+      group.build("ClimbAngle", PivotConstants.PIVOT_SAFE_ANGLE.getDegrees());
 
   // Pivot
   private static final TunableNumberGroup pivotSubgroup = group.subgroup(PivotConstants.ROOT_TABLE);
@@ -227,6 +229,8 @@ public class Intake extends SubsystemBase {
       }
 
       switch (RobotStates.intakeState) {
+        case Override:
+          break;
         case Idle:
           setPivotVoltage(0);
           setRollerPercentOut(0);
@@ -259,6 +263,10 @@ public class Intake extends SubsystemBase {
             setRollerVelocity(algaeScoreVelocity.get());
           } else setRollerPercentOut(0);
           setPivotAngle(targetAngle);
+          break;
+        case Climb:
+          setPivotAngle(Rotation2d.fromDegrees(climbAngle.get()));
+          setRollerPercentOut(0);
           break;
         default:
           break;
