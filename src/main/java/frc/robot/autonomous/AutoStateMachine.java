@@ -165,8 +165,7 @@ public class AutoStateMachine extends StateMachine {
 
     if (scoringLocations == null) {
 
-      scoreCoral =
-          new ScoreCoral(wrapper, mech, elevator, arm, endEffector, led, rumble, config, false);
+      scoreCoral = new ScoreCoral(wrapper, mech, elevator, arm, led, rumble, config, false);
 
     } else {
 
@@ -248,8 +247,7 @@ public class AutoStateMachine extends StateMachine {
                     elevator.isAtTarget(coralStationPos.elevatorHeight())
                         && arm.isAtTargetAngle(coralStationPos.armAngle()))
             .andThen(
-                CommandComposer.intakeCoralFromStation(
-                        wrapper, endEffector, elevator, arm, led, null, false)
+                CommandComposer.intakeCoralFromStation(wrapper, endEffector, mech, led, null, false)
                     .asProxy()),
         (c) -> null);
 

@@ -490,7 +490,7 @@ public class RobotContainer {
     for (StartingLocation location : StartingLocation.values())
       startingLocationChooser.addOption(location.name(), location);
 
-    var subsystems = new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led);
+    var subsystems = new AutosSubsystems(drivetrainWrapper, mech, endEffector, led);
 
     autoManager =
         new AutosManager(
