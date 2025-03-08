@@ -260,7 +260,7 @@ public class AutoStateMachine extends StateMachine {
     if (!procedural) {
       ChassisSpeedsWithPathEnd result =
           choreoHelper.calculateChassisSpeeds(
-              wrapper.getReefPoseEstimatorPose(true), timeFromStart());
+              wrapper.getCoralStationPoseEstimatorPose(true), timeFromStart());
       wrapper.setVelocityOverride(result.chassisSpeeds());
     }
 
