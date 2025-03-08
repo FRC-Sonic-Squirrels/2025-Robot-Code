@@ -304,7 +304,8 @@ public class ScoreCoral extends StateMachine {
                 .setFinalErrorMaxWait(finalErrorMaxWait.get())
                 .setFinalOffsetError(finalOffsetError.get())
                 .setFinalHeadingError(finalHeadingError.get())
-                .setFinalTargetError(finalTargetError.get()),
+                .setFinalTargetError(finalTargetError.get())
+                .andThen(Commands.runOnce(() -> inPosition = true)),
             (command) -> stateWithName("Score", () -> score()));
   }
 
@@ -362,12 +363,12 @@ public class ScoreCoral extends StateMachine {
             || scoringSide == ScoringSide.FAR_LEFT
             || scoringSide == ScoringSide.FAR_RIGHT;
 
-    clearAlgae1Position =
+    Command clearAlgae1Position =
         high
             ? new MechToPosition(mech, MechState.ClearAlgaeHighPosition)
             : new MechToPosition(mech, MechState.ClearAlgaeLowPosition);
 
-    prepMechanismForAlgae = spawnCommand(clearAlgae1Position, (command) -> null);
+    spawnCommand(clearAlgae1Position, (command) -> null);
 
     algaeClearPose = getClosestAlgaeClearingSide(scoringPose).pose();
 
