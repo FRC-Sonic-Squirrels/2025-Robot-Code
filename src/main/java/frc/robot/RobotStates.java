@@ -50,7 +50,8 @@ public class RobotStates {
     IntakeAlgae,
     PrepPassoff,
     Passoff,
-    Stow
+    Stow,
+    ScoreAlgae
   }
 
   public enum ScoringLevel {

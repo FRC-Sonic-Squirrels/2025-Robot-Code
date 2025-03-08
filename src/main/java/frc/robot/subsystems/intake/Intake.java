@@ -25,6 +25,7 @@ import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.IntakeConstants.RollerConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates;
+import frc.robot.commands.intake.ScoreAlgae;
 
 public class Intake extends SubsystemBase {
   // Execution timing
@@ -100,6 +101,10 @@ public class Intake extends SubsystemBase {
       group.build("PassOff/AngleDeg", 92.5);
   private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -500);
   private static final LoggedTunableNumber stowPivotAngle = group.build("StowAngleDeg", 105);
+  private static final LoggedTunableNumber algaeScoreVelocity =
+      group.build("ScoreAlgae/Velocity", -1000.0);
+  private static final LoggedTunableNumber algaeScoreAngle =
+      group.build("ScoreAlgae/Angle", PivotConstants.ALGAE_SCORE_ANGLE.getDegrees());
 
   // Pivot
   private static final TunableNumberGroup pivotSubgroup = group.subgroup(PivotConstants.ROOT_TABLE);
@@ -247,6 +252,13 @@ public class Intake extends SubsystemBase {
             setRollerVelocity(holdAlgaeVel.get());
           } else setRollerPercentOut(0);
           setPivotAngle(Rotation2d.fromDegrees(stowPivotAngle.get()));
+          break;
+        case ScoreAlgae:
+          Rotation2d targetAngle = Rotation2d.fromDegrees(algaeScoreAngle.get());
+          if (isPivotAtTargetAngle(targetAngle)) {
+            setRollerVelocity(algaeScoreVelocity.get());
+          } else setRollerPercentOut(0);
+          setPivotAngle(targetAngle);
           break;
         default:
           break;
