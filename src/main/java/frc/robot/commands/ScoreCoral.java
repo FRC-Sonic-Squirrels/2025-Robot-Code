@@ -334,11 +334,14 @@ public class ScoreCoral extends StateMachine {
 
     prepMechanismForAlgae =
         spawnCommand(
-            Commands.waitUntil(
-                    () ->
-                        GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                            < distToRaiseMech.get())
-                .andThen(clearAlgae1Position),
+            // Commands.waitUntil(
+            //         () ->
+            //             GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(true), scoringPose)
+            //                 < distToRaiseMech.get())
+            //     .andThen(
+            clearAlgae1Position
+            // )
+            ,
             (command) -> null);
 
     algaeClearPose = getClosestAlgaeClearingSide(scoringPose).pose();
