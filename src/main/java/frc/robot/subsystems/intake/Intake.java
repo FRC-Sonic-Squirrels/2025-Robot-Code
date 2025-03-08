@@ -118,10 +118,10 @@ public class Intake extends SubsystemBase {
 
       pKP.initDefault(25);
       pKD.initDefault(0);
-      pKG.initDefault(0.4);
+      pKG.initDefault(0.5);
 
-      pivotMaxVelocityConfig.initDefault(100);
-      pivotTargetAccelerationConfig.initDefault(100);
+      pivotMaxVelocityConfig.initDefault(200);
+      pivotTargetAccelerationConfig.initDefault(200);
     }
   }
 
