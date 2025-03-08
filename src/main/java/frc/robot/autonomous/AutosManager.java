@@ -143,7 +143,7 @@ public class AutosManager {
     var state =
         new AutoStateMachine(
             subsystems,
-            new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S1),
+            new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S2),
             config,
             flipAuto.getAsBoolean(),
             false);

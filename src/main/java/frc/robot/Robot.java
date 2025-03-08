@@ -218,7 +218,7 @@ public class Robot extends LoggedRobot {
             || autoFlipped != selectedAutoFlipped
             || !selectedScoringLocations.equals(customScoringLocations)
             || !selectedCoralStationLocations.equals(customCoralStationLocations)
-            || selectedStartingLocation.equals(customStartingLocation))) {
+            || !selectedStartingLocation.equals(customStartingLocation))) {
       Pose2d initialPose;
 
       selectedAuto = robotContainer.getAutoSupplierForString(autoName).get();

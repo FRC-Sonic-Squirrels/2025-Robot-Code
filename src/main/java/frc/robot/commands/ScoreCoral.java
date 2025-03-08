@@ -94,8 +94,8 @@ public class ScoreCoral extends StateMachine {
       group.build("FinalErrorMaxWait", 1.0);
   private static final LoggedTunableNumber finalHeadingError =
       group.build("FinalHeadingError", 0.5);
-  private static final LoggedTunableNumber finalOffsetError = group.build("FinalOffsetError", 0.01);
-  private static final LoggedTunableNumber finalTargetError = group.build("FinalTargetError", 0.01);
+  private static final LoggedTunableNumber finalOffsetError = group.build("FinalOffsetError", 0.03);
+  private static final LoggedTunableNumber finalTargetError = group.build("FinalTargetError", 0.03);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
