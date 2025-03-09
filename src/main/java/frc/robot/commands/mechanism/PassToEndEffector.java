@@ -31,7 +31,6 @@ public class PassToEndEffector extends Command {
   public void initialize() {
     RobotStates.mechState = MechState.PrepPassoffPosition;
     RobotStates.intakeState = IntakeState.PrepPassoff;
-    if (!RobotStates.coralInIntake) this.cancel();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

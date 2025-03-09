@@ -122,7 +122,10 @@ public class RobotStates {
 
   public static Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
   public static Trigger triggerForCoralInEndEffector = new Trigger(() -> coralInEndEffector);
-  public static Trigger triggerForCoralInIntake = new Trigger(() -> coralInIntake).debounce(0.5);
+  public static Trigger triggerForCoralInIntake =
+      new Trigger(() -> coralInIntake)
+          .debounce(
+              0.5); // debounce to allow coarl to get fully in intake before ending intake command
 
   public static void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
     if (!endEffectorDesiredAction.alignmentActive) {
