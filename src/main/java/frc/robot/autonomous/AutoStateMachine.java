@@ -26,6 +26,7 @@ import frc.robot.autonomous.records.AutoDescriptor;
 import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.OppositeSide;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
@@ -114,16 +115,18 @@ public class AutoStateMachine extends StateMachine {
       scoringPaths.add(
           locationsToPath(descriptor.startingLocation(), descriptor.scoringLocations().get(0)));
 
-      for (int i = 1; i < descriptor.scoringLocations().size(); i++)
+      for (int i = 1; i < descriptor.scoringLocations().size(); i++) {
         scoringPaths.add(
             locationsToPath(
                 descriptor.coralStationLocations().get(i - 1),
                 descriptor.scoringLocations().get(i)));
+      }
 
-      for (int i = 0; i < descriptor.coralStationLocations().size(); i++)
+      for (int i = 0; i < descriptor.coralStationLocations().size(); i++) {
         coralStationPaths.add(
             locationsToPath(
                 descriptor.scoringLocations().get(i), descriptor.coralStationLocations().get(i)));
+      }
     }
 
     boolean foundPath = scoringPaths.indexOf(null) == -1 && coralStationPaths.indexOf(null) == -1;
@@ -131,11 +134,13 @@ public class AutoStateMachine extends StateMachine {
     log_foundPath.info(foundPath);
 
     if (foundPath) {
-      for (int i = 0; i < scoringPaths.size(); i++)
+      for (int i = 0; i < scoringPaths.size(); i++) {
         scoringPaths.set(i, scoringPaths.get(i).flipOnAlliance(flipAuto).flipForAlliance());
-      for (int i = 0; i < coralStationPaths.size(); i++)
+      }
+      for (int i = 0; i < coralStationPaths.size(); i++) {
         coralStationPaths.set(
             i, coralStationPaths.get(i).flipOnAlliance(flipAuto).flipForAlliance());
+      }
     }
 
     this.config = config;
@@ -232,7 +237,7 @@ public class AutoStateMachine extends StateMachine {
 
     MechanismPosition coralStationPos = MechanismPositions.coralStationPosition();
 
-    if (procedural)
+    if (procedural) {
       spawnCommand(
           new DriveToPosePathing(
               wrapper,
@@ -240,6 +245,7 @@ public class AutoStateMachine extends StateMachine {
               () -> wrapper.getCoralStationPoseEstimatorPose(true),
               intakingPoseSupplier),
           (c) -> null);
+    }
 
     spawnCommand(
         Commands.waitUntil(
@@ -276,28 +282,29 @@ public class AutoStateMachine extends StateMachine {
 
   private ChoreoTrajectoryWithName locationsToPath(
       ScoringLocation scoring, CoralStationLocation coralStation) {
-    return stringsToPath(scoring.side().toString(), coralStation.toString());
+    return enumsToPath(scoring.side(), coralStation);
   }
 
   private ChoreoTrajectoryWithName locationsToPath(
       CoralStationLocation coralStation, ScoringLocation scoring) {
-    return stringsToPath(coralStation.toString(), scoring.side().toString());
+    return enumsToPath(coralStation, scoring.side());
   }
 
   private ChoreoTrajectoryWithName locationsToPath(
       StartingLocation starting, ScoringLocation scoring) {
-    return stringsToPath(starting.toString(), scoring.side().toString());
+    return enumsToPath(starting, scoring.side());
   }
 
-  private ChoreoTrajectoryWithName stringsToPath(String startString, String endString) {
-    ChoreoTrajectoryWithName traj = stringsToPathSimple(startString, endString);
+  private <T1, T2> ChoreoTrajectoryWithName enumsToPath(
+      OppositeSide<T1> starting, OppositeSide<T2> ending) {
+    ChoreoTrajectoryWithName traj = stringsToPathSimple(starting, ending);
     if (traj == null) {
-      String oppositeStartString = oppositeLocation(startString);
-      String oppositeEndString = oppositeLocation(endString);
-      traj = stringsToPathSimple(oppositeStartString, oppositeEndString);
+      var oppositeStarting = starting.getOpposite();
+      var oppositeEnding = ending.getOpposite();
+      traj = stringsToPathSimple(oppositeStarting, oppositeEnding);
       if (traj == null) {
         log_missingPath.info(
-            startString + "_" + endString + " or " + oppositeStartString + "_" + oppositeEndString);
+            starting + "_" + ending + " or " + oppositeStarting + "_" + oppositeEnding);
 
       } else {
         traj = traj.flipOnAlliance(true);
@@ -306,37 +313,10 @@ public class AutoStateMachine extends StateMachine {
     return traj;
   }
 
-  private ChoreoTrajectoryWithName stringsToPathSimple(String startString, String endString) {
-    String fullString = startString + "_" + endString;
+  private ChoreoTrajectoryWithName stringsToPathSimple(
+      OppositeSide<?> startString, OppositeSide<?> endString) {
+    String fullString = startString.toString() + "_" + endString.toString();
     return ChoreoTrajectoryWithName.getTrajectory(fullString);
-  }
-
-  private String oppositeLocation(String location) {
-    return switch (location) {
-      case "S1" -> "S6";
-      case "S2" -> "S5";
-      case "S3" -> "S4";
-      case "CA" -> "CB";
-      case "CH" -> "CG";
-      case "CI" -> "CF";
-      case "CJ" -> "CE";
-      case "CK" -> "CD";
-      case "CL" -> "CC";
-      case "IA" -> "ID";
-      case "IB" -> "IC";
-      case "S6" -> "S1";
-      case "S5" -> "S2";
-      case "S4" -> "S3";
-      case "CB" -> "CA";
-      case "CG" -> "CH";
-      case "CF" -> "CI";
-      case "CE" -> "CJ";
-      case "CD" -> "CK";
-      case "CC" -> "CL";
-      case "ID" -> "IA";
-      case "IC" -> "IB";
-      default -> "";
-    };
   }
 
   public Pose2d initPose() {
@@ -376,8 +356,9 @@ public class AutoStateMachine extends StateMachine {
       Pose2d trialPose = getCoralStationPose(location);
       if (bestPose == null
           || GeometryUtil.getDist(trialPose, wrapper.getCoralStationPoseEstimatorPose(true))
-              < GeometryUtil.getDist(bestPose, wrapper.getCoralStationPoseEstimatorPose(true)))
+              < GeometryUtil.getDist(bestPose, wrapper.getCoralStationPoseEstimatorPose(true))) {
         bestPose = trialPose;
+      }
     }
 
     return bestPose;

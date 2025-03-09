@@ -8,13 +8,43 @@ public record AutoDescriptor(
     List<ScoringLocation> scoringLocations,
     List<CoralStationLocation> coralStationLocations,
     StartingLocation startingLocation) {
-  public enum StartingLocation {
-    S1,
-    S2,
-    S3,
-    S4,
-    S5,
-    S6
+  public enum StartingLocation implements OppositeSide<StartingLocation> {
+    S1 {
+      @Override
+      public StartingLocation getOpposite() {
+        return S6;
+      }
+    },
+    S2 {
+      @Override
+      public StartingLocation getOpposite() {
+        return S5;
+      }
+    },
+    S3 {
+      @Override
+      public StartingLocation getOpposite() {
+        return S4;
+      }
+    },
+    S4 {
+      @Override
+      public StartingLocation getOpposite() {
+        return S3;
+      }
+    },
+    S5 {
+      @Override
+      public StartingLocation getOpposite() {
+        return S2;
+      }
+    },
+    S6 {
+      @Override
+      public StartingLocation getOpposite() {
+        return S1;
+      }
+    }
   }
 
   public List<ScoringLocation> flippedScoringLocations() {
