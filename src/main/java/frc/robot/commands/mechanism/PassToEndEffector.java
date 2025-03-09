@@ -2,6 +2,7 @@ package frc.robot.commands.mechanism;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.EndEffectorDesiredAction;
 import frc.robot.RobotStates.IntakeState;
@@ -17,6 +18,9 @@ public class PassToEndEffector extends Command {
   private final Elevator elevator;
   private final Intake intake;
 
+  private final Trigger endTrigger =
+      new Trigger(() -> RobotStates.coralInEndEffectorScoringSide).debounce(0.3);
+
   public PassToEndEffector(Arm arm, Elevator elevator, Intake intake) {
     this.arm = arm;
     this.elevator = elevator;
@@ -25,7 +29,7 @@ public class PassToEndEffector extends Command {
 
   @Override
   public void initialize() {
-    RobotStates.mechState = MechState.PassoffPosition;
+    RobotStates.mechState = MechState.PrepPassoffPosition;
     RobotStates.intakeState = IntakeState.PrepPassoff;
     if (!RobotStates.coralInIntake) this.cancel();
   }
@@ -33,13 +37,14 @@ public class PassToEndEffector extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    MechanismPosition handOffPosition = MechanismPositions.intakeToEndEffectorPassOffPosition();
-    boolean ele = elevator.isAtTarget(handOffPosition.elevatorHeight());
-    boolean armp = arm.isAtTargetAngle(handOffPosition.armAngle(), Rotation2d.fromDegrees(3));
+    MechanismPosition prepHandOffPosition = MechanismPositions.prepForPassoffPosition();
+    boolean ele = elevator.isAtTarget(prepHandOffPosition.elevatorHeight());
+    boolean armp = arm.isAtTargetAngle(prepHandOffPosition.armAngle(), Rotation2d.fromDegrees(3));
     boolean inta =
         intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle(), Rotation2d.fromDegrees(5));
     System.out.println("ele: " + ele + "arm: " + armp + "intake: " + inta);
     if (ele && armp && inta) {
+      RobotStates.mechState = MechState.PassoffPosition;
       RobotStates.intakeState = IntakeState.Passoff;
     }
 
@@ -57,6 +62,6 @@ public class PassToEndEffector extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotStates.coralInEndEffectorScoringSide;
+    return endTrigger.getAsBoolean();
   }
 }
