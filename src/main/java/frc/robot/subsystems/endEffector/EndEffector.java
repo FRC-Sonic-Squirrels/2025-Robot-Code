@@ -214,6 +214,7 @@ public class EndEffector extends SubsystemBase {
               } else {
                 setVelocity(-(intakingVelocityHigh.get()));
               }
+              break;
 
             case AlignCoral:
               if (!coralInEndEffector) {
