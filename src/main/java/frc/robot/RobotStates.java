@@ -121,7 +121,8 @@ public class RobotStates {
   public static ReefSide targetReefSide = ReefSide.CA;
 
   public static Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
-  public static Trigger triggerForCoralInEndEffector = new Trigger(() -> coralInEndEffector);
+  public static Trigger triggerForCoralInEndEffector =
+      new Trigger(() -> coralInEndEffector).debounce(0.5);
   public static Trigger triggerForCoralInIntake =
       new Trigger(() -> coralInIntake)
           .debounce(

@@ -20,6 +20,7 @@ import frc.robot.CommandComposer;
 import frc.robot.Constants;
 import frc.robot.FieldStates;
 import frc.robot.RobotStates;
+import frc.robot.RobotStates.IntakeState;
 import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.AutoDescriptor;
@@ -164,6 +165,7 @@ public class AutoStateMachine extends StateMachine {
   // CORAL SCORING STATES
 
   private StateHandler prepScoreCoral() {
+    RobotStates.intakeState = IntakeState.Stow;
     if (scoringLocations != null && scoringIndex == scoringLocations.size()) {
       return stateWithName("Done", setDone());
     }

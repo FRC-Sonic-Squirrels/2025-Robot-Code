@@ -452,9 +452,7 @@ public class RobotContainer {
     }
 
     mech = new Mechanism(elevator, arm);
-    passOffTrigger =
-        new Trigger(() -> RobotStates.coralInIntake && !RobotStates.coralInEndEffector)
-            .debounce(.5);
+    passOffTrigger = new Trigger(() -> RobotStates.coralInIntake).debounce(.5);
 
     algaeInRobot =
         new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())

@@ -78,7 +78,7 @@ public class Mechanism {
         goToPositionParallel(MechanismPositions.stowPosition());
         break;
       case ClimbPosition:
-        goToPositionParallel(MechanismPositions.reefPrepPosition(ScoringLevel.L3));
+        goToPositionParallel(MechanismPositions.climbPosition());
         break;
       case PrepPassoffPosition:
         goToPositionParallel(MechanismPositions.prepForPassoffPosition());
@@ -127,7 +127,8 @@ public class Mechanism {
         log_currentMotionState.info("Getting out of S1");
         goToPositionParallelSimple(MechanismPositions.intermediateLowBackPosition());
       } else if (currentMechSection == MechSection.S2
-          || (currentMechSection == MechSection.S3 && targetMechSection != MechSection.S1)) {
+          || (currentMechSection == MechSection.S3 && targetMechSection != MechSection.S1)
+          || currentMechSection == MechSection.S10) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(MechanismPositions.intermediateLowPosition());
       } else if (currentMechSection == MechSection.S9
@@ -175,9 +176,9 @@ public class Mechanism {
         && (mech2 == MechSection.S7 || mech2 == MechSection.S8 || mech2 == MechSection.S9))
       return true;
 
-    if (mech1 == MechSection.S1 && mech2 == MechSection.S2) return true;
-
-    if (mech1 == MechSection.S2 && mech2 == MechSection.S1) return true;
+    if ((mech1 == MechSection.S1 || mech1 == MechSection.S2 || mech1 == MechSection.S10)
+        && (mech2 == MechSection.S1 || mech2 == MechSection.S2 || mech2 == MechSection.S10))
+      return true;
 
     return false;
   }
@@ -213,6 +214,9 @@ public class Mechanism {
       if (position.elevatorHeight().in(Units.Inches) < 0.1) {
         return MechSection.S3;
       } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+        if (position.armAngle().getDegrees() > 90) {
+          return MechSection.S10;
+        }
         return MechSection.S5;
       } else return MechSection.S8;
     } else {
@@ -227,12 +231,13 @@ public class Mechanism {
   private enum MechSection {
     S1, // elevator above 0.1, below top tube, arm is back
     S2, // elevator below 0.1, arm is back
-    S3, // elevator below top tube, arm under top tube
+    S3, // elevator below top tube, arm under top tube to front side
     S4, // elevator below 0.1, arm is forward
     S5, // below top tube, elevator above 0.1, arm is up
     S6, // below top tube, elevator above 0.1, arm is forward
     S7, // above top tube, arm is forward
     S8, // above top tube, arm is near straight up
-    S9 // above top tube, arm is back
+    S9, // above top tube, arm is back
+    S10 // below top tube, arm under top tube to back side
   }
 }
