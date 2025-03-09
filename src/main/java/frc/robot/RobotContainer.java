@@ -58,6 +58,7 @@ import frc.robot.commands.intake.IntakeSetPivotAngle;
 import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechToPosition;
+import frc.robot.commands.mechanism.PassToEndEffector;
 import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.commands.mechanism.arm.ArmManualControl;
 import frc.robot.commands.mechanism.elevator.ElevatorManualControl;
@@ -803,6 +804,8 @@ public class RobotContainer {
     RobotStates.triggerForCoralInEndEffector.onFalse(
         new MechToPosition(mech, MechState.CoralStationPosition)
             .withName("GamepieceOutOfEECommand"));
+
+    passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
 
     // ---------- ON-ROBOT CONTROLS ------------
 
