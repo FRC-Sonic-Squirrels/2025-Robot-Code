@@ -21,6 +21,8 @@ public class PassToEndEffector extends Command {
   private final Trigger endTrigger =
       new Trigger(() -> RobotStates.coralInEndEffectorScoringSide).debounce(0.3);
 
+  private int stage = 1;
+
   public PassToEndEffector(Arm arm, Elevator elevator, Intake intake) {
     this.arm = arm;
     this.elevator = elevator;
@@ -29,8 +31,7 @@ public class PassToEndEffector extends Command {
 
   @Override
   public void initialize() {
-    RobotStates.mechState = MechState.PrepPassoffPosition;
-    RobotStates.intakeState = IntakeState.PrepPassoff;
+    stage = 1;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -43,8 +44,14 @@ public class PassToEndEffector extends Command {
         intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle(), Rotation2d.fromDegrees(5));
     System.out.println("ele: " + ele + "arm: " + armp + "intake: " + inta);
     if (ele && armp && inta) {
+      stage = 2;
+    }
+    if (stage == 2) {
       RobotStates.mechState = MechState.PassoffPosition;
       RobotStates.intakeState = IntakeState.Passoff;
+    } else {
+      RobotStates.mechState = MechState.PrepPassoffPosition;
+      RobotStates.intakeState = IntakeState.PrepPassoff;
     }
 
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;

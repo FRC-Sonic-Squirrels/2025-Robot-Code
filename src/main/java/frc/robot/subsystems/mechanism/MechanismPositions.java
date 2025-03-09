@@ -169,6 +169,11 @@ public class MechanismPositions {
     }
   }
 
+  public static MechanismPosition climbPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(4.5), Rotation2d.fromDegrees(reefL1ArmAngleDegrees.get()));
+  }
+
   public static MechanismPosition reefPrepPosition(ScoringLevel scoringLevel) {
     switch (scoringLevel) {
       case L1:
