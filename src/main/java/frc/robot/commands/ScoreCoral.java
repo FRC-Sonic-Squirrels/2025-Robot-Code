@@ -36,7 +36,6 @@ import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.BaseRobotState;
 import frc.robot.subsystems.LED.RobotState;
-import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.mechanism.Mechanism;
 import frc.robot.subsystems.mechanism.MechanismPositions;
 import frc.robot.subsystems.mechanism.arm.Arm;
@@ -51,7 +50,6 @@ public class ScoreCoral extends StateMachine {
   private final Mechanism mech;
   private final Elevator elevator;
   private final Arm arm;
-  private final EndEffector endEffector;
   private final LED led;
   private final RobotConfig config;
   private final boolean clearAlgae;
@@ -122,7 +120,6 @@ public class ScoreCoral extends StateMachine {
       Mechanism mech,
       Elevator elevator,
       Arm arm,
-      EndEffector endEffector,
       LED led,
       Consumer<Double> rumble,
       RobotConfig config,
@@ -132,7 +129,6 @@ public class ScoreCoral extends StateMachine {
         mech,
         elevator,
         arm,
-        endEffector,
         led,
         Optional.empty(),
         Optional.empty(),
@@ -149,7 +145,6 @@ public class ScoreCoral extends StateMachine {
       Mechanism mech,
       Elevator elevator,
       Arm arm,
-      EndEffector endEffector,
       LED led,
       ReefSide side,
       Consumer<Double> rumble,
@@ -161,7 +156,6 @@ public class ScoreCoral extends StateMachine {
         mech,
         elevator,
         arm,
-        endEffector,
         led,
         Optional.of(reefSideToScoringDirection(side)),
         Optional.of(reefSideToScoringSide(side)),
@@ -177,7 +171,6 @@ public class ScoreCoral extends StateMachine {
       Mechanism mech,
       Elevator elevator,
       Arm arm,
-      EndEffector endEffector,
       LED led,
       ScoringDirection scoringDirection,
       Consumer<Double> rumble,
@@ -188,7 +181,6 @@ public class ScoreCoral extends StateMachine {
         mech,
         elevator,
         arm,
-        endEffector,
         led,
         Optional.of(scoringDirection),
         Optional.empty(),
@@ -204,7 +196,6 @@ public class ScoreCoral extends StateMachine {
       Mechanism mech,
       Elevator elevator,
       Arm arm,
-      EndEffector endEffector,
       LED led,
       Optional<ScoringDirection> scoringDirection,
       Optional<ScoringSide> side,
@@ -219,10 +210,10 @@ public class ScoreCoral extends StateMachine {
     this.mech = mech;
     this.elevator = elevator;
     this.arm = arm;
-    this.endEffector = endEffector;
     this.led = led;
     this.config = config;
     this.clearAlgae = clearAlgae;
+    this.optionalPath = optionalPresetPath;
 
     this.optionalScoringDirection = scoringDirection;
     this.rumble = rumble;
