@@ -322,8 +322,9 @@ public class AutoStateMachine extends StateMachine {
   }
 
   public Pose2d initPose() {
-    if (scoringPaths.get(0) == null) return null;
-    return scoringPaths.get(0).getInitialPose(false);
+    ChoreoTrajectoryWithName traj = scoringPaths.get(0);
+    if (traj == null) return null;
+    return traj.getInitialPose(false);
   }
 
   private Pose2d getCoralStationPose(CoralStationLocation location) {
