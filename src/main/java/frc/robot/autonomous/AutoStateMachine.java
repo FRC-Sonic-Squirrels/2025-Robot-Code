@@ -21,6 +21,7 @@ import frc.robot.Constants;
 import frc.robot.FieldStates;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.IntakeState;
+import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.AutoDescriptor;
@@ -29,6 +30,7 @@ import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.OppositeSide;
 import frc.robot.autonomous.records.ScoringLocation;
+import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
 import frc.robot.configs.RobotConfig;
@@ -67,17 +69,64 @@ public class AutoStateMachine extends StateMachine {
 
   private ChoreoHelper choreoHelper;
 
-  private LoggerGroup logGroup = LoggerGroup.build("AutoStateMachine");
+  private static LoggerGroup logGroup = LoggerGroup.build("AutoStateMachine");
 
-  private LoggerEntry.Struct<Pose3d> log_usedCoralTag =
+  private static LoggerEntry.Struct<Pose3d> log_usedCoralTag =
       logGroup.buildStruct(Pose3d.class, "UsedCoralTag");
-  private LoggerEntry.Bool log_foundPath = logGroup.buildBoolean("PathFound");
-  private LoggerEntry.Text log_missingPath = logGroup.buildString("MissingPath");
+  private static LoggerEntry.Bool log_foundPath = logGroup.buildBoolean("PathFound");
+  private static LoggerEntry.Text log_missingPath = logGroup.buildString("MissingPath");
 
   private final boolean procedural;
   private Consumer<Double> rumble = null;
 
   private ScoreCoral scoreCoral;
+
+  static {
+    for (StartingLocation startLocation : StartingLocation.values()) {
+      for (ReefSide reefSide : ReefSide.values()) {
+        ScoringLocation scoringLocation = new ScoringLocation(reefSide, ScoringLevel.L4);
+        ChoreoTrajectoryWithName traj = locationsToPath(startLocation, scoringLocation);
+        try {
+          traj.getInitialPose(false);
+        } catch (Exception e) {
+          System.out.println(
+              "Could not find " + startLocation.name() + "_" + scoringLocation.side().name());
+          e.printStackTrace();
+        }
+      }
+    }
+
+    for (CoralStationLocation coralStationLocation : CoralStationLocation.values()) {
+      for (ReefSide reefSide : ReefSide.values()) {
+        ScoringLocation scoringLocation = new ScoringLocation(reefSide, ScoringLevel.L4);
+        ChoreoTrajectoryWithName toTraj = locationsToPath(coralStationLocation, scoringLocation);
+
+        try {
+          toTraj.getInitialPose(false);
+        } catch (Exception e) {
+          System.out.println(
+              "Could not find "
+                  + coralStationLocation.name()
+                  + "_"
+                  + scoringLocation.side().name());
+          e.printStackTrace();
+        }
+
+        ChoreoTrajectoryWithName fromTraj = locationsToPath(scoringLocation, coralStationLocation);
+
+        try {
+          fromTraj.getInitialPose(false);
+        } catch (Exception e) {
+          System.out.println(
+              "Could not find "
+                  + scoringLocation.side().name()
+                  + "_"
+                  + coralStationLocation.name());
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 
   public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config, Consumer<Double> rumble) {
     this(subsystems, null, config, false, true);
@@ -282,22 +331,22 @@ public class AutoStateMachine extends StateMachine {
 
   // Additional Methods
 
-  private ChoreoTrajectoryWithName locationsToPath(
+  private static ChoreoTrajectoryWithName locationsToPath(
       ScoringLocation scoring, CoralStationLocation coralStation) {
     return enumsToPath(scoring.side(), coralStation);
   }
 
-  private ChoreoTrajectoryWithName locationsToPath(
+  private static ChoreoTrajectoryWithName locationsToPath(
       CoralStationLocation coralStation, ScoringLocation scoring) {
     return enumsToPath(coralStation, scoring.side());
   }
 
-  private ChoreoTrajectoryWithName locationsToPath(
+  private static ChoreoTrajectoryWithName locationsToPath(
       StartingLocation starting, ScoringLocation scoring) {
     return enumsToPath(starting, scoring.side());
   }
 
-  private <T1, T2> ChoreoTrajectoryWithName enumsToPath(
+  private static <T1, T2> ChoreoTrajectoryWithName enumsToPath(
       OppositeSide<T1> starting, OppositeSide<T2> ending) {
     ChoreoTrajectoryWithName traj = stringsToPathSimple(starting, ending);
     if (traj == null) {
@@ -315,7 +364,7 @@ public class AutoStateMachine extends StateMachine {
     return traj;
   }
 
-  private ChoreoTrajectoryWithName stringsToPathSimple(
+  private static ChoreoTrajectoryWithName stringsToPathSimple(
       OppositeSide<?> startString, OppositeSide<?> endString) {
     String fullString = startString.toString() + "_" + endString.toString();
     return ChoreoTrajectoryWithName.getTrajectory(fullString);
