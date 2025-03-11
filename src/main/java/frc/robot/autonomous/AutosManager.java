@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.lib.team2930.RunStateMachineCommand;
 import frc.robot.Constants;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.helpers.ChoreoHelper;
@@ -56,6 +57,12 @@ public class AutosManager {
     this.subsystems = subsystems;
     this.config = config;
     this.flipAuto = flipAuto;
+
+    // preload code
+    Command preloader =
+        new RunStateMachineCommand(() -> new AutoStateMachine(subsystems, config), true);
+
+    preloader.schedule();
 
     fillChooserAndMap(
         chooser,

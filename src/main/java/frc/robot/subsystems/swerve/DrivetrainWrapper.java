@@ -169,4 +169,8 @@ public class DrivetrainWrapper {
   public Pose2d getRawOdometryPose() {
     return drivetrain.getRawOdometryPose();
   }
+
+  public double getLinearVel() {
+    return drivetrain.getLinearVel();
+  }
 }

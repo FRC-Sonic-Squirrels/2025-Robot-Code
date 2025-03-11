@@ -10,12 +10,21 @@ import java.util.function.Supplier;
 
 public class RunStateMachineCommand extends Command {
   private final Supplier<StateMachine> supplier;
+  private final boolean runsWhenDisabled;
   private StateMachine stateMachine;
   private Command command;
 
   public RunStateMachineCommand(
       Supplier<StateMachine> stateMachineSupplier, Subsystem... subsystems) {
+    this(stateMachineSupplier, false, subsystems);
+  }
+
+  public RunStateMachineCommand(
+      Supplier<StateMachine> stateMachineSupplier,
+      boolean runsWhenDiabled,
+      Subsystem... subsystems) {
     this.supplier = stateMachineSupplier;
+    this.runsWhenDisabled = runsWhenDiabled;
     stateMachine = supplier.get();
 
     addRequirements(subsystems);
@@ -44,5 +53,10 @@ public class RunStateMachineCommand extends Command {
   @Override
   public boolean isFinished() {
     return stateMachine == null || !stateMachine.isRunning();
+  }
+
+  @Override
+  public boolean runsWhenDisabled() {
+    return runsWhenDisabled;
   }
 }

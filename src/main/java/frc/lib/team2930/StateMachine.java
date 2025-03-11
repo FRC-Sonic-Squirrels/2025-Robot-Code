@@ -134,6 +134,10 @@ public class StateMachine {
   }
 
   public Command asCommand() {
+    return asCommand(false);
+  }
+
+  public Command asCommand(boolean runsWhenDisabled) {
     return new Command() {
       @Override
       public void initialize() {
@@ -156,6 +160,11 @@ public class StateMachine {
         }
 
         if (interrupted) setNextState(interruptedState);
+      }
+
+      @Override
+      public boolean runsWhenDisabled() {
+        return runsWhenDisabled;
       }
     };
   }
@@ -241,7 +250,14 @@ public class StateMachine {
 
   protected Command spawnStateMachineAsCommand(
       StateMachine subStateMachine, ResumeStateHandlerFromCommand handler) {
-    Command command = subStateMachine.asCommand();
+    return spawnStateMachineAsCommand(subStateMachine, handler, false);
+  }
+
+  protected Command spawnStateMachineAsCommand(
+      StateMachine subStateMachine,
+      ResumeStateHandlerFromCommand handler,
+      boolean runsWhenDiabled) {
+    Command command = subStateMachine.asCommand(runsWhenDiabled);
     spawnCommand(command, handler);
     return command;
   }

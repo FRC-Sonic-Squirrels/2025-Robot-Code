@@ -21,6 +21,7 @@ import frc.robot.Constants;
 import frc.robot.FieldStates;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.IntakeState;
+import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.AutoDescriptor;
@@ -29,6 +30,7 @@ import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.OppositeSide;
 import frc.robot.autonomous.records.ScoringLocation;
+import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
 import frc.robot.configs.RobotConfig;
@@ -72,12 +74,38 @@ public class AutoStateMachine extends StateMachine {
   private static LoggerEntry.Struct<Pose3d> log_usedCoralTag =
       logGroup.buildStruct(Pose3d.class, "UsedCoralTag");
   private static LoggerEntry.Bool log_foundPath = logGroup.buildBoolean("PathFound");
-  private static LoggerEntry.Text log_missingPath = logGroup.buildString("MissingPath");
 
   private final boolean procedural;
   private Consumer<Double> rumble = null;
 
   private ScoreCoral scoreCoral;
+
+  private static AutoDescriptor preloadCodeDescriptor() {
+    List<ScoringLocation> scoringLocations = new ArrayList<>();
+    List<CoralStationLocation> coralStationLocations = new ArrayList<>();
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CI, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CK, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CL, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CJ, ScoringLevel.L4));
+    coralStationLocations.add(CoralStationLocation.IA);
+    return new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S2);
+  }
+
+  private boolean preloadCode;
+
+  /** IMPORTANT: Use this constructor only for preloading code */
+  public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config) {
+    this(subsystems, preloadCodeDescriptor(), config, false, false);
+    preloadCode = true;
+    advance();
+  }
 
   public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config, Consumer<Double> rumble) {
     this(subsystems, null, config, false, true);
@@ -188,18 +216,19 @@ public class AutoStateMachine extends StateMachine {
               (r) -> {},
               config,
               false,
-              procedural ? Optional.empty() : Optional.of(scoringPaths.get(scoringIndex)));
+              procedural ? Optional.empty() : Optional.of(scoringPaths.get(scoringIndex)),
+              preloadCode);
     }
 
-    spawnStateMachineAsCommand(scoreCoral, (s) -> null);
+    spawnStateMachineAsCommand(scoreCoral, (s) -> null, preloadCode);
 
     return stateWithName("ScoreCoral", () -> scoreCoral());
   }
 
   private StateHandler scoreCoral() {
-    if (!scoreCoral.usingDrivetrain()) {
+    if (!scoreCoral.usingDrivetrain() || preloadCode) {
       var endEffectorSim = endEffector.getSim();
-      if (endEffectorSim != null) {
+      if (endEffectorSim != null && !preloadCode) {
         endEffectorSim.scoringSideTofDetecting = false;
         endEffectorSim.nonScoringSideTofDetecting = false;
         FieldStates.setScoringLocationFilled(
@@ -270,7 +299,7 @@ public class AutoStateMachine extends StateMachine {
       wrapper.setVelocityOverride(result.chassisSpeeds());
     }
 
-    return RobotStates.coralInEndEffector
+    return RobotStates.coralInEndEffector || preloadCode
         ? stateWithName("ReturnToScoring", () -> returnToScoring())
         : null;
   }
