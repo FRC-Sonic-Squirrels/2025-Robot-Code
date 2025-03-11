@@ -100,23 +100,23 @@ public class Arm extends SubsystemBase {
     try (var ignored = timing.start()) {
       // Arm logging
       io.updateInputs(inputs);
-      logInputs_angle.info(inputs.armPosition);
-      logInputs_appliedVolts.info(inputs.armAppliedVolts);
-      logInputs_currentAmps.info(inputs.armCurrentAmps);
-      logInputs_tempCelsius.info(inputs.armTempCelsius);
-      logInputs_velocityDegreesPerSecond.info(inputs.armVelocityDegreesPerSecond);
+    }
+    logInputs_angle.info(inputs.armPosition);
+    logInputs_appliedVolts.info(inputs.armAppliedVolts);
+    logInputs_currentAmps.info(inputs.armCurrentAmps);
+    logInputs_tempCelsius.info(inputs.armTempCelsius);
+    logInputs_velocityDegreesPerSecond.info(inputs.armVelocityDegreesPerSecond);
 
-      logControlMode.info(controlMode);
+    logControlMode.info(controlMode);
 
-      // Updating tunable numbers
-      var hc = hashCode();
-      if (kP.hasChanged(hc)
-          || kD.hasChanged(hc)
-          || kG.hasChanged(hc)
-          || maxVelocityConfig.hasChanged(hc)
-          || targetAccelerationConfig.hasChanged(hc)) {
-        setConstants();
-      }
+    // Updating tunable numbers
+    var hc = hashCode();
+    if (kP.hasChanged(hc)
+        || kD.hasChanged(hc)
+        || kG.hasChanged(hc)
+        || maxVelocityConfig.hasChanged(hc)
+        || targetAccelerationConfig.hasChanged(hc)) {
+      setConstants();
     }
   }
 

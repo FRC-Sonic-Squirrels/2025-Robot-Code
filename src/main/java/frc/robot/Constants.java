@@ -282,7 +282,7 @@ public final class Constants {
     public static final double GEAR_RATIO =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO ? 23.05 : 6.4935;
     public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.35);
-    public static final double CARRIAGE_MASS = 0.2; // arbitrary
+    public static final double CARRIAGE_MASS = 2.0; // arbitrary
 
     public static final double INCHES_TO_MOTOR_ROT =
         Constants.ElevatorConstants.GEAR_RATIO
@@ -359,7 +359,7 @@ public final class Constants {
             ? (50.0 / 12.0) * (50.0 / 20.0) * (42.0 / 18.0)
             : 50.07;
 
-    public static final double MOI = 0.15;
+    public static final double MOI = 0.00001;
 
     public static final Rotation2d MAX_ARM_ANGLE = Rotation2d.fromDegrees(165);
     public static final Rotation2d MIN_ARM_ANGLE = Rotation2d.fromDegrees(-90);

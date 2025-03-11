@@ -6,6 +6,7 @@ package frc.robot.subsystems.mechanism;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.RobotStates;
@@ -17,6 +18,9 @@ import frc.robot.subsystems.mechanism.elevator.Elevator;
 /** Add your docs here. */
 public class Mechanism {
   private static final String ROOT_TABLE = "Mechanism";
+
+  // Execution timing
+  private static final ExecutionTiming timing = new ExecutionTiming(ROOT_TABLE);
 
   private static final LoggerGroup logGroup = LoggerGroup.build(ROOT_TABLE);
 
@@ -40,54 +44,56 @@ public class Mechanism {
   }
 
   public void periodic() {
-    switch (RobotStates.mechState) {
-      case Idle:
-        elevator.setPercentOut(0);
-        arm.setPercentOut(0);
-        break;
-      case Override:
-        break;
-      case ReefPosition:
-        goToPositionParallel(MechanismPositions.reefPosition(RobotStates.scoringLevel));
-        break;
-      case ReefL1Position:
-        goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L1));
-        break;
-      case ReefL2Position:
-        goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L2));
-        break;
-      case ReefL3Position:
-        goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L3));
-        break;
-      case ReefL4Position:
-        goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L4));
-        break;
-      case ReefPrepPosition:
-        goToPositionParallel(MechanismPositions.reefPrepPosition(RobotStates.scoringLevel));
-        break;
-      case CoralStationPosition:
-        goToPositionParallel(MechanismPositions.coralStationPosition());
-        break;
-      case ClearAlgaeLowPosition:
-        goToPositionParallel(MechanismPositions.clearAlgaeLowPosition());
-        break;
-      case ClearAlgaeHighPosition:
-        goToPositionParallel(MechanismPositions.clearAlgaeHighPosition());
-        break;
-      case StowPosition:
-        goToPositionParallel(MechanismPositions.stowPosition());
-        break;
-      case ClimbPosition:
-        goToPositionParallel(MechanismPositions.climbPosition());
-        break;
-      case PrepPassoffPosition:
-        goToPositionParallel(MechanismPositions.prepForPassoffPosition());
-        break;
-      case PassoffPosition:
-        goToPositionParallel(MechanismPositions.intakeToEndEffectorPassOffPosition());
-        break;
-      default:
-        break;
+    try (var ignored = timing.start()) {
+      switch (RobotStates.mechState) {
+        case Idle:
+          elevator.setPercentOut(0);
+          arm.setPercentOut(0);
+          break;
+        case Override:
+          break;
+        case ReefPosition:
+          goToPositionParallel(MechanismPositions.reefPosition(RobotStates.scoringLevel));
+          break;
+        case ReefL1Position:
+          goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L1));
+          break;
+        case ReefL2Position:
+          goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L2));
+          break;
+        case ReefL3Position:
+          goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L3));
+          break;
+        case ReefL4Position:
+          goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L4));
+          break;
+        case ReefPrepPosition:
+          goToPositionParallel(MechanismPositions.reefPrepPosition(RobotStates.scoringLevel));
+          break;
+        case CoralStationPosition:
+          goToPositionParallel(MechanismPositions.coralStationPosition());
+          break;
+        case ClearAlgaeLowPosition:
+          goToPositionParallel(MechanismPositions.clearAlgaeLowPosition());
+          break;
+        case ClearAlgaeHighPosition:
+          goToPositionParallel(MechanismPositions.clearAlgaeHighPosition());
+          break;
+        case StowPosition:
+          goToPositionParallel(MechanismPositions.stowPosition());
+          break;
+        case ClimbPosition:
+          goToPositionParallel(MechanismPositions.climbPosition());
+          break;
+        case PrepPassoffPosition:
+          goToPositionParallel(MechanismPositions.prepForPassoffPosition());
+          break;
+        case PassoffPosition:
+          goToPositionParallel(MechanismPositions.intakeToEndEffectorPassOffPosition());
+          break;
+        default:
+          break;
+      }
     }
   }
 

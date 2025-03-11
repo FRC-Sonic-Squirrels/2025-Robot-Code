@@ -17,6 +17,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.Utils;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -145,6 +146,8 @@ public class Drivetrain extends SubsystemBase {
   private static final LoggerGroup logGroupRobot = LoggerGroup.build("Robot");
   private static final LoggerEntry.Struct<Pose2d> log_FieldRelativeVel =
       logGroupRobot.buildStruct(Pose2d.class, "FieldRelativeVel");
+  private static final LoggerEntry.Decimal log_FieldRelativeLinearVel =
+      logGroupRobot.buildDecimal("FieldRelativeLinearVel");
   private static final LoggerEntry.Decimal log_FieldRelativeAcceleration =
       logGroupRobot.buildDecimal("FieldRelativeAcceleration");
 
@@ -184,6 +187,8 @@ public class Drivetrain extends SubsystemBase {
   private final Field2d rawOdometryField2d = new Field2d();
 
   private Pose2d prevVel = Constants.zeroPose2d;
+
+  private LinearFilter linearVel = LinearFilter.movingAverage(3);
 
   public Drivetrain(
       RobotConfig config,
@@ -249,6 +254,8 @@ public class Drivetrain extends SubsystemBase {
       logSwerveStatesMeasured.info(getModuleStates());
 
       log_FieldRelativeVel.info(getFieldRelativeVelocities());
+      linearVel.calculate(getFieldRelativeVelocities().getTranslation().getNorm());
+      log_FieldRelativeLinearVel.info(getLinearVel());
       log_FieldRelativeAcceleration.info(
           getFieldRelativeAccelerationMagnitude(prevVel.getTranslation().getNorm()));
 
@@ -700,5 +707,9 @@ public class Drivetrain extends SubsystemBase {
 
   public void setBrakeMode(boolean brake) {
     modules.setBrakeMode(brake);
+  }
+
+  public double getLinearVel() {
+    return linearVel.calculate(getRobotCentricVelocities().getTranslation().getNorm());
   }
 }

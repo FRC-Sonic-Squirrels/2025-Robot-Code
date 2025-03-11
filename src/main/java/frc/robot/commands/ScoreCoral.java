@@ -140,6 +140,8 @@ public class ScoreCoral extends StateMachine {
     gamepieceMemory = true;
   }
 
+  private boolean preloadCode;
+
   public ScoreCoral(
       DrivetrainWrapper wrapper,
       Mechanism mech,
@@ -150,7 +152,8 @@ public class ScoreCoral extends StateMachine {
       Consumer<Double> rumble,
       RobotConfig config,
       boolean clearAlgae,
-      Optional<ChoreoTrajectoryWithName> optionalTraj) {
+      Optional<ChoreoTrajectoryWithName> optionalTraj,
+      boolean preloadCode) {
     this(
         wrapper,
         mech,
@@ -164,6 +167,7 @@ public class ScoreCoral extends StateMachine {
         false,
         clearAlgae,
         optionalTraj);
+    this.preloadCode = preloadCode;
   }
 
   public ScoreCoral(
@@ -227,6 +231,7 @@ public class ScoreCoral extends StateMachine {
   // SCORING STATES
 
   private StateHandler prepForScoringAlignment() {
+    System.out.println("PRELOADED ---------------------------------");
     Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
 
     scoringPoseSideAndDirection =
@@ -250,7 +255,9 @@ public class ScoreCoral extends StateMachine {
 
     if (clearAlgae) return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
 
-    if (!(RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInEndEffectorNonScoringSide)
+    if (!(RobotStates.coralInEndEffectorScoringSide
+            || RobotStates.coralInEndEffectorNonScoringSide
+            || preloadCode)
         || !scorableLevel()) {
       return RobotStates.clearingAlgae && !gamepieceMemory
           ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
@@ -264,14 +271,23 @@ public class ScoreCoral extends StateMachine {
             new MechToPosition(mech, MechState.StowPosition)
                 .alongWith(
                     Commands.waitUntil(
-                            () -> !(RobotStates.scoringLevel == ScoringLevel.L4) || inPosition)
+                            () ->
+                                !(RobotStates.scoringLevel == ScoringLevel.L4)
+                                    || (wrapper.getLinearVel() < 0.6
+                                        && GeometryUtil.getDist(
+                                                wrapper.getReefPoseEstimatorPose(true), scoringPose)
+                                            < 0.3))
                         .andThen(
-                            new MechToPosition(mech, MechState.ReefPrepPosition)
-                                .alongWith(
-                                    Commands.waitUntil(() -> inPosition && elevator.isAtTarget())
-                                        .andThen(
-                                            new MechToPosition(mech, MechState.ReefPosition)
-                                                .asProxy()))
+                            Commands.either(
+                                    new MechToPosition(mech, MechState.ReefPrepPosition)
+                                        .alongWith(
+                                            Commands.waitUntil(
+                                                    () -> inPosition && elevator.isAtTarget())
+                                                .andThen(
+                                                    new MechToPosition(mech, MechState.ReefPosition)
+                                                        .asProxy())),
+                                    new MechToPosition(mech, MechState.ReefPosition),
+                                    () -> RobotStates.scoringLevel == ScoringLevel.L4)
                                 .asProxy()))
                 .withName("MechScoreCoral"),
             (command) -> null);
@@ -323,7 +339,7 @@ public class ScoreCoral extends StateMachine {
             wrapper.getReefPoseEstimatorPose(true), timeFromStart());
     wrapper.setVelocityOverride(result.chassisSpeeds());
     inPosition = result.atEndOfPath();
-    if (!inPosition) return null;
+    if (!inPosition && !preloadCode) return null;
     wrapper.resetVelocityOverride();
     return stateWithName("Score", () -> score());
   }
@@ -333,6 +349,8 @@ public class ScoreCoral extends StateMachine {
     if (scoringTrigger.getAsBoolean() && !confirmation) {
       RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.ScoreFastForward;
     }
+
+    if (preloadCode) return stateWithName("End", () -> end(false));
 
     if (RobotStates.coralInEndEffector && !confirmation) return null;
 
