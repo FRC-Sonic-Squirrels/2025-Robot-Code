@@ -94,6 +94,10 @@ public class ScoreCoral extends StateMachine {
       group.build("FinalHeadingError", 0.5);
   private static final LoggedTunableNumber finalOffsetError = group.build("FinalOffsetError", 0.03);
   private static final LoggedTunableNumber finalTargetError = group.build("FinalTargetError", 0.03);
+  private static final LoggedTunableNumber distToElevateCoral =
+      group.build("DistToElevateCoral", 0.3);
+  private static final LoggedTunableNumber velToElevateCoral =
+      group.build("VelToElevateCoral", 1.5);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -273,13 +277,13 @@ public class ScoreCoral extends StateMachine {
                     Commands.waitUntil(
                             () ->
                                 !(RobotStates.scoringLevel == ScoringLevel.L4)
-                                    || (wrapper.getLinearVel() < 0.6
+                                    || (wrapper.getLinearVel() < velToElevateCoral.get()
                                         && GeometryUtil.getDist(
                                                 wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                                            < 0.3))
+                                            < distToElevateCoral.get()))
                         .andThen(
                             Commands.either(
-                                    new MechToPosition(mech, MechState.ReefPrepPosition)
+                                    new MechToPosition(mech, MechState.ReefPosition)
                                         .alongWith(
                                             Commands.waitUntil(
                                                     () -> inPosition && elevator.isAtTarget())

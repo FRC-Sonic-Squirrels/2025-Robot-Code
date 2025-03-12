@@ -81,6 +81,8 @@ public class RobotStates {
   private static LoggerEntry.Bool logCoralInIntakeState =
       logGroup.buildBoolean("CoralInIntakeState");
 
+  private static LoggerEntry.Bool logHighStowMode = logGroup.buildBoolean("HighStowMode");
+
   private static LoggerEntry.EnumValue<EndEffectorDesiredAction> logEndEffectorDesiredAction =
       logGroup.buildEnum("EndEffectorDesiredAction");
   private static LoggerEntry.EnumValue<MechState> logMechState = logGroup.buildEnum("MechState");
@@ -118,6 +120,8 @@ public class RobotStates {
 
   public static boolean coralInIntake;
 
+  public static boolean highStowMode = true;
+
   public static ReefSide targetReefSide = ReefSide.CA;
 
   public static Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
@@ -154,5 +158,6 @@ public class RobotStates {
     logGamepieceInEndEffectorState.info(coralInEndEffector);
     logGamepieceInEndEffectorScoringSideState.info(coralInEndEffectorScoringSide);
     logGamepieceInEndEffectorNonScoringSideState.info(coralInEndEffectorNonScoringSide);
+    logHighStowMode.info(highStowMode);
   }
 }

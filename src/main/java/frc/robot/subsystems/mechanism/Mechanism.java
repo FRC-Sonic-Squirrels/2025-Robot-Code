@@ -9,6 +9,8 @@ import edu.wpi.first.units.Units;
 import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.lib.team2930.TunableNumberGroup;
+import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.subsystems.mechanism.MechanismPositions.MechanismPosition;
@@ -35,6 +37,12 @@ public class Mechanism {
   private static final LoggerEntry.Text log_currentSection = logGroup.buildString("CurrentSection");
   private static final LoggerEntry.Text log_targetSection = logGroup.buildString("TargetSection");
 
+  private static final TunableNumberGroup tunableGroup = new TunableNumberGroup(ROOT_TABLE);
+  private static final LoggedTunableNumber scoreL4ArmAccel =
+      tunableGroup.build("scoringL4ArmAccel", 5);
+  private static final LoggedTunableNumber coralStationArmAccel =
+      tunableGroup.build("coralStationArmAccel", 3);
+
   private boolean elevatorInPosition = false;
   private boolean armInPosition = false;
 
@@ -53,7 +61,14 @@ public class Mechanism {
         case Override:
           break;
         case ReefPosition:
-          goToPositionParallel(MechanismPositions.reefPosition(RobotStates.scoringLevel));
+          if (RobotStates.scoringLevel == ScoringLevel.L4) {
+            goToPositionParallel(
+                MechanismPositions.reefPosition(RobotStates.scoringLevel),
+                Double.NaN,
+                scoreL4ArmAccel.get());
+          } else {
+            goToPositionParallel(MechanismPositions.reefPosition(RobotStates.scoringLevel));
+          }
           break;
         case ReefL1Position:
           goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L1));
@@ -65,13 +80,22 @@ public class Mechanism {
           goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L3));
           break;
         case ReefL4Position:
-          goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L4));
+          goToPositionParallel(
+              MechanismPositions.reefPosition(ScoringLevel.L4), Double.NaN, scoreL4ArmAccel.get());
           break;
         case ReefPrepPosition:
-          goToPositionParallel(MechanismPositions.reefPrepPosition(RobotStates.scoringLevel));
+          if (RobotStates.scoringLevel == ScoringLevel.L4) {
+            goToPositionParallel(
+                MechanismPositions.reefPrepPosition(RobotStates.scoringLevel),
+                Double.NaN,
+                scoreL4ArmAccel.get());
+          } else {
+            goToPositionParallel(MechanismPositions.reefPrepPosition(RobotStates.scoringLevel));
+          }
           break;
         case CoralStationPosition:
-          goToPositionParallel(MechanismPositions.coralStationPosition());
+          goToPositionParallel(
+              MechanismPositions.coralStationPosition(), Double.NaN, coralStationArmAccel.get());
           break;
         case ClearAlgaeLowPosition:
           goToPositionParallel(MechanismPositions.clearAlgaeLowPosition());
@@ -124,40 +148,48 @@ public class Mechanism {
     log_targetSection.info(targetMechSection.name());
 
     if (currentMechPos.armAngle().getDegrees() > 130 && position.armAngle().getDegrees() <= 130) {
-      arm.setAngle(Rotation2d.fromDegrees(0));
+      arm.setAngle(Rotation2d.fromDegrees(0), armAccel);
     } else if (compatibleMechSections(currentMechSection, targetMechSection)) {
       log_currentMotionState.info("Compatible");
       goToPositionParallelSimple(position, elevatorAccel, armAccel);
     } else {
       if (currentMechSection == MechSection.S1) {
         log_currentMotionState.info("Getting out of S1");
-        goToPositionParallelSimple(MechanismPositions.intermediateLowBackPosition());
+        goToPositionParallelSimple(
+            MechanismPositions.intermediateLowBackPosition(), elevatorAccel, armAccel);
       } else if (currentMechSection == MechSection.S2
           || (currentMechSection == MechSection.S3 && targetMechSection != MechSection.S1)
           || currentMechSection == MechSection.S10) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
-        goToPositionParallelSimple(MechanismPositions.intermediateLowPosition());
+        goToPositionParallelSimple(
+            MechanismPositions.intermediateLowPosition(), elevatorAccel, armAccel);
       } else if (currentMechSection == MechSection.S9
           || currentMechSection == MechSection.S8
           || currentMechSection == MechSection.S5) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
-        goToPositionParallelSimple(MechanismPositions.intermediateHighPosition());
+        goToPositionParallelSimple(
+            MechanismPositions.intermediateHighPosition(), elevatorAccel, armAccel);
       } else if (targetMechSection == MechSection.S2 || targetMechSection == MechSection.S3) {
         log_currentMotionState.info("Getting into " + targetMechSection.name());
-        goToPositionParallelSimple(MechanismPositions.intermediateLowPosition());
+        goToPositionParallelSimple(
+            MechanismPositions.intermediateLowPosition(), elevatorAccel, armAccel);
       } else if (targetMechSection == MechSection.S9 || targetMechSection == MechSection.S8) {
         log_currentMotionState.info("Getting into " + targetMechSection.name());
         goToPositionParallelSimple(
             new MechanismPosition(
                 position.elevatorHeight(),
-                MechanismPositions.intermediateHighPosition().armAngle()));
+                MechanismPositions.intermediateHighPosition().armAngle()),
+            elevatorAccel,
+            armAccel);
       } else {
         log_currentMotionState.info("Getting into S1");
         if (targetMechSection == MechSection.S1
             && (currentMechSection == MechSection.S4 || currentMechSection == MechSection.S3)) {
-          goToPositionParallelSimple(MechanismPositions.intermediateLowBackPosition());
+          goToPositionParallelSimple(
+              MechanismPositions.intermediateLowBackPosition(), elevatorAccel, armAccel);
         } else {
-          goToPositionParallelSimple(MechanismPositions.intermediateLowPosition());
+          goToPositionParallelSimple(
+              MechanismPositions.intermediateLowPosition(), elevatorAccel, armAccel);
         }
       }
     }
