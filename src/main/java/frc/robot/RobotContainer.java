@@ -647,6 +647,7 @@ public class RobotContainer {
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L4;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                  RobotStates.highStowMode = true;
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.x, "Score L3")
@@ -655,6 +656,7 @@ public class RobotContainer {
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L3;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                  RobotStates.highStowMode = true;
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.a, "Score L2")
@@ -663,6 +665,7 @@ public class RobotContainer {
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L2;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                  RobotStates.highStowMode = false;
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.b, "Score L1")
@@ -671,6 +674,7 @@ public class RobotContainer {
                 () -> {
                   RobotStates.scoringLevel = ScoringLevel.L1;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
+                  RobotStates.highStowMode = false;
                 }));
 
     driverController
@@ -739,7 +743,9 @@ public class RobotContainer {
     // Intake
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
-        .whileTrue(new IntakeSetRPM(intake, 1000));
+        .whileTrue(
+            new IntakeSetRPM(intake, 1000)
+                .alongWith(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow)));
 
     // Intake positions
     operatorController
@@ -750,9 +756,7 @@ public class RobotContainer {
                 .andThen(Commands.runOnce(() -> intake.setHoldAlgae(false))));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Intake Pivot Out")
-        .onTrue(
-            new IntakeSetPivotAngle(
-                intake, Constants.IntakeConstants.PivotConstants.MIN_PIVOT_ANGLE));
+        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow));
 
     // End Effector Rotation
     operatorController

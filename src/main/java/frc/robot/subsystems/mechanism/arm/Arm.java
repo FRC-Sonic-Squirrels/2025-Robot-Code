@@ -37,6 +37,8 @@ public class Arm extends SubsystemBase {
       logGroup.buildEnum("ControlMode");
   private static final LoggerEntry.Decimal logTargetAngleDegrees =
       logGroup.buildDecimal("targetAngleDegrees");
+  private static final LoggerEntry.Decimal logSetAcceleration =
+      logGroup.buildDecimal("setAcceleration");
 
   // Tunable Numbers
   private static final TunableNumberGroup group = new TunableNumberGroup(ArmConstants.ROOT_TABLE);
@@ -71,7 +73,7 @@ public class Arm extends SubsystemBase {
 
       kP.initDefault(50);
       kD.initDefault(0.06);
-      kG.initDefault(0.65);
+      kG.initDefault(0.5);
 
       maxVelocityConfig.initDefault(640);
       targetAccelerationConfig.initDefault(1500);
@@ -108,6 +110,7 @@ public class Arm extends SubsystemBase {
     logInputs_velocityDegreesPerSecond.info(inputs.armVelocityDegreesPerSecond);
 
     logControlMode.info(controlMode);
+    logSetAcceleration.info(setAccel);
 
     // Updating tunable numbers
     var hc = hashCode();

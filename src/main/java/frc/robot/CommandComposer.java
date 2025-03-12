@@ -48,6 +48,7 @@ public class CommandComposer {
                             () -> {
                               RobotStates.changeEndEffectorIfNotAligning(
                                   RobotStates.EndEffectorDesiredAction.AlignCoral);
-                            })));
+                            })))
+        .withName("CoralStationIntake");
   }
 }
