@@ -43,9 +43,12 @@ public class IntakeCoralGround extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (interrupted) {
+    if (RobotStates.coralInIntake) {
       RobotStates.intakeState = IntakeState.PrepPassoff;
-    } else RobotStates.intakeState = IntakeState.PrepPassoff;
+    } else {
+      RobotStates.intakeState = IntakeState.Stow;
+      RobotStates.mechState = MechState.CoralStationPosition;
+    }
   }
 
   // Returns true when the command should end.

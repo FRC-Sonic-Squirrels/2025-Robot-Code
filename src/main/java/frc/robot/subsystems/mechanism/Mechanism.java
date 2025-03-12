@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.mechanism;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
@@ -148,7 +147,12 @@ public class Mechanism {
     log_targetSection.info(targetMechSection.name());
 
     if (currentMechPos.armAngle().getDegrees() > 130 && position.armAngle().getDegrees() <= 130) {
-      arm.setAngle(Rotation2d.fromDegrees(0), armAccel);
+      if (armAccel.equals(Double.NaN)) {
+        arm.setAngle(position.armAngle());
+      } else {
+        arm.setAngle(position.armAngle(), armAccel);
+      }
+      log_currentMotionState.info("Bring arm back");
     } else if (compatibleMechSections(currentMechSection, targetMechSection)) {
       log_currentMotionState.info("Compatible");
       goToPositionParallelSimple(position, elevatorAccel, armAccel);
@@ -159,13 +163,12 @@ public class Mechanism {
             MechanismPositions.intermediateLowBackPosition(), elevatorAccel, armAccel);
       } else if (currentMechSection == MechSection.S2
           || (currentMechSection == MechSection.S3 && targetMechSection != MechSection.S1)
-          || currentMechSection == MechSection.S10) {
+          || currentMechSection == MechSection.S10
+          || currentMechSection == MechSection.S9) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(
             MechanismPositions.intermediateLowPosition(), elevatorAccel, armAccel);
-      } else if (currentMechSection == MechSection.S9
-          || currentMechSection == MechSection.S8
-          || currentMechSection == MechSection.S5) {
+      } else if (currentMechSection == MechSection.S8 || currentMechSection == MechSection.S5) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(
             MechanismPositions.intermediateHighPosition(), elevatorAccel, armAccel);
@@ -252,7 +255,7 @@ public class Mechanism {
       if (position.elevatorHeight().in(Units.Inches) < 0.1) {
         return MechSection.S3;
       } else if (position.elevatorHeight().in(Units.Inches) < 25) {
-        if (position.armAngle().getDegrees() > 90) {
+        if (position.armAngle().getDegrees() > 110) {
           return MechSection.S10;
         }
         return MechSection.S5;

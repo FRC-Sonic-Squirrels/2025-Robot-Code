@@ -231,12 +231,11 @@ public class MechanismPositions {
   }
 
   public static MechanismPosition stowPosition() {
-    return new MechanismPosition(
-        Units.Inches.of(
-            RobotStates.highStowMode
-                ? highStowElevatorHeightInches.get()
-                : lowStowElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(stowArmAngleDegrees.get()));
+    return RobotStates.scoringLevel != ScoringLevel.L4
+        ? reefPosition(RobotStates.scoringLevel)
+        : new MechanismPosition(
+            Units.Inches.of(highStowElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(stowArmAngleDegrees.get()));
   }
 
   public static MechanismPosition prepForPassoffPosition() {

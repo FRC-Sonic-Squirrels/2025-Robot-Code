@@ -40,6 +40,7 @@ public class Elevator extends SubsystemBase {
       logGroup.buildDecimal("TempCelsius");
 
   private static final LoggerEntry.Decimal logTargetHeight = logGroup.buildDecimal("targetHeight");
+  private static final LoggerEntry.Decimal logSetAccel = logGroup.buildDecimal("setAccel");
   private static final LoggerEntry.EnumValue<ControlMode> logControlMode =
       logGroup.buildEnum("ControlMode");
 
@@ -113,6 +114,7 @@ public class Elevator extends SubsystemBase {
       logInputs_tempCelsius.info(inputs.tempCelsius);
 
       logControlMode.info(controlMode);
+      logSetAccel.info(setAccel);
 
       // Updating tunable numbers
       var hc = hashCode();
