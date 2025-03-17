@@ -71,7 +71,7 @@ public class Vision extends SubsystemBase {
       group.build("xyStdDevCoefficient", 0.075);
 
   private static final LoggedTunableNumber maxSingleTargetAmbiguity =
-      group.build("MaxSingleTargetAmbiguity", 0.08);
+      group.build("MaxSingleTargetAmbiguity", 0.2);
 
   private static final LoggedTunableNumber maxValidDistanceAwayFromCurrentEstimateMeters =
       group.build("MaxValidDistanceFromCurrentEstimateMeters", 30.0);

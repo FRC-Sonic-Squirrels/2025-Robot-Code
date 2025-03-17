@@ -267,6 +267,13 @@ public class Intake extends SubsystemBase {
           setPivotAngle(Rotation2d.fromDegrees(climbAngle.get()));
           setRollerPercentOut(0);
           break;
+        case Down:
+          setPivotAngle(Rotation2d.fromDegrees(intakingCoralPivotAngle.get()));
+          setRollerPercentOut(0);
+          break;
+        case Eject:
+          setRollerVelocity(algaeScoreVelocity.get());
+          break;
         default:
           break;
       }

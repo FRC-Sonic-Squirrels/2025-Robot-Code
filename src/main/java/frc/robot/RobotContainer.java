@@ -54,8 +54,6 @@ import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeAlgaeGround;
 import frc.robot.commands.intake.IntakeCoralGround;
-import frc.robot.commands.intake.IntakeSetPivotAngle;
-import frc.robot.commands.intake.IntakeSetRPM;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechToPosition;
 import frc.robot.commands.mechanism.PassToEndEffector;
@@ -725,10 +723,10 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.povUp, "L4 Position")
         .onTrue(new MechToPosition(mech, MechState.ReefL4Position));
 
-    // Coral Station position
+    // Manual passoff position
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.y, "CoralStation Position")
-        .onTrue(new MechToPosition(mech, MechState.CoralStationPosition));
+        .registerTrigger(XboxControllerWrapper.Button.y, "Manual Passoff")
+        .onTrue(new PassToEndEffector(arm, elevator, intake));
 
     // Stow position
     operatorController
@@ -738,25 +736,22 @@ public class RobotContainer {
     // Eject
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject")
-        .whileTrue(new IntakeSetRPM(intake, -1000));
+        .whileTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Eject));
 
     // Intake
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
-        .whileTrue(
-            new IntakeSetRPM(intake, 1000)
-                .alongWith(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow)));
+        .whileTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.IntakeCoral));
 
     // Intake positions
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.a, "Intake Pivot In")
         .onTrue(
-            new IntakeSetPivotAngle(
-                    intake, Constants.IntakeConstants.PivotConstants.PIVOT_STOWED_ANGLE)
+            Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow)
                 .andThen(Commands.runOnce(() -> intake.setHoldAlgae(false))));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Intake Pivot Out")
-        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow));
+        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Down));
 
     // End Effector Rotation
     operatorController
@@ -789,6 +784,14 @@ public class RobotContainer {
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.b, "Climber in")
         .onTrue(new ClimberSetAngle(climber, Rotation2d.fromRotations(0)));
+
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Manual arm and elevator override")
+        .onTrue(Commands.runOnce(() -> RobotStates.mechState = MechState.Override))
+        .whileTrue(
+            new ArmManualControl(operatorController::getRightX, arm)
+                .alongWith(
+                    new ElevatorManualControl(() -> -operatorController.getLeftY(), elevator)));
 
     // ---------- NON-CONTROLLER TRIGGERS
 
