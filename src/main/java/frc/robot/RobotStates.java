@@ -55,7 +55,9 @@ public class RobotStates {
     Passoff,
     Stow,
     ScoreAlgae,
-    Climb
+    Climb,
+    Down,
+    Eject
   }
 
   public enum ScoringLevel {

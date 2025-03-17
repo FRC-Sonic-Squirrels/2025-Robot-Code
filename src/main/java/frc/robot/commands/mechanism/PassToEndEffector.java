@@ -27,6 +27,8 @@ public class PassToEndEffector extends Command {
     this.arm = arm;
     this.elevator = elevator;
     this.intake = intake;
+
+    addRequirements(arm, elevator);
   }
 
   @Override

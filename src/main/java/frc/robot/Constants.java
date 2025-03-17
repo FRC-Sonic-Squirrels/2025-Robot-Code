@@ -241,7 +241,7 @@ public final class Constants {
     }
 
     public static class PivotConstants {
-      public static final double SUPPLY_CURRENT_LIMIT = 60;
+      public static final double SUPPLY_CURRENT_LIMIT = 20.0;
 
       public static final double GEAR_RATIO = 57.9586;
 
