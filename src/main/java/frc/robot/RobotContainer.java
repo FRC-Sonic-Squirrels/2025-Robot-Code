@@ -736,12 +736,12 @@ public class RobotContainer {
     // Eject
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject")
-        .whileTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Eject));
+        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Eject));
 
     // Intake
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
-        .whileTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.IntakeCoral));
+        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.IntakeCoral));
 
     // Intake positions
     operatorController
