@@ -15,6 +15,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -633,29 +634,29 @@ public class RobotContainer {
                             false))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
-    // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+    var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
-    // Pose2d[] reefAprilTagPose = {
-    //   layout.getTagPose(6).get().toPose2d(),
-    //   layout.getTagPose(7).get().toPose2d(),
-    //   layout.getTagPose(8).get().toPose2d(),
-    //   layout.getTagPose(9).get().toPose2d(),
-    //   layout.getTagPose(10).get().toPose2d(),
-    //   layout.getTagPose(11).get().toPose2d(),
-    //   layout.getTagPose(17).get().toPose2d(),
-    //   layout.getTagPose(18).get().toPose2d(),
-    //   layout.getTagPose(19).get().toPose2d(),
-    //   layout.getTagPose(20).get().toPose2d(),
-    //   layout.getTagPose(21).get().toPose2d(),
-    //   layout.getTagPose(22).get().toPose2d()
-    // };
+    Pose2d[] reefAprilTagPose = {
+      layout.getTagPose(6).get().toPose2d(),
+      layout.getTagPose(7).get().toPose2d(),
+      layout.getTagPose(8).get().toPose2d(),
+      layout.getTagPose(9).get().toPose2d(),
+      layout.getTagPose(10).get().toPose2d(),
+      layout.getTagPose(11).get().toPose2d(),
+      layout.getTagPose(17).get().toPose2d(),
+      layout.getTagPose(18).get().toPose2d(),
+      layout.getTagPose(19).get().toPose2d(),
+      layout.getTagPose(20).get().toPose2d(),
+      layout.getTagPose(21).get().toPose2d(),
+      layout.getTagPose(22).get().toPose2d()
+    };
 
-    // Pose2d[] coralStationPose = {
-    //   layout.getTagPose(1).get().toPose2d(),
-    //   layout.getTagPose(2).get().toPose2d(),
-    //   layout.getTagPose(12).get().toPose2d(),
-    //   layout.getTagPose(13).get().toPose2d()
-    // };
+    Pose2d[] coralStationPose = {
+      layout.getTagPose(1).get().toPose2d(),
+      layout.getTagPose(2).get().toPose2d(),
+      layout.getTagPose(12).get().toPose2d(),
+      layout.getTagPose(13).get().toPose2d()
+    };
 
     // Change scoring height
 
