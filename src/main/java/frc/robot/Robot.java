@@ -13,11 +13,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.hal.DriverStationJNI;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -90,6 +93,15 @@ public class Robot extends LoggedRobot {
 
   // Enables power distribution logging
   private final PowerDistribution powerDistribution = new PowerDistribution(1, ModuleType.kRev);
+
+  public Robot() {
+    m_period = defaultPeriodSecs;
+    m_watchdog = new Watchdog(m_period, this::printLoopOverrunMessage);
+  }
+
+  private void printLoopOverrunMessage() {
+    DriverStation.reportWarning("Loop time of " + m_period + "s overrun\n", false);
+  }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -356,5 +368,168 @@ public class Robot extends LoggedRobot {
     }
 
     robotContainer.enterTeleop();
+  }
+
+  private final DSControlWord m_word = new DSControlWord();
+  private Mode m_lastMode = Mode.kNone;
+  private final double m_period;
+  private final Watchdog m_watchdog;
+  private boolean m_ntFlushEnabled = true;
+  private boolean m_lwEnabledInTest;
+  private boolean m_calledDsConnected;
+
+  private ExecutionTiming timingSmartDashboard = new ExecutionTiming("SmartDashboard");
+  private ExecutionTiming timingLiveWindow = new ExecutionTiming("LiveWindow");
+  private ExecutionTiming timingShuffleboard = new ExecutionTiming("Shuffleboard");
+
+  private enum Mode {
+    kNone,
+    kDisabled,
+    kAutonomous,
+    kTeleop,
+    kTest
+  }
+
+  @Override
+  protected void loopFunc() {
+    DriverStation.refreshData();
+    m_watchdog.reset();
+
+    m_word.refresh();
+
+    // Get current mode
+    Mode mode = Mode.kNone;
+    if (m_word.isDisabled()) {
+      mode = Mode.kDisabled;
+    } else if (m_word.isAutonomous()) {
+      mode = Mode.kAutonomous;
+    } else if (m_word.isTeleop()) {
+      mode = Mode.kTeleop;
+    } else if (m_word.isTest()) {
+      mode = Mode.kTest;
+    }
+
+    if (!m_calledDsConnected && m_word.isDSAttached()) {
+      m_calledDsConnected = true;
+      driverStationConnected();
+    }
+
+    // If mode changed, call mode exit and entry functions
+    if (m_lastMode != mode) {
+      // Call last mode's exit function
+      switch (m_lastMode) {
+        case kDisabled -> disabledExit();
+        case kAutonomous -> autonomousExit();
+        case kTeleop -> teleopExit();
+        case kTest -> {
+          if (m_lwEnabledInTest) {
+            LiveWindow.setEnabled(false);
+            Shuffleboard.disableActuatorWidgets();
+          }
+          testExit();
+        }
+        default -> {
+          // NOP
+        }
+      }
+
+      // Call current mode's entry function
+      switch (mode) {
+        case kDisabled -> {
+          disabledInit();
+          m_watchdog.addEpoch("disabledInit()");
+        }
+        case kAutonomous -> {
+          autonomousInit();
+          m_watchdog.addEpoch("autonomousInit()");
+        }
+        case kTeleop -> {
+          teleopInit();
+          m_watchdog.addEpoch("teleopInit()");
+        }
+        case kTest -> {
+          if (m_lwEnabledInTest) {
+            LiveWindow.setEnabled(true);
+            Shuffleboard.enableActuatorWidgets();
+          }
+          testInit();
+          m_watchdog.addEpoch("testInit()");
+        }
+        default -> {
+          // NOP
+        }
+      }
+
+      m_lastMode = mode;
+    }
+
+    // Call the appropriate function depending upon the current robot mode
+    switch (mode) {
+      case kDisabled -> {
+        DriverStationJNI.observeUserProgramDisabled();
+        disabledPeriodic();
+        m_watchdog.addEpoch("disabledPeriodic()");
+      }
+      case kAutonomous -> {
+        DriverStationJNI.observeUserProgramAutonomous();
+        autonomousPeriodic();
+        m_watchdog.addEpoch("autonomousPeriodic()");
+      }
+      case kTeleop -> {
+        DriverStationJNI.observeUserProgramTeleop();
+        teleopPeriodic();
+        m_watchdog.addEpoch("teleopPeriodic()");
+      }
+      case kTest -> {
+        DriverStationJNI.observeUserProgramTest();
+        testPeriodic();
+        m_watchdog.addEpoch("testPeriodic()");
+      }
+      default -> {
+        // NOP
+      }
+    }
+
+    robotPeriodic();
+    m_watchdog.addEpoch("robotPeriodic()");
+
+    try (var ignored = timingSmartDashboard.start()) {
+      SmartDashboard.updateValues();
+    }
+    m_watchdog.addEpoch("SmartDashboard.updateValues()");
+
+    try (var ignored = timingLiveWindow.start()) {
+      LiveWindow.updateValues();
+    }
+    m_watchdog.addEpoch("LiveWindow.updateValues()");
+
+    try (var ignored = timingShuffleboard.start()) {
+      Shuffleboard.update();
+    }
+    m_watchdog.addEpoch("Shuffleboard.update()");
+
+    if (isSimulation()) {
+      HAL.simPeriodicBefore();
+      simulationPeriodic();
+      HAL.simPeriodicAfter();
+      m_watchdog.addEpoch("simulationPeriodic()");
+    }
+
+    m_watchdog.disable();
+
+    // Flush NetworkTables
+    if (m_ntFlushEnabled) {
+      NetworkTableInstance.getDefault().flushLocal();
+    }
+
+    // Warn on loop time overruns
+    if (m_watchdog.isExpired()) {
+      m_watchdog.printEpochs();
+    }
+  }
+
+  @Override
+  public void setNetworkTablesFlushEnabled(boolean enabled) {
+    m_ntFlushEnabled = enabled;
   }
 }
