@@ -55,6 +55,8 @@ public class RobotStates {
     Passoff,
     Stow,
     ScoreAlgae,
+    ScoreCoralPrep,
+    ScoreCoral,
     Climb,
     Down,
     Eject

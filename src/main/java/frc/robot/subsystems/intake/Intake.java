@@ -83,15 +83,19 @@ public class Intake extends SubsystemBase {
       group.build("Intaking/Algae/Vel", 2000);
   private static final LoggedTunableNumber intakingCoralPivotAngle =
       group.build("Intaking/Coral/AngleDeg", 0);
+  private static final LoggedTunableNumber scoreCoralPivotAngle =
+      group.build("Score/Coral/AngleDeg", 60);
+  private static final LoggedTunableNumber scoreCoralVel =
+      group.build("Score/Coral/Velocity", -3000);
   private static final LoggedTunableNumber intakingAlgaePivotAngle =
       group.build("Intaking/Algae/AngleDeg", 20);
   private static final LoggedTunableNumber passOffPivotAngle = group.build("PassOff/AngleDeg", 104);
   private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -500);
   private static final LoggedTunableNumber stowPivotAngle = group.build("StowAngleDeg", 120);
   private static final LoggedTunableNumber algaeScoreVelocity =
-      group.build("ScoreAlgae/Velocity", -1000.0);
+      group.build("Score/Algae/Velocity", -1000.0);
   private static final LoggedTunableNumber algaeScoreAngle =
-      group.build("ScoreAlgae/Angle", PivotConstants.ALGAE_SCORE_ANGLE.getDegrees());
+      group.build("Score/Algae/Angle", PivotConstants.ALGAE_SCORE_ANGLE.getDegrees());
   private static final LoggedTunableNumber climbAngle =
       group.build("ClimbAngle", PivotConstants.PIVOT_SAFE_ANGLE.getDegrees());
 
@@ -273,6 +277,14 @@ public class Intake extends SubsystemBase {
           break;
         case Eject:
           setRollerVelocity(algaeScoreVelocity.get());
+          break;
+        case ScoreCoralPrep:
+          setPivotAngle(Rotation2d.fromDegrees(scoreCoralPivotAngle.get()));
+          setRollerVelocity(holdCoralVel.get());
+          break;
+        case ScoreCoral:
+          setPivotAngle(Rotation2d.fromDegrees(scoreCoralPivotAngle.get()));
+          setRollerVelocity(scoreCoralVel.get());
           break;
         default:
           break;

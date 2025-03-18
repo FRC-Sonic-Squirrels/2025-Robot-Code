@@ -450,7 +450,9 @@ public class RobotContainer {
     }
 
     mech = new Mechanism(elevator, arm);
-    passOffTrigger = new Trigger(() -> RobotStates.coralInIntake).debounce(.5);
+    passOffTrigger =
+        new Trigger(() -> RobotStates.coralInIntake && RobotStates.scoringLevel != ScoringLevel.L1)
+            .debounce(.5);
 
     algaeInRobot =
         new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())
@@ -581,36 +583,52 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Scoring Alignment Left")
         .whileTrue(
-            new RunStateMachineCommand(
-                    () ->
-                        new ScoreCoral(
-                            drivetrainWrapper,
-                            mech,
-                            elevator,
-                            arm,
-                            led,
-                            ScoringDirection.LEFT,
-                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                            Constants.RobotMode.getRobot().config.get(),
-                            false))
-                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
+            Commands.either(
+                new RunStateMachineCommand(
+                        () ->
+                            new ScoreCoral(
+                                drivetrainWrapper,
+                                mech,
+                                elevator,
+                                arm,
+                                led,
+                                ScoringDirection.LEFT,
+                                (r) ->
+                                    driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                                Constants.RobotMode.getRobot().config.get(),
+                                false))
+                    .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)),
+                Commands.runOnce(
+                    () -> {
+                      RobotStates.intakeState = IntakeState.ScoreCoralPrep;
+                      RobotStates.mechState = MechState.ReefL3Position;
+                    }),
+                () -> RobotStates.scoringLevel != ScoringLevel.L1));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Scoring Alignment Right")
         .whileTrue(
-            new RunStateMachineCommand(
-                    () ->
-                        new ScoreCoral(
-                            drivetrainWrapper,
-                            mech,
-                            elevator,
-                            arm,
-                            led,
-                            ScoringDirection.RIGHT,
-                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                            Constants.RobotMode.getRobot().config.get(),
-                            false))
-                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
+            Commands.either(
+                new RunStateMachineCommand(
+                        () ->
+                            new ScoreCoral(
+                                drivetrainWrapper,
+                                mech,
+                                elevator,
+                                arm,
+                                led,
+                                ScoringDirection.RIGHT,
+                                (r) ->
+                                    driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                                Constants.RobotMode.getRobot().config.get(),
+                                false))
+                    .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)),
+                Commands.runOnce(
+                    () -> {
+                      RobotStates.intakeState = IntakeState.ScoreCoralPrep;
+                      RobotStates.mechState = MechState.ReefL3Position;
+                    }),
+                () -> RobotStates.scoringLevel != ScoringLevel.L1));
 
     // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
@@ -678,21 +696,36 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "ScoreCoral")
         .onTrue(
-            Commands.waitUntil(() -> !RobotStates.coralInEndEffector)
-                .deadlineFor(
-                    Commands.runOnce(
+            Commands.either(
+                Commands.waitUntil(() -> !RobotStates.coralInEndEffector)
+                    .deadlineFor(
+                        Commands.runOnce(
+                                () -> {
+                                  var ioSim = endEffector.getSim();
+                                  if (ioSim != null) {
+                                    ioSim.scoringSideTofDetecting = false;
+                                    ioSim.nonScoringSideTofDetecting = false;
+                                    FieldStates.setScoringLocationFilled(
+                                        new ScoringLocation(
+                                            RobotStates.targetReefSide, RobotStates.scoringLevel));
+                                  }
+                                })
+                            .andThen(new EndEffectorSetRPM(-6000)))
+                    .finallyDo(() -> RobotStates.mechState = MechState.CoralStationPosition),
+                Commands.runOnce(
+                        () -> {
+                          RobotStates.intakeState = IntakeState.ScoreCoral;
+                          RobotStates.mechState = MechState.ReefL3Position;
+                        })
+                    .andThen(Commands.waitUntil(() -> !RobotStates.coralInIntake))
+                    .andThen(Commands.waitSeconds(0.5))
+                    .andThen(
+                        Commands.runOnce(
                             () -> {
-                              var ioSim = endEffector.getSim();
-                              if (ioSim != null) {
-                                ioSim.scoringSideTofDetecting = false;
-                                ioSim.nonScoringSideTofDetecting = false;
-                                FieldStates.setScoringLocationFilled(
-                                    new ScoringLocation(
-                                        RobotStates.targetReefSide, RobotStates.scoringLevel));
-                              }
-                            })
-                        .andThen(new EndEffectorSetRPM(-6000)))
-                .finallyDo(() -> RobotStates.mechState = MechState.CoralStationPosition));
+                              RobotStates.intakeState = IntakeState.Stow;
+                              RobotStates.mechState = MechState.CoralStationPosition;
+                            })),
+                () -> RobotStates.scoringLevel != ScoringLevel.L1));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
         .whileTrue(new IntakeCoralGround(intake));
