@@ -7,11 +7,11 @@ public class ExecutionTiming implements AutoCloseable {
 
   private static LoggerGroup group = LoggerGroup.build(ROOT_TABLE);
 
-  private final String context;
+  private final LoggerEntry.Decimal logger;
   private long startTime;
 
   public ExecutionTiming(String context) {
-    this.context = context;
+    logger = group.buildDecimal(context);
   }
 
   public ExecutionTiming start() {
@@ -23,6 +23,6 @@ public class ExecutionTiming implements AutoCloseable {
   public void close() {
     var endTime = Logger.getRealTimestamp();
 
-    group.buildDecimalArray(context).info(endTime - startTime);
+    logger.info(endTime - startTime);
   }
 }
