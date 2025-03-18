@@ -192,6 +192,8 @@ public class RobotContainer {
   private static LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
   private static LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
 
+  private final Trigger passOffTrigger;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
