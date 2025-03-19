@@ -1,9 +1,13 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.lib.team2930.RunStateMachineCommand;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
+import frc.robot.commands.PassToEndEffecto;
+import frc.robot.commands.PassToIntake;
 
 public class RobotStates {
   public enum EndEffectorDesiredAction {
@@ -19,7 +23,8 @@ public class RobotStates {
     ScoreFastBackward(false),
     ScoreSlowForward(false),
     ScoreSlowBackward(false),
-    PassToEndEffector(false);
+    PassToEndEffector(false),
+    PassToIntake(false);
 
     public final boolean alignmentActive;
 
@@ -52,7 +57,8 @@ public class RobotStates {
     IntakeCoral,
     IntakeAlgae,
     PrepPassoff,
-    Passoff,
+    PassoffEndEffector,
+    PassoffIntake,
     Stow,
     ScoreAlgae,
     ScoreCoralPrep,
@@ -67,6 +73,11 @@ public class RobotStates {
     L2,
     L3,
     L4
+  }
+
+  public enum TargetCoralPosition {
+    Intake,
+    EndEffector
   }
 
   private static LoggerGroup logGroup = LoggerGroup.build("RobotState");
@@ -100,6 +111,25 @@ public class RobotStates {
   private static LoggerEntry.Bool logL2State = logGroupLevels.buildBoolean("L2");
   private static LoggerEntry.Bool logL3State = logGroupLevels.buildBoolean("L3");
   private static LoggerEntry.Bool logL4State = logGroupLevels.buildBoolean("L4");
+
+  private static LoggerGroup logTransferCoral = logGroup.subgroup("TransferCoral");
+  private static LoggerEntry.Bool logTransferToEndEffector =
+      logTransferCoral.buildBoolean("TransferToEndEffector");
+  private static LoggerEntry.Bool logTransferToIntake =
+      logTransferCoral.buildBoolean("TransferToIntake");
+
+  private static LoggerGroup logSubsystemsInUse = logGroup.subgroup("SubsystemsInUse");
+  private static LoggerEntry.Bool logIntakeInUse = logSubsystemsInUse.buildBoolean("IntakeInUse");
+  private static LoggerEntry.Bool logMechInUse = logSubsystemsInUse.buildBoolean("MechInUse");
+  private static LoggerEntry.Bool logEndEffectorInUse =
+      logSubsystemsInUse.buildBoolean("EndEffectorInUse");
+
+  private static LoggerGroup logSubsystemsInTargetStates =
+      logGroup.subgroup("SubsystemsInTargetStates");
+  private static LoggerEntry.Bool logIntakeInTargetState =
+      logSubsystemsInTargetStates.buildBoolean("IntakeInTargetState");
+  private static LoggerEntry.Bool logMechInTargetState =
+      logSubsystemsInTargetStates.buildBoolean("MechInTargetState");
 
   public static boolean clearingAlgae;
 
@@ -136,6 +166,22 @@ public class RobotStates {
           .debounce(
               0.5); // debounce to allow coarl to get fully in intake before ending intake command
 
+  public static TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
+
+  private static boolean transferToEndEffector;
+  private static boolean transferToIntake;
+
+  public static boolean endEffectorInUse;
+  public static boolean mechanismInUse;
+  public static boolean intakeInUse;
+
+  public static boolean intakeInTargetState;
+  public static boolean mechInTargetState;
+
+  public static Command passToEndEffector =
+      new RunStateMachineCommand(() -> new PassToEndEffecto());
+  public static Command passToIntake = new RunStateMachineCommand(() -> new PassToIntake());
+
   public static void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
     if (!endEffectorDesiredAction.alignmentActive) {
       endEffectorDesiredAction = action;
@@ -143,6 +189,50 @@ public class RobotStates {
   }
 
   public static void periodic() {
+
+    targetCoralPosition =
+        scoringLevel == ScoringLevel.L1
+            ? TargetCoralPosition.Intake
+            : TargetCoralPosition.EndEffector;
+
+    transferToEndEffector =
+        targetCoralPosition == TargetCoralPosition.EndEffector
+            && !coralInEndEffector
+            && coralInIntake;
+    transferToIntake =
+        targetCoralPosition == TargetCoralPosition.Intake && !coralInIntake && coralInEndEffector;
+
+    logTransferToEndEffector.info(transferToEndEffector);
+    logTransferToIntake.info(transferToIntake);
+
+    logIntakeInUse.info(intakeInUse);
+    logMechInUse.info(mechanismInUse);
+    logEndEffectorInUse.info(endEffectorInUse);
+
+    logIntakeInTargetState.info(intakeInTargetState);
+    logMechInTargetState.info(mechInTargetState);
+
+    if (mechState == MechState.Override) {
+      mechanismInUse = true;
+      passToEndEffector.cancel();
+      passToIntake.cancel();
+    }
+
+    if (intakeState == IntakeState.Override) {
+      intakeInUse = true;
+      passToEndEffector.cancel();
+      passToIntake.cancel();
+    }
+
+    if (!mechanismInUse && !endEffectorInUse && !intakeInUse) {
+      if (transferToEndEffector) {
+        passToEndEffector.schedule();
+      }
+      if (transferToIntake) {
+        passToIntake.schedule();
+      }
+    }
+
     coralInRobot = coralInEndEffector || coralInIntake;
 
     logEndEffectorDesiredAction.info(endEffectorDesiredAction);

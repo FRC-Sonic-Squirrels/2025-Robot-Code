@@ -250,8 +250,12 @@ public class Intake extends SubsystemBase {
           setRollerVelocity(holdCoralVel.get());
           setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
           break;
-        case Passoff:
+        case PassoffEndEffector:
           setRollerVelocity(passOffVelocity.get());
+          setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
+          break;
+        case PassoffIntake:
+          setRollerVelocity(-passOffVelocity.get());
           setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
           break;
         case Stow:
@@ -289,6 +293,7 @@ public class Intake extends SubsystemBase {
         default:
           break;
       }
+      RobotStates.intakeInTargetState = isPivotAtTargetAngle();
     }
   }
 

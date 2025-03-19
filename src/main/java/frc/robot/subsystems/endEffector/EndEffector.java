@@ -310,6 +310,9 @@ public class EndEffector extends SubsystemBase {
             case PassToEndEffector:
               setVelocity(passOffVelocityRPM.get());
               break;
+            case PassToIntake:
+              setVelocity(-passOffVelocityRPM.get());
+              break;
           }
           if (RobotStates.endEffectorDesiredAction == desiredAction) {
             break;
