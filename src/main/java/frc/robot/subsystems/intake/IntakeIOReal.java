@@ -62,7 +62,10 @@ public class IntakeIOReal implements IntakeIO {
       new MotionMagicVoltage(0.0).withEnableFOC(true);
   private final VoltageOut pivotOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
 
+  private final VoltageOut starOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
+
   private final TalonFX pivotMotor = new TalonFX(Constants.CanIDs.INTAKE_PIVOT_CAN_ID);
+  private final TalonFX starMotor = new TalonFX(Constants.CanIDs.INTAKE_STAR_CAN_ID);
 
   private final BaseStatusSignal[] refreshSet;
   private final BaseStatusSignal[] refreshSetSensors;
@@ -285,5 +288,10 @@ public class IntakeIOReal implements IntakeIO {
 
     pivotMotor.getConfigurator().apply(config);
     return true;
+  }
+
+  @Override
+  public void setStarVoltage(double volts) {
+    starMotor.setControl(starOpenLoopControl.withOutput(volts));
   }
 }

@@ -342,6 +342,10 @@ public class Intake extends SubsystemBase {
     this.holdAlgae = holdAlgae;
   }
 
+  public void setStarPercentOut(double percent) {
+    io.setStarVoltage(percent * Constants.MAX_VOLTAGE);
+  }
+
   // Getters
 
   public Current getRollerCurrentDraw() {
