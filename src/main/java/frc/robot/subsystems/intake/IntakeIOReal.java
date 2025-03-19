@@ -86,6 +86,7 @@ public class IntakeIOReal implements IntakeIO {
     rollerConfig.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;
 
     rollerMotor.getConfigurator().apply(rollerConfig);
+    starMotor.getConfigurator().apply(rollerConfig);
 
     // Status signals
 
