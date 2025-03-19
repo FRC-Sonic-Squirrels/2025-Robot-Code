@@ -45,6 +45,7 @@ import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
+import frc.robot.commands.PassToEndEffector;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.climber.Climb;
@@ -56,7 +57,6 @@ import frc.robot.commands.intake.IntakeAlgaeGround;
 import frc.robot.commands.intake.IntakeCoralGround;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.mechanism.MechToPosition;
-import frc.robot.commands.mechanism.PassToEndEffector;
 import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.commands.mechanism.arm.ArmManualControl;
 import frc.robot.commands.mechanism.elevator.ElevatorManualControl;
@@ -759,7 +759,7 @@ public class RobotContainer {
     // Manual passoff position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.y, "Manual Passoff")
-        .onTrue(new PassToEndEffector(arm, elevator, intake));
+        .onTrue(new RunStateMachineCommand(() -> new PassToEndEffector()));
 
     // Stow position
     operatorController
