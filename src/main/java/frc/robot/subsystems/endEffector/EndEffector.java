@@ -16,7 +16,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates;
-import frc.robot.commands.mechanism.PassToEndEffector;
 
 public class EndEffector extends SubsystemBase {
   // Execution timing

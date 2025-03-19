@@ -6,7 +6,7 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.RunStateMachineCommand;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
-import frc.robot.commands.PassToEndEffecto;
+import frc.robot.commands.PassToEndEffector;
 import frc.robot.commands.PassToIntake;
 
 public class RobotStates {
@@ -179,7 +179,7 @@ public class RobotStates {
   public static boolean mechInTargetState;
 
   public static Command passToEndEffector =
-      new RunStateMachineCommand(() -> new PassToEndEffecto());
+      new RunStateMachineCommand(() -> new PassToEndEffector());
   public static Command passToIntake = new RunStateMachineCommand(() -> new PassToIntake());
 
   public static void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
@@ -228,6 +228,7 @@ public class RobotStates {
       if (transferToEndEffector) {
         passToEndEffector.schedule();
       }
+
       if (transferToIntake) {
         passToIntake.schedule();
       }

@@ -122,7 +122,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber pivotTargetAccelerationConfig =
       pivotSubgroup.build("TargetAccelerationConfig");
   private static final LoggedTunableNumber pivotToleranceDegrees =
-      pivotSubgroup.build("ToleranceDegrees", 1);
+      pivotSubgroup.build("ToleranceDegrees", 3);
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {

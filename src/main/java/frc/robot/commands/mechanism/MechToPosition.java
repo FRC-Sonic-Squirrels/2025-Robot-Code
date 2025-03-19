@@ -25,6 +25,7 @@ public class MechToPosition extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    RobotStates.mechanismInUse = true;
     RobotStates.mechState = state;
   }
 
@@ -39,6 +40,7 @@ public class MechToPosition extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    RobotStates.mechanismInUse = false;
     return mech.mechInPosition();
   }
 }

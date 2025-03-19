@@ -7,12 +7,13 @@ import frc.robot.RobotStates.EndEffectorDesiredAction;
 import frc.robot.RobotStates.IntakeState;
 import frc.robot.RobotStates.MechState;
 
-public class PassToEndEffecto extends StateMachine {
+public class PassToEndEffector extends StateMachine {
 
   private final Trigger endTrigger =
       new Trigger(() -> RobotStates.coralInEndEffectorScoringSide).debounce(0.3);
+  private final Trigger lostCoral = new Trigger(() -> !RobotStates.coralInIntake).debounce(0.5);
 
-  public PassToEndEffecto() {
+  public PassToEndEffector() {
     super("PassToEndEffector");
 
     setInitialState(stateWithName("PrepToPassOff", () -> prepToPassOff()));
@@ -26,6 +27,7 @@ public class PassToEndEffecto extends StateMachine {
     RobotStates.mechState = MechState.PrepPassoffPosition;
     RobotStates.intakeState = IntakeState.PrepPassoff;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
+    if (lostCoral.getAsBoolean()) return stateWithName("End", () -> end());
     return RobotStates.intakeInTargetState && RobotStates.mechInTargetState
         ? stateWithName("PassOff", () -> passOff())
         : null;
@@ -38,7 +40,8 @@ public class PassToEndEffecto extends StateMachine {
     RobotStates.mechState = MechState.PassoffPosition;
     RobotStates.intakeState = IntakeState.PassoffEndEffector;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
-    return endTrigger.getAsBoolean() ? () -> end() : null;
+    if (lostCoral.getAsBoolean()) return stateWithName("End", () -> end());
+    return endTrigger.getAsBoolean() ? stateWithName("End", () -> end()) : null;
   }
 
   private StateHandler end() {
