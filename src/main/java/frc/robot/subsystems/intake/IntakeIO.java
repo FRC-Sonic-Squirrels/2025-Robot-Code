@@ -53,6 +53,4 @@ public interface IntakeIO {
   public default boolean setPivotNeutralMode(NeutralModeValue value) {
     return false;
   }
-
-  public default void setStarVoltage(double voltage) {}
 }
