@@ -117,6 +117,7 @@ public class Mechanism {
         default:
           break;
       }
+      RobotStates.mechInTargetState = mechInPosition();
     }
   }
 

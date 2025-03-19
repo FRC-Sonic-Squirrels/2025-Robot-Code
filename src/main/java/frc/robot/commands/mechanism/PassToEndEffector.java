@@ -50,7 +50,7 @@ public class PassToEndEffector extends Command {
     }
     if (stage == 2) {
       RobotStates.mechState = MechState.PassoffPosition;
-      RobotStates.intakeState = IntakeState.Passoff;
+      RobotStates.intakeState = IntakeState.PassoffEndEffector;
     } else {
       RobotStates.mechState = MechState.PrepPassoffPosition;
       RobotStates.intakeState = IntakeState.PrepPassoff;

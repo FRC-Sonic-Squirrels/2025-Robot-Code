@@ -812,7 +812,8 @@ public class RobotContainer {
         .whileTrue(
             new ArmManualControl(operatorController::getRightX, arm)
                 .alongWith(
-                    new ElevatorManualControl(() -> -operatorController.getLeftY(), elevator)));
+                    new ElevatorManualControl(() -> -operatorController.getLeftY(), elevator)))
+        .onFalse(Commands.runOnce(() -> RobotStates.mechanismInUse = false));
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.b, "Climber in")
@@ -843,7 +844,7 @@ public class RobotContainer {
         new MechToPosition(mech, MechState.CoralStationPosition)
             .withName("GamepieceOutOfEECommand"));
 
-    passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
+    // passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
 
     // ---------- ON-ROBOT CONTROLS ------------
 
