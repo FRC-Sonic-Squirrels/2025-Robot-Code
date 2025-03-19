@@ -341,6 +341,7 @@ public final class Constants {
     public static final int INTAKE_PIVOT_CAN_ID = 19;
     public static final int INTAKE_ROLLER_CAN_ID = 20;
     public static final int INTAKE_TOF_CAN_ID = 43;
+    public static final int INTAKE_STAR_CAN_ID = 21;
   }
 
   public static class DIOPorts {}
