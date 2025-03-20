@@ -21,9 +21,6 @@ public class PassToEndEffector extends StateMachine {
   }
 
   private StateHandler prepToPassOff() {
-    RobotStates.mechanismInUse = true;
-    RobotStates.intakeInUse = true;
-    RobotStates.endEffectorInUse = true;
     RobotStates.mechState = MechState.PrepPassoffPosition;
     RobotStates.intakeState = IntakeState.PrepPassoff;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
@@ -34,9 +31,6 @@ public class PassToEndEffector extends StateMachine {
   }
 
   private StateHandler passOff() {
-    RobotStates.mechanismInUse = true;
-    RobotStates.intakeInUse = true;
-    RobotStates.endEffectorInUse = true;
     RobotStates.mechState = MechState.PassoffPosition;
     RobotStates.intakeState = IntakeState.PassoffEndEffector;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
@@ -48,9 +42,6 @@ public class PassToEndEffector extends StateMachine {
     RobotStates.mechState = MechState.StowPosition;
     RobotStates.intakeState = IntakeState.Stow;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
-    RobotStates.mechanismInUse = false;
-    RobotStates.intakeInUse = false;
-    RobotStates.endEffectorInUse = false;
     return setDone();
   }
 }

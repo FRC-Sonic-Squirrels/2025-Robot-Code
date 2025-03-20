@@ -225,11 +225,11 @@ public class RobotStates {
     }
 
     if (!mechanismInUse && !endEffectorInUse && !intakeInUse) {
-      if (transferToEndEffector) {
+      if (transferToEndEffector && !passToEndEffector.isScheduled()) {
         passToEndEffector.schedule();
       }
 
-      if (transferToIntake) {
+      if (transferToIntake && !passToIntake.isScheduled()) {
         passToIntake.schedule();
       }
     }
