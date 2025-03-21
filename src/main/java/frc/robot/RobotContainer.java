@@ -580,7 +580,11 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
-        .whileTrue(new ScoreAlgae(intake));
+        .whileTrue(new ScoreAlgae(intake))
+        .onFalse(
+            Commands.runOnce(() -> RobotStates.intakeState = IntakeState.ScoreAlgae)
+                .andThen(Commands.waitSeconds(0.5))
+                .andThen(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Scoring Alignment Left")
@@ -779,7 +783,7 @@ public class RobotContainer {
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.back, "End Effector In")
-        .whileTrue(new EndEffectorSetRPM(1000));
+        .whileTrue(new EndEffectorSetRPM(3000));
 
     // Climber in
     operatorController

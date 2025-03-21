@@ -28,7 +28,7 @@ public class ScoreAlgae extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotStates.intakeState = IntakeState.ScoreAlgae;
+    RobotStates.intakeState = IntakeState.ScoreAlgaePrep;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -39,7 +39,6 @@ public class ScoreAlgae extends Command {
   @Override
   public void end(boolean interrupted) {
     intake.holdAlgae = false;
-    RobotStates.intakeState = IntakeState.Stow;
   }
 
   // Returns true when the command should end.
