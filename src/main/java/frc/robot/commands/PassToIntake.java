@@ -9,8 +9,7 @@ import frc.robot.RobotStates.MechState;
 
 public class PassToIntake extends StateMachine {
 
-  private final Trigger endTrigger =
-      new Trigger(() -> RobotStates.coralInEndEffectorScoringSide).debounce(0.3);
+  private final Trigger endTrigger = new Trigger(() -> RobotStates.coralInIntake).debounce(0.3);
 
   public PassToIntake() {
     super("PassToIntake");
@@ -36,14 +35,14 @@ public class PassToIntake extends StateMachine {
     RobotStates.intakeInUse = true;
     RobotStates.endEffectorInUse = true;
     RobotStates.mechState = MechState.PassoffPosition;
-    RobotStates.intakeState = IntakeState.PassoffEndEffector;
+    RobotStates.intakeState = IntakeState.PassoffIntake;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToIntake;
     return endTrigger.getAsBoolean() ? () -> end() : null;
   }
 
   private StateHandler end() {
     RobotStates.mechState = MechState.StowPosition;
-    RobotStates.intakeState = IntakeState.Stow;
+    RobotStates.intakeState = IntakeState.PrepPassoff;
     RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
     RobotStates.mechanismInUse = false;
     RobotStates.intakeInUse = false;

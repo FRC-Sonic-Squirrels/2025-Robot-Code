@@ -144,7 +144,6 @@ public class RobotStates {
 
   public static boolean algaeInRobot;
 
-  // TODO: update these coral values
   public static boolean coralInRobot;
 
   public static boolean coralInEndEffector;
@@ -254,5 +253,24 @@ public class RobotStates {
     logGamepieceInEndEffectorScoringSideState.info(coralInEndEffectorScoringSide);
     logGamepieceInEndEffectorNonScoringSideState.info(coralInEndEffectorNonScoringSide);
     logHighStowMode.info(highStowMode);
+
+    mechanismInUse = false;
+    intakeInUse = false;
+    endEffectorInUse = false;
+  }
+
+  public static void setMechState(MechState state) {
+    mechState = state;
+    mechanismInUse = true;
+  }
+
+  public static void setIntakeState(IntakeState state) {
+    intakeState = state;
+    intakeInUse = true;
+  }
+
+  public static void setEndEffectorState(EndEffectorDesiredAction state) {
+    endEffectorDesiredAction = state;
+    endEffectorInUse = true;
   }
 }
