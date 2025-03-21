@@ -50,7 +50,7 @@ public class LED extends SubsystemBase {
   private RobotState robotState = RobotState.BASE;
   private BaseRobotState baseRobotState = BaseRobotState.GAMEPIECE_STATUS;
   private boolean gamepieceInRobot;
-  private Color squirrelOrange = new Color(1, 0.1, 0);
+  private Color squirrelOrange = new Color(0.1, 1, 0);
   private TunableNumberGroup group = new TunableNumberGroup("LED");
   private LoggedTunableNumber useTunableLEDs = group.build("useTunableLEDs", 0);
   private LoggedTunableNumber tunableR = group.build("tunableColor/r", 0);
@@ -92,13 +92,13 @@ public class LED extends SubsystemBase {
           switch (baseRobotState) {
             case LEVEL_MODE:
               if (RobotStates.scoringLevel == ScoringLevel.L1) {
-                setColorLevel(Color.kRed, Color.kGreen, 1);
+                setColorLevel(squirrelOrange, Color.kWhite, 1);
               } else if (RobotStates.scoringLevel == ScoringLevel.L2) {
-                setColorLevel(Color.kRed, Color.kGreen, 2);
+                setColorLevel(squirrelOrange, Color.kWhite, 2);
               } else if (RobotStates.scoringLevel == ScoringLevel.L3) {
-                setColorLevel(Color.kRed, Color.kGreen, 3);
+                setColorLevel(squirrelOrange, Color.kWhite, 3);
               } else if (RobotStates.scoringLevel == ScoringLevel.L4) {
-                setColorLevel(Color.kRed, Color.kGreen, 4);
+                setColorLevel(squirrelOrange, Color.kWhite, 4);
               }
               break;
             case GAMEPIECE_STATUS:
@@ -172,7 +172,7 @@ public class LED extends SubsystemBase {
           setBlinking(Color.kRed);
           break;
         case INTAKE_SUCCESS:
-          setBlinking(Color.kGreen);
+          setBlinking(Color.kRed);
           break;
       }
     } else {
