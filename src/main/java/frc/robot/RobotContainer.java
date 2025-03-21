@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
+import frc.lib.team2930.lib.controller_rumble.ControllerRumbleForTime;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
@@ -56,6 +57,7 @@ import frc.robot.commands.endEffector.EndEffectorSetRPM;
 import frc.robot.commands.intake.IntakeAlgaeGround;
 import frc.robot.commands.intake.IntakeCoralGround;
 import frc.robot.commands.intake.ScoreAlgae;
+import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechToPosition;
 import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.commands.mechanism.arm.ArmManualControl;
@@ -843,6 +845,11 @@ public class RobotContainer {
     RobotStates.triggerForCoralInEndEffector.onFalse(
         new MechToPosition(mech, MechState.CoralStationPosition)
             .withName("GamepieceOutOfEECommand"));
+
+    RobotStates.triggerForCoralInIntake.onTrue(
+        new ControllerRumbleForTime(
+                (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r), 0.5, 0.5)
+            .alongWith(new LedSetStateForSeconds(led, RobotState.INTAKE_SUCCESS, 0.5)));
 
     // passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
 
