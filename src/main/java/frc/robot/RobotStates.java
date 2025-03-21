@@ -24,7 +24,8 @@ public class RobotStates {
     ScoreSlowForward(false),
     ScoreSlowBackward(false),
     PassToEndEffector(false),
-    PassToIntake(false);
+    PassToIntake(false),
+    GrabAlgae(false);
 
     public final boolean alignmentActive;
 
@@ -48,7 +49,9 @@ public class RobotStates {
     StowPosition,
     ClimbPosition,
     PrepPassoffPosition,
-    PassoffPosition
+    PassoffPosition,
+    PassOffAlgaePosition,
+    HoldAlgaePosition
   }
 
   public enum IntakeState {
@@ -60,6 +63,7 @@ public class RobotStates {
     PassoffEndEffector,
     PassoffIntake,
     Stow,
+    ScoreAlgaePrep,
     ScoreAlgae,
     ScoreCoralPrep,
     ScoreCoral,

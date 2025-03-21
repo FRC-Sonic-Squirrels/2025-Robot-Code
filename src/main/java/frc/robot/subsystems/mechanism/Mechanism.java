@@ -114,6 +114,12 @@ public class Mechanism {
         case PassoffPosition:
           goToPositionParallel(MechanismPositions.intakeToEndEffectorPassOffPosition());
           break;
+        case PassOffAlgaePosition:
+          goToPositionParallel(MechanismPositions.passOffAlgaePosition());
+          break;
+        case HoldAlgaePosition:
+          goToPositionParallel(MechanismPositions.holdAlgaePosition());
+          break;
         default:
           break;
       }

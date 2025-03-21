@@ -97,6 +97,18 @@ public class MechanismPositions {
   private static final LoggedTunableNumber prepForPassOffArmAngleDegrees =
       group.build("PassOff/Prep/ArmAngleDegrees");
 
+  private static final LoggedTunableNumber grabAlgaeHighElevatorHeightIntahces =
+      group.build("grabAlgae/High/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber grabAlgaeHighArmAngleDegrees =
+      group.build("grabAlgae/High/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber holdAlgaeElevatorHeightIntahces =
+      group.build("holdAlgae/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber holdAlgaeArmAngleDegrees =
+      group.build("holdAlgae/ArmAngleDegrees");
+
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       lowStowElevatorHeightInches.initDefault(2);
@@ -127,7 +139,7 @@ public class MechanismPositions {
       reefL4ArmAngleDegrees.initDefault(151);
       coralStationElevatorHeightInches.initDefault(33);
       coralStationArmAngleDegrees.initDefault(-40);
-      algaeClearingLowElevatorHeightInches.initDefault(8);
+      algaeClearingLowElevatorHeightInches.initDefault(10);
       algaeClearingLowArmAngleDegrees.initDefault(166);
       algaeClearingHighElevatorHeightInches.initDefault(27.2);
       algaeClearingHighArmAngleDegrees.initDefault(153);
@@ -145,6 +157,10 @@ public class MechanismPositions {
       passOffElevatorHeightInches.initDefault(11.922);
       prepForPassOffArmAngleDegrees.initDefault(9.756);
       prepForPassOffElevatorHeightInches.initDefault(14);
+      grabAlgaeHighArmAngleDegrees.initDefault(151);
+      grabAlgaeHighElevatorHeightIntahces.initDefault(48);
+      holdAlgaeArmAngleDegrees.initDefault(90);
+      holdAlgaeElevatorHeightIntahces.initDefault(26);
     }
   }
 
@@ -266,5 +282,17 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(intermediatePoseHighElevatorHeightInches.get()),
         Rotation2d.fromDegrees(intermediatePoseHighArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition passOffAlgaePosition() {
+    return new MechanismPosition(
+        Units.Inches.of(grabAlgaeHighElevatorHeightIntahces.get()),
+        Rotation2d.fromDegrees(grabAlgaeHighArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition holdAlgaePosition() {
+    return new MechanismPosition(
+        Units.Inches.of(holdAlgaeElevatorHeightIntahces.get()),
+        Rotation2d.fromDegrees(holdAlgaeArmAngleDegrees.get()));
   }
 }

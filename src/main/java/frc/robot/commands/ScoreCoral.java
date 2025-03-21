@@ -195,7 +195,7 @@ public class ScoreCoral extends StateMachine {
         Optional.empty(),
         rumble,
         config,
-        true,
+        false,
         clearAlgae,
         Optional.empty());
   }

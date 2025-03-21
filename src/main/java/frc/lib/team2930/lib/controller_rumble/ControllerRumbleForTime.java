@@ -34,6 +34,7 @@ public class ControllerRumbleForTime extends Command {
   public void end(boolean interrupted) {
     rumbleConsumer.accept(0.0);
     timer.reset();
+    timer.stop();
   }
 
   // Returns true when the command should end.

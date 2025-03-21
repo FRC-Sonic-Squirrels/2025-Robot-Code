@@ -264,12 +264,14 @@ public class Intake extends SubsystemBase {
           } else setRollerPercentOut(0);
           setPivotAngle(Rotation2d.fromDegrees(stowPivotAngle.get()));
           break;
+
         case ScoreAlgae:
-          Rotation2d targetAngle = Rotation2d.fromDegrees(algaeScoreAngle.get());
-          if (isPivotAtTargetAngle(targetAngle)) {
-            setRollerVelocity(algaeScoreVelocity.get());
-          } else setRollerPercentOut(0);
-          setPivotAngle(targetAngle);
+          setRollerVelocity(algaeScoreVelocity.get());
+          setPivotAngle(Rotation2d.fromDegrees(algaeScoreAngle.get()));
+          break;
+        case ScoreAlgaePrep:
+          setRollerPercentOut(holdAlgaeVel.get());
+          setPivotAngle(Rotation2d.fromDegrees(algaeScoreAngle.get()));
           break;
         case Climb:
           setPivotAngle(Rotation2d.fromDegrees(climbAngle.get()));
