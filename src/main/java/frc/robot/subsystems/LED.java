@@ -140,7 +140,7 @@ public class LED extends SubsystemBase {
               break;
             case INTAKE_SUCCESS:
               //  setBlinking(Color.kGreen, Color.kBlack);
-              setBlinking(Color.kGreen);
+              setBlinking(Color.kRed);
               break;
             default:
               setSeaLevelGraphic();

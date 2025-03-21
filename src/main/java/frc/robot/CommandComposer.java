@@ -31,7 +31,7 @@ public class CommandComposer {
                       if (RobotStates.coralInEndEffector) {
                         if (driverController != null)
                           driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
-                        led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
+                        // led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
                       }
                     })
                 .finallyDo(

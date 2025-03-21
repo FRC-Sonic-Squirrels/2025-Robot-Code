@@ -231,6 +231,9 @@ public class RobotStates {
       if (transferToIntake && !passToIntake.isScheduled()) {
         passToIntake.schedule();
       }
+    } else {
+      passToEndEffector.cancel();
+      passToIntake.cancel();
     }
 
     coralInRobot = coralInEndEffector || coralInIntake;
