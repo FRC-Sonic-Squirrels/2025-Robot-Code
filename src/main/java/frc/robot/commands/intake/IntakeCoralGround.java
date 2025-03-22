@@ -57,6 +57,7 @@ public class IntakeCoralGround extends Command {
     if (states.coralInIntake) {
       if (states.scoringLevel == ScoringLevel.L1) {
         states.mechState = MechState.AvoidIntake;
+        states.intakeState = IntakeState.Stow;
       } else states.mechState = MechState.PassoffPosition;
     } else {
       states.intakeState = IntakeState.Stow;
