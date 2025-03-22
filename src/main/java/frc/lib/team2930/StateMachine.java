@@ -159,7 +159,10 @@ public class StateMachine {
           commands.get(i).cancel();
         }
 
-        if (interrupted) setNextState(interruptedState);
+        if (interrupted) {
+          setNextState(interruptedState);
+          advance();
+        }
       }
 
       @Override
