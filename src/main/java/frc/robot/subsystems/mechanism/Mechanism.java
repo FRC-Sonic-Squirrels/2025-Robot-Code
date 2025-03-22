@@ -180,7 +180,7 @@ public class Mechanism {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(
             MechanismPositions.intermediateLowPosition(), elevatorAccel, armAccel);
-      } else if (currentMechSection == MechSection.S8 || currentMechSection == MechSection.S5) {
+      } else if (currentMechSection == MechSection.S8) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(
             MechanismPositions.intermediateHighPosition(), elevatorAccel, armAccel);
@@ -286,7 +286,7 @@ public class Mechanism {
     S2, // elevator below 0.1, arm is back
     S3, // elevator below top tube, arm under top tube to front side
     S4, // elevator below 0.1, arm is forward
-    S5, // below top tube, elevator above 0.1, arm is up
+    S5, // below top tube, elevator above 0.1, arm is toward front side
     S6, // below top tube, elevator above 0.1, arm is forward
     S7, // above top tube, arm is forward
     S8, // above top tube, arm is near straight up
