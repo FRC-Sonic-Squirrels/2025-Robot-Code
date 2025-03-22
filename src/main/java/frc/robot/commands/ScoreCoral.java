@@ -284,6 +284,7 @@ public class ScoreCoral extends StateMachine {
   private StateHandler prepForScoringAlignment() {
     if (!(states.coralInEndEffectorScoringSide
             || states.coralInEndEffectorNonScoringSide
+            || states.coralInIntake
             || preloadCode)
         || !scorableLevel()) {
       return states.clearingAlgae && !gamepieceMemory
@@ -295,28 +296,35 @@ public class ScoreCoral extends StateMachine {
 
     prepMechanismForScoring =
         spawnCommand(
-            new MechToPosition(mech, MechState.StowPosition, states)
-                .alongWith(
-                    Commands.waitUntil(
-                            () ->
-                                !(states.scoringLevel == ScoringLevel.L4)
-                                    || (wrapper.getLinearVel() < velToElevateCoral.get()
-                                        && GeometryUtil.getDist(
-                                                wrapper.getReefPoseEstimatorPose(true), scoringPose)
-                                            < distToElevateCoral.get()))
-                        .andThen(
-                            Commands.either(
-                                    new MechToPosition(mech, MechState.ReefPosition, states)
-                                        .alongWith(
-                                            Commands.waitUntil(
-                                                    () -> inPosition && elevator.isAtTarget())
-                                                .andThen(
-                                                    new MechToPosition(
-                                                            mech, MechState.ReefPosition, states)
-                                                        .asProxy())),
-                                    new MechToPosition(mech, MechState.ReefPosition, states),
-                                    () -> states.scoringLevel == ScoringLevel.L4)
-                                .asProxy()))
+            Commands.waitUntil(() -> !(states.mechanismInUse || states.intakeInUse))
+                .andThen(
+                    new MechToPosition(mech, MechState.StowPosition, states)
+                        .alongWith(
+                            Commands.waitUntil(
+                                    () ->
+                                        !(states.scoringLevel == ScoringLevel.L4)
+                                            || (wrapper.getLinearVel() < velToElevateCoral.get()
+                                                && GeometryUtil.getDist(
+                                                        wrapper.getReefPoseEstimatorPose(true),
+                                                        scoringPose)
+                                                    < distToElevateCoral.get()))
+                                .andThen(
+                                    Commands.either(
+                                            new MechToPosition(mech, MechState.ReefPosition, states)
+                                                .alongWith(
+                                                    Commands.waitUntil(
+                                                            () ->
+                                                                inPosition && elevator.isAtTarget())
+                                                        .andThen(
+                                                            new MechToPosition(
+                                                                    mech,
+                                                                    MechState.ReefPosition,
+                                                                    states)
+                                                                .asProxy())),
+                                            new MechToPosition(
+                                                mech, MechState.ReefPosition, states),
+                                            () -> states.scoringLevel == ScoringLevel.L4)
+                                        .asProxy())))
                 .withName("MechScoreCoral"),
             (command) -> null);
 
