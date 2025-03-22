@@ -21,6 +21,7 @@ import frc.robot.Constants.FieldConstants.ScoringSideWithPose;
 import frc.robot.Constants.FieldConstants.ScoringSideWithPoseAndDirection;
 import frc.robot.FieldStates;
 import frc.robot.RobotStates;
+import frc.robot.RobotStates.IntakeState;
 import frc.robot.RobotStates.MechState;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.helpers.ChoreoHelper;
@@ -229,13 +230,13 @@ public class ScoreCoral extends StateMachine {
     confirmation = driverConfirmation;
 
     setInterruptedState(stateWithName("End", () -> end(true)));
-    setInitialState(stateWithName("PrepForScoringAlignment", () -> prepForScoringAlignment()));
+    setInitialState(stateWithName("ChooseAction", () -> chooseAction()));
   }
 
-  // SCORING STATES
+  private StateHandler chooseAction() {
+    if (RobotStates.scoringLevel == ScoringLevel.L1 && !clearAlgae)
+      return stateWithName("ScoreL1", L1Position());
 
-  private StateHandler prepForScoringAlignment() {
-    System.out.println("PRELOADED ---------------------------------");
     Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
 
     scoringPoseSideAndDirection =
@@ -259,6 +260,18 @@ public class ScoreCoral extends StateMachine {
 
     if (clearAlgae) return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
 
+    return stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
+  }
+
+  // SCORING STATES
+
+  private StateHandler L1Position() {
+    RobotStates.intakeState = IntakeState.ScoreCoralPrep;
+    RobotStates.mechState = MechState.ReefL3Position;
+    return setDone();
+  }
+
+  private StateHandler prepForScoringAlignment() {
     if (!(RobotStates.coralInEndEffectorScoringSide
             || RobotStates.coralInEndEffectorNonScoringSide
             || preloadCode)

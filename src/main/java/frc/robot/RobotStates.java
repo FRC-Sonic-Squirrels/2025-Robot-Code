@@ -114,22 +114,21 @@ public class RobotStates {
 
   private static LoggerGroup logTransferCoral = logGroup.subgroup("TransferCoral");
   private static LoggerEntry.Bool logTransferToEndEffector =
-      logTransferCoral.buildBoolean("TransferToEndEffector");
-  private static LoggerEntry.Bool logTransferToIntake =
-      logTransferCoral.buildBoolean("TransferToIntake");
+      logTransferCoral.buildBoolean("ToEndEffector");
+  private static LoggerEntry.Bool logTransferToIntake = logTransferCoral.buildBoolean("ToIntake");
 
   private static LoggerGroup logSubsystemsInUse = logGroup.subgroup("SubsystemsInUse");
-  private static LoggerEntry.Bool logIntakeInUse = logSubsystemsInUse.buildBoolean("IntakeInUse");
-  private static LoggerEntry.Bool logMechInUse = logSubsystemsInUse.buildBoolean("MechInUse");
+  private static LoggerEntry.Bool logIntakeInUse = logSubsystemsInUse.buildBoolean("Intake");
+  private static LoggerEntry.Bool logMechInUse = logSubsystemsInUse.buildBoolean("Mech");
   private static LoggerEntry.Bool logEndEffectorInUse =
-      logSubsystemsInUse.buildBoolean("EndEffectorInUse");
+      logSubsystemsInUse.buildBoolean("EndEffector");
 
   private static LoggerGroup logSubsystemsInTargetStates =
       logGroup.subgroup("SubsystemsInTargetStates");
   private static LoggerEntry.Bool logIntakeInTargetState =
-      logSubsystemsInTargetStates.buildBoolean("IntakeInTargetState");
+      logSubsystemsInTargetStates.buildBoolean("Intake");
   private static LoggerEntry.Bool logMechInTargetState =
-      logSubsystemsInTargetStates.buildBoolean("MechInTargetState");
+      logSubsystemsInTargetStates.buildBoolean("Mech");
 
   public static boolean clearingAlgae;
 

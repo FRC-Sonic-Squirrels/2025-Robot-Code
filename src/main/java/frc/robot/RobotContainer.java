@@ -585,52 +585,36 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Scoring Alignment Left")
         .whileTrue(
-            Commands.either(
-                new RunStateMachineCommand(
-                        () ->
-                            new ScoreCoral(
-                                drivetrainWrapper,
-                                mech,
-                                elevator,
-                                arm,
-                                led,
-                                ScoringDirection.LEFT,
-                                (r) ->
-                                    driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                                Constants.RobotMode.getRobot().config.get(),
-                                false))
-                    .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)),
-                Commands.runOnce(
-                    () -> {
-                      RobotStates.intakeState = IntakeState.ScoreCoralPrep;
-                      RobotStates.mechState = MechState.ReefL3Position;
-                    }),
-                () -> RobotStates.scoringLevel != ScoringLevel.L1));
+            new RunStateMachineCommand(
+                    () ->
+                        new ScoreCoral(
+                            drivetrainWrapper,
+                            mech,
+                            elevator,
+                            arm,
+                            led,
+                            ScoringDirection.LEFT,
+                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                            Constants.RobotMode.getRobot().config.get(),
+                            false))
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Scoring Alignment Right")
         .whileTrue(
-            Commands.either(
-                new RunStateMachineCommand(
-                        () ->
-                            new ScoreCoral(
-                                drivetrainWrapper,
-                                mech,
-                                elevator,
-                                arm,
-                                led,
-                                ScoringDirection.RIGHT,
-                                (r) ->
-                                    driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                                Constants.RobotMode.getRobot().config.get(),
-                                false))
-                    .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)),
-                Commands.runOnce(
-                    () -> {
-                      RobotStates.intakeState = IntakeState.ScoreCoralPrep;
-                      RobotStates.mechState = MechState.ReefL3Position;
-                    }),
-                () -> RobotStates.scoringLevel != ScoringLevel.L1));
+            new RunStateMachineCommand(
+                    () ->
+                        new ScoreCoral(
+                            drivetrainWrapper,
+                            mech,
+                            elevator,
+                            arm,
+                            led,
+                            ScoringDirection.RIGHT,
+                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                            Constants.RobotMode.getRobot().config.get(),
+                            false))
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
