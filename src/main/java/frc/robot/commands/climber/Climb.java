@@ -56,6 +56,8 @@ public class Climb extends Command {
   public void initialize() {
     states.mechState = MechState.ClimbPosition;
     states.intakeState = IntakeState.Climb;
+    states.mechanismInUse = true;
+    states.intakeInUse = true;
     climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
     stage = 0;
     prevConfirm = true;
@@ -91,11 +93,14 @@ public class Climb extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    states.mechanismInUse = false;
+    states.intakeInUse = false;
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return stage == 4;
   }
 }
