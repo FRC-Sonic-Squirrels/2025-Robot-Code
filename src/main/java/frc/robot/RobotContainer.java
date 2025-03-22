@@ -172,8 +172,12 @@ public class RobotContainer {
 
   private final Trigger passOffTrigger;
 
+  private final RobotStates robotStates;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    robotStates = new RobotStates();
 
     DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -205,8 +209,8 @@ public class RobotContainer {
 
       arm = new Arm(new ArmIO() {});
       elevator = new Elevator(new ElevatorIO() {});
-      intake = new Intake(new IntakeIO() {});
-      endEffector = new EndEffector(new EndEffectorIO() {});
+      intake = new Intake(new IntakeIO() {}, robotStates);
+      endEffector = new EndEffector(new EndEffectorIO() {}, robotStates);
       climber = new Climber(new ClimberIO() {});
 
       if (Constants.unusedCode) {
@@ -221,7 +225,8 @@ public class RobotContainer {
           new LED(
               () -> brakeModeTriggered,
               drivetrain::isGyroConnected,
-              () -> elevator.getHeight().in(Units.Inches) < 0.3);
+              () -> elevator.getHeight().in(Units.Inches) < 0.3,
+              robotStates);
     } else { // REAL and SIM robots HERE
       switch (robotType) {
         case ROBOT_SIMBOT_REAL_CAMERAS:
@@ -288,14 +293,15 @@ public class RobotContainer {
 
           arm = new Arm(new ArmIOSim());
           elevator = new Elevator(new ElevatorIOSim());
-          intake = new Intake(new IntakeIOSim());
-          endEffector = new EndEffector(new EndEffectorIOSim());
+          intake = new Intake(new IntakeIOSim(), robotStates);
+          endEffector = new EndEffector(new EndEffectorIOSim(), robotStates);
           climber = new Climber(new ClimberIOSim());
           led =
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3,
+                  robotStates);
           break;
 
         case ROBOT_2023_RETIRED_ROBER:
@@ -316,8 +322,8 @@ public class RobotContainer {
                   config.getReplayVisionModules());
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
-          intake = new Intake(new IntakeIO() {});
-          endEffector = new EndEffector(new EndEffectorIO() {});
+          intake = new Intake(new IntakeIO() {}, robotStates);
+          endEffector = new EndEffector(new EndEffectorIO() {}, robotStates);
           climber = new Climber(new ClimberIO() {});
 
           if (Constants.unusedCode) {
@@ -332,7 +338,8 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3,
+                  robotStates);
           break;
 
         case ROBOT_2024_RETIRED_MAESTRO:
@@ -343,8 +350,8 @@ public class RobotContainer {
                   new GyroIOPigeon2(config, Constants.CanIDs.GYRO_2_CAN_ID),
                   config.getSwerveModuleObjects(),
                   () -> is_autonomous);
-          intake = new Intake(new IntakeIOReal());
-          endEffector = new EndEffector(new EndEffectorIOReal());
+          intake = new Intake(new IntakeIOReal(), robotStates);
+          endEffector = new EndEffector(new EndEffectorIOReal(), robotStates);
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
           climber = new Climber(new ClimberIO() {});
@@ -368,7 +375,8 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3,
+                  robotStates);
           break;
 
         case ROBOT_2025_HOLO:
@@ -377,8 +385,8 @@ public class RobotContainer {
           } catch (InterruptedException e) {
             System.out.println("sleep interrupted");
           }
-          intake = new Intake(new IntakeIOReal());
-          endEffector = new EndEffector(new EndEffectorIOReal());
+          intake = new Intake(new IntakeIOReal(), robotStates);
+          endEffector = new EndEffector(new EndEffectorIOReal(), robotStates);
           elevator = new Elevator(new ElevatorIOReal());
           arm = new Arm(new ArmIOReal());
           climber = new Climber(new ClimberIOReal());
@@ -409,7 +417,8 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3,
+                  robotStates);
 
           break;
 
@@ -430,8 +439,8 @@ public class RobotContainer {
                   config.getReplayVisionModules());
           arm = new Arm(new ArmIO() {});
           elevator = new Elevator(new ElevatorIO() {});
-          intake = new Intake(new IntakeIO() {});
-          endEffector = new EndEffector(new EndEffectorIO() {});
+          intake = new Intake(new IntakeIO() {}, robotStates);
+          endEffector = new EndEffector(new EndEffectorIO() {}, robotStates);
           climber = new Climber(new ClimberIO() {});
 
           if (Constants.unusedCode) {
@@ -446,14 +455,16 @@ public class RobotContainer {
               new LED(
                   () -> brakeModeTriggered,
                   drivetrain::isGyroConnected,
-                  () -> elevator.getHeight().in(Units.Inches) > 0.3);
+                  () -> elevator.getHeight().in(Units.Inches) > 0.3,
+                  robotStates);
           break;
       }
     }
 
-    mech = new Mechanism(elevator, arm);
+    mech = new Mechanism(elevator, arm, robotStates);
+    robotStates.setIntake(intake);
     passOffTrigger =
-        new Trigger(() -> RobotStates.coralInIntake && RobotStates.scoringLevel != ScoringLevel.L1)
+        new Trigger(() -> robotStates.coralInIntake && robotStates.scoringLevel != ScoringLevel.L1)
             .debounce(.5);
 
     algaeInRobot =
@@ -508,7 +519,8 @@ public class RobotContainer {
             },
             this::getCustomScoringLocations,
             this::getCustomCoralStationLocations,
-            this::getCustomStartingLocation);
+            this::getCustomStartingLocation,
+            robotStates);
 
     drivetrain.setDefaultCommand(
         new DrivetrainDefaultTeleopDrive(
@@ -559,7 +571,8 @@ public class RobotContainer {
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            true))
+                            true,
+                            robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     // driverController
@@ -576,15 +589,15 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake Coral Station")
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
-                drivetrainWrapper, endEffector, mech, led, driverController, true));
+                drivetrainWrapper, endEffector, mech, led, driverController, true, robotStates));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
-        .whileTrue(new ScoreAlgae(intake))
+        .whileTrue(new ScoreAlgae(intake, robotStates))
         .onFalse(
-            Commands.runOnce(() -> RobotStates.intakeState = IntakeState.ScoreAlgae)
+            Commands.runOnce(() -> robotStates.intakeState = IntakeState.ScoreAlgae)
                 .andThen(Commands.waitSeconds(0.5))
-                .andThen(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow)));
+                .andThen(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Stow)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftTrigger, "Scoring Alignment Left")
@@ -600,7 +613,8 @@ public class RobotContainer {
                             ScoringDirection.LEFT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            false))
+                            false,
+                            robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     driverController
@@ -617,7 +631,8 @@ public class RobotContainer {
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            false))
+                            false,
+                            robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
     // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
@@ -651,43 +666,43 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.scoringLevel = ScoringLevel.L4;
+                  robotStates.scoringLevel = ScoringLevel.L4;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
-                  RobotStates.highStowMode = true;
+                  robotStates.highStowMode = true;
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.x, "Score L3")
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.scoringLevel = ScoringLevel.L3;
+                  robotStates.scoringLevel = ScoringLevel.L3;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
-                  RobotStates.highStowMode = true;
+                  robotStates.highStowMode = true;
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.a, "Score L2")
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.scoringLevel = ScoringLevel.L2;
+                  robotStates.scoringLevel = ScoringLevel.L2;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
-                  RobotStates.highStowMode = false;
+                  robotStates.highStowMode = false;
                 }));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.b, "Score L1")
         .onTrue(
             Commands.runOnce(
                 () -> {
-                  RobotStates.scoringLevel = ScoringLevel.L1;
+                  robotStates.scoringLevel = ScoringLevel.L1;
                   led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
-                  RobotStates.highStowMode = false;
+                  robotStates.highStowMode = false;
                 }));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "ScoreCoral")
         .onTrue(
             Commands.either(
-                Commands.waitUntil(() -> !RobotStates.coralInEndEffector)
+                Commands.waitUntil(() -> !robotStates.coralInEndEffector)
                     .deadlineFor(
                         Commands.runOnce(
                                 () -> {
@@ -697,36 +712,36 @@ public class RobotContainer {
                                     ioSim.nonScoringSideTofDetecting = false;
                                     FieldStates.setScoringLocationFilled(
                                         new ScoringLocation(
-                                            RobotStates.targetReefSide, RobotStates.scoringLevel));
+                                            robotStates.targetReefSide, robotStates.scoringLevel));
                                   }
                                 })
-                            .andThen(new EndEffectorSetRPM(-6000)))
-                    .finallyDo(() -> RobotStates.mechState = MechState.CoralStationPosition),
+                            .andThen(new EndEffectorSetRPM(-6000, robotStates)))
+                    .finallyDo(() -> robotStates.mechState = MechState.CoralStationPosition),
                 Commands.runOnce(
                         () -> {
-                          RobotStates.intakeState = IntakeState.ScoreCoral;
-                          RobotStates.mechState = MechState.ReefL3Position;
+                          robotStates.intakeState = IntakeState.ScoreCoral;
+                          robotStates.mechState = MechState.ReefL3Position;
                         })
-                    .andThen(Commands.waitUntil(() -> !RobotStates.coralInIntake))
+                    .andThen(Commands.waitUntil(() -> !robotStates.coralInIntake))
                     .andThen(Commands.waitSeconds(0.5))
                     .andThen(
                         Commands.runOnce(
                             () -> {
-                              RobotStates.intakeState = IntakeState.Stow;
-                              RobotStates.mechState = MechState.CoralStationPosition;
+                              robotStates.intakeState = IntakeState.Stow;
+                              robotStates.mechState = MechState.CoralStationPosition;
                             })),
-                () -> RobotStates.scoringLevel != ScoringLevel.L1));
+                () -> robotStates.scoringLevel != ScoringLevel.L1));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
-        .whileTrue(new IntakeCoralGround(intake));
+        .whileTrue(new IntakeCoralGround(intake, robotStates));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "Climb")
-        .onTrue(new Climb(climber, driverController.getPovDown()));
+        .onTrue(new Climb(climber, driverController.getPovDown(), robotStates));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povRight, "Intake Algae Ground")
-        .whileTrue(new IntakeAlgaeGround(intake));
+        .whileTrue(new IntakeAlgaeGround(intake, robotStates));
 
     // ---------- OPERATOR CONTROLS -----------
 
@@ -735,55 +750,55 @@ public class RobotContainer {
     // Reef positions
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povDown, "L1 Position")
-        .onTrue(new MechToPosition(mech, MechState.ReefL1Position));
+        .onTrue(new MechToPosition(mech, MechState.ReefL1Position, robotStates));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povRight, "L2 Position")
-        .onTrue(new MechToPosition(mech, MechState.ReefL2Position));
+        .onTrue(new MechToPosition(mech, MechState.ReefL2Position, robotStates));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "L3 Position")
-        .onTrue(new MechToPosition(mech, MechState.ReefL3Position));
+        .onTrue(new MechToPosition(mech, MechState.ReefL3Position, robotStates));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.povUp, "L4 Position")
-        .onTrue(new MechToPosition(mech, MechState.ReefL4Position));
+        .onTrue(new MechToPosition(mech, MechState.ReefL4Position, robotStates));
 
     // Manual passoff position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.y, "Manual Passoff")
-        .onTrue(new RunStateMachineCommand(() -> new PassToEndEffector()));
+        .onTrue(new RunStateMachineCommand(() -> new PassToEndEffector(intake, robotStates)));
 
     // Stow position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.x, "Score Prep Position")
-        .onTrue(new MechToPosition(mech, MechState.StowPosition));
+        .onTrue(new MechToPosition(mech, MechState.StowPosition, robotStates));
 
     // Eject
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject")
-        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Eject));
+        .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Eject));
 
     // Intake
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
-        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.IntakeCoral));
+        .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.IntakeCoral));
 
     // Intake positions
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.a, "Intake Pivot In")
         .onTrue(
-            Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Stow)
+            Commands.runOnce(() -> robotStates.intakeState = IntakeState.Stow)
                 .andThen(Commands.runOnce(() -> intake.setHoldAlgae(false))));
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightTrigger, "Intake Pivot Out")
-        .onTrue(Commands.runOnce(() -> RobotStates.intakeState = IntakeState.Down));
+        .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Down));
 
     // End Effector Rotation
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.start, "End Effector Out")
-        .whileTrue(new EndEffectorSetRPM(-1000));
+        .whileTrue(new EndEffectorSetRPM(-1000, robotStates));
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.back, "End Effector In")
-        .whileTrue(new EndEffectorSetRPM(3000));
+        .whileTrue(new EndEffectorSetRPM(3000, robotStates));
 
     // Climber in
     operatorController
@@ -798,12 +813,12 @@ public class RobotContainer {
     operatorController
         .registerTrigger(
             XboxControllerWrapper.Button.leftTrigger, "Manual arm and elevator override")
-        .onTrue(Commands.runOnce(() -> RobotStates.mechState = MechState.Override))
+        .onTrue(Commands.runOnce(() -> robotStates.mechState = MechState.Override))
         .whileTrue(
             new ArmManualControl(operatorController::getRightX, arm)
                 .alongWith(
                     new ElevatorManualControl(() -> -operatorController.getLeftY(), elevator)))
-        .onFalse(Commands.runOnce(() -> RobotStates.mechanismInUse = false));
+        .onFalse(Commands.runOnce(() -> robotStates.mechanismInUse = false));
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.b, "Climber in")
@@ -811,7 +826,7 @@ public class RobotContainer {
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "Manual arm and elevator override")
-        .onTrue(Commands.runOnce(() -> RobotStates.mechState = MechState.Override))
+        .onTrue(Commands.runOnce(() -> robotStates.mechState = MechState.Override))
         .whileTrue(
             new ArmManualControl(operatorController::getRightX, arm)
                 .alongWith(
@@ -819,22 +834,22 @@ public class RobotContainer {
 
     // ---------- NON-CONTROLLER TRIGGERS
 
-    RobotStates.triggerForCoralInEndEffector.onTrue(
+    robotStates.triggerForCoralInEndEffector.onTrue(
         new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
             .andThen(
-                new MechToPosition(mech, MechState.StowPosition)
+                new MechToPosition(mech, MechState.StowPosition, robotStates)
                     .finallyDo(
                         () -> {
-                          RobotStates.changeEndEffectorIfNotAligning(
+                          robotStates.changeEndEffectorIfNotAligning(
                               RobotStates.EndEffectorDesiredAction.AlignCoral);
                         }))
             .withName("GamepieceIntoEECommand"));
 
-    RobotStates.triggerForCoralInEndEffector.onFalse(
-        new MechToPosition(mech, MechState.CoralStationPosition)
+    robotStates.triggerForCoralInEndEffector.onFalse(
+        new MechToPosition(mech, MechState.CoralStationPosition, robotStates)
             .withName("GamepieceOutOfEECommand"));
 
-    RobotStates.triggerForCoralInIntake.onTrue(
+    robotStates.triggerForCoralInIntake.onTrue(
         new ControllerRumbleForTime(
                 (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r), 0.5, 0.5)
             .alongWith(new LedSetStateForSeconds(led, RobotState.INTAKE_SUCCESS, 0.5)));
@@ -1096,9 +1111,9 @@ public class RobotContainer {
     climber.setWinchVoltage(0);
     intake.setPivotVoltage(0);
     intake.setRollerPercentOut(0);
-    RobotStates.mechState = MechState.Idle;
+    robotStates.mechState = MechState.Idle;
 
-    RobotStates.intakeState = IntakeState.Idle;
+    robotStates.intakeState = IntakeState.Idle;
 
     is_teleop = false;
     is_autonomous = false;
@@ -1148,7 +1163,8 @@ public class RobotContainer {
         elevator.getHeight(),
         arm.getAngle(),
         intake.getPivotAngle(),
-        climber.getWinchAngle());
+        climber.getWinchAngle(),
+        robotStates);
     MechanismVisualization.logMechanism();
     FieldStates.logGamepieceVisualization();
   }
@@ -1160,22 +1176,22 @@ public class RobotContainer {
   }
 
   public void updateRobotState() {
-    RobotStates.periodic();
+    robotStates.periodic();
     mech.periodic();
 
-    if (RobotStates.triggerForCoralInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
+    if (robotStates.triggerForCoralInRobot.getAsBoolean() && !led.getGamepieceStatus()) {
       led.setGamepieceStatus(true);
     }
 
-    if (!RobotStates.triggerForCoralInRobot.getAsBoolean() && led.getGamepieceStatus()) {
+    if (!robotStates.triggerForCoralInRobot.getAsBoolean() && led.getGamepieceStatus()) {
       led.setGamepieceStatus(false);
     }
 
     if (algaeInRobot.getAsBoolean()) {
-      RobotStates.algaeInRobot = true;
+      robotStates.algaeInRobot = true;
     }
 
-    RobotStates.coralInIntake = intake.intakeTimeOfFlight();
+    robotStates.coralInIntake = intake.intakeTimeOfFlight();
   }
 
   public List<ScoringLocation> getCustomScoringLocations() {

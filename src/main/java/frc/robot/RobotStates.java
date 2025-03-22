@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -8,6 +9,7 @@ import frc.lib.team2930.RunStateMachineCommand;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.PassToEndEffector;
 import frc.robot.commands.PassToIntake;
+import frc.robot.subsystems.intake.Intake;
 
 public class RobotStates {
   public enum EndEffectorDesiredAction {
@@ -51,7 +53,8 @@ public class RobotStates {
     PrepPassoffPosition,
     PassoffPosition,
     PassOffAlgaePosition,
-    HoldAlgaePosition
+    HoldAlgaePosition,
+    AvoidIntake
   }
 
   public enum IntakeState {
@@ -84,113 +87,114 @@ public class RobotStates {
     EndEffector
   }
 
-  private static LoggerGroup logGroup = LoggerGroup.build("RobotState");
+  private LoggerGroup logGroup = LoggerGroup.build("RobotState");
 
-  private static LoggerEntry.Bool logAlgaeClearingState = logGroup.buildBoolean("AlgaeClearing");
-  private static LoggerEntry.Bool logGamepieceInRobotState =
+  private LoggerEntry.Bool logAlgaeClearingState = logGroup.buildBoolean("AlgaeClearing");
+  private LoggerEntry.Bool logGamepieceInRobotState =
       logGroup.buildBoolean("GamepieceInRobotState");
-  private static LoggerEntry.Bool logGamepieceInEndEffectorState =
+  private LoggerEntry.Bool logGamepieceInEndEffectorState =
       logGroup.buildBoolean("GamepieceInEndEffectorState");
-  private static LoggerEntry.Bool logGamepieceInEndEffectorScoringSideState =
+  private LoggerEntry.Bool logGamepieceInEndEffectorScoringSideState =
       logGroup.buildBoolean("GamepieceInEndEffectorScoringSideState");
-  private static LoggerEntry.Bool logGamepieceInEndEffectorNonScoringSideState =
+  private LoggerEntry.Bool logGamepieceInEndEffectorNonScoringSideState =
       logGroup.buildBoolean("GamepieceInEndEffectorNonScoringSideState");
-  private static LoggerEntry.Bool logGamepieceInIntakeState =
+  private LoggerEntry.Bool logGamepieceInIntakeState =
       logGroup.buildBoolean("GamepieceInIntakeState");
-  private static LoggerEntry.Bool logCoralInIntakeState =
-      logGroup.buildBoolean("CoralInIntakeState");
+  private LoggerEntry.Bool logCoralInIntakeState = logGroup.buildBoolean("CoralInIntakeState");
 
-  private static LoggerEntry.Bool logHighStowMode = logGroup.buildBoolean("HighStowMode");
+  private LoggerEntry.Bool logHighStowMode = logGroup.buildBoolean("HighStowMode");
 
-  private static LoggerEntry.EnumValue<EndEffectorDesiredAction> logEndEffectorDesiredAction =
+  private LoggerEntry.EnumValue<EndEffectorDesiredAction> logEndEffectorDesiredAction =
       logGroup.buildEnum("EndEffectorDesiredAction");
-  private static LoggerEntry.EnumValue<MechState> logMechState = logGroup.buildEnum("MechState");
-  private static LoggerEntry.EnumValue<IntakeState> logIntakeState =
-      logGroup.buildEnum("IntakeState");
+  private LoggerEntry.EnumValue<MechState> logMechState = logGroup.buildEnum("MechState");
+  private LoggerEntry.EnumValue<IntakeState> logIntakeState = logGroup.buildEnum("IntakeState");
 
-  private static LoggerGroup logGroupLevels = logGroup.subgroup("Levels");
-  private static LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
+  private LoggerGroup logGroupLevels = logGroup.subgroup("Levels");
+  private LoggerEntry.EnumValue<ScoringLevel> logScoringLevelState =
       logGroupLevels.buildEnum("Level");
-  private static LoggerEntry.Bool logL1State = logGroupLevels.buildBoolean("L1");
-  private static LoggerEntry.Bool logL2State = logGroupLevels.buildBoolean("L2");
-  private static LoggerEntry.Bool logL3State = logGroupLevels.buildBoolean("L3");
-  private static LoggerEntry.Bool logL4State = logGroupLevels.buildBoolean("L4");
+  private LoggerEntry.Bool logL1State = logGroupLevels.buildBoolean("L1");
+  private LoggerEntry.Bool logL2State = logGroupLevels.buildBoolean("L2");
+  private LoggerEntry.Bool logL3State = logGroupLevels.buildBoolean("L3");
+  private LoggerEntry.Bool logL4State = logGroupLevels.buildBoolean("L4");
 
-  private static LoggerGroup logTransferCoral = logGroup.subgroup("TransferCoral");
-  private static LoggerEntry.Bool logTransferToEndEffector =
-      logTransferCoral.buildBoolean("ToEndEffector");
-  private static LoggerEntry.Bool logTransferToIntake = logTransferCoral.buildBoolean("ToIntake");
+  private LoggerGroup logTransferCoral = logGroup.subgroup("TransferCoral");
+  private LoggerEntry.Bool logTransferToEndEffector =
+      logTransferCoral.buildBoolean("TransferToEndEffector");
+  private LoggerEntry.Bool logTransferToIntake = logTransferCoral.buildBoolean("TransferToIntake");
 
-  private static LoggerGroup logSubsystemsInUse = logGroup.subgroup("SubsystemsInUse");
-  private static LoggerEntry.Bool logIntakeInUse = logSubsystemsInUse.buildBoolean("Intake");
-  private static LoggerEntry.Bool logMechInUse = logSubsystemsInUse.buildBoolean("Mech");
-  private static LoggerEntry.Bool logEndEffectorInUse =
-      logSubsystemsInUse.buildBoolean("EndEffector");
+  private LoggerGroup logSubsystemsInUse = logGroup.subgroup("SubsystemsInUse");
+  private LoggerEntry.Bool logIntakeInUse = logSubsystemsInUse.buildBoolean("IntakeInUse");
+  private LoggerEntry.Bool logMechInUse = logSubsystemsInUse.buildBoolean("MechInUse");
+  private LoggerEntry.Bool logEndEffectorInUse =
+      logSubsystemsInUse.buildBoolean("EndEffectorInUse");
 
-  private static LoggerGroup logSubsystemsInTargetStates =
-      logGroup.subgroup("SubsystemsInTargetStates");
-  private static LoggerEntry.Bool logIntakeInTargetState =
-      logSubsystemsInTargetStates.buildBoolean("Intake");
-  private static LoggerEntry.Bool logMechInTargetState =
-      logSubsystemsInTargetStates.buildBoolean("Mech");
+  private LoggerGroup logSubsystemsInTargetStates = logGroup.subgroup("SubsystemsInTargetStates");
+  private LoggerEntry.Bool logIntakeInTargetState =
+      logSubsystemsInTargetStates.buildBoolean("IntakeInTargetState");
+  private LoggerEntry.Bool logMechInTargetState =
+      logSubsystemsInTargetStates.buildBoolean("MechInTargetState");
 
-  public static boolean clearingAlgae;
+  public boolean clearingAlgae;
 
-  public static ScoringLevel scoringLevel = ScoringLevel.L4;
+  public ScoringLevel scoringLevel = ScoringLevel.L4;
 
-  public static EndEffectorDesiredAction endEffectorDesiredAction = EndEffectorDesiredAction.Idle;
-  public static double endEffectorOverrideVelocity = Double.NaN;
+  public EndEffectorDesiredAction endEffectorDesiredAction = EndEffectorDesiredAction.Idle;
+  public double endEffectorOverrideVelocity = Double.NaN;
 
-  public static MechState mechState = MechState.Idle;
+  public MechState mechState = MechState.Idle;
 
-  public static IntakeState intakeState = IntakeState.Idle;
+  public IntakeState intakeState = IntakeState.Idle;
 
-  public static boolean algaeInRobot;
+  public boolean algaeInRobot;
 
-  public static boolean coralInRobot;
+  public boolean coralInRobot;
 
-  public static boolean coralInEndEffector;
+  public boolean coralInEndEffector;
 
-  public static boolean coralInEndEffectorScoringSide;
-  public static boolean coralInEndEffectorNonScoringSide;
+  public boolean coralInEndEffectorScoringSide;
+  public boolean coralInEndEffectorNonScoringSide;
 
-  public static boolean coralInIntake;
+  public boolean coralInIntake;
 
-  public static boolean highStowMode = true;
+  public boolean highStowMode = true;
 
-  public static ReefSide targetReefSide = ReefSide.CA;
+  public ReefSide targetReefSide = ReefSide.CA;
 
-  public static Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
-  public static Trigger triggerForCoralInEndEffector =
-      new Trigger(() -> coralInEndEffector).debounce(0.5);
-  public static Trigger triggerForCoralInIntake =
+  public Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
+  public Trigger triggerForCoralInEndEffector = new Trigger(() -> coralInEndEffector).debounce(0.5);
+  public Trigger triggerForCoralInIntake =
       new Trigger(() -> coralInIntake)
           .debounce(
               0.5); // debounce to allow coarl to get fully in intake before ending intake command
 
-  public static TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
+  public TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
 
-  private static boolean transferToEndEffector;
-  private static boolean transferToIntake;
+  private boolean transferToEndEffector;
+  private boolean transferToIntake;
 
-  public static boolean endEffectorInUse;
-  public static boolean mechanismInUse;
-  public static boolean intakeInUse;
+  public boolean endEffectorInUse;
+  public boolean mechanismInUse;
+  public boolean intakeInUse;
 
-  public static boolean intakeInTargetState;
-  public static boolean mechInTargetState;
+  public boolean intakeInTargetState;
+  public boolean mechInTargetState;
 
-  public static Command passToEndEffector =
-      new RunStateMachineCommand(() -> new PassToEndEffector());
-  public static Command passToIntake = new RunStateMachineCommand(() -> new PassToIntake());
+  private Command passToEndEffector = Commands.none();
+  private Command passToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
 
-  public static void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
+  public RobotStates() {}
+
+  public void setIntake(Intake intake) {
+    passToEndEffector = new RunStateMachineCommand(() -> new PassToEndEffector(intake, this));
+  }
+
+  public void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
     if (!endEffectorDesiredAction.alignmentActive) {
       endEffectorDesiredAction = action;
     }
   }
 
-  public static void periodic() {
+  public void periodic() {
 
     targetCoralPosition =
         scoringLevel == ScoringLevel.L1
@@ -265,17 +269,17 @@ public class RobotStates {
     endEffectorInUse = false;
   }
 
-  public static void setMechState(MechState state) {
+  public void setMechState(MechState state) {
     mechState = state;
     mechanismInUse = true;
   }
 
-  public static void setIntakeState(IntakeState state) {
+  public void setIntakeState(IntakeState state) {
     intakeState = state;
     intakeInUse = true;
   }
 
-  public static void setEndEffectorState(EndEffectorDesiredAction state) {
+  public void setEndEffectorState(EndEffectorDesiredAction state) {
     endEffectorDesiredAction = state;
     endEffectorInUse = true;
   }

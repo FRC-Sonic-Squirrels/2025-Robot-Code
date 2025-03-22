@@ -6,42 +6,51 @@ import frc.robot.RobotStates;
 import frc.robot.RobotStates.EndEffectorDesiredAction;
 import frc.robot.RobotStates.IntakeState;
 import frc.robot.RobotStates.MechState;
+import frc.robot.subsystems.intake.Intake;
 
 public class PassToEndEffector extends StateMachine {
 
-  private final Trigger endTrigger =
-      new Trigger(() -> RobotStates.coralInEndEffectorScoringSide).debounce(0.3);
-  private final Trigger lostCoral = new Trigger(() -> !RobotStates.coralInIntake).debounce(0.5);
+  private final Intake intake;
+  private final RobotStates states;
 
-  public PassToEndEffector() {
+  private final Trigger endTrigger;
+  private final Trigger lostCoral;
+
+  public PassToEndEffector(Intake intake, RobotStates states) {
     super("PassToEndEffector");
+
+    this.intake = intake;
+    this.states = states;
+
+    endTrigger = new Trigger(() -> states.coralInEndEffectorScoringSide).debounce(0.3);
+    lostCoral = new Trigger(() -> !states.coralInIntake).debounce(0.5);
 
     setInitialState(stateWithName("PrepToPassOff", () -> prepToPassOff()));
     setInterruptedState(stateWithName("End", () -> end()));
   }
 
   private StateHandler prepToPassOff() {
-    RobotStates.mechState = MechState.PrepPassoffPosition;
-    RobotStates.intakeState = IntakeState.PrepPassoff;
-    RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
+    states.mechState = MechState.PrepPassoffPosition;
+    states.intakeState = IntakeState.PrepPassoff;
+    states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
     if (lostCoral.getAsBoolean()) return stateWithName("End", () -> end());
-    return RobotStates.intakeInTargetState && RobotStates.mechInTargetState
+    return intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle()) && states.mechInTargetState
         ? stateWithName("PassOff", () -> passOff())
         : null;
   }
 
   private StateHandler passOff() {
-    RobotStates.mechState = MechState.PassoffPosition;
-    RobotStates.intakeState = IntakeState.PassoffEndEffector;
-    RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
+    states.mechState = MechState.PassoffPosition;
+    states.intakeState = IntakeState.PassoffEndEffector;
+    states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
     if (lostCoral.getAsBoolean()) return stateWithName("End", () -> end());
     return endTrigger.getAsBoolean() ? stateWithName("End", () -> end()) : null;
   }
 
   private StateHandler end() {
-    RobotStates.mechState = MechState.StowPosition;
-    RobotStates.intakeState = IntakeState.Stow;
-    RobotStates.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
+    states.mechState = MechState.StowPosition;
+    states.intakeState = IntakeState.Stow;
+    states.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
     return setDone();
   }
 }

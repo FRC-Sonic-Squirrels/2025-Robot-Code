@@ -21,14 +21,15 @@ public class CommandComposer {
       Mechanism mech,
       LED led,
       XboxControllerWrapper driverController,
-      boolean moveMech) {
+      boolean moveMech,
+      RobotStates states) {
 
     return new IntakeGamepieceCoralStation(
-            endEffector, mech, () -> wrapper.getCoralStationPoseEstimatorPose(true))
+            endEffector, mech, () -> wrapper.getCoralStationPoseEstimatorPose(true), states)
         .alongWith(
             Commands.run(
                     () -> {
-                      if (RobotStates.coralInEndEffector) {
+                      if (states.coralInEndEffector) {
                         if (driverController != null)
                           driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5);
                         led.setBaseRobotState(BaseRobotState.INTAKE_SUCCESS);
@@ -43,10 +44,10 @@ public class CommandComposer {
         .andThen(
             new WaitUntilMovedDist(wrapper, Units.Meters.of(0.3))
                 .andThen(
-                    new MechToPosition(mech, MechState.StowPosition)
+                    new MechToPosition(mech, MechState.StowPosition, states)
                         .finallyDo(
                             () -> {
-                              RobotStates.changeEndEffectorIfNotAligning(
+                              states.changeEndEffectorIfNotAligning(
                                   RobotStates.EndEffectorDesiredAction.AlignCoral);
                             })))
         .withName("CoralStationIntake");

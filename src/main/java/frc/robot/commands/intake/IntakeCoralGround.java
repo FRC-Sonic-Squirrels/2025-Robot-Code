@@ -6,11 +6,13 @@ import frc.lib.team2930.LoggerGroup;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.IntakeState;
 import frc.robot.RobotStates.MechState;
+import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.subsystems.intake.Intake;
 
 public class IntakeCoralGround extends Command {
   // boolean coralInIntake = RobotStates.coralInIntake;
   private final Intake intake;
+  private final RobotStates states;
   private static final String root = "Intake Coral Ground";
   private static final LoggerGroup logGroup = LoggerGroup.build(root);
 
@@ -21,9 +23,10 @@ public class IntakeCoralGround extends Command {
       logGroup.buildBoolean("coralInIntake");
 
   /** Creates a new IntakeGround */
-  public IntakeCoralGround(Intake intake) {
+  public IntakeCoralGround(Intake intake, RobotStates states) {
 
     this.intake = intake;
+    this.states = states;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(intake);
@@ -32,31 +35,38 @@ public class IntakeCoralGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotStates.mechState = MechState.PassoffPosition;
-    RobotStates.intakeState = IntakeState.IntakeCoral;
+    if (states.scoringLevel == ScoringLevel.L1) {
+      states.mechState = MechState.AvoidIntake;
+    } else states.mechState = MechState.PassoffPosition;
+    states.intakeState = IntakeState.IntakeCoral;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    RobotStates.mechanismInUse = true;
-    RobotStates.intakeInUse = true;
+    states.mechanismInUse = true;
+    states.intakeInUse = true;
+    if (states.scoringLevel == ScoringLevel.L1) {
+      states.mechState = MechState.AvoidIntake;
+    } else states.mechState = MechState.PassoffPosition;
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (RobotStates.coralInIntake) {
-      RobotStates.intakeState = IntakeState.PrepPassoff;
+    if (states.coralInIntake) {
+      if (states.scoringLevel == ScoringLevel.L1) {
+        states.mechState = MechState.AvoidIntake;
+      } else states.mechState = MechState.PassoffPosition;
     } else {
-      RobotStates.intakeState = IntakeState.Stow;
-      RobotStates.mechState = MechState.CoralStationPosition;
+      states.intakeState = IntakeState.Stow;
+      states.mechState = MechState.CoralStationPosition;
     }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotStates.triggerForCoralInIntake.getAsBoolean();
+    return states.triggerForCoralInIntake.getAsBoolean();
   }
 }

@@ -19,14 +19,17 @@ public class ResetMechToIntakePosition extends Command {
   private final DrivetrainWrapper wrapper;
   private final Elevator elevator;
   private final Arm arm;
+  private final RobotStates states;
 
   private Pose2d initPose;
 
   /** Creates a new ResetMechToScorePrepPosition. */
-  public ResetMechToIntakePosition(DrivetrainWrapper wrapper, Elevator elevator, Arm arm) {
+  public ResetMechToIntakePosition(
+      DrivetrainWrapper wrapper, Elevator elevator, Arm arm, RobotStates states) {
     this.wrapper = wrapper;
     this.elevator = elevator;
     this.arm = arm;
+    this.states = states;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(elevator, arm);
@@ -45,7 +48,7 @@ public class ResetMechToIntakePosition extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    RobotStates.mechState = MechState.CoralStationPosition;
+    states.mechState = MechState.CoralStationPosition;
   }
 
   // Returns true when the command should end.

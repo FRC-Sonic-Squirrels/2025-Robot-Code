@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
-import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
@@ -21,18 +20,17 @@ import java.util.function.Supplier;
 
 public class IntakeGamepieceCoralStation extends Command {
   private static final LoggerGroup logGroup = LoggerGroup.build("IntakeGamepiece");
-  private static final LoggerEntry.Integer log_Stage = logGroup.buildInteger("Stage");
 
   private final EndEffector endEffector;
-  private final Trigger gamepieceInRobot =
-      new Trigger(() -> RobotStates.coralInEndEffectorScoringSide || RobotStates.coralInIntake)
-          .debounce(0.25);
+  private final RobotStates states;
   private final Trigger simConditions;
 
   /** Creates a new IntakeGamepieceCoralStation. */
   public IntakeGamepieceCoralStation(
-      EndEffector endEffector, Mechanism mech, Supplier<Pose2d> robotPose) {
+      EndEffector endEffector, Mechanism mech, Supplier<Pose2d> robotPose, RobotStates states) {
     this.endEffector = endEffector;
+    this.states = states;
+
     simConditions =
         new Trigger(
                 () -> {
@@ -55,9 +53,8 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotStates.mechState = MechState.CoralStationPosition;
-    RobotStates.changeEndEffectorIfNotAligning(
-        RobotStates.EndEffectorDesiredAction.CoralStationIntake);
+    states.mechState = MechState.CoralStationPosition;
+    states.changeEndEffectorIfNotAligning(RobotStates.EndEffectorDesiredAction.CoralStationIntake);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -77,13 +74,13 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    RobotStates.changeEndEffectorIfNotAligning(RobotStates.EndEffectorDesiredAction.Idle);
+    states.changeEndEffectorIfNotAligning(RobotStates.EndEffectorDesiredAction.Idle);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotStates.endEffectorDesiredAction
+    return states.endEffectorDesiredAction
         != RobotStates.EndEffectorDesiredAction.CoralStationIntake;
   }
 

@@ -16,6 +16,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates;
+import frc.robot.RobotStates.EndEffectorDesiredAction;
 
 public class EndEffector extends SubsystemBase {
   // Execution timing
@@ -106,14 +107,16 @@ public class EndEffector extends SubsystemBase {
   }
 
   private final EndEffectorIO io;
+  private final RobotStates states;
   private final EndEffectorIO.Inputs inputs = new EndEffectorIO.Inputs(logGroup);
 
   private ControlMode controlMode = ControlMode.OPEN_LOOP;
   private double zeroCoralPosition;
 
   /** Creates a new EndEffector. */
-  public EndEffector(EndEffectorIO io) {
+  public EndEffector(EndEffectorIO io, RobotStates states) {
     this.io = io;
+    this.states = states;
 
     setConstants();
 
@@ -143,9 +146,9 @@ public class EndEffector extends SubsystemBase {
       var coralInEndEffectorNonScoringSide = nonScoringSideTOFSeenGamepiece();
       var coralInEndEffector = coralInEndEffectorScoringSide || coralInEndEffectorNonScoringSide;
 
-      RobotStates.coralInEndEffectorScoringSide = coralInEndEffectorScoringSide;
-      RobotStates.coralInEndEffectorNonScoringSide = coralInEndEffectorNonScoringSide;
-      RobotStates.coralInEndEffector = coralInEndEffector;
+      states.coralInEndEffectorScoringSide = coralInEndEffectorScoringSide;
+      states.coralInEndEffectorNonScoringSide = coralInEndEffectorNonScoringSide;
+      states.coralInEndEffector = coralInEndEffector;
 
       logInputs_velocityRPM.info(inputs.velocityRPM);
       logInputs_currentAmps.info(inputs.currentAmps);
@@ -160,7 +163,7 @@ public class EndEffector extends SubsystemBase {
 
       logControlMode.info(controlMode);
 
-      logVelocityOverride.info(RobotStates.endEffectorOverrideVelocity);
+      logVelocityOverride.info(states.endEffectorOverrideVelocity);
 
       // Update tunable numbers
 
@@ -172,24 +175,24 @@ public class EndEffector extends SubsystemBase {
         setConstants();
       }
 
-      var desiredAction = RobotStates.endEffectorDesiredAction;
+      var desiredAction = states.endEffectorDesiredAction;
 
       if (DriverStation.isDisabled()) {
-        if (desiredAction != RobotStates.EndEffectorDesiredAction.AlignedCoral) {
-          desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+        if (desiredAction != EndEffectorDesiredAction.AlignedCoral) {
+          desiredAction = EndEffectorDesiredAction.Idle;
         }
-        RobotStates.endEffectorOverrideVelocity = Double.NaN;
+        states.endEffectorOverrideVelocity = Double.NaN;
       }
 
-      if (Double.isFinite(RobotStates.endEffectorOverrideVelocity)) {
-        setVelocity(RobotStates.endEffectorOverrideVelocity);
+      if (Double.isFinite(states.endEffectorOverrideVelocity)) {
+        setVelocity(states.endEffectorOverrideVelocity);
       } else {
         var endEffectorSim = getSim();
         while (true) {
           switch (desiredAction) {
             case Idle:
               if (coralInEndEffectorScoringSide && coralInEndEffectorNonScoringSide) {
-                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoral;
+                desiredAction = EndEffectorDesiredAction.AlignCoral;
               } else {
                 setPercentOut(0);
               }
@@ -197,7 +200,7 @@ public class EndEffector extends SubsystemBase {
 
             case CoralStationIntake:
               if (coralInEndEffectorNonScoringSide) {
-                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoral;
+                desiredAction = EndEffectorDesiredAction.AlignCoral;
               } else if (coralInEndEffectorScoringSide) {
                 setVelocity(intakingVelocitySlow.get());
               } else {
@@ -207,7 +210,7 @@ public class EndEffector extends SubsystemBase {
 
             case GroundIntake:
               if (coralInEndEffectorScoringSide) {
-                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoral;
+                desiredAction = EndEffectorDesiredAction.AlignCoral;
               } else if (coralInEndEffectorNonScoringSide) {
                 setVelocity(-(intakingVelocitySlow.get()));
               } else {
@@ -217,14 +220,14 @@ public class EndEffector extends SubsystemBase {
 
             case AlignCoral:
               if (!coralInEndEffector) {
-                desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+                desiredAction = EndEffectorDesiredAction.Idle;
               } else if (!coralInEndEffectorNonScoringSide) {
                 // Keep moving the coral in.
                 setVelocity(correctionVelocity.get());
               } else {
                 // Start backtracking the coral.
                 setVelocity(-correctionVelocity.get());
-                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase2;
+                desiredAction = EndEffectorDesiredAction.AlignCoralPhase2;
               }
               break;
 
@@ -233,7 +236,7 @@ public class EndEffector extends SubsystemBase {
                 // Now reverse until we see it again.
                 setVelocity(correctionVelocity.get());
 
-                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase3;
+                desiredAction = EndEffectorDesiredAction.AlignCoralPhase3;
               }
               break;
 
@@ -241,7 +244,7 @@ public class EndEffector extends SubsystemBase {
               if (coralInEndEffectorNonScoringSide) {
                 zeroCoralPosition = getMotorPosition();
 
-                desiredAction = RobotStates.EndEffectorDesiredAction.AlignCoralPhase4;
+                desiredAction = EndEffectorDesiredAction.AlignCoralPhase4;
               }
               break;
 
@@ -250,14 +253,14 @@ public class EndEffector extends SubsystemBase {
               //          log_Position.info(dif);
               if (diff >= alignTarget.get()) {
                 zeroCoralPosition = getMotorPosition();
-                desiredAction = RobotStates.EndEffectorDesiredAction.AlignedCoral;
+                desiredAction = EndEffectorDesiredAction.AlignedCoral;
               }
               break;
 
             case AlignedCoral:
               double pos = getMotorPosition() - zeroCoralPosition;
               double desiredPos = 0;
-              switch (RobotStates.scoringLevel) {
+              switch (states.scoringLevel) {
                 case L1:
                   desiredPos = alignL1Turns.get();
                   break;
@@ -286,7 +289,7 @@ public class EndEffector extends SubsystemBase {
             case ScoreFastForward:
               setVelocity(scoringVelocityRPM.get());
               if (!coralInEndEffector) {
-                desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+                desiredAction = EndEffectorDesiredAction.Idle;
               }
 
               if (endEffectorSim != null) {
@@ -298,7 +301,7 @@ public class EndEffector extends SubsystemBase {
             case ScoreFastBackward:
               setVelocity(-scoringVelocityRPM.get());
               if (!coralInEndEffector) {
-                desiredAction = RobotStates.EndEffectorDesiredAction.Idle;
+                desiredAction = EndEffectorDesiredAction.Idle;
               }
 
               if (endEffectorSim != null) {
@@ -313,14 +316,14 @@ public class EndEffector extends SubsystemBase {
               setVelocity(-passOffVelocityRPM.get());
               break;
           }
-          if (RobotStates.endEffectorDesiredAction == desiredAction) {
+          if (states.endEffectorDesiredAction == desiredAction) {
             break;
           }
-          RobotStates.endEffectorDesiredAction = desiredAction;
+          states.endEffectorDesiredAction = desiredAction;
         }
       }
 
-      RobotStates.endEffectorDesiredAction = desiredAction;
+      states.endEffectorDesiredAction = desiredAction;
     }
   }
 

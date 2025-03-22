@@ -64,6 +64,8 @@ public class ScoreCoral extends StateMachine {
   private Pose2d scoringPose;
   private final Optional<ChoreoTrajectoryWithName> optionalPath;
 
+  private final RobotStates states;
+
   private Command prepMechanismForScoring;
 
   private boolean usingDrivetrain = true;
@@ -128,7 +130,8 @@ public class ScoreCoral extends StateMachine {
       LED led,
       Consumer<Double> rumble,
       RobotConfig config,
-      boolean clearAlgae) {
+      boolean clearAlgae,
+      RobotStates robotStates) {
     this(
         wrapper,
         mech,
@@ -141,7 +144,8 @@ public class ScoreCoral extends StateMachine {
         config,
         false,
         clearAlgae,
-        Optional.empty());
+        Optional.empty(),
+        robotStates);
     gamepieceMemory = true;
   }
 
@@ -158,7 +162,8 @@ public class ScoreCoral extends StateMachine {
       RobotConfig config,
       boolean clearAlgae,
       Optional<ChoreoTrajectoryWithName> optionalTraj,
-      boolean preloadCode) {
+      boolean preloadCode,
+      RobotStates robotStates) {
     this(
         wrapper,
         mech,
@@ -171,7 +176,8 @@ public class ScoreCoral extends StateMachine {
         config,
         false,
         clearAlgae,
-        optionalTraj);
+        optionalTraj,
+        robotStates);
     this.preloadCode = preloadCode;
   }
 
@@ -184,7 +190,8 @@ public class ScoreCoral extends StateMachine {
       ScoringDirection scoringDirection,
       Consumer<Double> rumble,
       RobotConfig config,
-      boolean clearAlgae) {
+      boolean clearAlgae,
+      RobotStates robotStates) {
     this(
         wrapper,
         mech,
@@ -197,7 +204,8 @@ public class ScoreCoral extends StateMachine {
         config,
         false,
         clearAlgae,
-        Optional.empty());
+        Optional.empty(),
+        robotStates);
   }
 
   public ScoreCoral(
@@ -212,7 +220,8 @@ public class ScoreCoral extends StateMachine {
       RobotConfig config,
       boolean driverConfirmation,
       boolean clearAlgae,
-      Optional<ChoreoTrajectoryWithName> optionalPresetPath) {
+      Optional<ChoreoTrajectoryWithName> optionalPresetPath,
+      RobotStates robotStates) {
     super("ScoreCoral");
 
     this.wrapper = wrapper;
@@ -223,6 +232,7 @@ public class ScoreCoral extends StateMachine {
     this.config = config;
     this.clearAlgae = clearAlgae;
     this.optionalPath = optionalPresetPath;
+    this.states = robotStates;
 
     this.optionalScoringDirection = scoringDirection;
     this.rumble = rumble;
@@ -234,7 +244,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler chooseAction() {
-    if (RobotStates.scoringLevel == ScoringLevel.L1 && !clearAlgae)
+    if (states.scoringLevel == ScoringLevel.L1 && !clearAlgae)
       return stateWithName("ScoreL1", L1Position());
 
     Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
@@ -266,45 +276,46 @@ public class ScoreCoral extends StateMachine {
   // SCORING STATES
 
   private StateHandler L1Position() {
-    RobotStates.intakeState = IntakeState.ScoreCoralPrep;
-    RobotStates.mechState = MechState.ReefL3Position;
+    states.intakeState = IntakeState.ScoreCoralPrep;
+    states.mechState = MechState.ReefL3Position;
     return setDone();
   }
 
   private StateHandler prepForScoringAlignment() {
-    if (!(RobotStates.coralInEndEffectorScoringSide
-            || RobotStates.coralInEndEffectorNonScoringSide
+    if (!(states.coralInEndEffectorScoringSide
+            || states.coralInEndEffectorNonScoringSide
             || preloadCode)
         || !scorableLevel()) {
-      return RobotStates.clearingAlgae && !gamepieceMemory
+      return states.clearingAlgae && !gamepieceMemory
           ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
           : stateWithName("ScoreFailure", () -> scoreFailure());
     }
 
-    RobotStates.targetReefSide = scoringSideAndDirectionToReefSide(scoringSide, scoringDirection);
+    states.targetReefSide = scoringSideAndDirectionToReefSide(scoringSide, scoringDirection);
 
     prepMechanismForScoring =
         spawnCommand(
-            new MechToPosition(mech, MechState.StowPosition)
+            new MechToPosition(mech, MechState.StowPosition, states)
                 .alongWith(
                     Commands.waitUntil(
                             () ->
-                                !(RobotStates.scoringLevel == ScoringLevel.L4)
+                                !(states.scoringLevel == ScoringLevel.L4)
                                     || (wrapper.getLinearVel() < velToElevateCoral.get()
                                         && GeometryUtil.getDist(
                                                 wrapper.getReefPoseEstimatorPose(true), scoringPose)
                                             < distToElevateCoral.get()))
                         .andThen(
                             Commands.either(
-                                    new MechToPosition(mech, MechState.ReefPosition)
+                                    new MechToPosition(mech, MechState.ReefPosition, states)
                                         .alongWith(
                                             Commands.waitUntil(
                                                     () -> inPosition && elevator.isAtTarget())
                                                 .andThen(
-                                                    new MechToPosition(mech, MechState.ReefPosition)
+                                                    new MechToPosition(
+                                                            mech, MechState.ReefPosition, states)
                                                         .asProxy())),
-                                    new MechToPosition(mech, MechState.ReefPosition),
-                                    () -> RobotStates.scoringLevel == ScoringLevel.L4)
+                                    new MechToPosition(mech, MechState.ReefPosition, states),
+                                    () -> states.scoringLevel == ScoringLevel.L4)
                                 .asProxy()))
                 .withName("MechScoreCoral"),
             (command) -> null);
@@ -313,7 +324,7 @@ public class ScoreCoral extends StateMachine {
         new Trigger(
                 () ->
                     arm.isAtTargetAngle(
-                        MechanismPositions.reefPosition(RobotStates.scoringLevel).armAngle(),
+                        MechanismPositions.reefPosition(states.scoringLevel).armAngle(),
                         Rotation2d.fromDegrees(1.5)))
             .debounce(0);
 
@@ -364,12 +375,12 @@ public class ScoreCoral extends StateMachine {
   private StateHandler score() {
 
     if (scoringTrigger.getAsBoolean() && !confirmation) {
-      RobotStates.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.ScoreFastForward;
+      states.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.ScoreFastForward;
     }
 
     if (preloadCode) return stateWithName("End", () -> end(false));
 
-    if (RobotStates.coralInEndEffector && !confirmation) return null;
+    if (states.coralInEndEffector && !confirmation) return null;
 
     if (confirmation && prepMechanismForScoring.isScheduled()) return null;
 
@@ -391,8 +402,8 @@ public class ScoreCoral extends StateMachine {
 
     Command clearAlgae1Position =
         high
-            ? new MechToPosition(mech, MechState.ClearAlgaeHighPosition)
-            : new MechToPosition(mech, MechState.ClearAlgaeLowPosition);
+            ? new MechToPosition(mech, MechState.ClearAlgaeHighPosition, states)
+            : new MechToPosition(mech, MechState.ClearAlgaeLowPosition, states);
 
     spawnCommand(clearAlgae1Position, (command) -> null);
 
@@ -404,7 +415,7 @@ public class ScoreCoral extends StateMachine {
 
     return suspendForCommand(
         Commands.run(() -> {}) // TODO: find a better way to wait
-            .deadlineFor(new EndEffectorSetRPM(-6000))
+            .deadlineFor(new EndEffectorSetRPM(-6000, states))
             .finallyDo(() -> FieldStates.removeAlgaeFromScoringSide(scoringSide))
             .alongWith(driveToAlgaePose),
         (command) -> stateWithName("End", () -> end(false)));
@@ -479,7 +490,7 @@ public class ScoreCoral extends StateMachine {
       if (scoreableLocation(
               new ScoringLocation(
                   scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),
-                  RobotStates.scoringLevel))
+                  states.scoringLevel))
           && GeometryUtil.getDist(robotTranslation, pose.pose().getTranslation())
               < GeometryUtil.getDist(robotTranslation, bestTarget.pose().getTranslation())) {
         bestTarget = pose;
@@ -604,7 +615,7 @@ public class ScoreCoral extends StateMachine {
   private boolean scoreableLocation(ScoringLocation location) {
     return (!gamepieceMemory
         || !(FieldStates.isScoringLocationFilled(
-                new ScoringLocation(location.side(), RobotStates.scoringLevel))
+                new ScoringLocation(location.side(), states.scoringLevel))
             || conflictsWithAlgae(location)));
   }
 
@@ -613,7 +624,7 @@ public class ScoreCoral extends StateMachine {
       if (scoreableLocation(
           new ScoringLocation(
               scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),
-              RobotStates.scoringLevel))) return true;
+              states.scoringLevel))) return true;
     }
 
     return false;

@@ -165,6 +165,7 @@ public class Intake extends SubsystemBase {
   }
 
   private final IntakeIO io;
+  private final RobotStates states;
   private final IntakeIO.Inputs inputs = new IntakeIO.Inputs(logGroup);
 
   private double rollerTargetRPM;
@@ -177,8 +178,9 @@ public class Intake extends SubsystemBase {
   public boolean holdAlgae;
 
   /** Creates a new Intake. */
-  public Intake(IntakeIO io) {
+  public Intake(IntakeIO io, RobotStates states) {
     this.io = io;
+    this.states = states;
 
     io.setPivotVoltage(0.0);
 
@@ -231,7 +233,7 @@ public class Intake extends SubsystemBase {
         setPivotConstants();
       }
 
-      switch (RobotStates.intakeState) {
+      switch (states.intakeState) {
         case Override:
           break;
         case Idle:
@@ -295,7 +297,7 @@ public class Intake extends SubsystemBase {
         default:
           break;
       }
-      RobotStates.intakeInTargetState = isPivotAtTargetAngle();
+      states.intakeInTargetState = isPivotAtTargetAngle();
     }
   }
 
