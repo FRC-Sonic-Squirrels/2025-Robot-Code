@@ -8,11 +8,13 @@ import frc.robot.subsystems.intake.Intake;
 
 public class IntakeAlgaeGround extends Command {
   private final Intake intake;
+  private final RobotStates states;
 
   /** Creates a new IntakeGround */
-  public IntakeAlgaeGround(Intake intake) {
+  public IntakeAlgaeGround(Intake intake, RobotStates states) {
 
     this.intake = intake;
+    this.states = states;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(intake);
@@ -21,8 +23,8 @@ public class IntakeAlgaeGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotStates.mechState = MechState.StowPosition;
-    RobotStates.intakeState = IntakeState.IntakeAlgae;
+    states.mechState = MechState.StowPosition;
+    states.intakeState = IntakeState.IntakeAlgae;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -32,8 +34,8 @@ public class IntakeAlgaeGround extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    RobotStates.intakeState = IntakeState.Stow;
-    if (RobotStates.algaeInRobot && !RobotStates.coralInIntake) {
+    states.intakeState = IntakeState.Stow;
+    if (states.algaeInRobot && !states.coralInIntake) {
       intake.setHoldAlgae(true);
     }
   }
@@ -41,6 +43,6 @@ public class IntakeAlgaeGround extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotStates.coralInIntake;
+    return states.coralInIntake;
   }
 }

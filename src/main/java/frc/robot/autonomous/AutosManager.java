@@ -12,6 +12,7 @@ import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.RunStateMachineCommand;
 import frc.robot.Constants;
+import frc.robot.RobotStates;
 import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.records.AutoDescriptor;
@@ -40,6 +41,7 @@ public class AutosManager {
   private final AutosSubsystems subsystems;
   private final RobotConfig config;
   private final BooleanSupplier flipAuto;
+  private final RobotStates states;
 
   public final boolean includeDebugPaths = false;
 
@@ -53,14 +55,16 @@ public class AutosManager {
       BooleanSupplier flipAuto,
       Supplier<List<ScoringLocation>> customScoringLocations,
       Supplier<List<CoralStationLocation>> customCoralStationLocations,
-      Supplier<StartingLocation> customStartingLocation) {
+      Supplier<StartingLocation> customStartingLocation,
+      RobotStates states) {
     this.subsystems = subsystems;
     this.config = config;
     this.flipAuto = flipAuto;
+    this.states = states;
 
     // preload code
     Command preloader =
-        new RunStateMachineCommand(() -> new AutoStateMachine(subsystems, config), true);
+        new RunStateMachineCommand(() -> new AutoStateMachine(subsystems, config, states), true);
 
     preloader.schedule();
 
@@ -153,7 +157,8 @@ public class AutosManager {
             new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S2),
             config,
             flipAuto.getAsBoolean(),
-            false);
+            false,
+            states);
 
     return stateToAuto("IKLJ", state);
   }
@@ -185,7 +190,8 @@ public class AutosManager {
                 StartingLocation.S1), // TODO: no need for starting position for this command
             config,
             flipAuto.getAsBoolean(),
-            true);
+            true,
+            states);
     return new Auto("CUSTOM", state.asCommand(), null);
   }
 
@@ -217,7 +223,8 @@ public class AutosManager {
             new AutoDescriptor(scoringLocations, coralStationLocations, customStartingLocation),
             config,
             flipAuto.getAsBoolean(),
-            false);
+            false,
+            states);
 
     return stateToAuto("CUSTOM", state);
   }

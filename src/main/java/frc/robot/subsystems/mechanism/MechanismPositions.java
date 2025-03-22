@@ -109,6 +109,12 @@ public class MechanismPositions {
   private static final LoggedTunableNumber holdAlgaeArmAngleDegrees =
       group.build("holdAlgae/ArmAngleDegrees");
 
+  private static final LoggedTunableNumber avoidIntakeElevatorHeightIntahces =
+      group.build("avoidIntake/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber avoidIntakeArmAngleDegrees =
+      group.build("avoidIntake/ArmAngleDegrees");
+
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       lowStowElevatorHeightInches.initDefault(2);
@@ -246,9 +252,9 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(algaeClearingHighArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition stowPosition() {
-    return RobotStates.scoringLevel != ScoringLevel.L4
-        ? reefPosition(RobotStates.scoringLevel)
+  public static MechanismPosition stowPosition(RobotStates states) {
+    return states.scoringLevel != ScoringLevel.L4
+        ? reefPosition(states.scoringLevel)
         : new MechanismPosition(
             Units.Inches.of(highStowElevatorHeightInches.get()),
             Rotation2d.fromDegrees(stowArmAngleDegrees.get()));
@@ -294,5 +300,11 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(holdAlgaeElevatorHeightIntahces.get()),
         Rotation2d.fromDegrees(holdAlgaeArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition avoidIntakePosition() {
+    return new MechanismPosition(
+        Units.Inches.of(avoidIntakeElevatorHeightIntahces.get()),
+        Rotation2d.fromDegrees(avoidIntakeArmAngleDegrees.get()));
   }
 }

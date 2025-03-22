@@ -56,6 +56,7 @@ public class AutoStateMachine extends StateMachine {
   private final Arm arm;
   private final EndEffector endEffector;
   private final LED led;
+  private final RobotStates states;
 
   private final List<ChoreoTrajectoryWithName> scoringPaths = new ArrayList<>();
   private final List<ScoringLocation> scoringLocations;
@@ -101,14 +102,15 @@ public class AutoStateMachine extends StateMachine {
   private boolean preloadCode;
 
   /** IMPORTANT: Use this constructor only for preloading code */
-  public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config) {
-    this(subsystems, preloadCodeDescriptor(), config, false, false);
+  public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config, RobotStates states) {
+    this(subsystems, preloadCodeDescriptor(), config, false, false, states);
     preloadCode = true;
     advance();
   }
 
-  public AutoStateMachine(AutosSubsystems subsystems, RobotConfig config, Consumer<Double> rumble) {
-    this(subsystems, null, config, false, true);
+  public AutoStateMachine(
+      AutosSubsystems subsystems, RobotConfig config, Consumer<Double> rumble, RobotStates states) {
+    this(subsystems, null, config, false, true, states);
     this.rumble = rumble;
   }
 
@@ -118,7 +120,8 @@ public class AutoStateMachine extends StateMachine {
       AutoDescriptor descriptor,
       RobotConfig config,
       boolean flipAuto,
-      boolean procedural) {
+      boolean procedural,
+      RobotStates states) {
     super("Auto");
 
     wrapper = subsystems.drivetrain();
@@ -127,6 +130,7 @@ public class AutoStateMachine extends StateMachine {
     arm = mech.getArm();
     endEffector = subsystems.endEffector();
     led = subsystems.led();
+    this.states = states;
 
     if (descriptor == null) {
       scoringLocations = null;
@@ -193,18 +197,18 @@ public class AutoStateMachine extends StateMachine {
   // CORAL SCORING STATES
 
   private StateHandler prepScoreCoral() {
-    RobotStates.intakeState = IntakeState.Stow;
+    states.intakeState = IntakeState.Stow;
     if (scoringLocations != null && scoringIndex == scoringLocations.size()) {
       return stateWithName("Done", setDone());
     }
 
     if (scoringLocations == null) {
 
-      scoreCoral = new ScoreCoral(wrapper, mech, elevator, arm, led, rumble, config, false);
+      scoreCoral = new ScoreCoral(wrapper, mech, elevator, arm, led, rumble, config, false, states);
 
     } else {
 
-      RobotStates.scoringLevel = scoringLocations.get(scoringIndex).level();
+      states.scoringLevel = scoringLocations.get(scoringIndex).level();
       scoreCoral =
           new ScoreCoral(
               wrapper,
@@ -217,7 +221,8 @@ public class AutoStateMachine extends StateMachine {
               config,
               false,
               procedural ? Optional.empty() : Optional.of(scoringPaths.get(scoringIndex)),
-              preloadCode);
+              preloadCode,
+              states);
     }
 
     spawnStateMachineAsCommand(scoreCoral, (s) -> null, preloadCode);
@@ -232,7 +237,7 @@ public class AutoStateMachine extends StateMachine {
         endEffectorSim.scoringSideTofDetecting = false;
         endEffectorSim.nonScoringSideTofDetecting = false;
         FieldStates.setScoringLocationFilled(
-            new ScoringLocation(RobotStates.targetReefSide, RobotStates.scoringLevel));
+            new ScoringLocation(states.targetReefSide, states.scoringLevel));
       }
       scoringIndex++;
       return stateWithName("PrepIntakeCoral", () -> prepIntakeCoral());
@@ -284,7 +289,8 @@ public class AutoStateMachine extends StateMachine {
                     elevator.isAtTarget(coralStationPos.elevatorHeight())
                         && arm.isAtTargetAngle(coralStationPos.armAngle()))
             .andThen(
-                CommandComposer.intakeCoralFromStation(wrapper, endEffector, mech, led, null, false)
+                CommandComposer.intakeCoralFromStation(
+                        wrapper, endEffector, mech, led, null, false, states)
                     .asProxy()),
         (c) -> null);
 
@@ -299,7 +305,7 @@ public class AutoStateMachine extends StateMachine {
       wrapper.setVelocityOverride(result.chassisSpeeds());
     }
 
-    return RobotStates.coralInEndEffector || preloadCode
+    return states.coralInEndEffector || preloadCode
         ? stateWithName("ReturnToScoring", () -> returnToScoring())
         : null;
   }

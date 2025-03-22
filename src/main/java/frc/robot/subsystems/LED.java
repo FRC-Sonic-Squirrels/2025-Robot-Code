@@ -64,17 +64,20 @@ public class LED extends SubsystemBase {
   private double timeToResetToBaseState = 0;
   private Timer resetToBaseStateTimer = new Timer();
   private boolean autoConfirmed = false;
+  private final RobotStates states;
 
   public LED(
       Supplier<Boolean> brakeMode,
       Supplier<Boolean> gyroConnected,
-      Supplier<Boolean> motorsZeroed) {
+      Supplier<Boolean> motorsZeroed,
+      RobotStates states) {
     led.setLength(ledBuffer.getLength());
     led.setData(ledBuffer);
     led.start();
     this.brakeMode = brakeMode;
     this.gyroConnected = gyroConnected;
     this.motorsZeroed = motorsZeroed;
+    this.states = states;
   }
 
   @Override
@@ -91,13 +94,13 @@ public class LED extends SubsystemBase {
         case BASE:
           switch (baseRobotState) {
             case LEVEL_MODE:
-              if (RobotStates.scoringLevel == ScoringLevel.L1) {
+              if (states.scoringLevel == ScoringLevel.L1) {
                 setColorLevel(squirrelOrange, Color.kWhite, 1);
-              } else if (RobotStates.scoringLevel == ScoringLevel.L2) {
+              } else if (states.scoringLevel == ScoringLevel.L2) {
                 setColorLevel(squirrelOrange, Color.kWhite, 2);
-              } else if (RobotStates.scoringLevel == ScoringLevel.L3) {
+              } else if (states.scoringLevel == ScoringLevel.L3) {
                 setColorLevel(squirrelOrange, Color.kWhite, 3);
-              } else if (RobotStates.scoringLevel == ScoringLevel.L4) {
+              } else if (states.scoringLevel == ScoringLevel.L4) {
                 setColorLevel(squirrelOrange, Color.kWhite, 4);
               }
               break;

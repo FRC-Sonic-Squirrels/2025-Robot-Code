@@ -14,19 +14,21 @@ public class MechToPosition extends Command {
 
   private final MechState state;
   private final Mechanism mech;
+  private final RobotStates states;
 
   /** Creates a new MechToPosition. */
-  public MechToPosition(Mechanism mech, MechState state) {
+  public MechToPosition(Mechanism mech, MechState state, RobotStates states) {
     this.mech = mech;
     this.state = state;
+    this.states = states;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotStates.mechanismInUse = true;
-    RobotStates.mechState = state;
+    states.mechanismInUse = true;
+    states.mechState = state;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -40,7 +42,7 @@ public class MechToPosition extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    RobotStates.mechanismInUse = false;
+    states.mechanismInUse = false;
     return mech.mechInPosition();
   }
 }

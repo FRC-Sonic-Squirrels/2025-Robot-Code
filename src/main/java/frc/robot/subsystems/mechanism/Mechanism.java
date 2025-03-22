@@ -44,15 +44,17 @@ public class Mechanism {
 
   private boolean elevatorInPosition = false;
   private boolean armInPosition = false;
+  private final RobotStates states;
 
-  public Mechanism(Elevator elevator, Arm arm) {
+  public Mechanism(Elevator elevator, Arm arm, RobotStates states) {
     this.elevator = elevator;
     this.arm = arm;
+    this.states = states;
   }
 
   public void periodic() {
     try (var ignored = timing.start()) {
-      switch (RobotStates.mechState) {
+      switch (states.mechState) {
         case Idle:
           elevator.setPercentOut(0);
           arm.setPercentOut(0);
@@ -60,13 +62,13 @@ public class Mechanism {
         case Override:
           break;
         case ReefPosition:
-          if (RobotStates.scoringLevel == ScoringLevel.L4) {
+          if (states.scoringLevel == ScoringLevel.L4) {
             goToPositionParallel(
-                MechanismPositions.reefPosition(RobotStates.scoringLevel),
+                MechanismPositions.reefPosition(states.scoringLevel),
                 Double.NaN,
                 scoreL4ArmAccel.get());
           } else {
-            goToPositionParallel(MechanismPositions.reefPosition(RobotStates.scoringLevel));
+            goToPositionParallel(MechanismPositions.reefPosition(states.scoringLevel));
           }
           break;
         case ReefL1Position:
@@ -83,13 +85,13 @@ public class Mechanism {
               MechanismPositions.reefPosition(ScoringLevel.L4), Double.NaN, scoreL4ArmAccel.get());
           break;
         case ReefPrepPosition:
-          if (RobotStates.scoringLevel == ScoringLevel.L4) {
+          if (states.scoringLevel == ScoringLevel.L4) {
             goToPositionParallel(
-                MechanismPositions.reefPrepPosition(RobotStates.scoringLevel),
+                MechanismPositions.reefPrepPosition(states.scoringLevel),
                 Double.NaN,
                 scoreL4ArmAccel.get());
           } else {
-            goToPositionParallel(MechanismPositions.reefPrepPosition(RobotStates.scoringLevel));
+            goToPositionParallel(MechanismPositions.reefPrepPosition(states.scoringLevel));
           }
           break;
         case CoralStationPosition:
@@ -103,7 +105,7 @@ public class Mechanism {
           goToPositionParallel(MechanismPositions.clearAlgaeHighPosition());
           break;
         case StowPosition:
-          goToPositionParallel(MechanismPositions.stowPosition());
+          goToPositionParallel(MechanismPositions.stowPosition(states));
           break;
         case ClimbPosition:
           goToPositionParallel(MechanismPositions.climbPosition());
@@ -120,10 +122,13 @@ public class Mechanism {
         case HoldAlgaePosition:
           goToPositionParallel(MechanismPositions.holdAlgaePosition());
           break;
+        case AvoidIntake:
+          goToPositionParallel(MechanismPositions.avoidIntakePosition());
+          break;
         default:
           break;
       }
-      RobotStates.mechInTargetState = mechInPosition();
+      states.mechInTargetState = mechInPosition();
     }
   }
 

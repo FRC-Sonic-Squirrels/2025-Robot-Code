@@ -23,6 +23,8 @@ public class Climb extends Command {
 
   private final Climber climber;
   private final BooleanSupplier confirmButton;
+  private final RobotStates states;
+
   private boolean prevConfirm = true;
   private int stage = 0;
 
@@ -40,9 +42,10 @@ public class Climb extends Command {
   private final Timer servoTimer = new Timer();
 
   /** Creates a new Climb. */
-  public Climb(Climber climber, BooleanSupplier confirmButton) {
+  public Climb(Climber climber, BooleanSupplier confirmButton, RobotStates states) {
     this.climber = climber;
     this.confirmButton = confirmButton;
+    this.states = states;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climber);
@@ -51,8 +54,8 @@ public class Climb extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotStates.mechState = MechState.ClimbPosition;
-    RobotStates.intakeState = IntakeState.Climb;
+    states.mechState = MechState.ClimbPosition;
+    states.intakeState = IntakeState.Climb;
     climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
     stage = 0;
     prevConfirm = true;

@@ -14,16 +14,20 @@ import java.util.function.Supplier;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class IntakeSetPivotAngle extends Command {
   /** Creates a new PivotIntake. */
-  private Intake intake;
+  private final Intake intake;
+
+  private final RobotStates states;
 
   private Supplier<Rotation2d> angleSupplier;
 
-  public IntakeSetPivotAngle(Intake intake, Rotation2d angle) {
-    this(intake, () -> angle);
+  public IntakeSetPivotAngle(Intake intake, Rotation2d angle, RobotStates states) {
+    this(intake, () -> angle, states);
   }
 
-  public IntakeSetPivotAngle(Intake intake, Supplier<Rotation2d> angleSupplier) {
+  public IntakeSetPivotAngle(
+      Intake intake, Supplier<Rotation2d> angleSupplier, RobotStates states) {
     this.intake = intake;
+    this.states = states;
     this.angleSupplier = angleSupplier;
 
     addRequirements(intake);
@@ -31,7 +35,7 @@ public class IntakeSetPivotAngle extends Command {
 
   @Override
   public void initialize() {
-    RobotStates.intakeState = IntakeState.Override;
+    states.intakeState = IntakeState.Override;
   }
 
   // Called every time the scheduler runs while the command is scheduled.

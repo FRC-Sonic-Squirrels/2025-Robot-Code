@@ -58,7 +58,8 @@ public class MechanismVisualization {
       Distance elevatorHeight,
       Rotation2d armAngle,
       Rotation2d intakeAngle,
-      Rotation2d climberAngle) {
+      Rotation2d climberAngle,
+      RobotStates states) {
     // TODO: input positions as variables, add to pose3ds
     double elevatorHeightMeters = elevatorHeight.in(Units.Meter);
     mechFirstStage =
@@ -84,7 +85,7 @@ public class MechanismVisualization {
         new Pose3d(
                 robotPose.getX() + rotatedArmPose.getX(),
                 robotPose.getY() + rotatedArmPose.getY(),
-                RobotStates.coralInEndEffector ? rotatedArmPose.getZ() : -100,
+                states.coralInEndEffector ? rotatedArmPose.getZ() : -100,
                 rotatedArmPose.getRotation())
             .transformBy(new Transform3d(0, 0, 0.46, new Rotation3d(0, Math.toRadians(5), 0)));
 
