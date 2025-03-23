@@ -27,15 +27,17 @@ import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.AutoDescriptor;
 import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
-import frc.robot.autonomous.records.CoralStationLocation;
 import frc.robot.autonomous.records.OppositeSide;
+import frc.robot.autonomous.records.PickupLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.drive.DriveToPosePathing;
+import frc.robot.commands.intake.IntakeCoralGround;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.mechanism.Mechanism;
 import frc.robot.subsystems.mechanism.MechanismPositions;
 import frc.robot.subsystems.mechanism.MechanismPositions.MechanismPosition;
@@ -57,11 +59,12 @@ public class AutoStateMachine extends StateMachine {
   private final EndEffector endEffector;
   private final LED led;
   private final RobotStates states;
+  private final Intake intake;
 
   private final List<ChoreoTrajectoryWithName> scoringPaths = new ArrayList<>();
   private final List<ScoringLocation> scoringLocations;
   private final List<ChoreoTrajectoryWithName> coralStationPaths = new ArrayList<>();
-  private final List<CoralStationLocation> coralStationLocations;
+  private final List<PickupLocation> coralStationLocations;
 
   private final RobotConfig config;
 
@@ -83,19 +86,19 @@ public class AutoStateMachine extends StateMachine {
 
   private static AutoDescriptor preloadCodeDescriptor() {
     List<ScoringLocation> scoringLocations = new ArrayList<>();
-    List<CoralStationLocation> coralStationLocations = new ArrayList<>();
+    List<PickupLocation> coralStationLocations = new ArrayList<>();
 
     scoringLocations.add(new ScoringLocation(ReefSide.CI, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
 
     scoringLocations.add(new ScoringLocation(ReefSide.CK, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
 
     scoringLocations.add(new ScoringLocation(ReefSide.CL, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
 
     scoringLocations.add(new ScoringLocation(ReefSide.CJ, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
     return new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S2);
   }
 
@@ -130,6 +133,7 @@ public class AutoStateMachine extends StateMachine {
     arm = mech.getArm();
     endEffector = subsystems.endEffector();
     led = subsystems.led();
+    intake = subsystems.intake();
     this.states = states;
 
     if (descriptor == null) {
@@ -284,14 +288,16 @@ public class AutoStateMachine extends StateMachine {
     }
 
     spawnCommand(
-        Commands.waitUntil(
-                () ->
-                    elevator.isAtTarget(coralStationPos.elevatorHeight())
-                        && arm.isAtTargetAngle(coralStationPos.armAngle()))
-            .andThen(
-                CommandComposer.intakeCoralFromStation(
-                        wrapper, endEffector, mech, led, null, false, states)
-                    .asProxy()),
+        coralStationLocations.get(intakingIndex).ground
+            ? new IntakeCoralGround(intake, states)
+            : Commands.waitUntil(
+                    () ->
+                        elevator.isAtTarget(coralStationPos.elevatorHeight())
+                            && arm.isAtTargetAngle(coralStationPos.armAngle()))
+                .andThen(
+                    CommandComposer.intakeCoralFromStation(
+                            wrapper, endEffector, mech, led, null, false, states)
+                        .asProxy()),
         (c) -> null);
 
     return stateWithName("IntakeCoral", () -> intakeCoral());
@@ -305,7 +311,7 @@ public class AutoStateMachine extends StateMachine {
       wrapper.setVelocityOverride(result.chassisSpeeds());
     }
 
-    return states.coralInEndEffector || preloadCode
+    return states.coralInEndEffector || states.coralInIntake || preloadCode
         ? stateWithName("ReturnToScoring", () -> returnToScoring())
         : null;
   }
@@ -318,12 +324,12 @@ public class AutoStateMachine extends StateMachine {
   // Additional Methods
 
   public static ChoreoTrajectoryWithName locationsToPath(
-      ScoringLocation scoring, CoralStationLocation coralStation) {
+      ScoringLocation scoring, PickupLocation coralStation) {
     return enumsToPath(scoring.side(), coralStation);
   }
 
   public static ChoreoTrajectoryWithName locationsToPath(
-      CoralStationLocation coralStation, ScoringLocation scoring) {
+      PickupLocation coralStation, ScoringLocation scoring) {
     return enumsToPath(coralStation, scoring.side());
   }
 
@@ -360,8 +366,8 @@ public class AutoStateMachine extends StateMachine {
     return traj.getInitialPose(false);
   }
 
-  private Pose2d getCoralStationPose(CoralStationLocation location) {
-    boolean top = location == CoralStationLocation.IA || location == CoralStationLocation.IB;
+  private Pose2d getCoralStationPose(PickupLocation location) {
+    boolean top = location == PickupLocation.IA || location == PickupLocation.IB;
     Pose3d tagPose = config.getAprilTagFieldLayout().getTagPose(top ? 13 : 12).get();
     log_usedCoralTag.info(tagPose);
     Pose2d pose = tagPose.toPose2d();
@@ -374,7 +380,7 @@ public class AutoStateMachine extends StateMachine {
                         pose.getRotation())),
             pose.getRotation().plus(Rotation2d.k180deg));
 
-    boolean left = location == CoralStationLocation.IA || location == CoralStationLocation.IC;
+    boolean left = location == PickupLocation.IA || location == PickupLocation.IC;
 
     Pose2d offsetPickup =
         centerPickup.plus(
@@ -388,7 +394,7 @@ public class AutoStateMachine extends StateMachine {
   private Pose2d getClosestCoralStationPose() {
     Pose2d bestPose = null;
 
-    for (CoralStationLocation location : CoralStationLocation.values()) {
+    for (PickupLocation location : PickupLocation.values()) {
       Pose2d trialPose = getCoralStationPose(location);
       if (bestPose == null
           || GeometryUtil.getDist(trialPose, wrapper.getCoralStationPoseEstimatorPose(true))

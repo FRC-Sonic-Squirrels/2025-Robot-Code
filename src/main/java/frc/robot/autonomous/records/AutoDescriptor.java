@@ -6,7 +6,7 @@ import java.util.List;
 
 public record AutoDescriptor(
     List<ScoringLocation> scoringLocations,
-    List<CoralStationLocation> coralStationLocations,
+    List<PickupLocation> coralStationLocations,
     StartingLocation startingLocation) {
   public enum StartingLocation implements OppositeSide<StartingLocation> {
     S1 {
@@ -105,26 +105,32 @@ public record AutoDescriptor(
     return new ScoringLocation(newSide, location.level());
   }
 
-  public List<CoralStationLocation> flippedCoralStationLocations() {
-    List<CoralStationLocation> newLocations = new ArrayList<>();
+  public List<PickupLocation> flippedCoralStationLocations() {
+    List<PickupLocation> newLocations = new ArrayList<>();
 
-    for (CoralStationLocation scoringLocation : coralStationLocations) {
-      newLocations.add(flipCoralStationLocation(scoringLocation));
+    for (PickupLocation scoringLocation : coralStationLocations) {
+      newLocations.add(flipPickupLocation(scoringLocation));
     }
 
     return newLocations;
   }
 
-  public CoralStationLocation flipCoralStationLocation(CoralStationLocation location) {
+  public PickupLocation flipPickupLocation(PickupLocation location) {
     switch (location) {
       case IA:
-        return CoralStationLocation.ID;
+        return PickupLocation.ID;
       case IB:
-        return CoralStationLocation.IC;
+        return PickupLocation.IC;
       case IC:
-        return CoralStationLocation.IB;
+        return PickupLocation.IB;
       case ID:
-        return CoralStationLocation.IA;
+        return PickupLocation.IA;
+      case G1:
+        return PickupLocation.G3;
+      case G2:
+        return PickupLocation.G2;
+      case G3:
+        return PickupLocation.G1;
       default:
         return null;
     }

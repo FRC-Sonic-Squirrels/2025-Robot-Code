@@ -27,7 +27,7 @@ import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.commands.RunsWhenDisabledInstantCommand;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
-import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.PickupLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class Robot extends LoggedRobot {
   private Auto selectedAuto;
   private String selectedAutoName;
   private List<ScoringLocation> selectedScoringLocations = new ArrayList<>();
-  private List<CoralStationLocation> selectedCoralStationLocations = new ArrayList<>();
+  private List<PickupLocation> selectedCoralStationLocations = new ArrayList<>();
   private StartingLocation selectedStartingLocation;
   private boolean selectedAutoFlipped;
   private Command autoCommand;

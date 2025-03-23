@@ -3,7 +3,7 @@ package frc.lib.team2930;
 import frc.robot.RobotStates;
 import frc.robot.autonomous.AutoStateMachine;
 import frc.robot.autonomous.records.AutoDescriptor;
-import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.PickupLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ public class ChoreoPathsTest {
       }
     }
 
-    for (CoralStationLocation coralStationLocation : CoralStationLocation.values()) {
+    for (PickupLocation coralStationLocation : PickupLocation.values()) {
       for (ScoringLocation.ReefSide reefSide : ScoringLocation.ReefSide.values()) {
         ScoringLocation scoringLocation =
             new ScoringLocation(reefSide, RobotStates.ScoringLevel.L4);
