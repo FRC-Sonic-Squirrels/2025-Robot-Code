@@ -43,7 +43,7 @@ import frc.robot.autonomous.AutosManager;
 import frc.robot.autonomous.AutosManager.Auto;
 import frc.robot.autonomous.AutosSubsystems;
 import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
-import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.PickupLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.PassToEndEffector;
@@ -140,7 +140,7 @@ public class RobotContainer {
       new LoggedDashboardChooser<>("Flip Auto?");
 
   private final List<LoggedDashboardChooser<ReefSide>> scoringPosChooser = new ArrayList<>();
-  private final List<LoggedDashboardChooser<CoralStationLocation>> coralStationPosChooser =
+  private final List<LoggedDashboardChooser<PickupLocation>> coralStationPosChooser =
       new ArrayList<>();
   private final LoggedDashboardChooser<StartingLocation> startingLocationChooser =
       new LoggedDashboardChooser<>("CustomStarting");
@@ -489,12 +489,12 @@ public class RobotContainer {
     }
 
     for (int i = 1; i < customGamepieceCount; i++) {
-      LoggedDashboardChooser<CoralStationLocation> chooser =
+      LoggedDashboardChooser<PickupLocation> chooser =
           new LoggedDashboardChooser<>(i + " CustomPickup");
-      for (CoralStationLocation side : CoralStationLocation.values()) {
+      for (PickupLocation side : PickupLocation.values()) {
         chooser.addOption(side.name(), side);
       }
-      chooser.addDefaultOption(CoralStationLocation.IA.name(), CoralStationLocation.IA);
+      chooser.addDefaultOption(PickupLocation.IA.name(), PickupLocation.IA);
       coralStationPosChooser.add(chooser);
     }
 
@@ -502,7 +502,7 @@ public class RobotContainer {
     for (StartingLocation location : StartingLocation.values())
       startingLocationChooser.addOption(location.name(), location);
 
-    var subsystems = new AutosSubsystems(drivetrainWrapper, mech, endEffector, led);
+    var subsystems = new AutosSubsystems(drivetrainWrapper, mech, endEffector, led, intake);
 
     autoManager =
         new AutosManager(
@@ -975,8 +975,24 @@ public class RobotContainer {
           "SIM NO Coral in End Effector",
           new RunsWhenDisabledInstantCommand(
               () -> {
-                endEffectorSim.scoringSideTofDetecting = true;
-                endEffectorSim.nonScoringSideTofDetecting = true;
+                endEffectorSim.scoringSideTofDetecting = false;
+                endEffectorSim.nonScoringSideTofDetecting = false;
+              }));
+    }
+
+    var intakeSim = intake.getSim();
+    if (intakeSim != null) {
+      SmartDashboard.putData(
+          "SIM Coral in Intake",
+          new RunsWhenDisabledInstantCommand(
+              () -> {
+                intakeSim.tofActivated = true;
+              }));
+      SmartDashboard.putData(
+          "SIM NO Coral in Intake",
+          new RunsWhenDisabledInstantCommand(
+              () -> {
+                intakeSim.tofActivated = false;
               }));
     }
   }
@@ -1205,10 +1221,10 @@ public class RobotContainer {
     return scoringLocations;
   }
 
-  public List<CoralStationLocation> getCustomCoralStationLocations() {
-    List<CoralStationLocation> coralStationLocations = new ArrayList<>();
+  public List<PickupLocation> getCustomCoralStationLocations() {
+    List<PickupLocation> coralStationLocations = new ArrayList<>();
 
-    for (LoggedDashboardChooser<CoralStationLocation> location : coralStationPosChooser) {
+    for (LoggedDashboardChooser<PickupLocation> location : coralStationPosChooser) {
       coralStationLocations.add(location.get());
     }
 

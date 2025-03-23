@@ -18,7 +18,7 @@ import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.records.AutoDescriptor;
 import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
-import frc.robot.autonomous.records.CoralStationLocation;
+import frc.robot.autonomous.records.PickupLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.configs.RobotConfig;
@@ -54,7 +54,7 @@ public class AutosManager {
       HashMap<String, Supplier<Auto>> stringToAutoSupplierMap,
       BooleanSupplier flipAuto,
       Supplier<List<ScoringLocation>> customScoringLocations,
-      Supplier<List<CoralStationLocation>> customCoralStationLocations,
+      Supplier<List<PickupLocation>> customCoralStationLocations,
       Supplier<StartingLocation> customStartingLocation,
       RobotStates states) {
     this.subsystems = subsystems;
@@ -78,7 +78,7 @@ public class AutosManager {
 
   private List<Supplier<Auto>> allCompetitionAutos(
       Supplier<List<ScoringLocation>> customScoringLocations,
-      Supplier<List<CoralStationLocation>> customCoralStationLocations,
+      Supplier<List<PickupLocation>> customCoralStationLocations,
       Supplier<StartingLocation> customStartingLocation) {
     var list = new ArrayList<Supplier<Auto>>();
 
@@ -111,7 +111,7 @@ public class AutosManager {
       LoggedDashboardChooser<String> chooser,
       HashMap<String, Supplier<Auto>> stringToAutoSupplierMap,
       Supplier<List<ScoringLocation>> customScoringLocations,
-      Supplier<List<CoralStationLocation>> customCoralStationLocations,
+      Supplier<List<PickupLocation>> customCoralStationLocations,
       Supplier<StartingLocation> customStartingLocation) {
     var compAutos =
         allCompetitionAutos(
@@ -137,19 +137,19 @@ public class AutosManager {
 
   private Auto auto_IKLJ() {
     List<ScoringLocation> scoringLocations = new ArrayList<>();
-    List<CoralStationLocation> coralStationLocations = new ArrayList<>();
+    List<PickupLocation> coralStationLocations = new ArrayList<>();
 
     scoringLocations.add(new ScoringLocation(ReefSide.CI, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
 
     scoringLocations.add(new ScoringLocation(ReefSide.CK, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
 
     scoringLocations.add(new ScoringLocation(ReefSide.CL, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
 
     scoringLocations.add(new ScoringLocation(ReefSide.CJ, ScoringLevel.L4));
-    coralStationLocations.add(CoralStationLocation.IA);
+    coralStationLocations.add(PickupLocation.IA);
 
     var state =
         new AutoStateMachine(
@@ -164,7 +164,7 @@ public class AutosManager {
   }
 
   private Auto customAuto(
-      List<ScoringLocation> scoringLocations, List<CoralStationLocation> coralStationLocations) {
+      List<ScoringLocation> scoringLocations, List<PickupLocation> coralStationLocations) {
 
     String print = "";
     if (scoringLocations.get(0).side() != null) {
@@ -197,7 +197,7 @@ public class AutosManager {
 
   private Auto customChoreoAuto(
       List<ScoringLocation> scoringLocations,
-      List<CoralStationLocation> coralStationLocations,
+      List<PickupLocation> coralStationLocations,
       StartingLocation customStartingLocation) {
 
     String print = "";

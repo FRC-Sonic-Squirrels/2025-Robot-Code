@@ -310,21 +310,15 @@ public class ScoreCoral extends StateMachine {
                                                     < distToElevateCoral.get()))
                                 .andThen(
                                     Commands.either(
-                                            new MechToPosition(mech, MechState.ReefPosition, states)
-                                                .alongWith(
-                                                    Commands.waitUntil(
-                                                            () ->
-                                                                inPosition && elevator.isAtTarget())
-                                                        .andThen(
-                                                            new MechToPosition(
-                                                                    mech,
-                                                                    MechState.ReefPosition,
-                                                                    states)
-                                                                .asProxy())),
-                                            new MechToPosition(
-                                                mech, MechState.ReefPosition, states),
-                                            () -> states.scoringLevel == ScoringLevel.L4)
-                                        .asProxy())))
+                                        new MechToPosition(mech, MechState.ReefPosition, states)
+                                            .alongWith(
+                                                Commands.waitUntil(
+                                                        () -> inPosition && elevator.isAtTarget())
+                                                    .andThen(
+                                                        new MechToPosition(
+                                                            mech, MechState.ReefPosition, states))),
+                                        new MechToPosition(mech, MechState.ReefPosition, states),
+                                        () -> states.scoringLevel == ScoringLevel.L4))))
                 .withName("MechScoreCoral"),
             (command) -> null);
 
