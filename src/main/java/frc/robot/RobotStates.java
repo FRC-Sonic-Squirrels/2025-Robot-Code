@@ -283,4 +283,8 @@ public class RobotStates {
     endEffectorDesiredAction = state;
     endEffectorInUse = true;
   }
+
+  public boolean coralInPassOff() {
+    return passToEndEffector.isScheduled() || passToIntake.isScheduled();
+  }
 }

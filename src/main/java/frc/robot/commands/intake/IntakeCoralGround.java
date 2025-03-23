@@ -1,8 +1,6 @@
 package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.team2930.LoggerEntry;
-import frc.lib.team2930.LoggerGroup;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.IntakeState;
 import frc.robot.RobotStates.MechState;
@@ -10,22 +8,11 @@ import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.subsystems.intake.Intake;
 
 public class IntakeCoralGround extends Command {
-  // boolean coralInIntake = RobotStates.coralInIntake;
-  private final Intake intake;
   private final RobotStates states;
-  private static final String root = "Intake Coral Ground";
-  private static final LoggerGroup logGroup = LoggerGroup.build(root);
-
-  private static final LoggerEntry.Bool logInputs_algaeInRobot =
-      logGroup.buildBoolean("algaeInRobot");
-
-  private static final LoggerEntry.Bool logInputs_coralInIntake =
-      logGroup.buildBoolean("coralInIntake");
 
   /** Creates a new IntakeGround */
   public IntakeCoralGround(Intake intake, RobotStates states) {
 
-    this.intake = intake;
     this.states = states;
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -37,7 +24,7 @@ public class IntakeCoralGround extends Command {
   public void initialize() {
     if (states.scoringLevel == ScoringLevel.L1) {
       states.mechState = MechState.AvoidIntake;
-    } else states.mechState = MechState.PassoffPosition;
+    } else states.mechState = MechState.PrepPassoffPosition;
     states.intakeState = IntakeState.IntakeCoral;
   }
 
@@ -48,7 +35,7 @@ public class IntakeCoralGround extends Command {
     states.intakeInUse = true;
     if (states.scoringLevel == ScoringLevel.L1) {
       states.mechState = MechState.AvoidIntake;
-    } else states.mechState = MechState.PassoffPosition;
+    } else states.mechState = MechState.PrepPassoffPosition;
   }
 
   // Called once the command ends or is interrupted.
@@ -58,7 +45,7 @@ public class IntakeCoralGround extends Command {
       if (states.scoringLevel == ScoringLevel.L1) {
         states.mechState = MechState.AvoidIntake;
         states.intakeState = IntakeState.Stow;
-      } else states.mechState = MechState.PassoffPosition;
+      } else states.mechState = MechState.PrepPassoffPosition;
     } else {
       states.intakeState = IntakeState.Stow;
       states.mechState = MechState.CoralStationPosition;

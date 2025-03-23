@@ -296,7 +296,7 @@ public class ScoreCoral extends StateMachine {
 
     prepMechanismForScoring =
         spawnCommand(
-            Commands.waitUntil(() -> !(states.mechanismInUse || states.intakeInUse))
+            Commands.waitUntil(() -> !states.coralInPassOff())
                 .andThen(
                     new MechToPosition(mech, MechState.StowPosition, states)
                         .alongWith(

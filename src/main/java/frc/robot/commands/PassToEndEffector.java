@@ -30,9 +30,6 @@ public class PassToEndEffector extends StateMachine {
   }
 
   private StateHandler prepToPassOff() {
-    states.endEffectorInUse = true;
-    states.intakeInUse = true;
-    states.mechanismInUse = true;
     states.mechState = MechState.PrepPassoffPosition;
     states.intakeState = IntakeState.PrepPassoff;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
@@ -43,9 +40,6 @@ public class PassToEndEffector extends StateMachine {
   }
 
   private StateHandler passOff() {
-    states.endEffectorInUse = true;
-    states.intakeInUse = true;
-    states.mechanismInUse = true;
     states.mechState = MechState.PassoffPosition;
     states.intakeState = IntakeState.PassoffEndEffector;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
@@ -54,9 +48,6 @@ public class PassToEndEffector extends StateMachine {
   }
 
   private StateHandler end() {
-    states.endEffectorInUse = false;
-    states.intakeInUse = false;
-    states.mechanismInUse = false;
     states.mechState = MechState.StowPosition;
     states.intakeState = IntakeState.Stow;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
