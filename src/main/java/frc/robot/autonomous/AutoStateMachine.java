@@ -160,9 +160,8 @@ public class AutoStateMachine extends StateMachine {
       }
 
       for (int i = 0; i < descriptor.coralStationLocations().size(); i++) {
-        coralStationPaths.add(
-            locationsToPath(
-                descriptor.scoringLocations().get(i), descriptor.coralStationLocations().get(i)));
+        PickupLocation pickup = descriptor.coralStationLocations().get(i);
+        coralStationPaths.add(locationsToPath(descriptor.scoringLocations().get(i), pickup));
       }
     }
 
@@ -262,7 +261,9 @@ public class AutoStateMachine extends StateMachine {
       choreoHelper =
           new ChoreoHelper(
               timeFromStart(),
-              wrapper.getCoralStationPoseEstimatorPose(true),
+              coralStationLocations.get(intakingIndex).ground
+                  ? wrapper.getReefPoseEstimatorPose(true)
+                  : wrapper.getCoralStationPoseEstimatorPose(true),
               traj,
               config.getDriveBaseRadius() / 2,
               config.getAutoTranslationPidController(),
@@ -307,7 +308,10 @@ public class AutoStateMachine extends StateMachine {
     if (!procedural) {
       ChassisSpeedsWithPathEnd result =
           choreoHelper.calculateChassisSpeeds(
-              wrapper.getCoralStationPoseEstimatorPose(true), timeFromStart());
+              coralStationLocations.get(intakingIndex).ground
+                  ? wrapper.getReefPoseEstimatorPose(true)
+                  : wrapper.getCoralStationPoseEstimatorPose(true),
+              timeFromStart());
       wrapper.setVelocityOverride(result.chassisSpeeds());
     }
 
