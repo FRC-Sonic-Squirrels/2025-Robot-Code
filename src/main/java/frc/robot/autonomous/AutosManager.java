@@ -84,6 +84,8 @@ public class AutosManager {
 
     list.add(this::doNothing);
     list.add(this::auto_IKLJ);
+    list.add(this::auto_lolipops);
+    list.add(this::auto_compatible);
     list.add(
         () ->
             customChoreoAuto(
@@ -161,6 +163,62 @@ public class AutosManager {
             states);
 
     return stateToAuto("IKLJ", state);
+  }
+
+  private Auto auto_lolipops() {
+    List<ScoringLocation> scoringLocations = new ArrayList<>();
+    List<PickupLocation> coralStationLocations = new ArrayList<>();
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CA, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.G1);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CB, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.G2);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CC, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.G3);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CL, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.IA);
+
+    var state =
+        new AutoStateMachine(
+            subsystems,
+            new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S2),
+            config,
+            flipAuto.getAsBoolean(),
+            false,
+            states);
+
+    return stateToAuto("Lolipops", state);
+  }
+
+  private Auto auto_compatible() {
+    List<ScoringLocation> scoringLocations = new ArrayList<>();
+    List<PickupLocation> coralStationLocations = new ArrayList<>();
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CH, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CG, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CI, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CF, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.IA);
+
+    var state =
+        new AutoStateMachine(
+            subsystems,
+            new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S3),
+            config,
+            flipAuto.getAsBoolean(),
+            false,
+            states);
+
+    return stateToAuto("Compatible", state);
   }
 
   private Auto customAuto(
