@@ -116,23 +116,6 @@ public record AutoDescriptor(
   }
 
   public PickupLocation flipPickupLocation(PickupLocation location) {
-    switch (location) {
-      case IA:
-        return PickupLocation.ID;
-      case IB:
-        return PickupLocation.IC;
-      case IC:
-        return PickupLocation.IB;
-      case ID:
-        return PickupLocation.IA;
-      case G1:
-        return PickupLocation.G3;
-      case G2:
-        return PickupLocation.G2;
-      case G3:
-        return PickupLocation.G1;
-      default:
-        return null;
-    }
+    return (PickupLocation) location.getOpposite();
   }
 }
