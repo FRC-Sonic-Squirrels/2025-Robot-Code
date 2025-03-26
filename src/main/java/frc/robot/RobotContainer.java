@@ -602,6 +602,9 @@ public class RobotContainer {
             CommandComposer.intakeCoralFromStation(
                 drivetrainWrapper, endEffector, mech, led, driverController, true, robotStates));
 
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae in Processor")
+    //     .whileTrue(new ScoreAlgae(intake));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
         .whileTrue(new ScoreAlgae(intake, robotStates))
