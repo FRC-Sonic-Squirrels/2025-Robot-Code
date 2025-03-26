@@ -297,6 +297,12 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(passOffArmAngleDegrees.get()));
   }
 
+  public static MechanismPosition scoreAlgaeBargePosition() {
+    return new MechanismPosition(
+        Units.Inches.of(reefL4ElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(reefL3ArmAngleDegrees.get()));
+  }
+
   public static MechanismPosition intermediateLowPosition() {
     return new MechanismPosition(
         Units.Inches.of(intermediatePoseLowElevatorHeightInches.get()),
