@@ -48,7 +48,7 @@ public class IntakeCoralGround extends Command {
       } else states.mechState = MechState.PrepPassoffPosition;
     } else {
       states.intakeState = IntakeState.Stow;
-      states.mechState = MechState.CoralStationPosition;
+      states.mechState = MechState.Default;
     }
   }
 

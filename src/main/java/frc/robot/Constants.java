@@ -429,5 +429,5 @@ public final class Constants {
     public static final Distance DIST_TO_START_INTAKING = Units.Meters.of(1.0);
   }
 
-  public static final boolean unusedCode = false;
+  public static volatile boolean unusedCode = false;
 }

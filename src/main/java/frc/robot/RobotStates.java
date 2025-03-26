@@ -54,7 +54,8 @@ public class RobotStates {
     PassoffPosition,
     PassOffAlgaePosition,
     HoldAlgaePosition,
-    AvoidIntake
+    AvoidIntake,
+    Default
   }
 
   public enum IntakeState {
@@ -167,6 +168,8 @@ public class RobotStates {
           .debounce(
               0.5); // debounce to allow coarl to get fully in intake before ending intake command
 
+              public Trigger instantTriggerForCoralInIntake =
+              new Trigger(() -> coralInIntake); // debounce to allow coarl to get fully in intake before ending intake command
   public TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
 
   private boolean transferToEndEffector;
@@ -220,14 +223,10 @@ public class RobotStates {
 
     if (mechState == MechState.Override) {
       mechanismInUse = true;
-      passToEndEffector.cancel();
-      passToIntake.cancel();
     }
 
     if (intakeState == IntakeState.Override) {
       intakeInUse = true;
-      passToEndEffector.cancel();
-      passToIntake.cancel();
     }
 
     if (!mechanismInUse && !endEffectorInUse && !intakeInUse) {

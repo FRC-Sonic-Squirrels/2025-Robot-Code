@@ -298,7 +298,7 @@ public class AutoStateMachine extends StateMachine {
                 .andThen(
                     CommandComposer.intakeCoralFromStation(
                             wrapper, endEffector, mech, led, null, false, states)
-                        .asProxy()),
+                        ),
         (c) -> null);
 
     return stateWithName("IntakeCoral", () -> intakeCoral());

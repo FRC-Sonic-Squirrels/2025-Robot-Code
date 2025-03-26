@@ -90,7 +90,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber intakingAlgaePivotAngle =
       group.build("Intaking/Algae/AngleDeg", 20);
   private static final LoggedTunableNumber passOffPivotAngle = group.build("PassOff/AngleDeg", 104);
-  private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -500);
+  private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -1000);
   private static final LoggedTunableNumber stowPivotAngle = group.build("StowAngleDeg", 110);
   private static final LoggedTunableNumber algaeScoreVelocity =
       group.build("Score/Algae/Velocity", -1000.0);
@@ -122,7 +122,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber pivotTargetAccelerationConfig =
       pivotSubgroup.build("TargetAccelerationConfig");
   private static final LoggedTunableNumber pivotToleranceDegrees =
-      pivotSubgroup.build("ToleranceDegrees", 8);
+      pivotSubgroup.build("ToleranceDegrees", 3);
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {

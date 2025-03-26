@@ -59,7 +59,6 @@ import frc.robot.commands.intake.IntakeCoralGround;
 import frc.robot.commands.intake.ScoreAlgae;
 import frc.robot.commands.led.LedSetStateForSeconds;
 import frc.robot.commands.mechanism.MechToPosition;
-import frc.robot.commands.mechanism.WaitUntilMovedDist;
 import frc.robot.commands.mechanism.arm.ArmManualControl;
 import frc.robot.commands.mechanism.elevator.ElevatorManualControl;
 import frc.robot.configs.SimulatorRobotConfig;
@@ -716,11 +715,11 @@ public class RobotContainer {
                                   }
                                 })
                             .andThen(new EndEffectorSetRPM(-6000, robotStates)))
-                    .finallyDo(() -> robotStates.mechState = MechState.CoralStationPosition),
+                    .finallyDo(() -> robotStates.mechState = MechState.Default),
                 Commands.runOnce(
                         () -> {
                           robotStates.intakeState = IntakeState.ScoreCoral;
-                          robotStates.mechState = MechState.ReefL3Position;
+                          robotStates.mechState = MechState.AvoidIntake;
                         })
                     .andThen(Commands.waitUntil(() -> !robotStates.coralInIntake))
                     .andThen(Commands.waitSeconds(0.5))
@@ -728,7 +727,7 @@ public class RobotContainer {
                         Commands.runOnce(
                             () -> {
                               robotStates.intakeState = IntakeState.Stow;
-                              robotStates.mechState = MechState.CoralStationPosition;
+                              robotStates.mechState = MechState.Default;
                             })),
                 () -> robotStates.scoringLevel != ScoringLevel.L1));
     driverController
@@ -740,7 +739,7 @@ public class RobotContainer {
         .onTrue(new Climb(climber, driverController.getPovDown(), robotStates));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.povRight, "Intake Algae Ground")
+        .registerTrigger(XboxControllerWrapper.Button.start, "Intake Algae Ground")
         .whileTrue(new IntakeAlgaeGround(intake, robotStates));
 
     // ---------- OPERATOR CONTROLS -----------
@@ -834,22 +833,22 @@ public class RobotContainer {
 
     // ---------- NON-CONTROLLER TRIGGERS
 
-    robotStates.triggerForCoralInEndEffector.onTrue(
-        new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-            .andThen(
-                new MechToPosition(mech, MechState.StowPosition, robotStates)
-                    .finallyDo(
-                        () -> {
-                          robotStates.changeEndEffectorIfNotAligning(
-                              RobotStates.EndEffectorDesiredAction.AlignCoral);
-                        }))
-            .withName("GamepieceIntoEECommand"));
+    // robotStates.triggerForCoralInEndEffector.onTrue(
+    //     new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
+    //         .andThen(
+    //             new MechToPosition(mech, MechState.StowPosition, robotStates)
+    //                 .finallyDo(
+    //                     () -> {
+    //                       robotStates.changeEndEffectorIfNotAligning(
+    //                           RobotStates.EndEffectorDesiredAction.AlignCoral);
+    //                     }))
+    //         .withName("GamepieceIntoEECommand"));
 
     robotStates.triggerForCoralInEndEffector.onFalse(
-        new MechToPosition(mech, MechState.CoralStationPosition, robotStates)
+        new MechToPosition(mech, MechState.Default, robotStates)
             .withName("GamepieceOutOfEECommand"));
 
-    robotStates.triggerForCoralInIntake.onTrue(
+    robotStates.instantTriggerForCoralInIntake.onTrue(
         new ControllerRumbleForTime(
                 (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r), 0.5, 0.5)
             .alongWith(new LedSetStateForSeconds(led, RobotState.INTAKE_SUCCESS, 0.5)));

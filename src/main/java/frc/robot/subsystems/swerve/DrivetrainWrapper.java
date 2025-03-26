@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
+import frc.robot.Constants;
+
 import java.util.function.DoubleSupplier;
 
 public class DrivetrainWrapper {
@@ -118,7 +120,7 @@ public class DrivetrainWrapper {
 
   public Pose2d getReefPoseEstimatorPose(boolean prioritizeGyro) {
     var pose = drivetrain.getReefPoseEstimatorPose();
-    if (prioritizeGyro) {
+    if (Constants.unusedCode && prioritizeGyro) {
       pose = new Pose2d(pose.getTranslation(), getRotationGyroOnly());
     }
 
@@ -127,7 +129,7 @@ public class DrivetrainWrapper {
 
   public Pose2d getCoralStationPoseEstimatorPose(boolean prioritizeGyro) {
     var pose = drivetrain.getCoralStationPoseEstimatorPose();
-    if (prioritizeGyro) {
+    if (Constants.unusedCode && prioritizeGyro) {
       pose = new Pose2d(pose.getTranslation(), getRotationGyroOnly());
     }
 

@@ -70,7 +70,7 @@ public class RobotConfig2025 extends RobotConfig {
 
   // -------- SWERVE CURRENT LIMITS ---------
   private static final CurrentLimitsConfigs DRIVE_TALON_CURRENT_LIMIT_CONFIGS =
-      new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
+      new CurrentLimitsConfigs().withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true);
 
   private static final CurrentLimitsConfigs STEER_TALON_CURRENT_LIMIT_CONFIGS =
       new CurrentLimitsConfigs().withSupplyCurrentLimit(25).withSupplyCurrentLimitEnable(true);
@@ -88,7 +88,7 @@ public class RobotConfig2025 extends RobotConfig {
   private static final LoggedTunableNumber ANGLE_KD = group.build("ANGLE_KD", 2.0);
 
   // ---------- SWERVE DRIVE MOTOR PID + KS + KV + KA CONSTANTS -------------
-  private static final LoggedTunableNumber DRIVE_KP = group.build("DRIVE_KP", 1.8);
+  private static final LoggedTunableNumber DRIVE_KP = group.build("DRIVE_KP", 2.5);
   private static final LoggedTunableNumber DRIVE_KD = group.build("DRIVE_KD", 0.0);
 
   private static final LoggedTunableNumber DRIVE_KS = group.build("DRIVE_KS", 0.0);

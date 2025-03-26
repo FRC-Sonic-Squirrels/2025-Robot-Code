@@ -49,7 +49,7 @@ public class CommandComposer {
                             () -> {
                               states.changeEndEffectorIfNotAligning(
                                   RobotStates.EndEffectorDesiredAction.AlignCoral);
-                            })))
+                            })).asProxy())
         .withName("CoralStationIntake");
   }
 }

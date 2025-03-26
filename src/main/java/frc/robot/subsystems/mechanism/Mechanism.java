@@ -125,6 +125,9 @@ public class Mechanism {
         case AvoidIntake:
           goToPositionParallel(MechanismPositions.avoidIntakePosition());
           break;
+        case Default:
+          goToPositionParallel(MechanismPositions.defaultPosition());
+          break;
         default:
           break;
       }

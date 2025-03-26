@@ -103,17 +103,23 @@ public class MechanismPositions {
   private static final LoggedTunableNumber grabAlgaeHighArmAngleDegrees =
       group.build("grabAlgae/High/ArmAngleDegrees");
 
-  private static final LoggedTunableNumber holdAlgaeElevatorHeightIntahces =
+  private static final LoggedTunableNumber holdAlgaeElevatorHeightInches =
       group.build("holdAlgae/ElevatorHeightInches");
 
   private static final LoggedTunableNumber holdAlgaeArmAngleDegrees =
       group.build("holdAlgae/ArmAngleDegrees");
 
-  private static final LoggedTunableNumber avoidIntakeElevatorHeightIntahces =
+  private static final LoggedTunableNumber avoidIntakeElevatorHeightInches =
       group.build("avoidIntake/ElevatorHeightInches");
 
   private static final LoggedTunableNumber avoidIntakeArmAngleDegrees =
       group.build("avoidIntake/ArmAngleDegrees");
+
+      private static final LoggedTunableNumber defaultElevatorHeightInches =
+      group.build("default/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber defaultArmAngleDegrees =
+      group.build("default/ArmAngleDegrees");
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -137,7 +143,7 @@ public class MechanismPositions {
     } else {
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
-      reefL2ElevatorHeightInches.initDefault(8.5);
+      reefL2ElevatorHeightInches.initDefault(10);
       reefL2ArmAngleDegrees.initDefault(132.71);
       reefL3ElevatorHeightInches.initDefault(27.6);
       reefL3ArmAngleDegrees.initDefault(138.69);
@@ -166,9 +172,11 @@ public class MechanismPositions {
       grabAlgaeHighArmAngleDegrees.initDefault(151);
       grabAlgaeHighElevatorHeightIntahces.initDefault(48);
       holdAlgaeArmAngleDegrees.initDefault(90);
-      holdAlgaeElevatorHeightIntahces.initDefault(26);
-      avoidIntakeElevatorHeightIntahces.initDefault(18);
+      holdAlgaeElevatorHeightInches.initDefault(26);
+      avoidIntakeElevatorHeightInches.initDefault(18);
       avoidIntakeArmAngleDegrees.initDefault(45);
+      defaultElevatorHeightInches.initDefault(4);
+      defaultArmAngleDegrees.initDefault(70);
     }
   }
 
@@ -300,13 +308,19 @@ public class MechanismPositions {
 
   public static MechanismPosition holdAlgaePosition() {
     return new MechanismPosition(
-        Units.Inches.of(holdAlgaeElevatorHeightIntahces.get()),
+        Units.Inches.of(holdAlgaeElevatorHeightInches.get()),
         Rotation2d.fromDegrees(holdAlgaeArmAngleDegrees.get()));
   }
 
   public static MechanismPosition avoidIntakePosition() {
     return new MechanismPosition(
-        Units.Inches.of(avoidIntakeElevatorHeightIntahces.get()),
+        Units.Inches.of(avoidIntakeElevatorHeightInches.get()),
         Rotation2d.fromDegrees(avoidIntakeArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition defaultPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(defaultElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(defaultArmAngleDegrees.get()));
   }
 }

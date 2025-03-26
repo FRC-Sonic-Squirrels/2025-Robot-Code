@@ -48,7 +48,7 @@ public class PassToEndEffector extends StateMachine {
   }
 
   private StateHandler end() {
-    // states.mechState = MechState.StowPosition;
+    states.mechState = MechState.StowPosition;
     states.intakeState = IntakeState.Stow;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
     return setDone();

@@ -277,7 +277,7 @@ public class ScoreCoral extends StateMachine {
 
   private StateHandler L1Position() {
     states.intakeState = IntakeState.ScoreCoralPrep;
-    states.mechState = MechState.ReefL3Position;
+    states.mechState = MechState.AvoidIntake;
     return setDone();
   }
 
