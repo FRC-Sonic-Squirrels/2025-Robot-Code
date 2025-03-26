@@ -56,7 +56,8 @@ public class RobotStates {
     HoldAlgaePosition,
     AvoidIntake,
     Default,
-    AutoPrep
+    AutoPrep,
+    AlgaeBargePosition
   }
 
   public enum IntakeState {
@@ -167,7 +168,7 @@ public class RobotStates {
   public Trigger triggerForCoralInIntake =
       new Trigger(() -> coralInIntake)
           .debounce(
-              0.5); // debounce to allow coarl to get fully in intake before ending intake command
+              0.5); // debounce to allow coral to get fully in intake before ending intake command
 
   public Trigger instantTriggerForCoralInIntake =
       new Trigger(
