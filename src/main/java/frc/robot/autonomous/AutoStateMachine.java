@@ -297,8 +297,7 @@ public class AutoStateMachine extends StateMachine {
                             && arm.isAtTargetAngle(coralStationPos.armAngle()))
                 .andThen(
                     CommandComposer.intakeCoralFromStation(
-                            wrapper, endEffector, mech, led, null, false, states)
-                        ),
+                        wrapper, endEffector, mech, led, null, false, states)),
         (c) -> null);
 
     return stateWithName("IntakeCoral", () -> intakeCoral());

@@ -115,7 +115,7 @@ public class MechanismPositions {
   private static final LoggedTunableNumber avoidIntakeArmAngleDegrees =
       group.build("avoidIntake/ArmAngleDegrees");
 
-      private static final LoggedTunableNumber defaultElevatorHeightInches =
+  private static final LoggedTunableNumber defaultElevatorHeightInches =
       group.build("default/ElevatorHeightInches");
 
   private static final LoggedTunableNumber defaultArmAngleDegrees =

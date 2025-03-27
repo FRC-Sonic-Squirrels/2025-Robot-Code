@@ -168,8 +168,11 @@ public class RobotStates {
           .debounce(
               0.5); // debounce to allow coarl to get fully in intake before ending intake command
 
-              public Trigger instantTriggerForCoralInIntake =
-              new Trigger(() -> coralInIntake); // debounce to allow coarl to get fully in intake before ending intake command
+  public Trigger instantTriggerForCoralInIntake =
+      new Trigger(
+          () ->
+              coralInIntake); // debounce to allow coarl to get fully in intake before ending intake
+  // command
   public TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
 
   private boolean transferToEndEffector;
