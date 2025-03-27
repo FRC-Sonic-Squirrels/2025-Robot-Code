@@ -64,7 +64,7 @@ public class DrivetrainWrapper {
       chassisSpeeds = chassisSpeedsOverride;
     }
 
-    drivetrain.runVelocity(chassisSpeeds, prioritizeRotation);
+    drivetrain.runVelocity(chassisSpeeds, prioritizeRotation, chassisSpeedsOverride != null);
 
     var pose1 = getReefPoseEstimatorPose(false);
     var pose2 = getReefPoseEstimatorPose(true);
