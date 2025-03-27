@@ -258,7 +258,7 @@ public class ScoreCoral extends StateMachine {
     scoringPoseSideAndDirection =
         optionalScoringSide.isEmpty()
             ? getOptimalScoringSide(
-                robotPose, wrapper.getFieldRelativeVelocities().getTranslation())
+                robotPose, wrapper.getFieldRelativeVelocities().getTranslation(), false)
             : getScoringSide(optionalScoringSide.get());
 
     scoringPose = scoringPoseSideAndDirection.pose();
@@ -359,7 +359,11 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler followGeneratedPath() {
-
+    if (alignToScore.pathStalling()
+        && GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(false), scoringPose) < 0.5) {
+      alignToScore.cancel();
+      return stateWithName("PrepAlignWithCoralInTheWay", () -> prepAlignWithCoralInWay());
+    }
     if (!alignToScore.isScheduled()) {
       inPosition = true;
       return stateWithName("Score", () -> score());
@@ -367,8 +371,25 @@ public class ScoreCoral extends StateMachine {
     return null;
   }
 
-  private StateHandler alignWithCoralInWay() {
-    return null;
+  private StateHandler prepAlignWithCoralInWay() {
+    alignToScore =
+        new DriveToPosePathing(
+                wrapper,
+                config,
+                () -> wrapper.getReefPoseEstimatorPose(true),
+                () ->
+                    getClosestScoringSide(
+                            wrapper.getReefPoseEstimatorPose(false).getTranslation(), true)
+                        .pose(),
+                states.scoringLevel)
+            .setFinalErrorMaxWait(finalErrorMaxWait.get())
+            .setFinalOffsetError(finalOffsetError.get())
+            .setFinalHeadingError(finalHeadingError.get())
+            .setFinalTargetError(finalTargetError.get());
+    prepMechanismForScoring.cancel();
+    states.mechState = MechState.ReefPositionCoralInWay;
+    aligningWithCoralInWay = true;
+    return suspendForCommand(alignToScore, (c) -> stateWithName("Score", () -> score()));
   }
 
   private StateHandler initFollowPath() {
@@ -463,7 +484,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private ScoringSideWithPoseAndDirection getScoringSide(ScoringSide side) {
-    for (ScoringSideWithPoseAndDirection scoringLocation : getScoringLocations()) {
+    for (ScoringSideWithPoseAndDirection scoringLocation : getScoringLocations(false)) {
       if (scoringLocation.side() == side) {
         return scoringLocation;
       }
@@ -472,7 +493,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private ScoringSideWithPoseAndDirection getOptimalScoringSide(
-      Pose2d robotPose, Translation2d vel) {
+      Pose2d robotPose, Translation2d vel, boolean coralInWay) {
 
     log_inputVel.info(vel);
 
@@ -504,17 +525,18 @@ public class ScoreCoral extends StateMachine {
     log_predictedPose.info(GeomUtil.translationToPose(newTranslation));
     log_deltaTheta.info(deltaTheta);
 
-    return getClosestScoringSide(newTranslation);
+    return getClosestScoringSide(newTranslation, coralInWay);
   }
 
-  private ScoringSideWithPoseAndDirection getClosestScoringSide(Translation2d robotTranslation) {
+  private ScoringSideWithPoseAndDirection getClosestScoringSide(
+      Translation2d robotTranslation, boolean coralInWay) {
     ScoringSideWithPoseAndDirection bestTarget =
         new ScoringSideWithPoseAndDirection(
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero),
             ScoringSide.FAR_LEFT,
             ScoringDirection.LEFT);
 
-    for (ScoringSideWithPoseAndDirection pose : getScoringLocations()) {
+    for (ScoringSideWithPoseAndDirection pose : getScoringLocations(coralInWay)) {
       if (scoreableLocation(
               new ScoringLocation(
                   scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),
@@ -532,7 +554,7 @@ public class ScoreCoral extends StateMachine {
     ScoringSideWithPose bestTarget =
         new ScoringSideWithPose(
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero), ScoringSide.FAR_LEFT);
-    for (ScoringSideWithPose pose : Constants.FieldConstants.SCORING_SIDES()) {
+    for (ScoringSideWithPose pose : Constants.FieldConstants.SCORING_SIDES(false)) {
       if (GeometryUtil.getDist(robotPose, pose.pose())
           < GeometryUtil.getDist(robotPose, bestTarget.pose())) {
         bestTarget = pose;
@@ -541,9 +563,9 @@ public class ScoreCoral extends StateMachine {
     return bestTarget;
   }
 
-  private ScoringSideWithPoseAndDirection[] getScoringLocations() {
+  private ScoringSideWithPoseAndDirection[] getScoringLocations(boolean coralInWay) {
 
-    var sides = Constants.FieldConstants.SCORING_SIDES();
+    var sides = Constants.FieldConstants.SCORING_SIDES(coralInWay);
 
     var factor = optionalScoringDirection.isPresent() ? 1 : 2;
 
@@ -648,7 +670,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private boolean scorableLevel() {
-    for (ScoringSideWithPoseAndDirection pose : getScoringLocations()) {
+    for (ScoringSideWithPoseAndDirection pose : getScoringLocations(false)) {
       if (scoreableLocation(
           new ScoringLocation(
               scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),

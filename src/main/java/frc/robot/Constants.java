@@ -179,14 +179,14 @@ public final class Constants {
       ScoringSide.FAR_RIGHT
     };
 
-    public static ScoringSideWithPose[] SCORING_SIDES() {
+    public static ScoringSideWithPose[] SCORING_SIDES(boolean coralInWay) {
       ScoringSideWithPose[] poses = new ScoringSideWithPose[6];
       for (int i = 0; i < poses.length; i++) {
         Rotation2d angle = Rotation2d.fromRotations(i / 6.0);
         Translation2d offset =
             new Translation2d(
                 REEF_WIDTH
-                    .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY())
+                    .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY().plus(coralInWay ? Gamepieces.CORAL_OUTER_DIAMETER : Units.Inches.of(0)))
                     .div(2.0)
                     .in(Units.Meters),
                 angle);
@@ -207,9 +207,8 @@ public final class Constants {
     public static final Distance CORAL_STATION_WIDTH = Units.Inches.of(76);
 
     public static class Gamepieces {
-      // TODO: add specific gamepiece dimensions for new season
-      public static final Distance GAMEPIECE_HEIGHT =
-          Units.Inches.of(0.0); // TODO: change this to new value
+      public static final Distance CORAL_OUTER_DIAMETER =
+          Units.Inches.of(4.5);
       public static final Distance GAMEPIECE_TOLERANCE = Units.Inches.of(20.0);
       public static final double GAMEPIECE_PERSISTENCE = 0.5;
     }
