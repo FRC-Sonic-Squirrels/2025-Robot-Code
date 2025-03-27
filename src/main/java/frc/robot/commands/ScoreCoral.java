@@ -83,6 +83,10 @@ public class ScoreCoral extends StateMachine {
 
   private boolean inPosition;
 
+  private DriveToPosePathing alignToScore;
+
+  private boolean aligningWithCoralInWay;
+
   private static final TunableNumberGroup group = new TunableNumberGroup("ScoreCoral");
   private static final LoggedTunableNumber distToRaiseMech =
       group.build("DistToRaiseMechMeters", 0.05);
@@ -335,19 +339,36 @@ public class ScoreCoral extends StateMachine {
 
     return optionalPath.isPresent()
         ? stateWithName("InitFollowPath", () -> initFollowPath())
-        : suspendForCommand(
-            new DriveToPosePathing(
-                    wrapper,
-                    config,
-                    () -> wrapper.getReefPoseEstimatorPose(true),
-                    () -> scoringPose,
-                    states.scoringLevel)
-                .setFinalErrorMaxWait(finalErrorMaxWait.get())
-                .setFinalOffsetError(finalOffsetError.get())
-                .setFinalHeadingError(finalHeadingError.get())
-                .setFinalTargetError(finalTargetError.get())
-                .andThen(Commands.runOnce(() -> inPosition = true)),
-            (command) -> stateWithName("Score", () -> score()));
+        : stateWithName("InitFollowGeneratedPath", () -> InitFollowGeneratedPath());
+  }
+
+  private StateHandler InitFollowGeneratedPath() {
+    alignToScore =
+        new DriveToPosePathing(
+                wrapper,
+                config,
+                () -> wrapper.getReefPoseEstimatorPose(true),
+                () -> scoringPose,
+                states.scoringLevel)
+            .setFinalErrorMaxWait(finalErrorMaxWait.get())
+            .setFinalOffsetError(finalOffsetError.get())
+            .setFinalHeadingError(finalHeadingError.get())
+            .setFinalTargetError(finalTargetError.get());
+    spawnCommand(alignToScore, null);
+    return stateWithName("FollowGeneratedPath", () -> followGeneratedPath());
+  }
+
+  private StateHandler followGeneratedPath() {
+
+    if (!alignToScore.isScheduled()) {
+      inPosition = true;
+      return stateWithName("Score", () -> score());
+    }
+    return null;
+  }
+
+  private StateHandler alignWithCoralInWay() {
+    return null;
   }
 
   private StateHandler initFollowPath() {

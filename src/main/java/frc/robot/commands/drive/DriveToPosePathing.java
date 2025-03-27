@@ -12,12 +12,15 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -57,16 +60,27 @@ public class DriveToPosePathing extends Command {
               + 0.1);
   private static LoggedTunableNumber headingToleranceNearElements =
       tunableGroup.build("HeadingToleranceNearElements", 40.0);
+  private static LoggedTunableNumber stallMaxVelocity =
+      tunableGroup.build("Stall/MaxVelocity", 0.05);
+  private static LoggedTunableNumber stallMinDistance =
+      tunableGroup.build("Stall/MinDistance", 0.02);
+  private static LoggedTunableNumber stallDebounce = tunableGroup.build("Stall/Debounce", 0.3);
 
   private static LoggerGroup logGroup = LoggerGroup.build("DriveToPosePathing");
+  private static LoggerGroup pathGenLogGroup = logGroup.subgroup("PathGeneration");
+  private static LoggerGroup pathFollowingLogGroup = logGroup.subgroup("PathFollowing");
   private static LoggerEntry.Struct<Pose2d> log_intermediatePose =
-      logGroup.buildStruct(Pose2d.class, "IntermediatePose");
+      pathGenLogGroup.buildStruct(Pose2d.class, "IntermediatePose");
   private static LoggerEntry.Struct<Pose2d> log_intersectingPose =
-      logGroup.buildStruct(Pose2d.class, "IntersectingPose");
-  private static LoggerEntry.Struct<Pose2d> log_targetChassisSpeeds =
-      logGroup.buildStruct(Pose2d.class, "TargetChassisSpeeds");
+      pathGenLogGroup.buildStruct(Pose2d.class, "IntersectingPose");
   private static LoggerEntry.StructArray<Pose2d> log_unAttemptedPath =
-      logGroup.buildStructArray(Pose2d.class, "UnAttemptedPath");
+      pathGenLogGroup.buildStructArray(Pose2d.class, "UnAttemptedPath");
+  private static LoggerEntry.Struct<Pose2d> log_targetChassisSpeeds =
+      pathFollowingLogGroup.buildStruct(Pose2d.class, "TargetChassisSpeeds");
+  private static LoggerEntry.Decimal log_distToTarget =
+      pathFollowingLogGroup.buildDecimal("DistToTarget");
+  private static LoggerEntry.Decimal log_velToTarget =
+      pathFollowingLogGroup.buildDecimal("VelToTarget");
 
   private boolean debugRotationClamping = false;
   private boolean debugRerouting = false;
@@ -79,6 +93,16 @@ public class DriveToPosePathing extends Command {
   private double finalErrorMaxWait = 2;
 
   private final ScoringLevel level;
+  private double distToTarget;
+  private Double prevdistToTarget = Double.NaN;
+  private LinearFilter velocityToTarget = LinearFilter.movingAverage(3);
+  private double prevTime;
+  private Trigger stalled =
+      new Trigger(
+              () ->
+                  (velocityToTarget.lastValue() < stallMaxVelocity.get()
+                      && distToTarget > stallMinDistance.get()))
+          .debounce(stallDebounce.get());
 
   /** Creates a new DriveToPosePathing. */
   public DriveToPosePathing(
@@ -161,6 +185,15 @@ public class DriveToPosePathing extends Command {
       return;
     }
 
+    distToTarget = GeometryUtil.getDist(currentPose.get(), targetPose.get());
+    log_distToTarget.info(distToTarget);
+    double time = RobotController.getFPGATime();
+
+    if (!prevdistToTarget.isNaN())
+      velocityToTarget.calculate((distToTarget - prevdistToTarget) / (time - prevTime));
+
+    log_velToTarget.info(velocityToTarget.lastValue());
+
     ChassisSpeedsWithPathEnd result =
         helper.calculateChassisSpeeds(currentPose.get(), Timer.getFPGATimestamp());
     log_targetChassisSpeeds.info(
@@ -170,6 +203,9 @@ public class DriveToPosePathing extends Command {
             Rotation2d.fromRadians(result.chassisSpeeds().omegaRadiansPerSecond)));
     wrapper.setVelocityOverride(result.chassisSpeeds());
     pathFinished = result.atEndOfPath();
+
+    prevdistToTarget = distToTarget;
+    prevTime = time;
   }
 
   // Called once the command ends or is interrupted.
@@ -182,6 +218,10 @@ public class DriveToPosePathing extends Command {
   @Override
   public boolean isFinished() {
     return pathFinished;
+  }
+
+  public boolean pathStalling() {
+    return stalled.getAsBoolean();
   }
 
   private boolean trajIntersectsWithReef(Trajectory<SwerveSample> traj) {
