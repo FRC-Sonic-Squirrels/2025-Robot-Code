@@ -41,6 +41,7 @@ public class RobotStates {
     Idle,
     Override,
     ReefPosition,
+    ReefPositionCoralInWay,
     ReefL1Position,
     ReefL2Position,
     ReefL3Position,

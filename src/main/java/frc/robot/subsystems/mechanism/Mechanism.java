@@ -76,6 +76,16 @@ public class Mechanism {
             goToPositionParallel(MechanismPositions.reefPosition(states.scoringLevel));
           }
           break;
+        case ReefPositionCoralInWay:
+          if (states.scoringLevel == ScoringLevel.L4) {
+            goToPositionParallel(
+                MechanismPositions.reefPositionCoralInWay(states.scoringLevel),
+                Double.NaN,
+                scoreL4ArmAccel.get());
+          } else {
+            goToPositionParallel(MechanismPositions.reefPositionCoralInWay(states.scoringLevel));
+          }
+          break;
         case ReefL1Position:
           goToPositionParallel(MechanismPositions.reefPosition(ScoringLevel.L1));
           break;
