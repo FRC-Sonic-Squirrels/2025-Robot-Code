@@ -179,14 +179,14 @@ public final class Constants {
       ScoringSide.FAR_RIGHT
     };
 
-    public static ScoringSideWithPose[] SCORING_SIDES(boolean coralInWay) {
+    public static ScoringSideWithPose[] SCORING_SIDES(Distance extraOffset) {
       ScoringSideWithPose[] poses = new ScoringSideWithPose[6];
       for (int i = 0; i < poses.length; i++) {
         Rotation2d angle = Rotation2d.fromRotations(i / 6.0);
         Translation2d offset =
             new Translation2d(
                 REEF_WIDTH
-                    .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY().plus(coralInWay ? Gamepieces.CORAL_OUTER_DIAMETER : Units.Inches.of(0)))
+                    .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY().plus(extraOffset))
                     .div(2.0)
                     .in(Units.Meters),
                 angle);

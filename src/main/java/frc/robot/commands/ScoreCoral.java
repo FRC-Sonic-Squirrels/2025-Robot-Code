@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -106,6 +107,8 @@ public class ScoreCoral extends StateMachine {
       group.build("DistToElevateCoral", 0.3);
   private static final LoggedTunableNumber velToElevateCoral =
       group.build("VelToElevateCoral", 1.5);
+  private static final LoggedTunableNumber L2PrepPositionDistInches =
+      group.build("L2PrepPositionDistInches", 4);
 
   private static final LoggerGroup log_group = LoggerGroup.build("ScoreCoral");
   private static final LoggerEntry.EnumValue<ScoringSide> log_scoringSide =
@@ -258,7 +261,9 @@ public class ScoreCoral extends StateMachine {
     scoringPoseSideAndDirection =
         optionalScoringSide.isEmpty()
             ? getOptimalScoringSide(
-                robotPose, wrapper.getFieldRelativeVelocities().getTranslation(), false)
+                robotPose,
+                wrapper.getFieldRelativeVelocities().getTranslation(),
+                Units.Inches.of(0))
             : getScoringSide(optionalScoringSide.get());
 
     scoringPose = scoringPoseSideAndDirection.pose();
@@ -277,7 +282,9 @@ public class ScoreCoral extends StateMachine {
     if (objective.get() == ScoreCoralObjective.JustClear)
       return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
 
-    return stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
+    return states.scoringLevel == ScoringLevel.L2
+        ? stateWithName("PrepL2Alignment", () -> prepL2Alignment())
+        : stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
   }
 
   // SCORING STATES
@@ -286,6 +293,33 @@ public class ScoreCoral extends StateMachine {
     states.intakeState = IntakeState.ScoreCoralPrep;
     states.mechState = MechState.AvoidIntake;
     return setDone();
+  }
+
+  private StateHandler prepL2Alignment() {
+    alignToScore =
+        new DriveToPosePathing(
+                wrapper,
+                config,
+                () -> wrapper.getReefPoseEstimatorPose(true),
+                () ->
+                    getOptimalScoringSide(
+                            wrapper.getReefPoseEstimatorPose(false),
+                            wrapper.getFieldRelativeVelocities().getTranslation(),
+                            Units.Inches.of(L2PrepPositionDistInches.get()))
+                        .pose())
+            .setFinalErrorMaxWait(finalErrorMaxWait.get())
+            .setFinalOffsetError(finalOffsetError.get())
+            .setFinalHeadingError(finalHeadingError.get())
+            .setFinalTargetError(finalTargetError.get());
+    spawnCommand(alignToScore, null);
+    return stateWithName("L2Alignment", () -> L2Alignment());
+  }
+
+  private StateHandler L2Alignment() {
+    states.mechState = MechState.ReefPosition;
+    if (states.mechInTargetState)
+      return stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
+    return null;
   }
 
   private StateHandler prepForScoringAlignment() {
@@ -315,17 +349,7 @@ public class ScoreCoral extends StateMachine {
                                                         wrapper.getReefPoseEstimatorPose(true),
                                                         scoringPose)
                                                     < distToElevateCoral.get()))
-                                .andThen(
-                                    Commands.either(
-                                        new MechToPosition(mech, MechState.ReefPosition, states)
-                                            .alongWith(
-                                                Commands.waitUntil(
-                                                        () -> inPosition && elevator.isAtTarget())
-                                                    .andThen(
-                                                        new MechToPosition(
-                                                            mech, MechState.ReefPosition, states))),
-                                        new MechToPosition(mech, MechState.ReefPosition, states),
-                                        () -> states.scoringLevel == ScoringLevel.L4))))
+                                .andThen(new MechToPosition(mech, MechState.ReefPosition, states))))
                 .withName("MechScoreCoral"),
             (command) -> null);
 
@@ -379,7 +403,8 @@ public class ScoreCoral extends StateMachine {
                 () -> wrapper.getReefPoseEstimatorPose(true),
                 () ->
                     getClosestScoringSide(
-                            wrapper.getReefPoseEstimatorPose(false).getTranslation(), true)
+                            wrapper.getReefPoseEstimatorPose(false).getTranslation(),
+                            Constants.FieldConstants.Gamepieces.CORAL_OUTER_DIAMETER)
                         .pose(),
                 states.scoringLevel)
             .setFinalErrorMaxWait(finalErrorMaxWait.get())
@@ -484,7 +509,8 @@ public class ScoreCoral extends StateMachine {
   }
 
   private ScoringSideWithPoseAndDirection getScoringSide(ScoringSide side) {
-    for (ScoringSideWithPoseAndDirection scoringLocation : getScoringLocations(false)) {
+    for (ScoringSideWithPoseAndDirection scoringLocation :
+        getScoringLocations(Units.Inches.of(0))) {
       if (scoringLocation.side() == side) {
         return scoringLocation;
       }
@@ -493,7 +519,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private ScoringSideWithPoseAndDirection getOptimalScoringSide(
-      Pose2d robotPose, Translation2d vel, boolean coralInWay) {
+      Pose2d robotPose, Translation2d vel, Distance extraDist) {
 
     log_inputVel.info(vel);
 
@@ -525,18 +551,18 @@ public class ScoreCoral extends StateMachine {
     log_predictedPose.info(GeomUtil.translationToPose(newTranslation));
     log_deltaTheta.info(deltaTheta);
 
-    return getClosestScoringSide(newTranslation, coralInWay);
+    return getClosestScoringSide(newTranslation, extraDist);
   }
 
   private ScoringSideWithPoseAndDirection getClosestScoringSide(
-      Translation2d robotTranslation, boolean coralInWay) {
+      Translation2d robotTranslation, Distance extraDist) {
     ScoringSideWithPoseAndDirection bestTarget =
         new ScoringSideWithPoseAndDirection(
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero),
             ScoringSide.FAR_LEFT,
             ScoringDirection.LEFT);
 
-    for (ScoringSideWithPoseAndDirection pose : getScoringLocations(coralInWay)) {
+    for (ScoringSideWithPoseAndDirection pose : getScoringLocations(extraDist)) {
       if (scoreableLocation(
               new ScoringLocation(
                   scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),
@@ -554,7 +580,7 @@ public class ScoreCoral extends StateMachine {
     ScoringSideWithPose bestTarget =
         new ScoringSideWithPose(
             new Pose2d(Double.MAX_VALUE, Double.MAX_VALUE, Rotation2d.kZero), ScoringSide.FAR_LEFT);
-    for (ScoringSideWithPose pose : Constants.FieldConstants.SCORING_SIDES(false)) {
+    for (ScoringSideWithPose pose : Constants.FieldConstants.SCORING_SIDES(Units.Inches.of(0))) {
       if (GeometryUtil.getDist(robotPose, pose.pose())
           < GeometryUtil.getDist(robotPose, bestTarget.pose())) {
         bestTarget = pose;
@@ -563,9 +589,9 @@ public class ScoreCoral extends StateMachine {
     return bestTarget;
   }
 
-  private ScoringSideWithPoseAndDirection[] getScoringLocations(boolean coralInWay) {
+  private ScoringSideWithPoseAndDirection[] getScoringLocations(Distance extraDist) {
 
-    var sides = Constants.FieldConstants.SCORING_SIDES(coralInWay);
+    var sides = Constants.FieldConstants.SCORING_SIDES(extraDist);
 
     var factor = optionalScoringDirection.isPresent() ? 1 : 2;
 
@@ -670,7 +696,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private boolean scorableLevel() {
-    for (ScoringSideWithPoseAndDirection pose : getScoringLocations(false)) {
+    for (ScoringSideWithPoseAndDirection pose : getScoringLocations(Units.Inches.of(0))) {
       if (scoreableLocation(
           new ScoringLocation(
               scoringSideAndDirectionToReefSide(pose.side(), pose.direction()),
