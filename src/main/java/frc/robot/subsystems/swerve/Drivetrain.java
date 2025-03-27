@@ -447,7 +447,7 @@ public class Drivetrain extends SubsystemBase {
    *
    * @param speeds Speeds in meters/sec
    */
-  public void runVelocity(ChassisSpeeds speeds, boolean prioritizeRotation) {
+  public void runVelocity(ChassisSpeeds speeds, boolean prioritizeRotation, boolean motionMagicDrive) {
     // new Double().compareTo(null)
     if (prioritizeRotation
         && speeds.vxMetersPerSecond > 0.001
@@ -525,7 +525,7 @@ public class Drivetrain extends SubsystemBase {
       driveMotorAcceleration = driveMotorAccelerationTele.get();
     }
 
-    var optimizedSetpointStates = modules.runSetpoints(setpointStates, driveMotorAcceleration);
+    var optimizedSetpointStates = modules.runSetpoints(setpointStates, driveMotorAcceleration, motionMagicDrive);
 
     // Log setpoint states
     logSwerveStatesSetpoints.info(setpointStates);
@@ -534,7 +534,7 @@ public class Drivetrain extends SubsystemBase {
 
   /** Stops the drive. */
   public void stop() {
-    runVelocity(new ChassisSpeeds(), false);
+    runVelocity(new ChassisSpeeds(), false, true);
   }
 
   /**

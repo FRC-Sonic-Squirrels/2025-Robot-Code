@@ -76,6 +76,8 @@ public class SwerveModule {
   private Double speedSetpoint; // Setpoint for closed loop control, null for open loop
   private double driveMotorMotionMagicAcceleration;
 
+  private boolean motionMagicDrive;
+
   public SwerveModule(int index, RobotConfig config, SwerveModuleIO io) {
     this.io = io;
 
@@ -169,11 +171,11 @@ public class SwerveModule {
 
       if (speedSetpoint != null) {
         // TODO: maybe use voltage for tele???
-        // if (io instanceof SwerveModuleIOSim) {
+        if (io instanceof SwerveModuleIOSim || motionMagicDrive) {
         io.setDriveVelocity(speedSetpoint, driveMotorMotionMagicAcceleration);
-        // } else {
-        //   io.setDriveVoltage(speedSetpoint / maxSpeedMetersPerSecond * 12.0);
-        // }
+        } else {
+          io.setDriveVoltage(speedSetpoint / maxSpeedMetersPerSecond * 12.0);
+        }
       }
     }
   }
@@ -198,7 +200,7 @@ public class SwerveModule {
 
   /** Runs the module with the specified setpoint state. Returns the optimized state. */
   public SwerveModuleState runSetpoint(
-      SwerveModuleState state, double driveMotorMotionMagicAcceleration) {
+      SwerveModuleState state, double driveMotorMotionMagicAcceleration, boolean motionMagicDrive) {
     // Optimize state based on current angle
     // Controllers run in "periodic" when the setpoint is not null
     var optimizedState = SwerveModuleState.optimize(state, getAngle());
@@ -208,6 +210,7 @@ public class SwerveModule {
     speedSetpoint = optimizedState.speedMetersPerSecond;
 
     this.driveMotorMotionMagicAcceleration = driveMotorMotionMagicAcceleration;
+    this.motionMagicDrive = motionMagicDrive;
 
     return optimizedState;
   }
