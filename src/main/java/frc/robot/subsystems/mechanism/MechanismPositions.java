@@ -85,16 +85,28 @@ public class MechanismPositions {
   private static final LoggedTunableNumber intermediatePoseLowBackArmAngleDegrees =
       group.build("IntermediatePoses/LowBack/ArmAngleDegrees");
 
-  private static final LoggedTunableNumber passOffElevatorHeightInches =
+  private static final LoggedTunableNumber passOffCoralElevatorHeightInches =
       group.build("PassOff/Pass/ElevatorHeightInches");
 
-  private static final LoggedTunableNumber passOffArmAngleDegrees =
+  private static final LoggedTunableNumber passOffCoralArmAngleDegrees =
       group.build("PassOff/Pass/ArmAngleDegrees");
 
-  private static final LoggedTunableNumber prepForPassOffElevatorHeightInches =
+  private static final LoggedTunableNumber prepForPassOffCoralElevatorHeightInches =
       group.build("PassOff/Prep/ElevatorHeightInches");
 
-  private static final LoggedTunableNumber prepForPassOffArmAngleDegrees =
+  private static final LoggedTunableNumber prepForPassOffCoralArmAngleDegrees =
+      group.build("PassOff/Prep/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber passOffAlgaeElevatorHeightInches =
+      group.build("PassOff/Pass/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber passOffAlgaeArmAngleDegrees =
+      group.build("PassOff/Pass/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber prepForPassOffAlgaeElevatorHeightInches =
+      group.build("PassOff/Prep/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber prepForPassOffAlgaeArmAngleDegrees =
       group.build("PassOff/Prep/ArmAngleDegrees");
 
   private static final LoggedTunableNumber grabAlgaeHighElevatorHeightIntahces =
@@ -259,12 +271,6 @@ public class MechanismPositions {
         Rotation2d.fromDegrees(coralStationArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition intakeToEndEffectorPassOffPosition() {
-    return new MechanismPosition(
-        Units.Inches.of(passOffElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(passOffArmAngleDegrees.get()));
-  }
-
   public static MechanismPosition clearAlgaeLowPosition() {
     return new MechanismPosition(
         Units.Inches.of(algaeClearingLowElevatorHeightInches.get()),
@@ -285,16 +291,24 @@ public class MechanismPositions {
             Rotation2d.fromDegrees(stowArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition prepForPassoffPosition() {
-    return new MechanismPosition(
-        Units.Inches.of(prepForPassOffElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(prepForPassOffArmAngleDegrees.get()));
+  public static MechanismPosition prepForPassoffPosition(boolean coral) {
+    return coral
+        ? new MechanismPosition(
+            Units.Inches.of(prepForPassOffCoralElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(prepForPassOffCoralArmAngleDegrees.get()))
+        : new MechanismPosition(
+            Units.Inches.of(prepForPassOffAlgaeElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(prepForPassOffAlgaeArmAngleDegrees.get()));
   }
 
-  public static MechanismPosition passoffPosition() {
-    return new MechanismPosition(
-        Units.Inches.of(passOffElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(passOffArmAngleDegrees.get()));
+  public static MechanismPosition passoffPosition(boolean coral) {
+    return coral
+        ? new MechanismPosition(
+            Units.Inches.of(passOffCoralElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(passOffCoralArmAngleDegrees.get()))
+        : new MechanismPosition(
+            Units.Inches.of(passOffAlgaeElevatorHeightInches.get()),
+            Rotation2d.fromDegrees(passOffAlgaeArmAngleDegrees.get()));
   }
 
   public static MechanismPosition scoreAlgaeBargePosition() {
