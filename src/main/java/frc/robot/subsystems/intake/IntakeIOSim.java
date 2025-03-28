@@ -49,7 +49,6 @@ public class IntakeIOSim implements IntakeIO {
     rollerMotor.update(Constants.kDefaultPeriod);
     inputs.rollerAppliedVolts = rollerMotor.getVoltage();
     inputs.rollerVelocityRPM = rollerMotor.getVelocity().in(Units.RPM);
-    inputs.rollerStallDetected = inputs.rollerVelocityRPM <= 10 && inputs.rollerAppliedVolts != 0;
 
     pivotSim.update(Constants.kDefaultPeriod);
 

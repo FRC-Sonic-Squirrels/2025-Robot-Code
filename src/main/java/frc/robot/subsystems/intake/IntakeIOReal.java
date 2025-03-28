@@ -27,7 +27,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants.PivotConstants;
 import frc.robot.Constants.IntakeConstants.RollerConstants;
@@ -57,8 +56,6 @@ public class IntakeIOReal implements IntakeIO {
   private final StatusSignal<Current> pivotCurrent;
   private final StatusSignal<Temperature> pivotTemp;
   private final StatusSignal<AngularVelocity> pivotVelocity;
-
-  private final Trigger stallDetected;
 
   private final MotionMagicVoltage pivotClosedLoopControl =
       new MotionMagicVoltage(0.0).withEnableFOC(true);
@@ -190,12 +187,6 @@ public class IntakeIOReal implements IntakeIO {
         new BaseStatusSignal[] {
           intakeTofDistance, intakeTofDetected, intakeTofSignalStrength,
         };
-    stallDetected =
-        new Trigger(
-                () ->
-                    rollerVelocity.getValueAsDouble() <= 1
-                        && rollerAppliedVoltage.getValueAsDouble() != 0)
-            .debounce(.1);
   }
 
   @Override
@@ -206,7 +197,6 @@ public class IntakeIOReal implements IntakeIO {
     inputs.rollerTempCelsius = rollerDeviceTemp.getValue().in(Units.Celsius);
     inputs.rollerAppliedVolts = rollerAppliedVoltage.getValue().in(Units.Volts);
     inputs.rollerVelocityRPM = rollerVelocity.getValue().in(Units.RPM);
-    inputs.rollerStallDetected = stallDetected.getAsBoolean();
 
     inputs.pivotPosition = Rotation2d.fromRotations(pivotPosition.getValue().in(Units.Rotations));
     inputs.pivotAppliedVolts = pivotAppliedVoltage.getValue().in(Units.Volts);

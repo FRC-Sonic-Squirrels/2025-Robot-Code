@@ -14,7 +14,6 @@ public interface IntakeIO {
     public double rollerCurrentAmps;
     public double rollerTempCelsius;
     public double rollerAppliedVolts;
-    public boolean rollerStallDetected;
 
     public double intakeTofDistanceInches;
     public boolean intakeTofDetected;

@@ -27,7 +27,8 @@ public class RobotStates {
     ScoreSlowBackward(false),
     PassCoralToEndEffector(false),
     PassToIntake(false),
-    HoldAlgae(false);
+    HoldAlgae(false),
+    ScoreAlgae(false);
 
     public final boolean alignmentActive;
 
@@ -178,10 +179,7 @@ public class RobotStates {
           .debounce(
               0.5); // debounce to allow coral to get fully in intake before ending intake command
 
-  public Trigger instantTriggerForCoralInIntake =
-      new Trigger(
-          () ->
-              coralInIntake); // debounce to allow coarl to get fully in intake before ending intake
+  public Trigger instantTriggerForCoralInIntake = new Trigger(() -> coralInIntake);
   // command
   public TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
 
@@ -230,6 +228,9 @@ public class RobotStates {
         targetCoralPosition == TargetCoralPosition.EndEffector
             && !coralInEndEffector
             && coralInIntake;
+
+    transferAlgaeToEndEffector = algaeInIntake && !algaeInEndEffector;
+
     transferCoralToIntake =
         targetCoralPosition == TargetCoralPosition.Intake && !coralInIntake && coralInEndEffector;
 
