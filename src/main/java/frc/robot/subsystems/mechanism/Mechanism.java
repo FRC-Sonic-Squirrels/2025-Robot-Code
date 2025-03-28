@@ -111,14 +111,17 @@ public class Mechanism {
         case ClimbPosition:
           goToPositionParallel(MechanismPositions.climbPosition());
           break;
-        case PrepPassoffPosition:
+        case PrepPassoffCoralPosition:
           goToPositionParallel(MechanismPositions.prepForPassoffPosition(true));
           break;
-        case PassoffPosition:
+        case PrepPassoffAlgaePosition:
+          goToPositionParallel(MechanismPositions.prepForPassoffPosition(false));
+          break;
+        case PassOffCoralPosition:
           goToPositionParallel(MechanismPositions.passoffPosition(true));
           break;
         case PassOffAlgaePosition:
-          goToPositionParallel(MechanismPositions.passOffAlgaePosition());
+          goToPositionParallel(MechanismPositions.passoffPosition(false));
           break;
         case HoldAlgaePosition:
           goToPositionParallel(MechanismPositions.holdAlgaePosition());

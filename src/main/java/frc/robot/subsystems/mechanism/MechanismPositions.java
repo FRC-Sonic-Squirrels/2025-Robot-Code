@@ -109,12 +109,6 @@ public class MechanismPositions {
   private static final LoggedTunableNumber prepForPassOffAlgaeArmAngleDegrees =
       group.build("PassOff/Prep/ArmAngleDegrees");
 
-  private static final LoggedTunableNumber grabAlgaeHighElevatorHeightIntahces =
-      group.build("grabAlgae/High/ElevatorHeightInches");
-
-  private static final LoggedTunableNumber grabAlgaeHighArmAngleDegrees =
-      group.build("grabAlgae/High/ArmAngleDegrees");
-
   private static final LoggedTunableNumber holdAlgaeElevatorHeightInches =
       group.build("holdAlgae/ElevatorHeightInches");
 
@@ -188,12 +182,14 @@ public class MechanismPositions {
       intermediatePoseLowBackElevatorHeightInches.initDefault(0);
       intermediatePoseLowBackArmAngleDegrees.initDefault(130);
       reefPrepArmOffsetDegrees.initDefault(20);
-      passOffArmAngleDegrees.initDefault(9.756);
-      passOffElevatorHeightInches.initDefault(15);
-      prepForPassOffArmAngleDegrees.initDefault(9.756);
-      prepForPassOffElevatorHeightInches.initDefault(15);
-      grabAlgaeHighArmAngleDegrees.initDefault(151);
-      grabAlgaeHighElevatorHeightIntahces.initDefault(48);
+      passOffCoralArmAngleDegrees.initDefault(9.756);
+      passOffCoralElevatorHeightInches.initDefault(15);
+      prepForPassOffCoralArmAngleDegrees.initDefault(9.756);
+      prepForPassOffCoralElevatorHeightInches.initDefault(15);
+      passOffAlgaeArmAngleDegrees.initDefault(9.756);
+      passOffAlgaeElevatorHeightInches.initDefault(16);
+      prepForPassOffAlgaeArmAngleDegrees.initDefault(9.756);
+      prepForPassOffAlgaeElevatorHeightInches.initDefault(18);
       holdAlgaeArmAngleDegrees.initDefault(90);
       holdAlgaeElevatorHeightInches.initDefault(26);
       avoidIntakeElevatorHeightInches.initDefault(18);
@@ -333,12 +329,6 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(intermediatePoseHighElevatorHeightInches.get()),
         Rotation2d.fromDegrees(intermediatePoseHighArmAngleDegrees.get()));
-  }
-
-  public static MechanismPosition passOffAlgaePosition() {
-    return new MechanismPosition(
-        Units.Inches.of(grabAlgaeHighElevatorHeightIntahces.get()),
-        Rotation2d.fromDegrees(grabAlgaeHighArmAngleDegrees.get()));
   }
 
   public static MechanismPosition holdAlgaePosition() {

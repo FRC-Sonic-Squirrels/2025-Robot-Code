@@ -309,7 +309,7 @@ public class EndEffector extends SubsystemBase {
                 endEffectorSim.nonScoringSideTofDetecting = false;
               }
               break;
-            case PassToEndEffector:
+            case PassCoralToEndEffector:
               setVelocity(passOffVelocityRPM.get());
               break;
             case PassToIntake:

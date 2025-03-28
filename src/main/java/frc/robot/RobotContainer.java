@@ -542,16 +542,17 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // ----------- DRIVER CONTROLS ------------
 
-    driverController
-        .registerTrigger(XboxControllerWrapper.Button.back, "Zero Robot")
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  Pose2d pose = drivetrain.getReefPoseEstimatorPose();
-                  drivetrain.setPose(
-                      new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
-                },
-                drivetrain));
+    // driverController
+    //     .registerTrigger(XboxControllerWrapper.Button.back, "Zero Robot")
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               Pose2d pose = drivetrain.getReefPoseEstimatorPose();
+    //               drivetrain.setPose(
+    //                   new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
+    //             },
+    //             drivetrain));
+    driverController.registerTrigger(XboxControllerWrapper.Button.back, "Score Algae in Net");
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.start, "X Stance")
@@ -793,7 +794,7 @@ public class RobotContainer {
     // Manual passoff position
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.y, "Manual Passoff")
-        .onTrue(new RunStateMachineCommand(() -> new PassToEndEffector(intake, robotStates)));
+        .onTrue(new RunStateMachineCommand(() -> new PassToEndEffector(intake, robotStates, true)));
 
     // Stow position
     operatorController
@@ -1000,6 +1001,15 @@ public class RobotContainer {
         "Zero Servo",
         new RunsWhenDisabledInstantCommand(
             () -> climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE)));
+
+    SmartDashboard.putData(
+        "Zero Robot Angle",
+        Commands.runOnce(
+            () -> {
+              Pose2d pose = drivetrain.getReefPoseEstimatorPose();
+              drivetrain.setPose(new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
+            },
+            drivetrain));
 
     var endEffectorSim = endEffector.getSim();
     if (endEffectorSim != null) {
