@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.ControlMode;
 import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
@@ -176,6 +177,10 @@ public class Intake extends SubsystemBase {
   private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
 
   public boolean holdAlgae;
+
+  private Trigger stallDetected =
+      new Trigger(() -> inputs.rollerVelocityRPM <= 50 && inputs.rollerAppliedVolts >= 0.5)
+          .debounce(.1);
 
   /** Creates a new Intake. */
   public Intake(IntakeIO io, RobotStates states) {
@@ -401,7 +406,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean rollerStallDetected() {
-    return inputs.rollerStallDetected;
+    return stallDetected.getAsBoolean();
   }
 
   public boolean intakeTimeOfFlight() {

@@ -10,6 +10,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
@@ -112,6 +113,9 @@ public class EndEffector extends SubsystemBase {
 
   private ControlMode controlMode = ControlMode.OPEN_LOOP;
   private double zeroCoralPosition;
+
+  private Trigger stallDetected =
+      new Trigger(() -> inputs.velocityRPM <= 50 && inputs.appliedVolts >= 0.5).debounce(.1);
 
   /** Creates a new EndEffector. */
   public EndEffector(EndEffectorIO io, RobotStates states) {
@@ -371,5 +375,9 @@ public class EndEffector extends SubsystemBase {
 
   public double getMotorPosition() {
     return inputs.position;
+  }
+
+  public boolean rollerStallDetected() {
+    return stallDetected.getAsBoolean();
   }
 }

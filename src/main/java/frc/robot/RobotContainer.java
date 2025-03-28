@@ -36,6 +36,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Constants.RobotMode.RobotType;
+import frc.robot.RobotStates.EndEffectorDesiredAction;
 import frc.robot.RobotStates.IntakeState;
 import frc.robot.RobotStates.MechState;
 import frc.robot.RobotStates.ScoringLevel;
@@ -125,7 +126,6 @@ public class RobotContainer {
   private final Arm arm;
   private final Elevator elevator;
   private final Intake intake;
-  private final Trigger algaeInRobot;
   private final EndEffector endEffector;
   private final VisionGamepiece visionGamepiece;
   private final LED led;
@@ -467,10 +467,6 @@ public class RobotContainer {
         new Trigger(() -> robotStates.coralInIntake && robotStates.scoringLevel != ScoringLevel.L1)
             .debounce(.5);
 
-    algaeInRobot =
-        new Trigger(() -> !intake.intakeTimeOfFlight() && intake.rollerStallDetected())
-            .debounce(.1);
-
     drivetrainWrapper =
         new DrivetrainWrapper(
             drivetrain,
@@ -552,7 +548,16 @@ public class RobotContainer {
     //                   new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
     //             },
     //             drivetrain));
-    driverController.registerTrigger(XboxControllerWrapper.Button.back, "Score Algae in Net");
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.back, "Score Algae in Net")
+        .onTrue(Commands.runOnce(() -> robotStates.mechState = MechState.AlgaeBargePosition))
+        .onFalse(
+            Commands.runOnce(
+                    () ->
+                        robotStates.endEffectorDesiredAction = EndEffectorDesiredAction.ScoreAlgae)
+                .andThen(Commands.waitUntil(() -> !robotStates.algaeInEndEffector))
+                .andThen(Commands.waitSeconds(0.3))
+                .andThen(Commands.runOnce(() -> robotStates.mechState = MechState.Default)));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.start, "X Stance")
@@ -1252,11 +1257,9 @@ public class RobotContainer {
       led.setGamepieceStatus(false);
     }
 
-    if (algaeInRobot.getAsBoolean()) {
-      robotStates.algaeInRobot = true;
-    }
-
     robotStates.coralInIntake = intake.intakeTimeOfFlight();
+    robotStates.algaeInIntake = intake.rollerStallDetected();
+    robotStates.algaeInEndEffector = endEffector.rollerStallDetected();
   }
 
   public List<ScoringLocation> getCustomScoringLocations() {
