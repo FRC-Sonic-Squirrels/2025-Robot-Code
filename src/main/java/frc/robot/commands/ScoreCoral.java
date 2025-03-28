@@ -44,6 +44,7 @@ import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ScoreCoral extends StateMachine {
 
@@ -53,7 +54,7 @@ public class ScoreCoral extends StateMachine {
   private final Arm arm;
   private final LED led;
   private final RobotConfig config;
-  private final boolean clearAlgae;
+  private final Supplier<ScoreCoralObjective> objective;
 
   private final Optional<ScoringDirection> optionalScoringDirection;
   private ScoringDirection scoringDirection;
@@ -130,7 +131,7 @@ public class ScoreCoral extends StateMachine {
       LED led,
       Consumer<Double> rumble,
       RobotConfig config,
-      boolean clearAlgae,
+      Supplier<ScoreCoralObjective> objective,
       RobotStates robotStates) {
     this(
         wrapper,
@@ -143,7 +144,7 @@ public class ScoreCoral extends StateMachine {
         rumble,
         config,
         false,
-        clearAlgae,
+        objective,
         Optional.empty(),
         robotStates);
     gamepieceMemory = true;
@@ -160,7 +161,7 @@ public class ScoreCoral extends StateMachine {
       ReefSide side,
       Consumer<Double> rumble,
       RobotConfig config,
-      boolean clearAlgae,
+      Supplier<ScoreCoralObjective> objective,
       Optional<ChoreoTrajectoryWithName> optionalTraj,
       boolean preloadCode,
       RobotStates robotStates) {
@@ -175,7 +176,7 @@ public class ScoreCoral extends StateMachine {
         rumble,
         config,
         false,
-        clearAlgae,
+        objective,
         optionalTraj,
         robotStates);
     this.preloadCode = preloadCode;
@@ -190,7 +191,7 @@ public class ScoreCoral extends StateMachine {
       ScoringDirection scoringDirection,
       Consumer<Double> rumble,
       RobotConfig config,
-      boolean clearAlgae,
+      Supplier<ScoreCoralObjective> objective,
       RobotStates robotStates) {
     this(
         wrapper,
@@ -203,7 +204,7 @@ public class ScoreCoral extends StateMachine {
         rumble,
         config,
         false,
-        clearAlgae,
+        objective,
         Optional.empty(),
         robotStates);
   }
@@ -219,7 +220,7 @@ public class ScoreCoral extends StateMachine {
       Consumer<Double> rumble,
       RobotConfig config,
       boolean driverConfirmation,
-      boolean clearAlgae,
+      Supplier<ScoreCoralObjective> objective,
       Optional<ChoreoTrajectoryWithName> optionalPresetPath,
       RobotStates robotStates) {
     super("ScoreCoral");
@@ -230,7 +231,7 @@ public class ScoreCoral extends StateMachine {
     this.arm = arm;
     this.led = led;
     this.config = config;
-    this.clearAlgae = clearAlgae;
+    this.objective = objective;
     this.optionalPath = optionalPresetPath;
     this.states = robotStates;
 
@@ -244,7 +245,7 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler chooseAction() {
-    if (states.scoringLevel == ScoringLevel.L1 && !clearAlgae)
+    if (states.scoringLevel == ScoringLevel.L1 && !(objective.get() == ScoreCoralObjective.JustClear))
       return stateWithName("ScoreL1", L1Position());
 
     Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
@@ -268,7 +269,7 @@ public class ScoreCoral extends StateMachine {
 
     led.setBaseRobotState(BaseRobotState.SCORING_ALIGNMENT);
 
-    if (clearAlgae) return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
+    if (objective.get() == ScoreCoralObjective.JustClear) return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
 
     return stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
   }
@@ -390,7 +391,7 @@ public class ScoreCoral extends StateMachine {
 
     led.setRobotState(RobotState.SCORE_SUCCESS);
 
-    return stateWithName("End", () -> end(false));
+    return objective.get() == ScoreCoralObjective.ScoreAndClear ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment()) : stateWithName("End", () -> end(false));
   }
 
   // ALGAE STATES
@@ -650,5 +651,11 @@ public class ScoreCoral extends StateMachine {
     ScoringSide(boolean hasAlgaeAtStartOnL2) {
       this.hasAlgaeAtStartOnL2 = hasAlgaeAtStartOnL2;
     }
+  }
+
+  public enum ScoreCoralObjective{
+    JustScore,
+    JustClear,
+    ScoreAndClear
   }
 }
