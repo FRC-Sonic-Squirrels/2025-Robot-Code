@@ -559,21 +559,32 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightStick, "Clear Algae")
-        .whileTrue(Commands.either(Commands.none(),
-            new RunStateMachineCommand(
-                    () ->
-                        new ScoreCoral(
-                            drivetrainWrapper,
-                            mech,
-                            elevator,
-                            arm,
-                            led,
-                            ScoringDirection.RIGHT,
-                            (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
-                            Constants.RobotMode.getRobot().config.get(),
-                            () -> ScoreCoralObjective.JustClear,
-                            robotStates))
-                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)), () -> (driverController.getLeftTrigger().getAsBoolean() || driverController.getRightTrigger().getAsBoolean())));
+        .whileTrue(
+            Commands.either(
+                Commands.none(),
+                new RunStateMachineCommand(
+                        () ->
+                            new ScoreCoral(
+                                drivetrainWrapper,
+                                mech,
+                                elevator,
+                                arm,
+                                led,
+                                ScoringDirection.RIGHT,
+                                (r) ->
+                                    driverController.getHID().setRumble(RumbleType.kBothRumble, r),
+                                Constants.RobotMode.getRobot().config.get(),
+                                () -> ScoreCoralObjective.JustClear,
+                                robotStates))
+                    .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)),
+                () ->
+                    (driverController.getLeftTrigger().getAsBoolean()
+                        || driverController.getRightTrigger().getAsBoolean())))
+        .onFalse(
+            Commands.either(
+                Commands.none(),
+                new MechToPosition(mech, MechState.Default, robotStates),
+                () -> robotStates.coralInRobot));
 
     // driverController
     //     .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
@@ -613,7 +624,10 @@ public class RobotContainer {
                             ScoringDirection.LEFT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            () -> driverController.getRightStick().getAsBoolean() ? ScoreCoralObjective.ScoreAndClear : ScoreCoralObjective.JustScore,
+                            () ->
+                                driverController.getRightStick().getAsBoolean()
+                                    ? ScoreCoralObjective.ScoreAndClear
+                                    : ScoreCoralObjective.JustScore,
                             robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
@@ -631,7 +645,10 @@ public class RobotContainer {
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            () -> driverController.getRightStick().getAsBoolean() ? ScoreCoralObjective.ScoreAndClear : ScoreCoralObjective.JustScore,
+                            () ->
+                                driverController.getRightStick().getAsBoolean()
+                                    ? ScoreCoralObjective.ScoreAndClear
+                                    : ScoreCoralObjective.JustScore,
                             robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
