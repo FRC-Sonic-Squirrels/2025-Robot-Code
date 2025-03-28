@@ -32,6 +32,7 @@ import frc.robot.autonomous.records.PickupLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.ScoreCoral.ScoreCoralObjective;
 import frc.robot.commands.drive.DriveToPosePathing;
 import frc.robot.commands.intake.IntakeCoralGround;
 import frc.robot.configs.RobotConfig;
@@ -207,7 +208,7 @@ public class AutoStateMachine extends StateMachine {
 
     if (scoringLocations == null) {
 
-      scoreCoral = new ScoreCoral(wrapper, mech, elevator, arm, led, rumble, config, false, states);
+      scoreCoral = new ScoreCoral(wrapper, mech, elevator, arm, led, rumble, config, () -> ScoreCoralObjective.JustScore, states);
 
     } else {
 
@@ -222,7 +223,7 @@ public class AutoStateMachine extends StateMachine {
               scoringLocations.get(scoringIndex).side(),
               (r) -> {},
               config,
-              false,
+              () -> ScoreCoralObjective.JustScore,
               procedural ? Optional.empty() : Optional.of(scoringPaths.get(scoringIndex)),
               preloadCode,
               states);
