@@ -48,6 +48,7 @@ import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
 import frc.robot.commands.PassToEndEffector;
 import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.ScoreCoral.ScoreCoralObjective;
 import frc.robot.commands.ScoreCoral.ScoringDirection;
 import frc.robot.commands.climber.Climb;
 import frc.robot.commands.climber.ClimberSetAngle;
@@ -558,7 +559,7 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightStick, "Clear Algae")
-        .whileTrue(
+        .whileTrue(Commands.either(Commands.none(),
             new RunStateMachineCommand(
                     () ->
                         new ScoreCoral(
@@ -570,9 +571,9 @@ public class RobotContainer {
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            true,
+                            () -> ScoreCoralObjective.JustClear,
                             robotStates))
-                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
+                .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)), () -> (driverController.getLeftTrigger().getAsBoolean() || driverController.getRightTrigger().getAsBoolean())));
 
     // driverController
     //     .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
@@ -612,7 +613,7 @@ public class RobotContainer {
                             ScoringDirection.LEFT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            false,
+                            () -> driverController.getRightStick().getAsBoolean() ? ScoreCoralObjective.ScoreAndClear : ScoreCoralObjective.JustScore,
                             robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
@@ -630,7 +631,7 @@ public class RobotContainer {
                             ScoringDirection.RIGHT,
                             (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r),
                             Constants.RobotMode.getRobot().config.get(),
-                            false,
+                            () -> driverController.getRightStick().getAsBoolean() ? ScoreCoralObjective.ScoreAndClear : ScoreCoralObjective.JustScore,
                             robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
