@@ -24,7 +24,7 @@ public class IntakeCoralGround extends Command {
   public void initialize() {
     if (states.scoringLevel == ScoringLevel.L1) {
       states.mechState = MechState.AvoidIntake;
-    } else states.mechState = MechState.PrepPassoffPosition;
+    } else states.mechState = MechState.PrepPassoffCoralPosition;
     states.intakeState = IntakeState.IntakeCoral;
   }
 
@@ -35,7 +35,7 @@ public class IntakeCoralGround extends Command {
     states.intakeInUse = true;
     if (states.scoringLevel == ScoringLevel.L1) {
       states.mechState = MechState.AvoidIntake;
-    } else states.mechState = MechState.PrepPassoffPosition;
+    } else states.mechState = MechState.PrepPassoffCoralPosition;
   }
 
   // Called once the command ends or is interrupted.
@@ -45,7 +45,7 @@ public class IntakeCoralGround extends Command {
       if (states.scoringLevel == ScoringLevel.L1) {
         states.mechState = MechState.AvoidIntake;
         states.intakeState = IntakeState.Stow;
-      } else states.mechState = MechState.PrepPassoffPosition;
+      } else states.mechState = MechState.PrepPassoffCoralPosition;
     } else {
       states.intakeState = IntakeState.Stow;
       states.mechState = MechState.Default;

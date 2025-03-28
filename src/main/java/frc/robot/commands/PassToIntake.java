@@ -26,7 +26,7 @@ public class PassToIntake extends StateMachine {
     states.mechanismInUse = true;
     states.intakeInUse = true;
     states.endEffectorInUse = true;
-    states.mechState = MechState.PrepPassoffPosition;
+    states.mechState = MechState.PrepPassoffCoralPosition;
     states.intakeState = IntakeState.PrepPassoff;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToIntake;
     return states.intakeInTargetState && states.mechInTargetState
@@ -38,7 +38,7 @@ public class PassToIntake extends StateMachine {
     states.mechanismInUse = true;
     states.intakeInUse = true;
     states.endEffectorInUse = true;
-    states.mechState = MechState.PassoffPosition;
+    states.mechState = MechState.PassOffCoralPosition;
     states.intakeState = IntakeState.PassoffIntake;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToIntake;
     return endTrigger.getAsBoolean() ? () -> end() : null;

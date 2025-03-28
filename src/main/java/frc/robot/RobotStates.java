@@ -25,9 +25,9 @@ public class RobotStates {
     ScoreFastBackward(false),
     ScoreSlowForward(false),
     ScoreSlowBackward(false),
-    PassToEndEffector(false),
+    PassCoralToEndEffector(false),
     PassToIntake(false),
-    GrabAlgae(false);
+    HoldAlgae(false);
 
     public final boolean alignmentActive;
 
@@ -50,8 +50,9 @@ public class RobotStates {
     ClearAlgaeHighPosition,
     StowPosition,
     ClimbPosition,
-    PrepPassoffPosition,
-    PassoffPosition,
+    PrepPassoffCoralPosition,
+    PrepPassoffAlgaePosition,
+    PassOffCoralPosition,
     PassOffAlgaePosition,
     HoldAlgaePosition,
     AvoidIntake,
@@ -121,9 +122,14 @@ public class RobotStates {
   private LoggerEntry.Bool logL4State = logGroupLevels.buildBoolean("L4");
 
   private LoggerGroup logTransferCoral = logGroup.subgroup("TransferCoral");
-  private LoggerEntry.Bool logTransferToEndEffector =
+  private LoggerEntry.Bool logTransferCoralToEndEffector =
       logTransferCoral.buildBoolean("TransferToEndEffector");
-  private LoggerEntry.Bool logTransferToIntake = logTransferCoral.buildBoolean("TransferToIntake");
+  private LoggerEntry.Bool logTransferCoralToIntake =
+      logTransferCoral.buildBoolean("TransferToIntake");
+  private LoggerEntry.Bool logTransferAlgaeToEndEffector =
+      logTransferCoral.buildBoolean("TransferToEndEffector");
+  private LoggerEntry.Bool logTransferAlgaeToIntake =
+      logTransferCoral.buildBoolean("TransferToIntake");
 
   private LoggerGroup logSubsystemsInUse = logGroup.subgroup("SubsystemsInUse");
   private LoggerEntry.Bool logIntakeInUse = logSubsystemsInUse.buildBoolean("IntakeInUse");
@@ -149,6 +155,8 @@ public class RobotStates {
   public IntakeState intakeState = IntakeState.Idle;
 
   public boolean algaeInRobot;
+  public boolean algaeInEndEffector;
+  public boolean algaeInIntake;
 
   public boolean coralInRobot;
 
@@ -177,8 +185,11 @@ public class RobotStates {
   // command
   public TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
 
-  private boolean transferToEndEffector;
-  private boolean transferToIntake;
+  private boolean transferCoralToEndEffector;
+  private boolean transferCoralToIntake;
+
+  private boolean transferAlgaeToEndEffector;
+  private boolean transferAlgaeToIntake;
 
   public boolean endEffectorInUse;
   public boolean mechanismInUse;
@@ -187,13 +198,19 @@ public class RobotStates {
   public boolean intakeInTargetState;
   public boolean mechInTargetState;
 
-  private Command passToEndEffector = Commands.none();
-  private Command passToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
+  private Command passCoralToEndEffector = Commands.none();
+  private Command passCoralToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
+
+  private Command passAlgaeToEndEffector = Commands.none();
+  private Command passAlgaeToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
 
   public RobotStates() {}
 
   public void setIntake(Intake intake) {
-    passToEndEffector = new RunStateMachineCommand(() -> new PassToEndEffector(intake, this));
+    passCoralToEndEffector =
+        new RunStateMachineCommand(() -> new PassToEndEffector(intake, this, true));
+    passAlgaeToEndEffector =
+        new RunStateMachineCommand(() -> new PassToEndEffector(intake, this, false));
   }
 
   public void changeEndEffectorIfNotAligning(EndEffectorDesiredAction action) {
@@ -209,15 +226,18 @@ public class RobotStates {
             ? TargetCoralPosition.Intake
             : TargetCoralPosition.EndEffector;
 
-    transferToEndEffector =
+    transferCoralToEndEffector =
         targetCoralPosition == TargetCoralPosition.EndEffector
             && !coralInEndEffector
             && coralInIntake;
-    transferToIntake =
+    transferCoralToIntake =
         targetCoralPosition == TargetCoralPosition.Intake && !coralInIntake && coralInEndEffector;
 
-    logTransferToEndEffector.info(transferToEndEffector);
-    logTransferToIntake.info(transferToIntake);
+    logTransferCoralToEndEffector.info(transferCoralToEndEffector);
+    logTransferCoralToIntake.info(transferCoralToIntake);
+
+    logTransferAlgaeToEndEffector.info(transferAlgaeToEndEffector);
+    logTransferAlgaeToIntake.info(transferAlgaeToIntake);
 
     logIntakeInUse.info(intakeInUse);
     logMechInUse.info(mechanismInUse);
@@ -235,19 +255,32 @@ public class RobotStates {
     }
 
     if (!mechanismInUse && !endEffectorInUse && !intakeInUse) {
-      if (transferToEndEffector && !passToEndEffector.isScheduled()) {
-        passToEndEffector.schedule();
+      if (transferCoralToEndEffector && !passCoralToEndEffector.isScheduled()) {
+        passCoralToEndEffector.schedule();
       }
 
-      if (transferToIntake && !passToIntake.isScheduled()) {
-        passToIntake.schedule();
+      if (transferCoralToIntake && !passCoralToIntake.isScheduled()) {
+        passCoralToIntake.schedule();
+      }
+
+      if (transferAlgaeToEndEffector && !passAlgaeToEndEffector.isScheduled()) {
+        passAlgaeToEndEffector.schedule();
+      }
+
+      if (transferAlgaeToIntake && !passAlgaeToIntake.isScheduled()) {
+        passAlgaeToIntake.schedule();
       }
     } else {
-      passToEndEffector.cancel();
-      passToIntake.cancel();
+      passCoralToEndEffector.cancel();
+      passCoralToIntake.cancel();
+
+      passAlgaeToEndEffector.cancel();
+      passAlgaeToIntake.cancel();
     }
 
     coralInRobot = coralInEndEffector || coralInIntake;
+
+    algaeInRobot = algaeInEndEffector || algaeInIntake;
 
     logEndEffectorDesiredAction.info(endEffectorDesiredAction);
     logMechState.info(mechState);
@@ -289,6 +322,6 @@ public class RobotStates {
   }
 
   public boolean coralInPassOff() {
-    return passToEndEffector.isScheduled() || passToIntake.isScheduled();
+    return passCoralToEndEffector.isScheduled() || passCoralToIntake.isScheduled();
   }
 }
