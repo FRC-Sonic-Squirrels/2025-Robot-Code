@@ -245,7 +245,8 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler chooseAction() {
-    if (states.scoringLevel == ScoringLevel.L1 && !(objective.get() == ScoreCoralObjective.JustClear))
+    if (states.scoringLevel == ScoringLevel.L1
+        && !(objective.get() == ScoreCoralObjective.JustClear))
       return stateWithName("ScoreL1", L1Position());
 
     Pose2d robotPose = wrapper.getReefPoseEstimatorPose(true);
@@ -269,7 +270,8 @@ public class ScoreCoral extends StateMachine {
 
     led.setBaseRobotState(BaseRobotState.SCORING_ALIGNMENT);
 
-    if (objective.get() == ScoreCoralObjective.JustClear) return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
+    if (objective.get() == ScoreCoralObjective.JustClear)
+      return stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment());
 
     return stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
   }
@@ -391,7 +393,9 @@ public class ScoreCoral extends StateMachine {
 
     led.setRobotState(RobotState.SCORE_SUCCESS);
 
-    return objective.get() == ScoreCoralObjective.ScoreAndClear ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment()) : stateWithName("End", () -> end(false));
+    return objective.get() == ScoreCoralObjective.ScoreAndClear
+        ? stateWithName("PrepForAlgaeAlignment", () -> prepForAlgaeAlignment())
+        : stateWithName("End", () -> end(false));
   }
 
   // ALGAE STATES
@@ -417,8 +421,7 @@ public class ScoreCoral extends StateMachine {
             wrapper, () -> algaeClearPose, () -> wrapper.getReefPoseEstimatorPose(true));
 
     return suspendForCommand(
-        Commands.run(() -> {}) // TODO: find a better way to wait
-            .deadlineFor(new EndEffectorSetRPM(-6000, states))
+        new EndEffectorSetRPM(-6000, states)
             .finallyDo(() -> FieldStates.removeAlgaeFromScoringSide(scoringSide))
             .alongWith(driveToAlgaePose),
         (command) -> stateWithName("End", () -> end(false)));
@@ -653,7 +656,7 @@ public class ScoreCoral extends StateMachine {
     }
   }
 
-  public enum ScoreCoralObjective{
+  public enum ScoreCoralObjective {
     JustScore,
     JustClear,
     ScoreAndClear

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.mechanism;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.LoggerEntry;
@@ -161,7 +162,8 @@ public class Mechanism {
     log_currentSection.info(currentMechSection.name());
     log_targetSection.info(targetMechSection.name());
 
-    if (currentMechPos.armAngle().getDegrees() > 130 && position.armAngle().getDegrees() <= 130) {
+    if (currentMechPos.armAngle().getDegrees() > 142
+        && !elevator.isAtTarget(position.elevatorHeight())) {
       if (armAccel.equals(Double.NaN)) {
         arm.setAngle(position.armAngle());
       } else {
@@ -172,13 +174,12 @@ public class Mechanism {
       log_currentMotionState.info("Compatible");
       goToPositionParallelSimple(position, elevatorAccel, armAccel);
     } else {
-      if (currentMechSection == MechSection.S1) {
-        log_currentMotionState.info("Getting out of S1");
+      if (currentMechSection == MechSection.S1 || currentMechSection == MechSection.S10) {
+        log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(
             MechanismPositions.intermediateLowBackPosition(), elevatorAccel, armAccel);
       } else if (currentMechSection == MechSection.S2
           || (currentMechSection == MechSection.S3 && targetMechSection != MechSection.S1)
-          || currentMechSection == MechSection.S10
           || currentMechSection == MechSection.S9) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(
@@ -245,17 +246,21 @@ public class Mechanism {
 
   private void goToPositionParallelSimple(
       MechanismPosition position, Double elevatorAccel, Double armAccel) {
-    MechanismPosition targetPos = position;
+
+    if (!elevator.isAtTarget(position.elevatorHeight()) && position.armAngle().getDegrees() > 142) {
+      position = new MechanismPosition(position.elevatorHeight(), Rotation2d.fromDegrees(142));
+    }
+
     if (elevatorAccel.equals(Double.NaN)) {
-      elevator.setHeight(targetPos.elevatorHeight());
+      elevator.setHeight(position.elevatorHeight());
     } else {
-      elevator.setHeight(targetPos.elevatorHeight(), elevatorAccel);
+      elevator.setHeight(position.elevatorHeight(), elevatorAccel);
     }
 
     if (armAccel.equals(Double.NaN)) {
-      arm.setAngle(targetPos.armAngle());
+      arm.setAngle(position.armAngle());
     } else {
-      arm.setAngle(targetPos.armAngle(), armAccel);
+      arm.setAngle(position.armAngle(), armAccel);
     }
   }
 
