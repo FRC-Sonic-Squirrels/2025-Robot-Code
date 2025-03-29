@@ -19,7 +19,7 @@ public class PassToEndEffector extends StateMachine {
   private final Trigger lostCoral;
 
   private final LoggerGroup group = LoggerGroup.build("PassToEndEffector");
-  private final LoggerEntry.Bool log = group.buildBoolean("null");
+  private final LoggerEntry.Bool logPivotAtTargetAngle = group.buildBoolean("PivotAtTargetAngle");
 
   public PassToEndEffector(Intake intake, RobotStates states) {
     super("PassToEndEffector");
@@ -39,8 +39,9 @@ public class PassToEndEffector extends StateMachine {
     states.intakeState = IntakeState.PrepPassoff;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
     if (lostCoral.getAsBoolean()) return stateWithName("End", () -> end());
-    log.info(intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle()));
-    return intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle()) && states.mechInTargetState
+    boolean pivotAtTargetAngle = intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle());
+    logPivotAtTargetAngle.info(pivotAtTargetAngle);
+    return pivotAtTargetAngle && states.mechInTargetState
         ? stateWithName("PassOff", () -> passOff())
         : null;
   }
