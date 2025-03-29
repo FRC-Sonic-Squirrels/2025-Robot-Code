@@ -70,7 +70,7 @@ public class RobotConfig2025 extends RobotConfig {
 
   // -------- SWERVE CURRENT LIMITS ---------
   private static final CurrentLimitsConfigs DRIVE_TALON_CURRENT_LIMIT_CONFIGS =
-      new CurrentLimitsConfigs().withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true);
+      new CurrentLimitsConfigs().withSupplyCurrentLimit(35).withSupplyCurrentLimitEnable(true);
 
   private static final CurrentLimitsConfigs STEER_TALON_CURRENT_LIMIT_CONFIGS =
       new CurrentLimitsConfigs().withSupplyCurrentLimit(25).withSupplyCurrentLimitEnable(true);

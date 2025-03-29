@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
@@ -208,7 +207,17 @@ public class AutoStateMachine extends StateMachine {
 
     if (scoringLocations == null) {
 
-      scoreCoral = new ScoreCoral(wrapper, mech, elevator, arm, led, rumble, config, () -> ScoreCoralObjective.JustScore, states);
+      scoreCoral =
+          new ScoreCoral(
+              wrapper,
+              mech,
+              elevator,
+              arm,
+              led,
+              rumble,
+              config,
+              () -> ScoreCoralObjective.JustScore,
+              states);
 
     } else {
 
@@ -292,13 +301,8 @@ public class AutoStateMachine extends StateMachine {
     spawnCommand(
         coralStationLocations.get(intakingIndex).ground
             ? new IntakeCoralGround(intake, states)
-            : Commands.waitUntil(
-                    () ->
-                        elevator.isAtTarget(coralStationPos.elevatorHeight())
-                            && arm.isAtTargetAngle(coralStationPos.armAngle()))
-                .andThen(
-                    CommandComposer.intakeCoralFromStation(
-                        wrapper, endEffector, mech, led, null, false, states)),
+            : CommandComposer.intakeCoralFromStation(
+                wrapper, endEffector, mech, led, null, false, states),
         (c) -> null);
 
     return stateWithName("IntakeCoral", () -> intakeCoral());
