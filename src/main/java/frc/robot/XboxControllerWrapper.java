@@ -106,15 +106,15 @@ public class XboxControllerWrapper {
     return controller.povRight();
   }
 
-  public Trigger getRightStick(){
+  public Trigger getRightStick() {
     return controller.rightStick();
   }
 
-  public Trigger getLeftTrigger(){
+  public Trigger getLeftTrigger() {
     return controller.leftTrigger();
   }
 
-  public Trigger getRightTrigger(){
+  public Trigger getRightTrigger() {
     return controller.rightTrigger();
   }
 }
