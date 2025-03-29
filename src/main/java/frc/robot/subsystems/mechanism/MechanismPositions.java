@@ -121,6 +121,12 @@ public class MechanismPositions {
   private static final LoggedTunableNumber defaultArmAngleDegrees =
       group.build("default/ArmAngleDegrees");
 
+  private static final LoggedTunableNumber autoPrepElevatorHeightInches =
+      group.build("autoPrep/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber autoPrepArmAngleDegrees =
+      group.build("autoPrep/ArmAngleDegrees");
+
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       lowStowElevatorHeightInches.initDefault(2);
@@ -177,6 +183,8 @@ public class MechanismPositions {
       avoidIntakeArmAngleDegrees.initDefault(45);
       defaultElevatorHeightInches.initDefault(4);
       defaultArmAngleDegrees.initDefault(70);
+      autoPrepElevatorHeightInches.initDefault(0);
+      autoPrepArmAngleDegrees.initDefault(90);
     }
   }
 
@@ -322,5 +330,11 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(defaultElevatorHeightInches.get()),
         Rotation2d.fromDegrees(defaultArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition autoPrepPosition() {
+    return new MechanismPosition(
+        Units.Inches.of(autoPrepElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(autoPrepArmAngleDegrees.get()));
   }
 }

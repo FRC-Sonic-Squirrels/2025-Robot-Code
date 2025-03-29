@@ -129,6 +129,9 @@ public class Mechanism {
         case Default:
           goToPositionParallel(MechanismPositions.defaultPosition());
           break;
+        case AutoPrep:
+          goToPositionParallel(MechanismPositions.autoPrepPosition());
+          break;
         default:
           break;
       }

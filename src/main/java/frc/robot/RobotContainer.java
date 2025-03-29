@@ -791,12 +791,15 @@ public class RobotContainer {
     // Eject
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Intake Eject")
-        .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Eject)).onFalse(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Stow));
+        .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Eject))
+        .onFalse(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Stow));
 
     // Intake
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
-        .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.IntakeCoral)).onFalse(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Stow));;
+        .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.IntakeCoral))
+        .onFalse(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Stow));
+    ;
 
     // Intake positions
     operatorController
@@ -848,6 +851,14 @@ public class RobotContainer {
             new ArmManualControl(operatorController::getRightX, arm)
                 .alongWith(
                     new ElevatorManualControl(() -> -operatorController.getLeftY(), elevator)));
+
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.leftStick, "Mech auto prep position")
+        .onTrue(new MechToPosition(mech, MechState.AutoPrep, robotStates));
+
+    operatorController
+        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Climber out")
+        .onTrue(new ClimberSetAngle(climber, Rotation2d.fromRotations(5.4)));
 
     // ---------- NON-CONTROLLER TRIGGERS
 
