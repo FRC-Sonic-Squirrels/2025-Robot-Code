@@ -68,7 +68,6 @@ public class Robot extends LoggedRobot {
   private static final LoggerEntry.Decimal logTotalCurrent =
       logGroupPDH.buildDecimal("TotalCurrent");
   private static final LoggerEntry.Decimal logTotalPower = logGroupPDH.buildDecimal("TotalPower");
-  private static final LoggerEntry.Decimal logTotalEnergy = logGroupPDH.buildDecimal("TotalEnergy");
 
   private RobotContainer robotContainer;
 
@@ -187,10 +186,11 @@ public class Robot extends LoggedRobot {
       CommandScheduler.getInstance().run();
     }
 
-    logVoltage.info(powerDistribution.getVoltage());
-    logTotalCurrent.info(powerDistribution.getTotalCurrent());
-    logTotalPower.info(powerDistribution.getTotalPower());
-    logTotalEnergy.info(powerDistribution.getTotalEnergy());
+    double voltage = powerDistribution.getVoltage();
+    double current = powerDistribution.getTotalCurrent();
+    logVoltage.info(voltage);
+    logTotalCurrent.info(current);
+    logTotalPower.info(voltage * current);
 
     robotContainer.applyToDrivetrain();
     robotContainer.updateVisualization();
