@@ -63,6 +63,12 @@ public class Robot extends LoggedRobot {
   private static final LoggerEntry.Decimal logBatteryVoltage =
       logGroupSimulatedRobot.buildDecimal("batteryVoltage");
 
+  private static final LoggerGroup logGroupPDH = LoggerGroup.build("PowerDistribution");
+  private static final LoggerEntry.Decimal logTotalCurrent =
+      logGroupPDH.buildDecimal("TotalCurrent");
+  private static final LoggerEntry.Decimal logTotalPower = logGroupPDH.buildDecimal("TotalPower");
+  private static final LoggerEntry.Decimal logTotalEnergy = logGroupPDH.buildDecimal("TotalEnergy");
+
   private RobotContainer robotContainer;
 
   private LoggedDashboardChooser<String> autonomousChooser = null;
@@ -81,7 +87,7 @@ public class Robot extends LoggedRobot {
   private boolean teleopPrepped = false;
 
   // Enables power distribution logging
-  private PowerDistribution powerDistribution = new PowerDistribution(1, ModuleType.kRev);
+  private final PowerDistribution powerDistribution = new PowerDistribution(1, ModuleType.kRev);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -167,7 +173,6 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during all modes. */
   @Override
   public void robotPeriodic() {
-
     // Update the timestamp for logging.
     LoggerGroup.periodic();
 
@@ -180,6 +185,10 @@ public class Robot extends LoggedRobot {
     try (var ignored = timingCommandScheduler.start()) {
       CommandScheduler.getInstance().run();
     }
+
+    logTotalCurrent.info(powerDistribution.getTotalCurrent());
+    logTotalPower.info(powerDistribution.getTotalPower());
+    logTotalEnergy.info(powerDistribution.getTotalEnergy());
 
     robotContainer.applyToDrivetrain();
     robotContainer.updateVisualization();
