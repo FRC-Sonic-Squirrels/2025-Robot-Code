@@ -236,12 +236,14 @@ public final class Constants {
       public static final double MOI = 0.05;
 
       public static final double SUPPLY_CURRENT_LIMIT = 20.0;
+      public static final double STATOR_CURRENT_LIMIT = 100.0;
 
       public static final String ROOT_TABLE = "Rollers";
     }
 
     public static class PivotConstants {
       public static final double SUPPLY_CURRENT_LIMIT = 20.0;
+      public static final double STATOR_CURRENT_LIMIT = 100.0;
 
       public static final double GEAR_RATIO = 57.9586;
 
@@ -275,6 +277,7 @@ public final class Constants {
     public static final double MOI = 0.05;
 
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+    public static final double STATOR_CURRENT_LIMIT = 100.0;
     public static final String ROOT_TABLE = "EndEffector";
   }
 
@@ -295,6 +298,7 @@ public final class Constants {
 
     public static final Distance SAFE_HEIGHT = Units.Inches.of(15.491);
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+    public static final double STATOR_CURRENT_LIMIT = 100.0;
 
     public static final Distance HOME_POSITION = Units.Inches.of(26.96);
 
@@ -352,8 +356,9 @@ public final class Constants {
     VOLTAGE
   }
 
-  public static class ArmConstants { // TODO: check all constants for new season
+  public static class ArmConstants {
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+    public static final double STATOR_CURRENT_LIMIT = 100.0;
 
     public static final double GEAR_RATIO =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO

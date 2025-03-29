@@ -76,6 +76,8 @@ public class IntakeIOReal implements IntakeIO {
 
     rollerCurrentLimitConfig.SupplyCurrentLimit = RollerConstants.SUPPLY_CURRENT_LIMIT;
     rollerCurrentLimitConfig.SupplyCurrentLimitEnable = true;
+    rollerCurrentLimitConfig.StatorCurrentLimit = RollerConstants.STATOR_CURRENT_LIMIT;
+    rollerCurrentLimitConfig.SupplyCurrentLimitEnable = true;
 
     rollerConfig.CurrentLimits = rollerCurrentLimitConfig;
 
@@ -106,6 +108,8 @@ public class IntakeIOReal implements IntakeIO {
     TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
 
     pivotConfig.CurrentLimits.SupplyCurrentLimit = PivotConstants.SUPPLY_CURRENT_LIMIT;
+    pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    pivotConfig.CurrentLimits.StatorCurrentLimit = PivotConstants.STATOR_CURRENT_LIMIT;
     pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
