@@ -27,7 +27,7 @@ public class PassToEndEffector extends StateMachine {
     this.intake = intake;
     this.states = states;
 
-    endTrigger = new Trigger(() -> states.coralInEndEffectorScoringSide).debounce(0.3);
+    endTrigger = new Trigger(() -> states.coralInEndEffectorScoringSide).debounce(0.1);
     lostCoral = new Trigger(() -> !states.coralInIntake).debounce(0.5);
 
     setInitialState(stateWithName("PrepToPassOff", () -> prepToPassOff()));
