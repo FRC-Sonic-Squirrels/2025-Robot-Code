@@ -62,6 +62,8 @@ public class EndEffectorIOReal implements EndEffectorIO {
 
     currentLimitConfig.SupplyCurrentLimit = EndEffectorConstants.SUPPLY_CURRENT_LIMIT;
     currentLimitConfig.SupplyCurrentLimitEnable = true;
+    currentLimitConfig.StatorCurrentLimit = EndEffectorConstants.STATOR_CURRENT_LIMIT;
+    currentLimitConfig.SupplyCurrentLimitEnable = true;
 
     config.CurrentLimits = currentLimitConfig;
 
