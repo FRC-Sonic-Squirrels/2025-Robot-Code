@@ -55,7 +55,8 @@ public class RobotStates {
     PassOffAlgaePosition,
     HoldAlgaePosition,
     AvoidIntake,
-    Default
+    Default,
+    AutoPrep
   }
 
   public enum IntakeState {
