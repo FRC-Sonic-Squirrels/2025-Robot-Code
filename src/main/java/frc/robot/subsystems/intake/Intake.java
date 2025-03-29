@@ -90,7 +90,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber intakingAlgaePivotAngle =
       group.build("Intaking/Algae/AngleDeg", 20);
   private static final LoggedTunableNumber passOffPivotAngle = group.build("PassOff/AngleDeg", 104);
-  private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -1000);
+  private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -2000);
   private static final LoggedTunableNumber stowPivotAngle = group.build("StowAngleDeg", 110);
   private static final LoggedTunableNumber algaeScoreVelocity =
       group.build("Score/Algae/Velocity", -1000.0);
@@ -143,7 +143,7 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.0002);
       rollerTargetAccelerationConfig.initDefault(0.0);
 
-      pKP.initDefault(50);
+      pKP.initDefault(120);
       pKD.initDefault(0);
       pKG.initDefault(0.0);
 
@@ -155,12 +155,12 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.13);
       rollerTargetAccelerationConfig.initDefault(200);
 
-      pKP.initDefault(50);
+      pKP.initDefault(120);
       pKD.initDefault(0.3);
       pKG.initDefault(0.4);
 
       pivotMaxVelocityConfig.initDefault(200);
-      pivotTargetAccelerationConfig.initDefault(200);
+      pivotTargetAccelerationConfig.initDefault(400);
     }
   }
 

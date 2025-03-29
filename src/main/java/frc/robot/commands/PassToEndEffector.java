@@ -1,7 +1,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.team2930.LoggerEntry;
+import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.StateMachine;
+import frc.lib.team2930.TunableNumberGroup;
+import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.EndEffectorDesiredAction;
 import frc.robot.RobotStates.IntakeState;
@@ -15,6 +19,9 @@ public class PassToEndEffector extends StateMachine {
 
   private final Trigger endTrigger;
   private final Trigger lostCoral;
+
+  private final LoggerGroup group = LoggerGroup.build("PassToEndEffector");
+  private final LoggerEntry.Bool log = group.buildBoolean("null");
 
   public PassToEndEffector(Intake intake, RobotStates states) {
     super("PassToEndEffector");
@@ -34,6 +41,7 @@ public class PassToEndEffector extends StateMachine {
     states.intakeState = IntakeState.PrepPassoff;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.PassToEndEffector;
     if (lostCoral.getAsBoolean()) return stateWithName("End", () -> end());
+    log.info(intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle()));
     return intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle()) && states.mechInTargetState
         ? stateWithName("PassOff", () -> passOff())
         : null;
