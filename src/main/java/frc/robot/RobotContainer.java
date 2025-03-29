@@ -799,7 +799,6 @@ public class RobotContainer {
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake")
         .onTrue(Commands.runOnce(() -> robotStates.intakeState = IntakeState.IntakeCoral))
         .onFalse(Commands.runOnce(() -> robotStates.intakeState = IntakeState.Stow));
-    ;
 
     // Intake positions
     operatorController
