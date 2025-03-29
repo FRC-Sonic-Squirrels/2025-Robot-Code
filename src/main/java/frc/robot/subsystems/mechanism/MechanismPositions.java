@@ -166,9 +166,9 @@ public class MechanismPositions {
       intermediatePoseLowBackArmAngleDegrees.initDefault(130);
       reefPrepArmOffsetDegrees.initDefault(20);
       passOffArmAngleDegrees.initDefault(9.756);
-      passOffElevatorHeightInches.initDefault(11.922);
+      passOffElevatorHeightInches.initDefault(15);
       prepForPassOffArmAngleDegrees.initDefault(9.756);
-      prepForPassOffElevatorHeightInches.initDefault(14);
+      prepForPassOffElevatorHeightInches.initDefault(15);
       grabAlgaeHighArmAngleDegrees.initDefault(151);
       grabAlgaeHighElevatorHeightIntahces.initDefault(48);
       holdAlgaeArmAngleDegrees.initDefault(90);
