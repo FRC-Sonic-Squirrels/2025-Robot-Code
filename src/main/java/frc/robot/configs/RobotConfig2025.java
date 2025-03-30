@@ -70,10 +70,18 @@ public class RobotConfig2025 extends RobotConfig {
 
   // -------- SWERVE CURRENT LIMITS ---------
   private static final CurrentLimitsConfigs DRIVE_TALON_CURRENT_LIMIT_CONFIGS =
-      new CurrentLimitsConfigs().withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true).withStatorCurrentLimit(100).withStatorCurrentLimitEnable(true);
+      new CurrentLimitsConfigs()
+          .withSupplyCurrentLimit(30)
+          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimit(100)
+          .withStatorCurrentLimitEnable(true);
 
   private static final CurrentLimitsConfigs STEER_TALON_CURRENT_LIMIT_CONFIGS =
-      new CurrentLimitsConfigs().withSupplyCurrentLimit(25).withSupplyCurrentLimitEnable(true).withStatorCurrentLimit(100).withStatorCurrentLimitEnable(true);
+      new CurrentLimitsConfigs()
+          .withSupplyCurrentLimit(25)
+          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimit(100)
+          .withStatorCurrentLimitEnable(true);
 
   // --------- SWERVE GEAR RATIO ---------
   public static final double SWERVE_DRIVE_GEAR_RATIO =
