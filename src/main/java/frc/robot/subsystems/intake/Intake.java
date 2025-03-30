@@ -82,14 +82,14 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber intakingAlgaeVel =
       group.build("Intaking/Algae/Vel", 2000);
   private static final LoggedTunableNumber intakingCoralPivotAngle =
-      group.build("Intaking/Coral/AngleDeg", 3);
+      group.build("Intaking/Coral/AngleDeg", 0);
   private static final LoggedTunableNumber scoreCoralPivotAngle =
       group.build("Score/Coral/AngleDeg", 60);
   private static final LoggedTunableNumber scoreCoralVel =
-      group.build("Score/Coral/Velocity", -3000);
+      group.build("Score/Coral/Velocity", -2000);
   private static final LoggedTunableNumber intakingAlgaePivotAngle =
       group.build("Intaking/Algae/AngleDeg", 20);
-  private static final LoggedTunableNumber passOffPivotAngle = group.build("PassOff/AngleDeg", 102);
+  private static final LoggedTunableNumber passOffPivotAngle = group.build("PassOff/AngleDeg", 98);
   private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -2000);
   private static final LoggedTunableNumber stowPivotAngle = group.build("StowAngleDeg", 110);
   private static final LoggedTunableNumber algaeScoreVelocity =
@@ -263,6 +263,8 @@ public class Intake extends SubsystemBase {
         case Stow:
           if (holdAlgae) {
             setRollerVelocity(holdAlgaeVel.get());
+          } else if (states.coralInIntake) {
+            setRollerVelocity(holdCoralVel.get());
           } else setRollerPercentOut(0);
           setPivotAngle(Rotation2d.fromDegrees(stowPivotAngle.get()));
           break;
