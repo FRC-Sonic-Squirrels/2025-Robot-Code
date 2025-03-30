@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
 import frc.lib.team2930.StateMachine;
+import frc.lib.team2930.TunableNumberGroup;
+import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.EndEffectorDesiredAction;
 import frc.robot.RobotStates.IntakeState;
@@ -21,6 +23,9 @@ public class PassToEndEffector extends StateMachine {
 
   private final LoggerGroup group = LoggerGroup.build("PassToEndEffector");
   private final LoggerEntry.Bool logPivotAtTargetAngle = group.buildBoolean("PivotAtTargetAngle");
+
+  private final TunableNumberGroup tunableGroup = new TunableNumberGroup("PassToEndEffector");
+  private final LoggedTunableNumber algaeWait = tunableGroup.build("AlgaeWait", 1);
 
   public PassToEndEffector(Intake intake, RobotStates states, boolean coral) {
     super("PassToEndEffector");
@@ -48,7 +53,17 @@ public class PassToEndEffector extends StateMachine {
     if (lostGamepiece.getAsBoolean()) return stateWithName("End", () -> end());
     boolean pivotAtTargetAngle = intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle());
     logPivotAtTargetAngle.info(pivotAtTargetAngle);
-    return intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle()) && states.mechInTargetState
+    return intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle())
+            && (!coral || states.mechInTargetState)
+        ? (coral
+            ? stateWithName("PassOff", () -> passOff())
+            : stateWithName("ExtraWaitForAlgae", () -> extraWaitForAlgae()))
+        : null;
+  }
+
+  private StateHandler extraWaitForAlgae() {
+    states.intakeState = IntakeState.PassoffEndEffector;
+    return timeFromStartOfState() > algaeWait.get()
         ? stateWithName("PassOff", () -> passOff())
         : null;
   }
@@ -60,6 +75,7 @@ public class PassToEndEffector extends StateMachine {
         coral
             ? EndEffectorDesiredAction.PassCoralToEndEffector
             : EndEffectorDesiredAction.HoldAlgae;
+
     if (lostGamepiece.getAsBoolean()) return stateWithName("End", () -> end());
     return endTrigger.getAsBoolean() ? stateWithName("End", () -> end()) : null;
   }
