@@ -25,6 +25,7 @@ import frc.lib.team2930.TrajectoryUtil;
 import frc.lib.team2930.TunableNumberGroup;
 import frc.lib.team6328.LoggedTunableNumber;
 import frc.robot.Constants;
+import frc.robot.RobotStates.ScoringLevel;
 import frc.robot.autonomous.helpers.ChoreoHelper;
 import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
@@ -77,16 +78,20 @@ public class DriveToPosePathing extends Command {
   private double finalHeadingErrorLimit = Double.NaN;
   private double finalErrorMaxWait = 2;
 
+  private final ScoringLevel level;
+
   /** Creates a new DriveToPosePathing. */
   public DriveToPosePathing(
       DrivetrainWrapper wrapper,
       RobotConfig config,
       Supplier<Pose2d> currentPose,
-      Supplier<Pose2d> targetPose) {
+      Supplier<Pose2d> targetPose,
+      ScoringLevel level) {
     this.wrapper = wrapper;
     this.config = config;
     this.currentPose = currentPose;
     this.targetPose = targetPose;
+    this.level = level;
   }
 
   public DriveToPosePathing setFinalOffsetError(double maxError) {
@@ -394,7 +399,7 @@ public class DriveToPosePathing extends Command {
     PathConstraints constraints =
         new PathConstraints(
             config.getPathingMaxSpeedMPS().get(),
-            config.getPathingMaxAccelerationMPSPS().get(),
+            level == ScoringLevel.L4 ? config.getPathingMaxAccelerationMPSPS().get() : 2.0,
             config.getPathingMaxAngularVelocityRadPerSecond().get(),
             config.getPathingMaxAngularAccelerationRadPerSecondSquared().get());
 

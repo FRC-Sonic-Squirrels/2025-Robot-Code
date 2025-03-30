@@ -193,7 +193,8 @@ public class AutoStateMachine extends StateMachine {
             wrapper,
             config,
             () -> wrapper.getCoralStationPoseEstimatorPose(true),
-            this::getClosestCoralStationPose);
+            this::getClosestCoralStationPose,
+            states.scoringLevel);
     cmd.initializeNoCheck();
   }
 
@@ -294,7 +295,8 @@ public class AutoStateMachine extends StateMachine {
               wrapper,
               config,
               () -> wrapper.getCoralStationPoseEstimatorPose(true),
-              intakingPoseSupplier),
+              intakingPoseSupplier,
+              states.scoringLevel),
           (c) -> null);
     }
 

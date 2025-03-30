@@ -46,7 +46,7 @@ public class ArmIOReal implements ArmIO {
     config.CurrentLimits.SupplyCurrentLimit = ArmConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = ArmConstants.STATOR_CURRENT_LIMIT;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

@@ -77,7 +77,7 @@ public class IntakeIOReal implements IntakeIO {
     rollerCurrentLimitConfig.SupplyCurrentLimit = RollerConstants.SUPPLY_CURRENT_LIMIT;
     rollerCurrentLimitConfig.SupplyCurrentLimitEnable = true;
     rollerCurrentLimitConfig.StatorCurrentLimit = RollerConstants.STATOR_CURRENT_LIMIT;
-    rollerCurrentLimitConfig.SupplyCurrentLimitEnable = true;
+    rollerCurrentLimitConfig.StatorCurrentLimitEnable = true;
 
     rollerConfig.CurrentLimits = rollerCurrentLimitConfig;
 
