@@ -77,6 +77,8 @@ public class EndEffector extends SubsystemBase {
       group.build("ScoringVelocityRPM", -3000 / 6.6667);
   private static final LoggedTunableNumber passOffVelocityRPM =
       group.build("passOffVelocityRPM", -1000 / 6.6667);
+  private static final LoggedTunableNumber holdAlgaeRPM =
+      group.build("passOffVelocityRPM", -1000 / 6.6667);
 
   private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 300);
   private static final LoggedTunableNumber alignTarget = group.build("alignTarget", 1);
@@ -318,6 +320,9 @@ public class EndEffector extends SubsystemBase {
               break;
             case PassToIntake:
               setVelocity(-passOffVelocityRPM.get());
+              break;
+            case HoldAlgae:
+              setVelocity(holdAlgaeRPM.get());
               break;
           }
           if (states.endEffectorDesiredAction == desiredAction) {

@@ -135,6 +135,9 @@ public class Mechanism {
         case AutoPrep:
           goToPositionParallel(MechanismPositions.autoPrepPosition());
           break;
+        case AlgaeBargePosition:
+          goToPositionParallel(MechanismPositions.scoreAlgaeBargePosition());
+          break;
         default:
           break;
       }
