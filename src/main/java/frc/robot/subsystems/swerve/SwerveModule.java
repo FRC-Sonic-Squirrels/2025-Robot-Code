@@ -172,7 +172,7 @@ public class SwerveModule {
       if (speedSetpoint != null) {
         // TODO: maybe use voltage for tele???
         if (io instanceof SwerveModuleIOSim || motionMagicDrive) {
-        io.setDriveVelocity(speedSetpoint, driveMotorMotionMagicAcceleration);
+          io.setDriveVelocity(speedSetpoint, driveMotorMotionMagicAcceleration);
         } else {
           io.setDriveVoltage(speedSetpoint / maxSpeedMetersPerSecond * 12.0);
         }

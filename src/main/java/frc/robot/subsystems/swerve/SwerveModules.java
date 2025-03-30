@@ -53,10 +53,14 @@ public class SwerveModules {
   }
 
   public SwerveModuleState[] runSetpoints(
-      SwerveModuleState[] setpointStates, double driveMotorMotionMagicAcceleration, boolean motionMagicDrive) {
+      SwerveModuleState[] setpointStates,
+      double driveMotorMotionMagicAcceleration,
+      boolean motionMagicDrive) {
     return new SwerveModuleState[] {
-      front_left.runSetpoint(setpointStates[0], driveMotorMotionMagicAcceleration, motionMagicDrive),
-      front_right.runSetpoint(setpointStates[1], driveMotorMotionMagicAcceleration, motionMagicDrive),
+      front_left.runSetpoint(
+          setpointStates[0], driveMotorMotionMagicAcceleration, motionMagicDrive),
+      front_right.runSetpoint(
+          setpointStates[1], driveMotorMotionMagicAcceleration, motionMagicDrive),
       back_left.runSetpoint(setpointStates[2], driveMotorMotionMagicAcceleration, motionMagicDrive),
       back_right.runSetpoint(setpointStates[3], driveMotorMotionMagicAcceleration, motionMagicDrive)
     };
