@@ -717,7 +717,7 @@ public class RobotContainer {
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "ScoreCoral")
-        .onTrue(
+        .whileTrue(
             Commands.either(
                 Commands.waitUntil(() -> !robotStates.coralInEndEffector)
                     .deadlineFor(
@@ -739,14 +739,23 @@ public class RobotContainer {
                           robotStates.intakeState = IntakeState.ScoreCoral;
                           robotStates.mechState = MechState.AvoidIntake;
                         })
-                    .andThen(Commands.waitUntil(() -> !robotStates.coralInIntake))
-                    .andThen(Commands.waitSeconds(0.5))
                     .andThen(
-                        Commands.runOnce(
-                            () -> {
-                              robotStates.intakeState = IntakeState.Stow;
-                              robotStates.mechState = MechState.Default;
-                            })),
+                        Commands.waitUntil(() -> !robotStates.coralInIntake)
+                            .andThen(Commands.waitSeconds(0.8))
+                            .andThen(
+                                Commands.runOnce(
+                                    () -> {
+                                      robotStates.intakeState = IntakeState.ScoreCoralPrep;
+                                    }))),
+                () -> robotStates.scoringLevel != ScoringLevel.L1))
+        .onFalse(
+            Commands.either(
+                Commands.none(),
+                Commands.runOnce(
+                    () -> {
+                      robotStates.intakeState = IntakeState.Stow;
+                      robotStates.mechState = MechState.Default;
+                    }),
                 () -> robotStates.scoringLevel != ScoringLevel.L1));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.leftBumper, "Ground Intake")
@@ -840,8 +849,8 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(() -> robotStates.mechanismInUse = false));
 
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.b, "Climber in")
-        .onTrue(new ClimberSetAngle(climber, Rotation2d.fromRotations(0)));
+        .registerTrigger(XboxControllerWrapper.Button.b, "Climber Out")
+        .onTrue(new ClimberSetAngle(climber, Rotation2d.fromRotations(5.4)));
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.leftStick, "Manual arm and elevator override")
@@ -856,8 +865,8 @@ public class RobotContainer {
         .onTrue(new MechToPosition(mech, MechState.AutoPrep, robotStates));
 
     operatorController
-        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Climber out")
-        .onTrue(new ClimberSetAngle(climber, Rotation2d.fromRotations(5.4)));
+        .registerTrigger(XboxControllerWrapper.Button.rightStick, "Climber in")
+        .onTrue(new ClimberSetAngle(climber, Rotation2d.fromRotations(0)));
 
     // ---------- NON-CONTROLLER TRIGGERS
 
