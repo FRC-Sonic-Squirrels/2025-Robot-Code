@@ -92,7 +92,7 @@ public class RobotConfig2025 extends RobotConfig {
   // ---------- SWERVE STEERING MOTOR PID CONSTANTS -----------
   // FIXE: RN copied from Mechanical advantage (6328) 2023 codebase. Should learn to tune
   // ourselves
-  private static final LoggedTunableNumber ANGLE_KP = group.build("ANGLE_KP", 200.0);
+  private static final LoggedTunableNumber ANGLE_KP = group.build("ANGLE_KP", 100.0);
   private static final LoggedTunableNumber ANGLE_KD = group.build("ANGLE_KD", 2.0);
 
   // ---------- SWERVE DRIVE MOTOR PID + KS + KV + KA CONSTANTS -------------

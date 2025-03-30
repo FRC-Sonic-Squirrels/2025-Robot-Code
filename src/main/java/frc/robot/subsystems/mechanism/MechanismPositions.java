@@ -126,6 +126,11 @@ public class MechanismPositions {
 
   private static final LoggedTunableNumber autoPrepArmAngleDegrees =
       group.build("autoPrep/ArmAngleDegrees");
+  private static final LoggedTunableNumber climbElevatorHeightInches =
+      group.build("climb/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber climbArmAngleDegrees =
+      group.build("climb/ArmAngleDegrees");
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -185,6 +190,8 @@ public class MechanismPositions {
       defaultArmAngleDegrees.initDefault(70);
       autoPrepElevatorHeightInches.initDefault(0);
       autoPrepArmAngleDegrees.initDefault(90);
+      climbElevatorHeightInches.initDefault(22);
+      climbArmAngleDegrees.initDefault(150);
     }
   }
 
@@ -217,8 +224,8 @@ public class MechanismPositions {
 
   public static MechanismPosition climbPosition() {
     return new MechanismPosition(
-        Units.Inches.of(reefL3ElevatorHeightInches.get()),
-        Rotation2d.fromDegrees(reefL3ArmAngleDegrees.get()));
+        Units.Inches.of(climbElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(climbArmAngleDegrees.get()));
   }
 
   public static MechanismPosition reefPrepPosition(ScoringLevel scoringLevel) {
