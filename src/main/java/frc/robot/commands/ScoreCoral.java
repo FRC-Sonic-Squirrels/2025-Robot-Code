@@ -383,11 +383,11 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler followGeneratedPath() {
-    if (alignToScore.pathStalling()
-        && GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(false), scoringPose) < 0.5) {
-      alignToScore.cancel();
-      return stateWithName("PrepAlignWithCoralInTheWay", () -> prepAlignWithCoralInWay());
-    }
+    // if(alignToScore.pathStalling() &&
+    // GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(false), scoringPose) < 0.5){
+    //   alignToScore.cancel();
+    //   return stateWithName("PrepAlignWithCoralInTheWay", () -> prepAlignWithCoralInWay());
+    // }
     if (!alignToScore.isScheduled()) {
       inPosition = true;
       return stateWithName("Score", () -> score());
