@@ -138,6 +138,12 @@ public class Mechanism {
         case AlgaeBargePosition:
           goToPositionParallel(MechanismPositions.scoreAlgaeBargePosition());
           break;
+        case GrabAlgaeFromReefHigh:
+          goToPositionParallel(MechanismPositions.grabAlgaeFromReefHigh());
+          break;
+        case GrabAlgaeFromReefLow:
+          goToPositionParallel(MechanismPositions.grabAlgaeFromReefLow());
+          break;
         default:
           break;
       }

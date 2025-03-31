@@ -47,6 +47,7 @@ import frc.robot.autonomous.records.AutoDescriptor.StartingLocation;
 import frc.robot.autonomous.records.PickupLocation;
 import frc.robot.autonomous.records.ScoringLocation;
 import frc.robot.autonomous.records.ScoringLocation.ReefSide;
+import frc.robot.commands.GrabAlgaeReef;
 import frc.robot.commands.PassToEndEffector;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoral.ScoreCoralObjective;
@@ -777,6 +778,15 @@ public class RobotContainer {
     driverController
         .registerTrigger(XboxControllerWrapper.Button.start, "Intake Algae Ground")
         .whileTrue(new IntakeAlgaeGround(intake, robotStates));
+
+    driverController
+        .registerTrigger(XboxControllerWrapper.Button.povUp, "Intake Algae Reef")
+        .whileTrue(
+            new RunStateMachineCommand(
+                    () ->
+                        new GrabAlgaeReef(
+                            robotStates, () -> drivetrainWrapper.getReefPoseEstimatorPose(false)))
+                .withName("Intake Algae Reef"));
 
     // ---------- OPERATOR CONTROLS -----------
 
