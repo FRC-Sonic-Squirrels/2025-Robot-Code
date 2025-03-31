@@ -81,6 +81,7 @@ public class DriveToPosePathing extends Command {
       pathFollowingLogGroup.buildDecimal("DistToTarget");
   private static LoggerEntry.Decimal log_velToTarget =
       pathFollowingLogGroup.buildDecimal("VelToTarget");
+  private static LoggerEntry.Bool log_pathStalling = pathFollowingLogGroup.buildBoolean("Stalling");
 
   private boolean debugRotationClamping = false;
   private boolean debugRerouting = false;
@@ -193,6 +194,7 @@ public class DriveToPosePathing extends Command {
       velocityToTarget.calculate((distToTarget - prevdistToTarget) / (time - prevTime));
 
     log_velToTarget.info(velocityToTarget.lastValue());
+    log_pathStalling.info(pathStalling());
 
     ChassisSpeedsWithPathEnd result =
         helper.calculateChassisSpeeds(currentPose.get(), Timer.getFPGATimestamp());
