@@ -59,7 +59,9 @@ public class RobotStates {
     AvoidIntake,
     Default,
     AutoPrep,
-    AlgaeBargePosition
+    AlgaeBargePosition,
+    GrabAlgaeFromReefHigh,
+    GrabAlgaeFromReefLow
   }
 
   public enum IntakeState {

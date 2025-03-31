@@ -138,6 +138,18 @@ public class MechanismPositions {
   private static final LoggedTunableNumber climbArmAngleDegrees =
       group.build("climb/ArmAngleDegrees");
 
+  private static final LoggedTunableNumber grabAlgaeFromReefHighElevatorHeightInches =
+      group.build("grabAlgaeFromReef/High/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber grabAlgaeFromReefHighArmAngleDegrees =
+      group.build("grabAlgaeFromReef/High/ArmAngleDegrees");
+
+  private static final LoggedTunableNumber grabAlgaeFromReefLowElevatorHeightInches =
+      group.build("grabAlgaeFromReef/High/ElevatorHeightInches");
+
+  private static final LoggedTunableNumber grabAlgaeFromReefLowArmAngleDegrees =
+      group.build("grabAlgaeFromReef/High/ArmAngleDegrees");
+
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       lowStowElevatorHeightInches.initDefault(2);
@@ -200,6 +212,10 @@ public class MechanismPositions {
       autoPrepArmAngleDegrees.initDefault(90);
       climbElevatorHeightInches.initDefault(22);
       climbArmAngleDegrees.initDefault(150);
+      grabAlgaeFromReefHighElevatorHeightInches.initDefault(27.6);
+      grabAlgaeFromReefHighArmAngleDegrees.initDefault(20);
+      grabAlgaeFromReefLowElevatorHeightInches.initDefault(18);
+      grabAlgaeFromReefLowArmAngleDegrees.initDefault(20);
     }
   }
 
@@ -353,5 +369,17 @@ public class MechanismPositions {
     return new MechanismPosition(
         Units.Inches.of(autoPrepElevatorHeightInches.get()),
         Rotation2d.fromDegrees(autoPrepArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition grabAlgaeFromReefHigh() {
+    return new MechanismPosition(
+        Units.Inches.of(grabAlgaeFromReefHighElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(grabAlgaeFromReefHighArmAngleDegrees.get()));
+  }
+
+  public static MechanismPosition grabAlgaeFromReefLow() {
+    return new MechanismPosition(
+        Units.Inches.of(grabAlgaeFromReefLowElevatorHeightInches.get()),
+        Rotation2d.fromDegrees(grabAlgaeFromReefLowArmAngleDegrees.get()));
   }
 }
