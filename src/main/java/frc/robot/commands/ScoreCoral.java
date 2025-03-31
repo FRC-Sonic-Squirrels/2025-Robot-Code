@@ -413,7 +413,10 @@ public class ScoreCoral extends StateMachine {
     prepMechanismForScoring.cancel();
     states.mechState = MechState.ReefPositionCoralInWay;
     aligningWithCoralInWay = true;
-    return suspendForCommand(alignToScore, (c) -> stateWithName("Score", () -> score()));
+    spawnCommand(
+        alignToScore.andThen(() -> inPosition = true),
+        (c) -> stateWithName("Score", () -> score()));
+    return stateWithName("FollowGeneratedPath", () -> followGeneratedPath());
   }
 
   private StateHandler initFollowPath() {
