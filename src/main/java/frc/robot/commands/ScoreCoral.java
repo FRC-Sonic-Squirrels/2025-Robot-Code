@@ -378,7 +378,7 @@ public class ScoreCoral extends StateMachine {
             .setFinalOffsetError(finalOffsetError.get())
             .setFinalHeadingError(finalHeadingError.get())
             .setFinalTargetError(finalTargetError.get());
-    spawnCommand(alignToScore, (c) -> null);
+    spawnCommand(alignToScore.andThen(() -> inPosition = true), (c) -> null);
     return stateWithName("FollowGeneratedPath", () -> followGeneratedPath());
   }
 
@@ -388,8 +388,7 @@ public class ScoreCoral extends StateMachine {
     //   alignToScore.cancel();
     //   return stateWithName("PrepAlignWithCoralInTheWay", () -> prepAlignWithCoralInWay());
     // }
-    if (!alignToScore.isScheduled()) {
-      inPosition = true;
+    if (!inPosition) {
       return stateWithName("Score", () -> score());
     }
     return null;
