@@ -306,7 +306,8 @@ public class ScoreCoral extends StateMachine {
                             wrapper.getReefPoseEstimatorPose(false),
                             wrapper.getFieldRelativeVelocities().getTranslation(),
                             Units.Inches.of(L2PrepPositionDistInches.get()))
-                        .pose())
+                        .pose(),
+                states.scoringLevel)
             .setFinalErrorMaxWait(finalErrorMaxWait.get())
             .setFinalOffsetError(finalOffsetError.get())
             .setFinalHeadingError(finalHeadingError.get())
