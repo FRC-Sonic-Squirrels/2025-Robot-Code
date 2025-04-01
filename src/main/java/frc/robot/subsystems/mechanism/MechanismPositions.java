@@ -86,69 +86,69 @@ public class MechanismPositions {
       group.build("IntermediatePoses/LowBack/ArmAngleDegrees");
 
   private static final LoggedTunableNumber passOffCoralElevatorHeightInches =
-      group.build("PassOff/Pass/ElevatorHeightInches");
+      group.build("PassOff/Coral/Pass/ElevatorHeightInches");
 
   private static final LoggedTunableNumber passOffCoralArmAngleDegrees =
-      group.build("PassOff/Pass/ArmAngleDegrees");
+      group.build("PassOff/Coral/Pass/ArmAngleDegrees");
 
   private static final LoggedTunableNumber prepForPassOffCoralElevatorHeightInches =
-      group.build("PassOff/Prep/ElevatorHeightInches");
+      group.build("PassOff/Coral/Prep/ElevatorHeightInches");
 
   private static final LoggedTunableNumber prepForPassOffCoralArmAngleDegrees =
-      group.build("PassOff/Prep/ArmAngleDegrees");
+      group.build("PassOff/Coral/Prep/ArmAngleDegrees");
 
   private static final LoggedTunableNumber passOffAlgaeElevatorHeightInches =
-      group.build("PassOff/Pass/ElevatorHeightInches");
+      group.build("PassOff/Algae/Pass/ElevatorHeightInches");
 
   private static final LoggedTunableNumber passOffAlgaeArmAngleDegrees =
-      group.build("PassOff/Pass/ArmAngleDegrees");
+      group.build("PassOff/Algae/Pass/ArmAngleDegrees");
 
   private static final LoggedTunableNumber prepForPassOffAlgaeElevatorHeightInches =
-      group.build("PassOff/Prep/ElevatorHeightInches");
+      group.build("PassOff/Algae/Prep/ElevatorHeightInches");
 
   private static final LoggedTunableNumber prepForPassOffAlgaeArmAngleDegrees =
-      group.build("PassOff/Prep/ArmAngleDegrees");
+      group.build("PassOff/Algae/Prep/ArmAngleDegrees");
 
   private static final LoggedTunableNumber holdAlgaeElevatorHeightInches =
-      group.build("holdAlgae/ElevatorHeightInches");
+      group.build("HoldAlgae/ElevatorHeightInches");
 
   private static final LoggedTunableNumber holdAlgaeArmAngleDegrees =
-      group.build("holdAlgae/ArmAngleDegrees");
+      group.build("HoldAlgae/ArmAngleDegrees");
 
   private static final LoggedTunableNumber avoidIntakeElevatorHeightInches =
-      group.build("avoidIntake/ElevatorHeightInches");
+      group.build("AvoidIntake/ElevatorHeightInches");
 
   private static final LoggedTunableNumber avoidIntakeArmAngleDegrees =
-      group.build("avoidIntake/ArmAngleDegrees");
+      group.build("AvoidIntake/ArmAngleDegrees");
 
   private static final LoggedTunableNumber defaultElevatorHeightInches =
-      group.build("default/ElevatorHeightInches");
+      group.build("Default/ElevatorHeightInches");
 
   private static final LoggedTunableNumber defaultArmAngleDegrees =
-      group.build("default/ArmAngleDegrees");
+      group.build("Default/ArmAngleDegrees");
 
   private static final LoggedTunableNumber autoPrepElevatorHeightInches =
-      group.build("autoPrep/ElevatorHeightInches");
+      group.build("AutoPrep/ElevatorHeightInches");
 
   private static final LoggedTunableNumber autoPrepArmAngleDegrees =
-      group.build("autoPrep/ArmAngleDegrees");
+      group.build("AutoPrep/ArmAngleDegrees");
   private static final LoggedTunableNumber climbElevatorHeightInches =
-      group.build("climb/ElevatorHeightInches");
+      group.build("Climb/ElevatorHeightInches");
 
   private static final LoggedTunableNumber climbArmAngleDegrees =
-      group.build("climb/ArmAngleDegrees");
+      group.build("Climb/ArmAngleDegrees");
 
   private static final LoggedTunableNumber grabAlgaeFromReefHighElevatorHeightInches =
-      group.build("grabAlgaeFromReef/High/ElevatorHeightInches");
+      group.build("GrabAlgaeFromReef/High/ElevatorHeightInches");
 
   private static final LoggedTunableNumber grabAlgaeFromReefHighArmAngleDegrees =
-      group.build("grabAlgaeFromReef/High/ArmAngleDegrees");
+      group.build("GrabAlgaeFromReef/High/ArmAngleDegrees");
 
   private static final LoggedTunableNumber grabAlgaeFromReefLowElevatorHeightInches =
-      group.build("grabAlgaeFromReef/High/ElevatorHeightInches");
+      group.build("GrabAlgaeFromReef/High/ElevatorHeightInches");
 
   private static final LoggedTunableNumber grabAlgaeFromReefLowArmAngleDegrees =
-      group.build("grabAlgaeFromReef/High/ArmAngleDegrees");
+      group.build("GrabAlgaeFromReef/High/ArmAngleDegrees");
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
