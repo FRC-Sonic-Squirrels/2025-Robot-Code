@@ -204,12 +204,12 @@ public class MechanismPositions {
       reefL4ArmAngleDegrees.initDefault(151);
       reefL1CoralInWayElevatorHeightInches.initDefault(1);
       reefL1CoralInWayArmAngleDegrees.initDefault(140);
-      reefL2CoralInWayElevatorHeightInches.initDefault(10);
+      reefL2CoralInWayElevatorHeightInches.initDefault(15);
       reefL2CoralInWayArmAngleDegrees.initDefault(132.71);
-      reefL3CoralInWayElevatorHeightInches.initDefault(27.6);
+      reefL3CoralInWayElevatorHeightInches.initDefault(33);
       reefL3CoralInWayArmAngleDegrees.initDefault(138.69);
-      reefL4CoralInWayElevatorHeightInches.initDefault(56.5);
-      reefL4CoralInWayArmAngleDegrees.initDefault(151);
+      reefL4CoralInWayElevatorHeightInches.initDefault(57);
+      reefL4CoralInWayArmAngleDegrees.initDefault(130);
       coralStationElevatorHeightInches.initDefault(33);
       coralStationArmAngleDegrees.initDefault(-40);
       algaeClearingLowElevatorHeightInches.initDefault(10);
@@ -227,9 +227,9 @@ public class MechanismPositions {
       intermediatePoseLowBackArmAngleDegrees.initDefault(130);
       reefPrepArmOffsetDegrees.initDefault(20);
       passOffCoralArmAngleDegrees.initDefault(9.756);
-      passOffCoralElevatorHeightInches.initDefault(15);
+      passOffCoralElevatorHeightInches.initDefault(12);
       prepForPassOffCoralArmAngleDegrees.initDefault(9.756);
-      prepForPassOffCoralElevatorHeightInches.initDefault(15);
+      prepForPassOffCoralElevatorHeightInches.initDefault(13);
       passOffAlgaeArmAngleDegrees.initDefault(9.756);
       passOffAlgaeElevatorHeightInches.initDefault(20);
       prepForPassOffAlgaeArmAngleDegrees.initDefault(9.756);

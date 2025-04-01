@@ -179,7 +179,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmManualControl(double percent) {
-    setPercentOut((percent) / 6.0 + kG.get() * Math.cos(getAngle().getRadians()) * 0.5);
+    setPercentOut((percent) / 6.0 + kG.get() * Math.cos(getAngle().getRadians()) * 0.1);
   }
 
   // Getters
