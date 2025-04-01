@@ -68,7 +68,7 @@ public class EndEffectorIOReal implements EndEffectorIO {
     config.CurrentLimits = currentLimitConfig;
 
     config.Feedback.SensorToMechanismRatio = EndEffectorConstants.GEARING;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     config.Voltage.SupplyVoltageTimeConstant = KrakenConstants.SUPPLY_VOLTAGE_TIME;

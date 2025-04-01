@@ -42,6 +42,10 @@ public class Mechanism {
       tunableGroup.build("scoringL4ArmAccel", 5);
   private static final LoggedTunableNumber coralStationArmAccel =
       tunableGroup.build("coralStationArmAccel", 3);
+  private static final LoggedTunableNumber holdAlgaeArmAccel =
+      tunableGroup.build("holdAlgaeArmAccel", 3);
+  private static final LoggedTunableNumber holdAlgaeElevatorAccel =
+      tunableGroup.build("holdAlgaeElevatorAccel", 100);
 
   private boolean elevatorInPosition = false;
   private boolean armInPosition = false;
@@ -124,7 +128,10 @@ public class Mechanism {
           goToPositionParallel(MechanismPositions.passoffPosition(false));
           break;
         case HoldAlgaePosition:
-          goToPositionParallel(MechanismPositions.holdAlgaePosition());
+          goToPositionParallel(
+              MechanismPositions.holdAlgaePosition(),
+              holdAlgaeElevatorAccel.get(),
+              holdAlgaeArmAccel.get());
           break;
         case AvoidIntake:
           goToPositionParallel(MechanismPositions.avoidIntakePosition());
@@ -136,7 +143,10 @@ public class Mechanism {
           goToPositionParallel(MechanismPositions.autoPrepPosition());
           break;
         case AlgaeBargePosition:
-          goToPositionParallel(MechanismPositions.scoreAlgaeBargePosition());
+          goToPositionParallel(
+              MechanismPositions.scoreAlgaeBargePosition(),
+              holdAlgaeElevatorAccel.get(),
+              holdAlgaeArmAccel.get());
           break;
         case GrabAlgaeFromReefHigh:
           goToPositionParallel(MechanismPositions.grabAlgaeFromReefHigh());

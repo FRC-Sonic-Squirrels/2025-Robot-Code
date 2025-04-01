@@ -558,7 +558,12 @@ public class RobotContainer {
                         robotStates.endEffectorDesiredAction = EndEffectorDesiredAction.ScoreAlgae)
                 .andThen(Commands.waitUntil(() -> !robotStates.algaeInEndEffector))
                 .andThen(Commands.waitSeconds(0.3))
-                .andThen(Commands.runOnce(() -> robotStates.mechState = MechState.Default)));
+                .andThen(
+                    Commands.runOnce(
+                        () -> {
+                          robotStates.mechState = MechState.Default;
+                          robotStates.endEffectorDesiredAction = EndEffectorDesiredAction.Idle;
+                        })));
 
     driverController
         .registerTrigger(XboxControllerWrapper.Button.start, "X Stance")
@@ -841,11 +846,11 @@ public class RobotContainer {
     // End Effector Rotation
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.start, "End Effector Out")
-        .whileTrue(new EndEffectorSetRPM(-1000 / 6.6667, robotStates));
+        .whileTrue(new EndEffectorSetRPM(-1000, robotStates));
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.back, "End Effector In")
-        .whileTrue(new EndEffectorSetRPM(3000 / 6.6667, robotStates));
+        .whileTrue(new EndEffectorSetRPM(3000, robotStates));
 
     // Climber in
     operatorController
