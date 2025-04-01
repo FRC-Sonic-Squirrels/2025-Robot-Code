@@ -277,7 +277,7 @@ public final class Constants {
     public static final double MOI = 0.05;
 
     public static final double SUPPLY_CURRENT_LIMIT = 40.0;
-    public static final double STATOR_CURRENT_LIMIT = 60.0;
+    public static final double STATOR_CURRENT_LIMIT = 80.0;
     public static final String ROOT_TABLE = "EndEffector";
   }
 
