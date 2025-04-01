@@ -199,9 +199,9 @@ public class MechanismPositions {
       prepForPassOffCoralArmAngleDegrees.initDefault(9.756);
       prepForPassOffCoralElevatorHeightInches.initDefault(15);
       passOffAlgaeArmAngleDegrees.initDefault(9.756);
-      passOffAlgaeElevatorHeightInches.initDefault(16);
+      passOffAlgaeElevatorHeightInches.initDefault(20);
       prepForPassOffAlgaeArmAngleDegrees.initDefault(9.756);
-      prepForPassOffAlgaeElevatorHeightInches.initDefault(18);
+      prepForPassOffAlgaeElevatorHeightInches.initDefault(22);
       holdAlgaeArmAngleDegrees.initDefault(90);
       holdAlgaeElevatorHeightInches.initDefault(26);
       avoidIntakeElevatorHeightInches.initDefault(18);
