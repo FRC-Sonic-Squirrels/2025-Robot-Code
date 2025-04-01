@@ -145,10 +145,10 @@ public class MechanismPositions {
       group.build("GrabAlgaeFromReef/High/ArmAngleDegrees");
 
   private static final LoggedTunableNumber grabAlgaeFromReefLowElevatorHeightInches =
-      group.build("GrabAlgaeFromReef/High/ElevatorHeightInches");
+      group.build("GrabAlgaeFromReef/Low/ElevatorHeightInches");
 
   private static final LoggedTunableNumber grabAlgaeFromReefLowArmAngleDegrees =
-      group.build("GrabAlgaeFromReef/High/ArmAngleDegrees");
+      group.build("GrabAlgaeFromReef/Low/ArmAngleDegrees");
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
