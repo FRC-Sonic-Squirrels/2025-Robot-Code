@@ -37,6 +37,7 @@ public class ScoreAlgae extends Command {
   @Override
   public void end(boolean interrupted) {
     intake.holdAlgae = false;
+    states.coralExpectedInIntake = true;
   }
 
   // Returns true when the command should end.

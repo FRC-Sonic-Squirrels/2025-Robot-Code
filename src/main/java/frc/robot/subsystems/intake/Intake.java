@@ -79,7 +79,7 @@ public class Intake extends SubsystemBase {
       new TunableNumberGroup(IntakeConstants.ROOT_TABLE);
 
   private static final LoggedTunableNumber intakingCoralVel =
-      group.build("Intaking/Coral/Vel", 1000);
+      group.build("Intaking/Coral/Vel", 3000);
   private static final LoggedTunableNumber intakingAlgaeVel =
       group.build("Intaking/Algae/Vel", 2000);
   private static final LoggedTunableNumber intakingCoralPivotAngle =

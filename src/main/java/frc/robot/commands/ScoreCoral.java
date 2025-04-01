@@ -317,9 +317,11 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler L2Alignment() {
-    states.mechState = MechState.ReefPosition;
-    if (states.mechInTargetState)
-      return stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
+    if (!states.coralInPassOff()) {
+      states.mechState = MechState.ReefPosition;
+      if (states.mechInTargetState)
+        return stateWithName("PrepForScoringAlignment", prepForScoringAlignment());
+    }
     return null;
   }
 
@@ -389,7 +391,7 @@ public class ScoreCoral extends StateMachine {
     //   alignToScore.cancel();
     //   return stateWithName("PrepAlignWithCoralInTheWay", () -> prepAlignWithCoralInWay());
     // }
-    if (!inPosition) {
+    if (inPosition) {
       return stateWithName("Score", () -> score());
     }
     return null;

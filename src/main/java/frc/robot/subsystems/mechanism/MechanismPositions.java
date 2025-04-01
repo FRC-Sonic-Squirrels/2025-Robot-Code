@@ -46,7 +46,7 @@ public class MechanismPositions {
   private static final LoggedTunableNumber reefL4ElevatorHeightInches =
       group.build("Reef/L4/ElevatorHeightInches");
 
-private static final LoggedTunableNumber reefL1CoralInWayArmAngleDegrees =
+  private static final LoggedTunableNumber reefL1CoralInWayArmAngleDegrees =
       group.build("Reef/CoralInWay/L1/ArmAngleDegrees");
 
   private static final LoggedTunableNumber reefL2CoralInWayArmAngleDegrees =
@@ -196,7 +196,7 @@ private static final LoggedTunableNumber reefL1CoralInWayArmAngleDegrees =
     } else {
       reefL1ElevatorHeightInches.initDefault(1);
       reefL1ArmAngleDegrees.initDefault(140);
-      reefL2ElevatorHeightInches.initDefault(10);
+      reefL2ElevatorHeightInches.initDefault(11);
       reefL2ArmAngleDegrees.initDefault(132.71);
       reefL3ElevatorHeightInches.initDefault(27.6);
       reefL3ArmAngleDegrees.initDefault(138.69);
@@ -242,7 +242,7 @@ private static final LoggedTunableNumber reefL1CoralInWayArmAngleDegrees =
       defaultArmAngleDegrees.initDefault(70);
       autoPrepElevatorHeightInches.initDefault(0);
       autoPrepArmAngleDegrees.initDefault(90);
-      climbElevatorHeightInches.initDefault(22);
+      climbElevatorHeightInches.initDefault(21);
       climbArmAngleDegrees.initDefault(150);
       grabAlgaeFromReefHighElevatorHeightInches.initDefault(27.6);
       grabAlgaeFromReefHighArmAngleDegrees.initDefault(20);

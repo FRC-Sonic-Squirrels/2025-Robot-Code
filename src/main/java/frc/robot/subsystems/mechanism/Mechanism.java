@@ -198,7 +198,8 @@ public class Mechanism {
     log_targetSection.info(targetMechSection.name());
 
     if (currentMechPos.armAngle().getDegrees() > 142
-        && !elevator.isAtTarget(position.elevatorHeight())) {
+        && !elevator.isAtTarget(position.elevatorHeight())
+        && position.armAngle().getDegrees() <= 142) {
       if (armAccel.equals(Double.NaN)) {
         arm.setAngle(position.armAngle());
       } else {
