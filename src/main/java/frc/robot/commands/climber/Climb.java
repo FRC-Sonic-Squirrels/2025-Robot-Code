@@ -75,7 +75,9 @@ public class Climb extends Command {
     }
 
     if (stage == 0) {
-      climber.setWinchAngle(Rotation2d.fromRotations(zerothAngle.get()));
+      Rotation2d target = Rotation2d.fromRotations(zerothAngle.get());
+      climber.setWinchAngle(target);
+      if (climber.isWinchAtTargetAngle(target)) stage++;
     } else if (stage == 1) {
       climber.setWinchAngle(Rotation2d.fromRotations(firstAngle.get()));
     } else if (stage == 2) {

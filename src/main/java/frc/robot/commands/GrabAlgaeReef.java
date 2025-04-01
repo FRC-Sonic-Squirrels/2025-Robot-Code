@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.Units;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.StateMachine;
 import frc.robot.Constants;
@@ -42,7 +43,7 @@ public class GrabAlgaeReef extends StateMachine {
 
     ScoringSideWithPose bestSide = null;
 
-    for (ScoringSideWithPose side : Constants.FieldConstants.SCORING_SIDES()) {
+    for (ScoringSideWithPose side : Constants.FieldConstants.SCORING_SIDES(Units.Inches.of(0))) {
       if (bestSide == null
           || GeometryUtil.getDist(side.pose(), robotPose.get())
               < GeometryUtil.getDist(bestSide.pose(), robotPose.get())) bestSide = side;
