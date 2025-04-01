@@ -50,7 +50,10 @@ public class PassToEndEffector extends StateMachine {
     states.mechState =
         coral ? MechState.PrepPassoffCoralPosition : MechState.PrepPassoffAlgaePosition;
     states.intakeState = IntakeState.PrepPassoff;
-    states.endEffectorDesiredAction = EndEffectorDesiredAction.PassCoralToEndEffector;
+    states.endEffectorDesiredAction =
+        coral
+            ? EndEffectorDesiredAction.PassCoralToEndEffector
+            : EndEffectorDesiredAction.HoldAlgae;
     if (lostGamepiece.getAsBoolean()) return stateWithName("End", () -> end());
     boolean pivotAtTargetAngle = intake.isPivotAtTargetAngle(intake.getPassOffPivotAngle());
     logPivotAtTargetAngle.info(pivotAtTargetAngle);
