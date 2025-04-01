@@ -1273,7 +1273,7 @@ public class RobotContainer {
     }
 
     robotStates.coralInIntake = intake.intakeTimeOfFlight();
-    robotStates.algaeInIntake = intake.rollerStallDetected();
+    robotStates.algaeInIntake = !robotStates.coralExpectedInIntake && intake.rollerStallDetected();
     robotStates.algaeInEndEffector =
         !robotStates.coralExpectedInEndEffector && endEffector.nonScoringSideTOFSeenGamepiece();
   }

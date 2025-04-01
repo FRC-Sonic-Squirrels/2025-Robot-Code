@@ -22,6 +22,7 @@ public class IntakeCoralGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    states.coralExpectedInIntake = true;
     if (states.scoringLevel == ScoringLevel.L1) {
       states.mechState = MechState.AvoidIntake;
     } else states.mechState = MechState.PrepPassoffCoralPosition;

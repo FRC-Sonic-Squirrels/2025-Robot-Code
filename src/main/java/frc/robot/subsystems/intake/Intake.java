@@ -156,12 +156,12 @@ public class Intake extends SubsystemBase {
       rKV.initDefault(0.13);
       rollerTargetAccelerationConfig.initDefault(200);
 
-      pKP.initDefault(90);
+      pKP.initDefault(60);
       pKD.initDefault(0.3);
       pKG.initDefault(0.4);
 
       pivotMaxVelocityConfig.initDefault(200);
-      pivotTargetAccelerationConfig.initDefault(400);
+      pivotTargetAccelerationConfig.initDefault(1500);
     }
   }
 
@@ -266,7 +266,7 @@ public class Intake extends SubsystemBase {
           setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
           break;
         case Stow:
-          if (holdAlgae) {
+          if (!states.coralExpectedInIntake) {
             setRollerVelocity(holdAlgaeVel.get());
           } else if (states.coralInIntake) {
             setRollerVelocity(holdCoralVel.get());

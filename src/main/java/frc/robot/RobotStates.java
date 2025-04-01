@@ -205,6 +205,7 @@ public class RobotStates {
   private Command passAlgaeToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
 
   public boolean coralExpectedInEndEffector = true;
+  public boolean coralExpectedInIntake = true;
 
   public RobotStates() {}
 
@@ -233,7 +234,9 @@ public class RobotStates {
             && !coralInEndEffector
             && coralInIntake;
 
-    transferAlgaeToEndEffector = algaeInIntake && !algaeInEndEffector;
+    // TODO: once algae holding works, make this operator toggle
+    transferAlgaeToEndEffector = false;
+    // algaeInIntake && !algaeInEndEffector;
 
     transferCoralToIntake =
         targetCoralPosition == TargetCoralPosition.Intake && !coralInIntake && coralInEndEffector;

@@ -23,6 +23,7 @@ public class IntakeAlgaeGround extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    states.coralExpectedInIntake = false;
     states.mechState = MechState.StowPosition;
     states.intakeState = IntakeState.IntakeAlgae;
   }
