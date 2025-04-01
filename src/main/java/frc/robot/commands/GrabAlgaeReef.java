@@ -26,6 +26,7 @@ public class GrabAlgaeReef extends StateMachine {
   }
 
   private StateHandler grabAlgae() {
+    states.coralExpectedInEndEffector = false;
     states.mechState =
         closerToLowAlgae() ? MechState.GrabAlgaeFromReefLow : MechState.GrabAlgaeFromReefHigh;
     states.endEffectorDesiredAction = EndEffectorDesiredAction.HoldAlgae;

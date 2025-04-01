@@ -1274,7 +1274,8 @@ public class RobotContainer {
 
     robotStates.coralInIntake = intake.intakeTimeOfFlight();
     robotStates.algaeInIntake = intake.rollerStallDetected();
-    robotStates.algaeInEndEffector = endEffector.nonScoringSideTOFSeenGamepiece();
+    robotStates.algaeInEndEffector =
+        !robotStates.coralExpectedInEndEffector && endEffector.nonScoringSideTOFSeenGamepiece();
   }
 
   public List<ScoringLocation> getCustomScoringLocations() {

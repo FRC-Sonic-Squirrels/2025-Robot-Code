@@ -46,6 +46,7 @@ public class PassToEndEffector extends StateMachine {
   }
 
   private StateHandler prepToPassOff() {
+    states.coralExpectedInEndEffector = coral;
     states.mechState =
         coral ? MechState.PrepPassoffCoralPosition : MechState.PrepPassoffAlgaePosition;
     states.intakeState = IntakeState.PrepPassoff;

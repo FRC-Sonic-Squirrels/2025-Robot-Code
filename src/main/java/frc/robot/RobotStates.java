@@ -204,6 +204,8 @@ public class RobotStates {
   private Command passAlgaeToEndEffector = Commands.none();
   private Command passAlgaeToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
 
+  public boolean coralExpectedInEndEffector = true;
+
   public RobotStates() {}
 
   public void setIntake(Intake intake) {

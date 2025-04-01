@@ -53,6 +53,7 @@ public class IntakeGamepieceCoralStation extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    states.coralExpectedInEndEffector = true;
     states.mechState = MechState.CoralStationPosition;
     states.changeEndEffectorIfNotAligning(RobotStates.EndEffectorDesiredAction.CoralStationIntake);
   }
