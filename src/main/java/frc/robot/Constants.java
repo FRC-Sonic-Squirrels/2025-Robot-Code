@@ -186,7 +186,10 @@ public final class Constants {
         Translation2d offset =
             new Translation2d(
                 REEF_WIDTH
-                    .plus(RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS.getMeasureY().plus(extraOffset))
+                    .plus(
+                        RobotDimensions.ROBOT_DIMENSIONS_WITH_BUMPERS
+                            .getMeasureY()
+                            .plus(extraOffset))
                     .div(2.0)
                     .in(Units.Meters),
                 angle);
@@ -207,8 +210,8 @@ public final class Constants {
     public static final Distance CORAL_STATION_WIDTH = Units.Inches.of(76);
 
     public static class Gamepieces {
-      public static final Distance CORAL_OUTER_DIAMETER =
-          Units.Inches.of(4.5);
+      public static final Distance CORAL_OUTER_DIAMETER = // NOTICE: changed to fake value
+          Units.Inches.of(5.5);
       public static final Distance GAMEPIECE_TOLERANCE = Units.Inches.of(20.0);
       public static final double GAMEPIECE_PERSISTENCE = 0.5;
     }

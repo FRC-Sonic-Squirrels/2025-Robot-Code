@@ -386,11 +386,11 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler followGeneratedPath() {
-    // if(alignToScore.pathStalling() &&
-    // GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(false), scoringPose) < 0.5){
-    //   alignToScore.cancel();
-    //   return stateWithName("PrepAlignWithCoralInTheWay", () -> prepAlignWithCoralInWay());
-    // }
+    if (alignToScore.pathStalling()
+        && GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(false), scoringPose) < 0.5) {
+      alignToScore.cancel();
+      return stateWithName("PrepAlignWithCoralInTheWay", () -> prepAlignWithCoralInWay());
+    }
     if (inPosition) {
       return stateWithName("Score", () -> score());
     }
@@ -398,27 +398,27 @@ public class ScoreCoral extends StateMachine {
   }
 
   private StateHandler prepAlignWithCoralInWay() {
+    Pose2d newScoringPose =
+        getClosestScoringSide(
+                wrapper.getReefPoseEstimatorPose(false).getTranslation(),
+                Constants.FieldConstants.Gamepieces.CORAL_OUTER_DIAMETER)
+            .pose();
+    log_scoringPose.info(newScoringPose);
     alignToScore =
         new DriveToPosePathing(
                 wrapper,
                 config,
                 () -> wrapper.getReefPoseEstimatorPose(true),
-                () ->
-                    getClosestScoringSide(
-                            wrapper.getReefPoseEstimatorPose(false).getTranslation(),
-                            Constants.FieldConstants.Gamepieces.CORAL_OUTER_DIAMETER)
-                        .pose(),
+                () -> newScoringPose,
                 states.scoringLevel)
             .setFinalErrorMaxWait(finalErrorMaxWait.get())
             .setFinalOffsetError(finalOffsetError.get())
             .setFinalHeadingError(finalHeadingError.get())
             .setFinalTargetError(finalTargetError.get());
     prepMechanismForScoring.cancel();
-    states.mechState = MechState.ReefPositionCoralInWay;
+    if (!states.coralInPassOff()) states.mechState = MechState.ReefPositionCoralInWay;
     aligningWithCoralInWay = true;
-    spawnCommand(
-        alignToScore.andThen(() -> inPosition = true),
-        (c) -> stateWithName("Score", () -> score()));
+    spawnCommand(alignToScore.andThen(() -> inPosition = true), (c) -> null);
     return stateWithName("FollowGeneratedPath", () -> followGeneratedPath());
   }
 

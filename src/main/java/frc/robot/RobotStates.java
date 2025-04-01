@@ -180,7 +180,7 @@ public class RobotStates {
   public Trigger triggerForCoralInIntake =
       new Trigger(() -> coralInIntake)
           .debounce(
-              0.5); // debounce to allow coral to get fully in intake before ending intake command
+              0.1); // debounce to allow coral to get fully in intake before ending intake command
 
   public Trigger instantTriggerForCoralInIntake = new Trigger(() -> coralInIntake);
   // command

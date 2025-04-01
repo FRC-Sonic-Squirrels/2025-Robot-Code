@@ -61,10 +61,10 @@ public class DriveToPosePathing extends Command {
   private static LoggedTunableNumber headingToleranceNearElements =
       tunableGroup.build("HeadingToleranceNearElements", 40.0);
   private static LoggedTunableNumber stallMaxVelocity =
-      tunableGroup.build("Stall/MaxVelocity", 0.05);
+      tunableGroup.build("Stall/MaxVelocity", 0.4);
   private static LoggedTunableNumber stallMinDistance =
-      tunableGroup.build("Stall/MinDistance", 0.02);
-  private static LoggedTunableNumber stallDebounce = tunableGroup.build("Stall/Debounce", 0.3);
+      tunableGroup.build("Stall/MinDistance", 0.05);
+  private static LoggedTunableNumber stallDebounce = tunableGroup.build("Stall/Debounce", 0.15);
 
   private static LoggerGroup logGroup = LoggerGroup.build("DriveToPosePathing");
   private static LoggerGroup pathGenLogGroup = logGroup.subgroup("PathGeneration");
@@ -96,7 +96,7 @@ public class DriveToPosePathing extends Command {
   private final ScoringLevel level;
   private double distToTarget;
   private Double prevdistToTarget = Double.NaN;
-  private LinearFilter velocityToTarget = LinearFilter.movingAverage(3);
+  private LinearFilter velocityToTarget = LinearFilter.movingAverage(8);
   private double prevTime;
   private Trigger stalled =
       new Trigger(
@@ -188,10 +188,11 @@ public class DriveToPosePathing extends Command {
 
     distToTarget = GeometryUtil.getDist(currentPose.get(), targetPose.get());
     log_distToTarget.info(distToTarget);
-    double time = RobotController.getFPGATime();
+    double time = RobotController.getFPGATime() / 1000000.0;
 
+    System.out.println("TIME DIF: " + (time - prevTime));
     if (!prevdistToTarget.isNaN())
-      velocityToTarget.calculate((distToTarget - prevdistToTarget) / (time - prevTime));
+      velocityToTarget.calculate(Math.abs((distToTarget - prevdistToTarget) / (time - prevTime)));
 
     log_velToTarget.info(velocityToTarget.lastValue());
     log_pathStalling.info(pathStalling());
