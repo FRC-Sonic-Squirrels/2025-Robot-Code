@@ -153,7 +153,7 @@ public class EndEffector extends SubsystemBase {
 
       states.coralInEndEffectorScoringSide = coralInEndEffectorScoringSide;
       states.coralInEndEffectorNonScoringSide = coralInEndEffectorNonScoringSide;
-      states.coralInEndEffector = coralInEndEffector;
+      states.coralInEndEffector = states.coralExpectedInEndEffector && coralInEndEffector;
 
       logInputs_velocityRPM.info(inputs.velocityRPM);
       logInputs_currentAmps.info(inputs.currentAmps);
