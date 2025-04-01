@@ -822,11 +822,11 @@ public class RobotContainer {
     // End Effector Rotation
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.start, "End Effector Out")
-        .whileTrue(new EndEffectorSetRPM(-1000, robotStates));
+        .whileTrue(new EndEffectorSetRPM(-1000 / 6.6667, robotStates));
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.back, "End Effector In")
-        .whileTrue(new EndEffectorSetRPM(3000, robotStates));
+        .whileTrue(new EndEffectorSetRPM(3000 / 6.6667, robotStates));
 
     // Climber in
     operatorController

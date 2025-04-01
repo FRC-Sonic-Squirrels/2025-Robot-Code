@@ -68,14 +68,14 @@ public class EndEffector extends SubsystemBase {
       group.build("MaxAccelerationConstraint");
 
   private static final LoggedTunableNumber intakingVelocitySlow =
-      group.build("intakingVelocitySlow", 800);
+      group.build("intakingVelocitySlow", 800 / 6.6667);
   private static final LoggedTunableNumber intakingVelocityHigh =
-      group.build("intakingVelocity", 2500);
+      group.build("intakingVelocity", 2500 / 6.6667);
 
   private static final LoggedTunableNumber scoringVelocityRPM =
-      group.build("ScoringVelocityRPM", -3000);
+      group.build("ScoringVelocityRPM", -3000 / 6.6667);
   private static final LoggedTunableNumber passOffVelocityRPM =
-      group.build("passOffVelocityRPM", -1000);
+      group.build("passOffVelocityRPM", -1000 / 6.6667);
 
   private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 300);
   private static final LoggedTunableNumber alignTarget = group.build("alignTarget", 1);
