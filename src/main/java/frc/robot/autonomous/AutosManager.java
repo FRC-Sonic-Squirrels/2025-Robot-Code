@@ -84,6 +84,7 @@ public class AutosManager {
 
     list.add(this::doNothing);
     list.add(this::auto_IKLJ);
+    list.add(this::auto_IKLJLoli);
     list.add(this::auto_lolipops);
     list.add(this::auto_compatible);
     list.add(
@@ -163,6 +164,34 @@ public class AutosManager {
             states);
 
     return stateToAuto("IKLJ", state);
+  }
+
+  private Auto auto_IKLJLoli() {
+    List<ScoringLocation> scoringLocations = new ArrayList<>();
+    List<PickupLocation> coralStationLocations = new ArrayList<>();
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CI, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CK, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.IA);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CL, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.G1);
+
+    scoringLocations.add(new ScoringLocation(ReefSide.CA, ScoringLevel.L4));
+    coralStationLocations.add(PickupLocation.G2);
+
+    var state =
+        new AutoStateMachine(
+            subsystems,
+            new AutoDescriptor(scoringLocations, coralStationLocations, StartingLocation.S2),
+            config,
+            flipAuto.getAsBoolean(),
+            false,
+            states);
+
+    return stateToAuto("IKLJ_Loli", state);
   }
 
   private Auto auto_lolipops() {
