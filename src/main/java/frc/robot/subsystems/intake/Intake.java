@@ -87,7 +87,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber scoreCoralPivotAngle =
       group.build("Score/Coral/AngleDeg", 60);
   private static final LoggedTunableNumber scoreCoralVel =
-      group.build("Score/Coral/Velocity", -2000);
+      group.build("Score/Coral/Velocity", -1000);
   private static final LoggedTunableNumber intakingAlgaePivotAngle =
       group.build("Intaking/Algae/AngleDeg", 20);
   private static final LoggedTunableNumber passOffPivotAngle = group.build("PassOff/AngleDeg", 98);
