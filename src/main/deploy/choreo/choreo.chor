@@ -3,7 +3,15 @@
  "version":1,
  "type":"Swerve",
  "variables":{
-  "expressions":{},
+  "expressions":{
+   "SV":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"0.5 m / s",
+     "val":0.5
+    }
+   }
+  },
   "poses":{
    "CA":{
     "x":{
@@ -315,8 +323,8 @@
    "val":502.6548245743669
   },
   "tmax":{
-   "exp":"0.45 N * m",
-   "val":0.45
+   "exp":"0.3 N * m",
+   "val":0.3
   },
   "cof":{
    "exp":"0.1",
