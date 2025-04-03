@@ -15,8 +15,8 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"S3.x", "val":7.1}, "y":{"exp":"S3.y", "val":4.191}, "heading":{"exp":"S3.heading", "val":0.0}, "intervals":127, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"6.013720512390137 m", "val":6.013720512390137}, "y":{"exp":"3.8946566581726074 m", "val":3.8946566581726074}, "heading":{"exp":"CG.heading", "val":0.0}, "intervals":54, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"S3.x", "val":7.1}, "y":{"exp":"S3.y", "val":4.191}, "heading":{"exp":"S3.heading", "val":0.0}, "intervals":73, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"6.013720512390137 m", "val":6.013720512390137}, "y":{"exp":"3.8946566581726074 m", "val":3.8946566581726074}, "heading":{"exp":"CG.heading", "val":0.0}, "intervals":33, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"CG.x", "val":5.81279}, "y":{"exp":"CG.y", "val":3.8608}, "heading":{"exp":"CG.heading", "val":0.0}, "intervals":13, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
