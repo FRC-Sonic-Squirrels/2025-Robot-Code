@@ -211,7 +211,7 @@ public final class Constants {
 
     public static class Gamepieces {
       public static final Distance CORAL_OUTER_DIAMETER = // NOTICE: changed to fake value
-          Units.Inches.of(5.5);
+          Units.Inches.of(8.0);
       public static final Distance GAMEPIECE_TOLERANCE = Units.Inches.of(20.0);
       public static final double GAMEPIECE_PERSISTENCE = 0.5;
     }
