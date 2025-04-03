@@ -71,7 +71,7 @@ public class EndEffector extends SubsystemBase {
   private static final LoggedTunableNumber intakingVelocitySlow =
       group.build("intakingVelocitySlow", 800);
   private static final LoggedTunableNumber intakingVelocityHigh =
-      group.build("intakingVelocity", 2500);
+      group.build("intakingVelocity", 1500);
 
   private static final LoggedTunableNumber scoringVelocityRPM =
       group.build("ScoringVelocityRPM", -3000);
