@@ -56,6 +56,7 @@ public class LED extends SubsystemBase {
   private LoggedTunableNumber tunableR = group.build("tunableColor/r", 0);
   private LoggedTunableNumber tunableG = group.build("tunableColor/g", 0);
   private LoggedTunableNumber tunableB = group.build("tunableColor/b", 0);
+  private LoggedTunableNumber zoomingDotSpeed = group.build("zoomingDotSpeed", 5);
   private int robotLoops = 0;
   private final int robotLoopsTillReady = 30;
   private final Supplier<Boolean> brakeMode;
@@ -135,7 +136,7 @@ public class LED extends SubsystemBase {
               setSolidColor(Color.kMagenta);
               break;
             case SCORING_ALIGNMENT:
-              setBlinking(Color.kWhite);
+              setZoomingDot();
               break;
             case ALGAE_ALIGNMENT:
               //  setBlinking(Color.kWhite, Color.kAqua);
@@ -299,6 +300,19 @@ public class LED extends SubsystemBase {
     seaGradient.applyTo(ledBuffer);
     led.setData(ledBuffer);
     levelMeterCount += 1;
+  }
+
+  /** zooming dot animation */
+  private void setZoomingDot() {
+    double percent = Math.sin(zoomingDotSpeed.get() * Timer.getFPGATimestamp()) * 0.5 + 0.5;
+    int center = (int) (percent * ledBuffer.getLength());
+    for (var i = 0; i < ledBuffer.getLength(); i++) {
+      // Sets the specified LED to the RGB values for red
+      int dist = Math.abs(center - i);
+      double strength = Math.pow(Math.E, -Math.pow(dist, 2) * 0.5);
+      ledBuffer.setRGB(i, (int) (255 * strength), (int) (255 * strength), (int) (255 * strength));
+    }
+    led.setData(ledBuffer);
   }
 
   /** setBaseRobotState() - Needs an educated description. */
