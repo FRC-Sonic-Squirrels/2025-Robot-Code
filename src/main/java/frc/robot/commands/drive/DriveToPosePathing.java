@@ -12,15 +12,12 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -94,16 +91,17 @@ public class DriveToPosePathing extends Command {
   private double finalErrorMaxWait = 2;
 
   private final ScoringLevel level;
-  private double distToTarget;
-  private Double prevdistToTarget = Double.NaN;
-  private LinearFilter velocityToTarget = LinearFilter.movingAverage(8);
-  private double prevTime;
-  private Trigger stalled =
-      new Trigger(
-              () ->
-                  (velocityToTarget.lastValue() < stallMaxVelocity.get()
-                      && distToTarget > stallMinDistance.get()))
-          .debounce(stallDebounce.get());
+
+  // private double distToTarget;
+  // private Double prevdistToTarget = Double.NaN;
+  // private LinearFilter velocityToTarget = LinearFilter.movingAverage(8);
+  // private double prevTime;
+  // private Trigger stalled =
+  //     new Trigger(
+  //             () ->
+  //                 (velocityToTarget.lastValue() < stallMaxVelocity.get()
+  //                     && distToTarget > stallMinDistance.get()))
+  //         .debounce(stallDebounce.get());
 
   /** Creates a new DriveToPosePathing. */
   public DriveToPosePathing(
@@ -186,15 +184,16 @@ public class DriveToPosePathing extends Command {
       return;
     }
 
-    distToTarget = GeometryUtil.getDist(currentPose.get(), targetPose.get());
-    log_distToTarget.info(distToTarget);
-    double time = RobotController.getFPGATime() / 1000000.0;
+    // distToTarget = GeometryUtil.getDist(currentPose.get(), targetPose.get());
+    // log_distToTarget.info(distToTarget);
+    // double time = RobotController.getFPGATime() / 1000000.0;
 
-    System.out.println("TIME DIF: " + (time - prevTime));
-    if (!prevdistToTarget.isNaN())
-      velocityToTarget.calculate(Math.abs((distToTarget - prevdistToTarget) / (time - prevTime)));
+    // System.out.println("TIME DIF: " + (time - prevTime));
+    // if (!prevdistToTarget.isNaN())
+    //   velocityToTarget.calculate(Math.abs((distToTarget - prevdistToTarget) / (time -
+    // prevTime)));
 
-    log_velToTarget.info(velocityToTarget.lastValue());
+    // log_velToTarget.info(velocityToTarget.lastValue());
     log_pathStalling.info(pathStalling());
 
     ChassisSpeedsWithPathEnd result =
@@ -207,8 +206,8 @@ public class DriveToPosePathing extends Command {
     wrapper.setVelocityOverride(result.chassisSpeeds());
     pathFinished = result.atEndOfPath();
 
-    prevdistToTarget = distToTarget;
-    prevTime = time;
+    // prevdistToTarget = distToTarget;
+    // prevTime = time;
   }
 
   // Called once the command ends or is interrupted.
@@ -224,7 +223,8 @@ public class DriveToPosePathing extends Command {
   }
 
   public boolean pathStalling() {
-    return stalled.getAsBoolean();
+    return false;
+    // stalled.getAsBoolean();
   }
 
   private boolean trajIntersectsWithReef(Trajectory<SwerveSample> traj) {

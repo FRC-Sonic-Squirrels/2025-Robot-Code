@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AllianceFlipUtil;
+import frc.lib.team2930.ExecutionTiming;
 import frc.lib.team2930.GeometryUtil;
 import frc.lib.team2930.LoggerEntry;
 import frc.lib.team2930.LoggerGroup;
@@ -435,15 +436,25 @@ public class ScoreCoral extends StateMachine {
     return stateWithName("FollowPath", () -> followPath());
   }
 
+  private static final ExecutionTiming timingFollowPath = new ExecutionTiming("FollowPath");
+
   private StateHandler followPath() {
-    ChassisSpeedsWithPathEnd result =
-        choreoHelper.calculateChassisSpeeds(
-            wrapper.getReefPoseEstimatorPose(true), timeFromStart());
-    wrapper.setVelocityOverride(result.chassisSpeeds());
-    inPosition = result.atEndOfPath();
-    if (!inPosition && !preloadCode) return null;
-    wrapper.resetVelocityOverride();
-    return stateWithName("Score", () -> score());
+    ChassisSpeedsWithPathEnd result;
+    try (var ignored = timingFollowPath.start()) {
+
+      result =
+          choreoHelper.calculateChassisSpeeds(
+              wrapper.getReefPoseEstimatorPose(true), timeFromStart());
+    
+              wrapper.setVelocityOverride(result.chassisSpeeds());
+    }
+      inPosition = result.atEndOfPath();
+    
+       wrapper.setVelocityOverride(result.chassisSpeeds());
+      if (!inPosition && !preloadCode) return null;
+      wrapper.resetVelocityOverride();
+      return stateWithName("Score", () -> score());
+    
   }
 
   private StateHandler score() {
