@@ -94,7 +94,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber passOffVelocity = group.build("PassOff/Vel", -2000);
   private static final LoggedTunableNumber stowPivotAngle = group.build("StowAngleDeg", 110);
   private static final LoggedTunableNumber algaeScoreVelocity =
-      group.build("Score/Algae/Velocity", -1000.0);
+      group.build("Score/Algae/Velocity", -500.0);
   private static final LoggedTunableNumber algaeScoreAngle =
       group.build("Score/Algae/Angle", PivotConstants.ALGAE_SCORE_ANGLE.getDegrees());
   private static final LoggedTunableNumber climbAngle =
