@@ -24,7 +24,7 @@ public class IntakeAlgaeGround extends Command {
   @Override
   public void initialize() {
     states.coralExpectedInIntake = false;
-    states.mechState = MechState.StowPosition;
+    states.mechState = MechState.AutoPrep;
     states.intakeState = IntakeState.IntakeAlgae;
   }
 
