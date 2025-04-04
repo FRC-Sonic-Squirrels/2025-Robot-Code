@@ -85,7 +85,7 @@ public class Climb extends Command {
     } else {
       climber.setWinchAngle(Rotation2d.fromRotations(thirdAngle.get()));
       servoTimer.start();
-      if (servoTimer.get() > 2) climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE);
+      if (servoTimer.get() > 1) climber.setServoAngle(ClimberConstants.SERVO_LOCK_ANGLE);
     }
 
     logStage.info(stage);
