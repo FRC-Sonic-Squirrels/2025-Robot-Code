@@ -445,16 +445,16 @@ public class ScoreCoral extends StateMachine {
       result =
           choreoHelper.calculateChassisSpeeds(
               wrapper.getReefPoseEstimatorPose(true), timeFromStart());
-    
-              wrapper.setVelocityOverride(result.chassisSpeeds());
     }
-      inPosition = result.atEndOfPath();
-    
-       wrapper.setVelocityOverride(result.chassisSpeeds());
-      if (!inPosition && !preloadCode) return null;
-      wrapper.resetVelocityOverride();
-      return stateWithName("Score", () -> score());
-    
+
+    wrapper.setVelocityOverride(result.chassisSpeeds());
+
+    inPosition = result.atEndOfPath();
+
+    wrapper.setVelocityOverride(result.chassisSpeeds());
+    if (!inPosition && !preloadCode) return null;
+    wrapper.resetVelocityOverride();
+    return stateWithName("Score", () -> score());
   }
 
   private StateHandler score() {
