@@ -78,7 +78,8 @@ public class AutoStateMachine extends StateMachine {
   private static LoggerEntry.Struct<Pose3d> log_usedCoralTag =
       logGroup.buildStruct(Pose3d.class, "UsedCoralTag");
   private static LoggerEntry.Bool log_foundPath = logGroup.buildBoolean("PathFound");
-  private static LoggerEntry.Struct<Pose2d> log_startingLocation = logGroup.buildStruct(Pose2d.class, "StartigLocation");
+  private static LoggerEntry.Struct<Pose2d> log_startingLocation =
+      logGroup.buildStruct(Pose2d.class, "StartigLocation");
 
   private final boolean procedural;
   private Consumer<Double> rumble = null;
@@ -110,7 +111,6 @@ public class AutoStateMachine extends StateMachine {
     this(subsystems, preloadCodeDescriptor(), config, false, false, states);
     preloadCode = true;
     advance();
-
   }
 
   public AutoStateMachine(
@@ -138,13 +138,11 @@ public class AutoStateMachine extends StateMachine {
     intake = subsystems.intake();
     this.states = states;
 
-    
-
     if (descriptor == null) {
       scoringLocations = null;
       coralStationLocations = null;
     } else {
-      
+
       scoringLocations =
           flipAuto ? descriptor.flippedScoringLocations() : descriptor.scoringLocations();
       coralStationLocations =
@@ -154,7 +152,8 @@ public class AutoStateMachine extends StateMachine {
     this.procedural = procedural;
 
     if (!procedural) {
-      ChoreoTrajectoryWithName startingPath = locationsToPath(descriptor.startingLocation(), descriptor.scoringLocations().get(0));
+      ChoreoTrajectoryWithName startingPath =
+          locationsToPath(descriptor.startingLocation(), descriptor.scoringLocations().get(0));
       log_startingLocation.info(startingPath.getInitialPose(true));
       scoringPaths.add(startingPath);
 
