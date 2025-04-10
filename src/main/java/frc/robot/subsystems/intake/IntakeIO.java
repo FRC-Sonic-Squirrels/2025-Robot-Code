@@ -37,6 +37,10 @@ public interface IntakeIO {
 
   public default void setRollerVelocity(double revPerMin) {}
 
+  public default void setStarVoltage(double volts) {}
+
+  public default void setStarVelocity(double revPerMin) {}
+
   public default void setRollerClosedLoopConstants(
       double kP, double kV, double kS, double targetAccelerationConfig) {}
 

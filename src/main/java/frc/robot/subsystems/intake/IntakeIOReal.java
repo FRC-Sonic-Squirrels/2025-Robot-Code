@@ -9,7 +9,6 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -127,8 +126,6 @@ public class IntakeIOReal implements IntakeIO {
 
     pivotMotor.getConfigurator().apply(pivotConfig);
 
-    starMotor.setControl(new Follower(Constants.CanIDs.INTAKE_ROLLER_CAN_ID, false));
-
     // Status signals
 
     pivotAppliedVoltage = pivotMotor.getMotorVoltage();
@@ -217,6 +214,17 @@ public class IntakeIOReal implements IntakeIO {
   @Override
   public void setRollerVelocity(double revPerMin) {
     rollerMotor.setControl(
+        rollerClosedLoopControl.withVelocity(Units.RPM.of(revPerMin).in(Units.RotationsPerSecond)));
+  }
+
+  @Override
+  public void setStarVoltage(double volts) {
+    starMotor.setControl(rollerOpenLoopControl.withOutput(volts));
+  }
+
+  @Override
+  public void setStarVelocity(double revPerMin) {
+    starMotor.setControl(
         rollerClosedLoopControl.withVelocity(Units.RPM.of(revPerMin).in(Units.RotationsPerSecond)));
   }
 
