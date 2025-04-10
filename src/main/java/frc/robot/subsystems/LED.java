@@ -66,6 +66,7 @@ public class LED extends SubsystemBase {
   private Timer resetToBaseStateTimer = new Timer();
   private boolean autoConfirmed = false;
   private final RobotStates states;
+  private Supplier<Boolean> preloadComplete;
 
   public LED(
       Supplier<Boolean> brakeMode,
@@ -79,6 +80,10 @@ public class LED extends SubsystemBase {
     this.gyroConnected = gyroConnected;
     this.motorsZeroed = motorsZeroed;
     this.states = states;
+  }
+
+  public void setPreloadSupplier(Supplier<Boolean> preloadComplete) {
+    this.preloadComplete = preloadComplete;
   }
 
   @Override
@@ -112,6 +117,8 @@ public class LED extends SubsystemBase {
                 setSnake(Color.kGreen, Color.kCrimson);
               } else if (!motorsZeroed.get() && DriverStation.isDisabled()) {
                 setSnake(Color.kRed, Color.kPurple);
+              } else if (!preloadComplete.get()) {
+                setRainbow();
               } else if (!gyroConnected.get() && !Constants.RobotMode.isSimBot()) {
                 setBlinking(Color.kAquamarine);
               } else if (!autoConfirmed

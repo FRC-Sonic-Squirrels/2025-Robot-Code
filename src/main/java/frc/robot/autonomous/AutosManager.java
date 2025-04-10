@@ -45,6 +45,8 @@ public class AutosManager {
 
   public final boolean includeDebugPaths = false;
 
+  private boolean preloadingComplete = false;
+
   public record Auto(String name, Command command, Pose2d initPose) {}
 
   public AutosManager(
@@ -66,7 +68,7 @@ public class AutosManager {
     Command preloader =
         new RunStateMachineCommand(() -> new AutoStateMachine(subsystems, config, states), true);
 
-    preloader.schedule();
+    Commands.waitSeconds(6).deadlineFor(preloader.repeatedly()).schedule();
 
     fillChooserAndMap(
         chooser,
@@ -486,5 +488,9 @@ public class AutosManager {
 
   private Auto stateToAuto(String name, AutoStateMachine state) {
     return new Auto(name, state.asCommand(), state.initPose());
+  }
+
+  public boolean preloadingComplete() {
+    return preloadingComplete;
   }
 }
