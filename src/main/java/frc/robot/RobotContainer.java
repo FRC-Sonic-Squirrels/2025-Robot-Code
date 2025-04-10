@@ -1193,14 +1193,16 @@ public class RobotContainer {
     vision.useMaxDistanceAwayFromExistingEstimate(false);
     vision.useGyroBasedFilteringForVision(false);
 
-    arm.setPercentOut(0);
-    elevator.setPercentOut(0);
-    climber.setWinchVoltage(0);
-    intake.setPivotVoltage(0);
-    intake.setRollerPercentOut(0);
-    robotStates.mechState = MechState.Idle;
+    if (!DriverStation.isFMSAttached()) {
+      arm.setPercentOut(0);
+      elevator.setPercentOut(0);
+      climber.setWinchVoltage(0);
+      intake.setPivotVoltage(0);
+      intake.setRollerPercentOut(0);
+      robotStates.mechState = MechState.Idle;
 
-    robotStates.intakeState = IntakeState.Idle;
+      robotStates.intakeState = IntakeState.Idle;
+    }
 
     is_teleop = false;
     is_autonomous = false;
