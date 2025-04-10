@@ -49,6 +49,10 @@ public class Intake extends SubsystemBase {
   private static final LoggerEntry.EnumValue<ControlMode> logRollerControlMode =
       rollerLogGroup.buildEnum("ControlMode");
 
+  private static final LoggerGroup starLogGroup = logGroup.subgroup("StarRollers");
+  private static final LoggerEntry.Decimal logStarTargetVelocityRPM =
+      starLogGroup.buildDecimal("TargetVelocityRPM");
+
   // Pivot
   private static final LoggerGroup pivotLogGroup = logGroup.subgroup(PivotConstants.ROOT_TABLE);
   private static final LoggerEntry.Decimal logInputs_pivotAngle =
@@ -170,11 +174,13 @@ public class Intake extends SubsystemBase {
   private final IntakeIO.Inputs inputs = new IntakeIO.Inputs(logGroup);
 
   private double rollerTargetRPM;
+  private double starTargetRPM;
 
   private ControlMode pivotControlMode = ControlMode.OPEN_LOOP;
   private Rotation2d pivotTargetAngle = PivotConstants.HOME_POSITION;
 
   private ControlMode rollerControlMode = ControlMode.OPEN_LOOP;
+  private ControlMode starControlMode = ControlMode.OPEN_LOOP;
 
   public boolean holdAlgae;
 
@@ -244,62 +250,81 @@ public class Intake extends SubsystemBase {
         case Idle:
           setPivotVoltage(0);
           setRollerPercentOut(0);
+          setStarPercentOut(0);
           break;
         case IntakeCoral:
           setRollerVelocity(intakingCoralVel.get());
           setPivotAngle(Rotation2d.fromDegrees(intakingCoralPivotAngle.get()));
+          setStarVelocity(intakingCoralVel.get());
           break;
         case IntakeAlgae:
           setRollerVelocity(intakingAlgaeVel.get());
           setPivotAngle(Rotation2d.fromDegrees(intakingAlgaePivotAngle.get()));
+          setStarVelocity(intakingAlgaeVel.get());
           break;
         case PrepPassoff:
           setRollerVelocity(holdCoralVel.get());
           setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
+          setStarPercentOut(0);
           break;
         case PassoffEndEffector:
           setRollerVelocity(passOffVelocity.get());
           setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
+          setStarVelocity(passOffVelocity.get());
           break;
         case PassoffIntake:
           setRollerVelocity(-passOffVelocity.get());
           setPivotAngle(Rotation2d.fromDegrees(passOffPivotAngle.get()));
+          setStarVelocity(-passOffVelocity.get());
           break;
         case Stow:
           if (!states.coralExpectedInIntake) {
             setRollerVelocity(holdAlgaeVel.get());
+            setStarVelocity(holdAlgaeVel.get());
           } else if (states.coralInIntake) {
             setRollerVelocity(holdCoralVel.get());
-          } else setRollerPercentOut(0);
+            setStarPercentOut(0);
+          } else {
+            setRollerPercentOut(0);
+            setStarPercentOut(0);
+          }
           setPivotAngle(Rotation2d.fromDegrees(stowPivotAngle.get()));
           break;
 
         case ScoreAlgae:
           setRollerVelocity(algaeScoreVelocity.get());
           setPivotAngle(Rotation2d.fromDegrees(algaeScoreAngle.get()));
+          setStarVelocity(algaeScoreVelocity.get());
           break;
         case ScoreAlgaePrep:
-          setRollerPercentOut(holdAlgaeVel.get());
+          setRollerPercentOut(
+              holdAlgaeVel.get()); // TODO: this is putting a velocity into a percent out?
           setPivotAngle(Rotation2d.fromDegrees(algaeScoreAngle.get()));
+          setStarPercentOut(holdAlgaeVel.get());
           break;
         case Climb:
           setPivotAngle(Rotation2d.fromDegrees(climbAngle.get()));
           setRollerPercentOut(0);
+          setStarPercentOut(0);
           break;
         case Down:
           setPivotAngle(Rotation2d.fromDegrees(intakingCoralPivotAngle.get()));
           setRollerPercentOut(0);
+          setStarPercentOut(0);
           break;
         case Eject:
           setRollerVelocity(algaeScoreVelocity.get());
+          setStarPercentOut(algaeScoreVelocity.get());
           break;
         case ScoreCoralPrep:
           setPivotAngle(Rotation2d.fromDegrees(scoreCoralPivotAngle.get()));
           setRollerVelocity(holdCoralVel.get());
+          setStarPercentOut(0);
           break;
         case ScoreCoral:
           setPivotAngle(Rotation2d.fromDegrees(scoreCoralPivotAngle.get()));
           setRollerVelocity(scoreCoralVel.get());
+          setStarVelocity(scoreCoralVel.get());
           break;
         default:
           break;
@@ -325,6 +350,18 @@ public class Intake extends SubsystemBase {
     io.setRollerVelocity(revPerMin);
     rollerTargetRPM = revPerMin;
     logRollerTargetVelocityRPM.info(rollerTargetRPM);
+  }
+
+  public void setStarPercentOut(double percent) {
+    io.setStarVoltage(percent * Constants.MAX_VOLTAGE);
+    starControlMode = ControlMode.OPEN_LOOP;
+  }
+
+  public void setStarVelocity(double revPerMin) {
+    starControlMode = ControlMode.CLOSED_LOOP;
+    io.setStarVelocity(revPerMin);
+    starTargetRPM = revPerMin;
+    logStarTargetVelocityRPM.info(starTargetRPM);
   }
 
   private void setPivotConstants() {
