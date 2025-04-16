@@ -77,7 +77,7 @@ public class EndEffector extends SubsystemBase {
       group.build("ScoringVelocityRPM", -3000);
   private static final LoggedTunableNumber passOffVelocityRPM =
       group.build("passOffVelocityRPM", -1000);
-  private static final LoggedTunableNumber holdAlgaeRPM = group.build("passOffVelocityRPM", -1000);
+  private static final LoggedTunableNumber holdAlgaeRPM = group.build("passOffVelocityRPM", -1500);
 
   private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 300);
   private static final LoggedTunableNumber alignTarget = group.build("alignTarget", 1);
