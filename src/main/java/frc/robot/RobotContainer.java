@@ -519,6 +519,8 @@ public class RobotContainer {
             this::getCustomStartingLocation,
             robotStates);
 
+    led.setPreloadSupplier(autoManager::preloadingComplete);
+
     drivetrain.setDefaultCommand(
         new DrivetrainDefaultTeleopDrive(
             drivetrainWrapper,

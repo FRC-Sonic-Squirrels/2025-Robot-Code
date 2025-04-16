@@ -68,7 +68,12 @@ public class AutosManager {
     Command preloader =
         new RunStateMachineCommand(() -> new AutoStateMachine(subsystems, config, states), true);
 
-    Commands.waitSeconds(6).deadlineFor(preloader.repeatedly()).schedule();
+    Commands.waitSeconds(6)
+        .deadlineFor(preloader.repeatedly())
+        .andThen(Commands.runOnce(() -> preloadingComplete = true))
+        .ignoringDisable(true)
+        .withName("AutoPreload")
+        .schedule();
 
     fillChooserAndMap(
         chooser,

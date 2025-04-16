@@ -99,10 +99,10 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    try (var ignored = timing.start()) {
-      // Arm logging
-      io.updateInputs(inputs);
-    }
+    // try (var ignored = timing.start()) {
+    // Arm logging
+    io.updateInputs(inputs);
+    // }
     logInputs_angle.info(inputs.armPosition);
     logInputs_appliedVolts.info(inputs.armAppliedVolts);
     logInputs_currentAmps.info(inputs.armCurrentAmps);
@@ -138,6 +138,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setAngle(Rotation2d angle, double accel) {
+
     angle =
         Rotation2d.fromRadians(
             MathUtil.clamp(
@@ -147,14 +148,16 @@ public class Arm extends SubsystemBase {
 
     controlMode = ControlMode.CLOSED_LOOP;
     targetAngleDegrees = angle;
-    if (accel != setAccel) {
-      MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+    try (var ignored = timing.start()) {
+      // if (accel != setAccel) {
+      //   MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
 
-      mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
-      mmConfigs.MotionMagicAcceleration = accel;
-      setAccel = accel;
+      //   mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
+      //   mmConfigs.MotionMagicAcceleration = accel;
+      //   setAccel = accel;
 
-      io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
+      //   io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
+      // }
     }
     io.setClosedLoopPosition(angle);
     logTargetAngleDegrees.info(targetAngleDegrees);

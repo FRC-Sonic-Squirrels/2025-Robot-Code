@@ -97,6 +97,9 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotInit() {
+
+    Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
