@@ -58,6 +58,8 @@ public class Robot extends LoggedRobot {
   private static final LoggerEntry.Text logCurrentChooserValue =
       logGroupAuto.buildString("currentChooserValue");
   private static final LoggerEntry.Text logSelectedAuto = logGroupAuto.buildString("SelectedAuto");
+  private static final LoggerEntry.Text logAllianceColor =
+      logGroupAuto.buildString("AllianceColor");
 
   private static final LoggerGroup logGroupSimulatedRobot = LoggerGroup.build("SimulatedRobot");
   private static final LoggerEntry.Decimal logBatteryVoltage =
@@ -191,6 +193,8 @@ public class Robot extends LoggedRobot {
     logVoltage.info(voltage);
     logTotalCurrent.info(current);
     logTotalPower.info(voltage * current);
+
+    logAllianceColor.info(DriverStation.getAlliance().toString());
 
     robotContainer.applyToDrivetrain();
     robotContainer.updateVisualization();
