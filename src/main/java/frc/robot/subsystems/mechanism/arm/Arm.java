@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.team2930.*;
 import frc.lib.team6328.LoggedTunableNumber;
@@ -148,17 +149,16 @@ public class Arm extends SubsystemBase {
 
     controlMode = ControlMode.CLOSED_LOOP;
     targetAngleDegrees = angle;
-    try (var ignored = timing.start()) {
-      // if (accel != setAccel) {
-      //   MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
+    if (accel != setAccel && DriverStation.isTeleop()) {
+      MotionMagicConfigs mmConfigs = new MotionMagicConfigs();
 
-      //   mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
-      //   mmConfigs.MotionMagicAcceleration = accel;
-      //   setAccel = accel;
+      mmConfigs.MotionMagicCruiseVelocity = maxVelocityConfig.get();
+      mmConfigs.MotionMagicAcceleration = accel;
+      setAccel = accel;
 
-      //   io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
-      // }
+      io.setClosedLoopConstants(kP.get(), kD.get(), kG.get(), mmConfigs);
     }
+
     io.setClosedLoopPosition(angle);
     logTargetAngleDegrees.info(targetAngleDegrees);
   }
