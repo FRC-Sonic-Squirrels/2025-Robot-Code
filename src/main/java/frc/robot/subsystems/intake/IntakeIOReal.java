@@ -44,6 +44,11 @@ public class IntakeIOReal implements IntakeIO {
 
   private final MotionMagicVelocityVoltage rollerClosedLoopControl =
       new MotionMagicVelocityVoltage(0).withEnableFOC(true);
+
+  private final VoltageOut starOpenLoopControl = new VoltageOut(0.0).withEnableFOC(true);
+
+  private final MotionMagicVelocityVoltage starClosedLoopControl =
+      new MotionMagicVelocityVoltage(0).withEnableFOC(true);
   private final CANrange intakeTOF = new CANrange(Constants.CanIDs.INTAKE_TOF_CAN_ID, "CANivore");
 
   private final StatusSignal<Distance> intakeTofDistance;
@@ -219,13 +224,13 @@ public class IntakeIOReal implements IntakeIO {
 
   @Override
   public void setStarVoltage(double volts) {
-    starMotor.setControl(rollerOpenLoopControl.withOutput(volts));
+    starMotor.setControl(starOpenLoopControl.withOutput(volts));
   }
 
   @Override
   public void setStarVelocity(double revPerMin) {
     starMotor.setControl(
-        rollerClosedLoopControl.withVelocity(Units.RPM.of(revPerMin).in(Units.RotationsPerSecond)));
+        starClosedLoopControl.withVelocity(Units.RPM.of(revPerMin).in(Units.RotationsPerSecond)));
   }
 
   @Override
@@ -234,10 +239,14 @@ public class IntakeIOReal implements IntakeIO {
     Slot0Configs pidConfig = new Slot0Configs();
     MotionMagicConfigs mmConfig = new MotionMagicConfigs();
 
-    var config = rollerMotor.getConfigurator();
+    var rollerConfig = rollerMotor.getConfigurator();
+    var starConfig = starMotor.getConfigurator();
 
-    config.refresh(pidConfig);
-    config.refresh(mmConfig);
+    rollerConfig.refresh(pidConfig);
+    rollerConfig.refresh(mmConfig);
+
+    starConfig.refresh(pidConfig);
+    starConfig.refresh(mmConfig);
 
     pidConfig.kP = rKP;
     pidConfig.kV = rKV;
@@ -245,8 +254,11 @@ public class IntakeIOReal implements IntakeIO {
 
     mmConfig.MotionMagicAcceleration = targetAccelerationConfig;
 
-    config.apply(pidConfig);
-    config.apply(mmConfig);
+    rollerConfig.apply(pidConfig);
+    rollerConfig.apply(mmConfig);
+
+    starConfig.apply(pidConfig);
+    starConfig.apply(mmConfig);
   }
 
   @Override
