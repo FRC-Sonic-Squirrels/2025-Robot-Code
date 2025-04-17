@@ -997,6 +997,8 @@ public class RobotContainer {
 
     SmartDashboard.putData("Confirm Auto", new RunsWhenDisabledInstantCommand(led::confirmAuto));
 
+    SmartDashboard.putString("Alliance Color", DriverStation.getAlliance().toString());
+
     SmartDashboard.putData(
         "Swerve Coast", new RunsWhenDisabledInstantCommand(() -> drivetrain.setBrakeMode(false)));
     SmartDashboard.putData(
