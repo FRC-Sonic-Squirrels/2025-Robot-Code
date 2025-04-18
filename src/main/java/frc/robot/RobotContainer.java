@@ -850,7 +850,7 @@ public class RobotContainer {
 
     operatorController
         .registerTrigger(XboxControllerWrapper.Button.back, "End Effector In")
-        .whileTrue(new EndEffectorSetRPM(3000, robotStates));
+        .whileTrue(new EndEffectorSetRPM(1000, robotStates));
 
     // Climber in
     operatorController
