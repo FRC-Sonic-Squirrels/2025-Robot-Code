@@ -23,8 +23,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -1305,5 +1307,11 @@ public class RobotContainer {
 
   public StartingLocation getCustomStartingLocation() {
     return startingLocationChooser.get();
+  }
+
+  public Command threadCommand() {
+    return Commands.sequence(
+        Commands.waitSeconds(20),
+        Commands.runOnce(() -> Threads.setCurrentThreadPriority(true, 10)).ignoringDisable(true));
   }
 }
