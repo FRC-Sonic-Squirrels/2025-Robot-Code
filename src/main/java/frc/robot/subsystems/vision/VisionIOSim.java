@@ -39,7 +39,6 @@ public class VisionIOSim implements VisionIO {
     Vision.logConfigTagAmount.info(config.getAprilTagFieldLayout().getTags().size());
 
     var cameraProp = new SimCameraProperties();
-    // FIXME: get these values for the cameras we use
     cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(128.2));
     cameraProp.setCalibError(0.01, 0.10);
     cameraProp.setFPS(15);
@@ -73,7 +72,6 @@ public class VisionIOSim implements VisionIO {
         targetPoseSub,
         EnumSet.of(NetworkTableEvent.Kind.kValueAll),
         event -> {
-          // FIXME Use CTRE TIME check what sim module does
           for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
             double timestamp = result.getTimestampSeconds();
             synchronized (VisionIOSim.this) {

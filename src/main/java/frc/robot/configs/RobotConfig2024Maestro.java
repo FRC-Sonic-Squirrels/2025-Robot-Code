@@ -202,7 +202,6 @@ public class RobotConfig2024Maestro extends RobotConfig {
    *
    */
 
-  // FIXME: define your swerve module objects here
   @Override
   public SwerveModules getSwerveModuleObjects() {
     return new SwerveModules(
@@ -221,7 +220,6 @@ public class RobotConfig2024Maestro extends RobotConfig {
         new SwerveModule(3, this, new SwerveModuleIO.Fake()));
   }
 
-  // FIXME: define vision modules here
   @Override
   public VisionModuleConfiguration[] getVisionModuleObjects() {
     return new VisionModuleConfiguration[] {

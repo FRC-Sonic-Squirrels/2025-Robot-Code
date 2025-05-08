@@ -257,38 +257,6 @@ public class AutosManager {
     return stateToAuto("Compatible", state);
   }
 
-  private Auto customAuto(
-      List<ScoringLocation> scoringLocations, List<PickupLocation> coralStationLocations) {
-
-    String print = "";
-    if (scoringLocations.get(0).side() != null) {
-      print = scoringLocations.get(0).side().name() + " . ";
-
-      for (int i = 0; i < coralStationLocations.size(); i++) {
-        print +=
-            scoringLocations.get(i + 1).side().name()
-                + " "
-                + coralStationLocations.get(i).name()
-                + " . ";
-      }
-    }
-
-    logCustomAutoPlan.info(print);
-
-    var state =
-        new AutoStateMachine(
-            subsystems,
-            new AutoDescriptor(
-                scoringLocations,
-                coralStationLocations,
-                StartingLocation.S1), // TODO: no need for starting position for this command
-            config,
-            flipAuto.getAsBoolean(),
-            true,
-            states);
-    return new Auto("CUSTOM", state.asCommand(), null);
-  }
-
   private Auto customChoreoAuto(
       List<ScoringLocation> scoringLocations,
       List<PickupLocation> coralStationLocations,
@@ -323,6 +291,7 @@ public class AutosManager {
     return stateToAuto("CUSTOM", state);
   }
 
+  @SuppressWarnings("unused")
   private Auto testPath(String pathName, boolean useInitialPose) {
     return testPath(pathName, useInitialPose, pathName);
   }

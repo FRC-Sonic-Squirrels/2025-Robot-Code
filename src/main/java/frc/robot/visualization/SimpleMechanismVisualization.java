@@ -13,13 +13,15 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
-public class SimpleMechanismVisualization { // TODO: vizualize mech on other side of robot
+public class SimpleMechanismVisualization {
   private static final LoggerGroup logGroup = LoggerGroup.build("Mechanism");
   private static final LoggerEntry.Mechanism logMech = logGroup.buildMechanism2d("SimpleMechanism");
 
   private static final TunableNumberGroup tunableGroup =
       new TunableNumberGroup("SimpleMechanismVisualization");
-  private static final LoggedTunableNumber testTunable = tunableGroup.build("ArmAngleDeg", 0);
+
+  @SuppressWarnings("unused")
+  private static final LoggedTunableNumber testTunable = tunableGroup.build("TestTunable", 0);
 
   static LoggedMechanism2d mechanism2d =
       new LoggedMechanism2d(

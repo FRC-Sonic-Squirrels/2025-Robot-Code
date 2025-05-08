@@ -170,7 +170,6 @@ public class SwerveModule {
       }
 
       if (speedSetpoint != null) {
-        // TODO: maybe use voltage for tele???
         if (io instanceof SwerveModuleIOSim || motionMagicDrive) {
           io.setDriveVelocity(speedSetpoint, driveMotorMotionMagicAcceleration);
         } else {
@@ -182,11 +181,7 @@ public class SwerveModule {
 
   private void updateConstants() {
     io.setDriveClosedLoopConstraints(
-        driveKP.get(),
-        driveKD.get(),
-        driveKS.get(),
-        driveKV.get(),
-        driveKA.get()); // FIXME: do we need need ks?
+        driveKP.get(), driveKD.get(), driveKS.get(), driveKV.get(), driveKA.get());
 
     io.setTurnClosedLoopConstraints(
         angleKP.get(), angleKD.get(), turnCruiseVelocity.get(), turnAcceleration.get());
@@ -203,16 +198,16 @@ public class SwerveModule {
       SwerveModuleState state, double driveMotorMotionMagicAcceleration, boolean motionMagicDrive) {
     // Optimize state based on current angle
     // Controllers run in "periodic" when the setpoint is not null
-    var optimizedState = SwerveModuleState.optimize(state, getAngle());
+    state.optimize(getAngle());
 
     // Update setpoints, controllers run in "periodic"
-    angleSetpoint = optimizedState.angle;
-    speedSetpoint = optimizedState.speedMetersPerSecond;
+    angleSetpoint = state.angle;
+    speedSetpoint = state.speedMetersPerSecond;
 
     this.driveMotorMotionMagicAcceleration = driveMotorMotionMagicAcceleration;
     this.motionMagicDrive = motionMagicDrive;
 
-    return optimizedState;
+    return state;
   }
 
   /** Runs the module with the specified voltage while controlling to zero degrees. */

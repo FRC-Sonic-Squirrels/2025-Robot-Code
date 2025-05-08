@@ -485,7 +485,6 @@ public abstract class LoggerEntry {
   }
 
   public static class Mechanism extends LoggerEntry {
-    private LoggedMechanism2d valuePrevious;
     private LoggedMechanism2d value;
 
     Mechanism(String key, int updateFrequencyInSeconds) {
@@ -507,7 +506,6 @@ public abstract class LoggerEntry {
       // This uses internal implementation details of LoggedMechanism2d, keeping it on AdvantageKit
       // logging.
       Logger.recordOutput(key, value);
-      valuePrevious = value;
     }
 
     public void info(LoggedMechanism2d value) {
@@ -519,7 +517,6 @@ public abstract class LoggerEntry {
   public static class Struct<T extends StructSerializable> extends LoggerEntry {
     private final edu.wpi.first.util.struct.Struct<T> struct;
     private final StructBuffer<T> structBuffer;
-    private T valuePrevious;
     private T value;
 
     Struct(Class<T> clz, String key, int updateFrequencyInSeconds) {
@@ -553,7 +550,6 @@ public abstract class LoggerEntry {
 
         //        Logger.recordOutput(key, value);
         LoggerGroup.emit(publisher, array, getDataLogId());
-        valuePrevious = value;
       }
     }
 
@@ -566,7 +562,6 @@ public abstract class LoggerEntry {
   public static class StructArray<T extends StructSerializable> extends LoggerEntry {
     private final edu.wpi.first.util.struct.Struct<T> struct;
     private final StructBuffer<T> structBuffer;
-    private T[] valuePrevious;
     private T[] value;
 
     StructArray(Class<T> clz, String key, int updateFrequencyInSeconds) {
@@ -600,7 +595,6 @@ public abstract class LoggerEntry {
 
         //        Logger.recordOutput(key, value);
         LoggerGroup.emit(publisher, array, getDataLogId());
-        valuePrevious = value;
       }
     }
 

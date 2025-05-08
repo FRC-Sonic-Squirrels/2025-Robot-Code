@@ -25,8 +25,6 @@ public class RobotConfig2025 extends RobotConfig {
 
   private static final boolean PHOENIX_PRO_LICENSE = true;
 
-  // TODO: ----- !IMPORTANT! FILL IN ALL VALUES !IMPORTANT! -----
-
   // ------------ SWERVE ---------------------
   private static final Distance WHEEL_RADIUS = Units.Inches.of(1.957);
 
@@ -125,7 +123,7 @@ public class RobotConfig2025 extends RobotConfig {
   private static final Distance TRACK_WIDTH_Y = Units.Inches.of(22.750005);
 
   // ------- ROBOT MAX SPEED --------
-  private static final double MAX_VELOCITY_METERS_PER_SECOND = 4.78; // TODO: tune
+  private static final double MAX_VELOCITY_METERS_PER_SECOND = 4.78;
   private static final double MAX_COAST_VELOCITY_METERS_PER_SECOND = 0.05; // unused currently
 
   // ------- AUTONOMOUS CONSTANTS -------
@@ -139,7 +137,7 @@ public class RobotConfig2025 extends RobotConfig {
       AUTO_MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED =
           group.build("AUTO_MAX_ANGULAR_ACCEL_RAD_PER_SECOND_SQUARED", Math.PI * 8);
 
-  private static final LoggedTunableNumber AUTO_TRANSLATION_KP = // TODO: tune these
+  private static final LoggedTunableNumber AUTO_TRANSLATION_KP =
       group.build("AUTO_TRANSLATION_KP", 5.0);
   private static final LoggedTunableNumber AUTO_TRANSLATION_KI =
       group.build("AUTO_TRANSLATION_KI", 0.0);
@@ -155,7 +153,7 @@ public class RobotConfig2025 extends RobotConfig {
           Units.KilogramSquareMeters.of(4.422493401),
           new ModuleConfig(
               WHEEL_RADIUS,
-              Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND), // TODO: find actual value
+              Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND),
               0.65,
               DCMotor.getKrakenX60Foc(1),
               SwerveModuleConstants.MK4I.LEVEL_2_GEARING_DRIVE_GEAR_RATIO,
@@ -164,7 +162,7 @@ public class RobotConfig2025 extends RobotConfig {
           getModuleTranslations());
 
   // ---- VISION  -------
-  public static final Transform3d REEF_SIDE_LEFT = // TODO: input new cam positions
+  public static final Transform3d REEF_SIDE_LEFT =
       new Transform3d(
           new Translation3d(
               Units.Inches.of(-8.763).in(Units.Meters),
@@ -196,8 +194,7 @@ public class RobotConfig2025 extends RobotConfig {
               Units.Inches.of(39.750).in(Units.Meters)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(-20.0), Math.toRadians(-25.0)));
 
-  public static final String OBJECT_DETECTION_CAMERA_NAME =
-      "0_Object_Detection_ELP"; // TODO: input new cam names
+  public static final String OBJECT_DETECTION_CAMERA_NAME = "0_Object_Detection_ELP";
   public static final String REEF_SIDE_LEFT_CAMERA_NAME = "1_Reef_Left";
   public static final String REEF_SIDE_RIGHT_CAMERA_NAME = "2_Reef_Right";
   public static final String CORAL_STATION_SIDE_LEFT_CAMERA_NAME = "1_Coral_Left";
@@ -216,7 +213,6 @@ public class RobotConfig2025 extends RobotConfig {
    *
    */
 
-  // FIXME: define your swerve module objects here
   @Override
   public SwerveModules getSwerveModuleObjects() {
     return new SwerveModules(
@@ -235,7 +231,6 @@ public class RobotConfig2025 extends RobotConfig {
         new SwerveModule(3, this, new SwerveModuleIO.Fake()));
   }
 
-  // FIXME: define vision modules here
   @Override
   public VisionModuleConfiguration[] getVisionModuleObjects() {
     return new VisionModuleConfiguration[] {

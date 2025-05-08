@@ -27,8 +27,6 @@ public class VisionGamepiece extends SubsystemBase {
       logInputs.buildBoolean("IsConnected");
   private static final LoggerEntry.Bool logInputs_validTarget =
       logInputs.buildBoolean("ValidTarget");
-  private static final LoggerEntry.Decimal logInputs_totalLatencyMs =
-      logInputs.buildDecimal("TotalLatencyMs");
   private static final LoggerEntry.Decimal logInputs_timestamp =
       logInputs.buildDecimal("Timestamp");
   private static final LoggerEntry.DecimalArray logInputs_pitch =
@@ -42,8 +40,6 @@ public class VisionGamepiece extends SubsystemBase {
   private static final LoggerGroup logGroup = LoggerGroup.build(ROOT_TABLE);
   private static final LoggerEntry.Integer logGamepieceCount =
       logGroup.buildInteger("gamepieceCount");
-  private static final LoggerEntry.Decimal logTotalLatencyMs =
-      logGroup.buildDecimal("totalLatencyMs");
   private static final LoggerEntry.StructArray<Pose3d> logGamepiecePoseArray =
       logGroup.buildStructArray(Pose3d.class, "GamepiecePoseArray");
   private static final LoggerEntry.Decimal logFudgeFromYaw = logGroup.buildDecimal("fudgeFromYaw");

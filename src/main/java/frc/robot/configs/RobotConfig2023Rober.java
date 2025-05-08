@@ -163,6 +163,7 @@ public class RobotConfig2023Rober extends RobotConfig {
               Units.Inches.of(22.0).in(Units.Meters)),
           new Rotation3d(Math.toRadians(0.0), Math.toRadians(0.0), Math.toRadians(-30.0)));
 
+  @SuppressWarnings("unused")
   private static final Transform3d BACK_ROBOT_TO_CAMERA =
       new Transform3d(
           new Translation3d(
@@ -188,7 +189,6 @@ public class RobotConfig2023Rober extends RobotConfig {
    *
    */
 
-  // FIXME: define your swerve module objects here
   @Override
   public SwerveModules getSwerveModuleObjects() {
     var front_left = new SwerveModuleIOTalonFX(this, FRONT_LEFT_MODULE_CONFIG);
@@ -212,7 +212,6 @@ public class RobotConfig2023Rober extends RobotConfig {
         new SwerveModule(3, this, new SwerveModuleIO.Fake()));
   }
 
-  // FIXME: define vision modules here
   @Override
   public VisionModuleConfiguration[] getVisionModuleObjects() {
     return new VisionModuleConfiguration[] {

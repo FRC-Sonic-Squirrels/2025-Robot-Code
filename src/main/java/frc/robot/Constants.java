@@ -73,7 +73,6 @@ public final class Constants {
       }
     }
 
-    // FIXME: update for various robots
     public static Mode getMode() {
       if (isSimBot()) {
         return Mode.SIM;
@@ -95,7 +94,6 @@ public final class Constants {
       return ROBOT;
     }
 
-    // FIXME: update for various robots
     public enum RobotType {
       // use supplier because if we just create the object, the fields in the
       // config classes are also created. Meaning tunableNumber values are stuck to
@@ -210,7 +208,8 @@ public final class Constants {
     public static final Distance CORAL_STATION_WIDTH = Units.Inches.of(76);
 
     public static class Gamepieces {
-      public static final Distance CORAL_OUTER_DIAMETER = // NOTICE: changed to fake value
+      public static final Distance
+          CORAL_OUTER_DIAMETER = // NOTICE: changed to fake value for improved alignment
           Units.Inches.of(8.0);
       public static final Distance GAMEPIECE_TOLERANCE = Units.Inches.of(20.0);
       public static final double GAMEPIECE_PERSISTENCE = 0.5;
@@ -229,7 +228,7 @@ public final class Constants {
     }
   }
 
-  public static class IntakeConstants { // TODO: check all constants for new season
+  public static class IntakeConstants {
     public static final String ROOT_TABLE = "Intake";
 
     public static class RollerConstants {
@@ -272,7 +271,7 @@ public final class Constants {
     }
   }
 
-  public static class EndEffectorConstants { // TODO: check all constants for new season
+  public static class EndEffectorConstants {
     public static final double INTAKING_PERCENT_OUT = 1.0;
 
     public static final double GEARING = 14.0741;
@@ -283,7 +282,7 @@ public final class Constants {
     public static final String ROOT_TABLE = "EndEffector";
   }
 
-  public static class ElevatorConstants { // TODO: check all constants for new season
+  public static class ElevatorConstants {
     public static final double GEAR_RATIO =
         RobotMode.ROBOT == RobotType.ROBOT_2024_RETIRED_MAESTRO ? 23.05 : 6.4935;
     public static final Distance PULLEY_DIAMETER = Units.Inches.of(2.35);
@@ -316,20 +315,19 @@ public final class Constants {
     }
   }
 
-  public static class LEDConstants { // TODO: check all constants for new season
+  public static class LEDConstants {
     public static final int PWM_PORT = 9;
     public static final int MAX_LED_LENGTH = 60;
+    public static final int LED_BUFFER = 36;
   }
 
-  public static class CanIDs { // TODO: check all constants for new season
+  public static class CanIDs {
     // READ ME: CAN ID's THAT ARE NOT VALID TO USE
     // 1, 11, 21, 31
     // 2, 12, 22, 32
     // 3, 13, 23, 33
     // 4, 14, 24, 34
     // all these CAN ID's are reserved for the Drivetrain
-
-    // TODO: get actual can ids for new season
 
     public static final int ARM_CAN_ID = 17;
 
@@ -343,7 +341,7 @@ public final class Constants {
     public static final int GYRO_2_CAN_ID = 41;
 
     public static final int CLIMBER_WINCH_CAN_ID = 40;
-    // TODO: make proper canID
+
     public static final int INTAKE_PIVOT_CAN_ID = 19;
     public static final int INTAKE_ROLLER_CAN_ID = 20;
     public static final int INTAKE_TOF_CAN_ID = 43;
@@ -414,7 +412,7 @@ public final class Constants {
     public static final String WINCH_ROOT_TABLE = "ClimberWinch";
   }
 
-  public static class VisionGamepieceConstants { // TODO: check all constants for new season
+  public static class VisionGamepieceConstants {
     public static final Pose3d GAMEPIECE_CAMERA_POSE =
         new Pose3d(
             Units.Inches.of(5.3).in(Units.Meters),
@@ -432,7 +430,7 @@ public final class Constants {
     public static final double AVERAGE_STANDARD_DEVIATION_MS = 10;
   }
 
-  public static class AutoConstants { // TODO: check all constants for new season
+  public static class AutoConstants {
     public static final Distance DIST_TO_START_INTAKING = Units.Meters.of(1.0);
   }
 

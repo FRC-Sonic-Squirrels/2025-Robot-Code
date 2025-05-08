@@ -33,6 +33,7 @@ public class VisionIOPhotonVision implements VisionIO {
        * and
     https://github.com/Mechanical-Advantage/RobotCode2022/blob/main/src/main/java/frc/robot/subsystems/vision/VisionIOPhotonVision.java
        */
+    @SuppressWarnings("rawtypes")
     StructSubscriber targetPoseSub =
         inst.getTable("/photonvision/" + cameraName)
             .getStructTopic("targetPose", Transform3d.struct)

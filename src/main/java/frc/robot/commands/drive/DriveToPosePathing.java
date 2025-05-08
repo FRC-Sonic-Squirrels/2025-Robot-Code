@@ -31,7 +31,6 @@ import frc.robot.autonomous.helpers.ChoreoHelper.ChassisSpeedsWithPathEnd;
 import frc.robot.autonomous.records.ChoreoTrajectoryWithName;
 import frc.robot.configs.RobotConfig;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -291,36 +290,6 @@ public class DriveToPosePathing extends Command {
     return corners;
   }
 
-  private List<Trajectory<SwerveSample>> getPaths(
-      Trajectory<SwerveSample> path, double[] cutTimes) {
-    List<Trajectory<SwerveSample>> paths = new ArrayList<>();
-    List<SwerveSample> samples = path.samples();
-
-    int start = 0;
-
-    for (int i = 0; i < cutTimes.length; i++) {
-      int end = findIndexOfTime(path, cutTimes[i]);
-      paths.add(getSubpath(samples, start, end));
-      start = end;
-    }
-
-    paths.add(getSubpath(samples, start, samples.size()));
-
-    return paths;
-  }
-
-  private Trajectory<SwerveSample> getSubpath(List<SwerveSample> samples, int start, int end) {
-    List<SwerveSample> sublist = samples.subList(start, end);
-    return new Trajectory<SwerveSample>("", sublist, null, null);
-  }
-
-  private int findIndexOfTime(Trajectory<SwerveSample> path, double time) {
-    SwerveSample sample = path.sampleAt(time, false).get();
-    List<SwerveSample> samples = path.samples();
-    for (int i = 0; i < samples.size(); i++) if (samples.get(i).equals(sample)) return i;
-    return -1;
-  }
-
   private Trajectory<SwerveSample> rerouteTrajectory(
       Trajectory<SwerveSample> traj, Pose2d start, Pose2d end) {
 
@@ -421,8 +390,6 @@ public class DriveToPosePathing extends Command {
   private Trajectory<SwerveSample> generatePath(
       Rotation2d startDirection, Rotation2d endDirection) {
     Pose2d initPose = currentPose.get();
-
-    Translation2d vel = wrapper.getFieldRelativeVelocities().getTranslation();
 
     Pose2d startPoint = new Pose2d(initPose.getTranslation(), startDirection);
 

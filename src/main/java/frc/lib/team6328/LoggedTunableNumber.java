@@ -10,7 +10,7 @@ package frc.lib.team6328;
 import edu.wpi.first.wpilibj.DriverStation;
 import java.util.HashMap;
 import java.util.Map;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /*
  * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
@@ -28,7 +28,7 @@ public class LoggedTunableNumber {
   private final String key;
   private boolean hasDefault = false;
   private double defaultValue;
-  private LoggedDashboardNumber dashboardNumber;
+  private LoggedNetworkNumber dashboardNumber;
 
   private final Map<Integer, Double> lastHasChangedValues = new HashMap<>();
 
@@ -64,7 +64,7 @@ public class LoggedTunableNumber {
 
       // if not on the competition field
       if (!DriverStation.isFMSAttached()) {
-        dashboardNumber = new LoggedDashboardNumber(key, defaultValue);
+        dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
       }
     }
   }

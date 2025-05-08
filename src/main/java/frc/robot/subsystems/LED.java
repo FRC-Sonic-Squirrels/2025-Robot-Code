@@ -40,9 +40,10 @@ public class LED extends SubsystemBase {
   private AddressableLED led = new AddressableLED(Constants.LEDConstants.PWM_PORT);
 
   private AddressableLEDBuffer ledBuffer =
-      new AddressableLEDBuffer(36); // TODO: change length of buffers to new
+      new AddressableLEDBuffer(Constants.LEDConstants.LED_BUFFER);
   // robot's led size
-  private AddressableLEDBuffer previousBuffer = new AddressableLEDBuffer(36);
+  private AddressableLEDBuffer previousBuffer =
+      new AddressableLEDBuffer(Constants.LEDConstants.LED_BUFFER);
 
   private final Distance ledSpacing = Meters.of(1 / 120.0);
 
@@ -94,7 +95,6 @@ public class LED extends SubsystemBase {
 
     if (useTunableLEDs.get() == 0) {
       // This method will be called once per scheduler run
-      // TODO: add condition for if elevator is not zeroed.
 
       switch (robotState) {
         case BASE:
@@ -322,14 +322,12 @@ public class LED extends SubsystemBase {
     led.setData(ledBuffer);
   }
 
-  /** setBaseRobotState() - Needs an educated description. */
-  // FIXME: Needs an educated description.
+  /** Sets the base led robot state. */
   public void setBaseRobotState(BaseRobotState baseRobotState) {
     this.baseRobotState = baseRobotState;
   }
 
-  /** setGamepieceStatus() - Needs an educated description. */
-  // FIXME: Needs an educated description.
+  /** Sets whether the leds indicate a gamepiece or not */
   public void setGamepieceStatus(boolean gamepieceInRobot) {
     this.gamepieceInRobot = gamepieceInRobot;
   }

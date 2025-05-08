@@ -17,8 +17,6 @@ import frc.robot.subsystems.swerve.DrivetrainWrapper;
 public class ResetMechToIntakePosition extends Command {
 
   private final DrivetrainWrapper wrapper;
-  private final Elevator elevator;
-  private final Arm arm;
   private final RobotStates states;
 
   private Pose2d initPose;
@@ -27,8 +25,6 @@ public class ResetMechToIntakePosition extends Command {
   public ResetMechToIntakePosition(
       DrivetrainWrapper wrapper, Elevator elevator, Arm arm, RobotStates states) {
     this.wrapper = wrapper;
-    this.elevator = elevator;
-    this.arm = arm;
     this.states = states;
 
     // Use addRequirements() here to declare subsystem dependencies.

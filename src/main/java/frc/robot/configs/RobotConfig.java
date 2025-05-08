@@ -116,8 +116,6 @@ public abstract class RobotConfig {
    *
    * @return the swerve drive kinematics object for the robot
    */
-
-  // FIXME: is this correct?
   public SwerveDriveKinematics getSwerveDriveKinematics() {
     return new SwerveDriveKinematics(getModuleTranslations());
   }

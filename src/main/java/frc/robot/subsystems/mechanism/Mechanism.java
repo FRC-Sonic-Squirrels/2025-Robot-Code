@@ -276,10 +276,6 @@ public class Mechanism {
     return false;
   }
 
-  private void goToPositionParallelSimple(MechanismPosition position) {
-    goToPositionParallelSimple(position, Double.NaN, Double.NaN);
-  }
-
   private void goToPositionParallelSimple(
       MechanismPosition position, Double elevatorAccel, Double armAccel) {
 

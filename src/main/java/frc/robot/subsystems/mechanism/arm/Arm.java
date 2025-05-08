@@ -59,7 +59,6 @@ public class Arm extends SubsystemBase {
       kD.initDefault(1.6);
       kG.initDefault(0.0);
 
-      // FIXME: find the theoretical from the JVN docs
       maxVelocityConfig.initDefault(10);
       targetAccelerationConfig.initDefault(10);
     } else if (Constants.RobotMode.getRobot() == RobotType.ROBOT_SIMBOT) {
@@ -100,27 +99,27 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // try (var ignored = timing.start()) {
-    // Arm logging
-    io.updateInputs(inputs);
-    // }
-    logInputs_angle.info(inputs.armPosition);
-    logInputs_appliedVolts.info(inputs.armAppliedVolts);
-    logInputs_currentAmps.info(inputs.armCurrentAmps);
-    logInputs_tempCelsius.info(inputs.armTempCelsius);
-    logInputs_velocityDegreesPerSecond.info(inputs.armVelocityDegreesPerSecond);
+    try (var ignored = timing.start()) {
+      // Arm logging
+      io.updateInputs(inputs);
+      logInputs_angle.info(inputs.armPosition);
+      logInputs_appliedVolts.info(inputs.armAppliedVolts);
+      logInputs_currentAmps.info(inputs.armCurrentAmps);
+      logInputs_tempCelsius.info(inputs.armTempCelsius);
+      logInputs_velocityDegreesPerSecond.info(inputs.armVelocityDegreesPerSecond);
 
-    logControlMode.info(controlMode);
-    logSetAcceleration.info(setAccel);
+      logControlMode.info(controlMode);
+      logSetAcceleration.info(setAccel);
 
-    // Updating tunable numbers
-    var hc = hashCode();
-    if (kP.hasChanged(hc)
-        || kD.hasChanged(hc)
-        || kG.hasChanged(hc)
-        || maxVelocityConfig.hasChanged(hc)
-        || targetAccelerationConfig.hasChanged(hc)) {
-      setConstants();
+      // Updating tunable numbers
+      var hc = hashCode();
+      if (kP.hasChanged(hc)
+          || kD.hasChanged(hc)
+          || kG.hasChanged(hc)
+          || maxVelocityConfig.hasChanged(hc)
+          || targetAccelerationConfig.hasChanged(hc)) {
+        setConstants();
+      }
     }
   }
 
