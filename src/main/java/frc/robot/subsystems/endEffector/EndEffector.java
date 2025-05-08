@@ -59,9 +59,6 @@ public class EndEffector extends SubsystemBase {
   private static final TunableNumberGroup group =
       new TunableNumberGroup(EndEffectorConstants.ROOT_TABLE);
 
-  private static final LoggedTunableNumber distanceToTriggerCoralDetection =
-      group.build("distanceToTriggerCoral", 11.0);
-
   private static final LoggedTunableNumber kS = group.build("kS");
   private static final LoggedTunableNumber kP = group.build("kP");
   private static final LoggedTunableNumber kV = group.build("kV");

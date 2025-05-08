@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.team2930.AllianceFlipUtil;
 import frc.lib.team2930.GeometryUtil;
-import frc.lib.team2930.LoggerGroup;
 import frc.robot.Constants.RobotMode;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.MechState;
@@ -19,8 +18,6 @@ import frc.robot.subsystems.mechanism.Mechanism;
 import java.util.function.Supplier;
 
 public class IntakeGamepieceCoralStation extends Command {
-  private static final LoggerGroup logGroup = LoggerGroup.build("IntakeGamepiece");
-
   private final EndEffector endEffector;
   private final RobotStates states;
   private final Trigger simConditions;

@@ -1,6 +1,6 @@
 package frc.lib.team2930;
 
-import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.wpilibj.RobotController;
 
 public class ExecutionTiming implements AutoCloseable {
   private static final String ROOT_TABLE = "ExecutionTiming";
@@ -15,13 +15,13 @@ public class ExecutionTiming implements AutoCloseable {
   }
 
   public ExecutionTiming start() {
-    startTime = Logger.getRealTimestamp();
+    startTime = RobotController.getFPGATime();
     return this;
   }
 
   @Override
   public void close() {
-    var endTime = Logger.getRealTimestamp();
+    var endTime = RobotController.getFPGATime();
 
     logger.info(endTime - startTime);
   }

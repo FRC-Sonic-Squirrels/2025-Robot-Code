@@ -1,8 +1,8 @@
 package frc.lib.team2930;
 
+import edu.wpi.first.wpilibj.RobotController;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.littletonrobotics.junction.Logger;
 
 public class AutoLock implements AutoCloseable {
   private final Lock state = new ReentrantLock();
@@ -28,10 +28,10 @@ public class AutoLock implements AutoCloseable {
   }
 
   public AutoLock lock() {
-    var startTime = Logger.getRealTimestamp();
+    var startTime = RobotController.getFPGATime();
     state.lock();
     counter++;
-    var endTime = Logger.getRealTimestamp();
+    var endTime = RobotController.getFPGATime();
     var time = endTime - startTime;
     totalTime += time;
     if (time > waitThreshold) {

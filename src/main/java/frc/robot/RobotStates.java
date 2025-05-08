@@ -23,8 +23,6 @@ public class RobotStates {
     AlignedCoral(true),
     ScoreFastForward(false),
     ScoreFastBackward(false),
-    ScoreSlowForward(false),
-    ScoreSlowBackward(false),
     PassCoralToEndEffector(false),
     PassToIntake(false),
     HoldAlgae(false),
@@ -235,7 +233,6 @@ public class RobotStates {
             && !coralInEndEffector
             && coralInIntake;
 
-    // TODO: once algae holding works, make this operator toggle
     transferAlgaeToEndEffector = false;
     // algaeInIntake && !algaeInEndEffector;
 

@@ -39,8 +39,6 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.endEffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.mechanism.Mechanism;
-import frc.robot.subsystems.mechanism.MechanismPositions;
-import frc.robot.subsystems.mechanism.MechanismPositions.MechanismPosition;
 import frc.robot.subsystems.mechanism.arm.Arm;
 import frc.robot.subsystems.mechanism.elevator.Elevator;
 import frc.robot.subsystems.swerve.DrivetrainWrapper;
@@ -291,8 +289,6 @@ public class AutoStateMachine extends StateMachine {
             coralStationLocations == null
                 ? getClosestCoralStationPose()
                 : getCoralStationPose(coralStationLocations.get(intakingIndex));
-
-    MechanismPosition coralStationPos = MechanismPositions.coralStationPosition();
 
     if (procedural) {
       spawnCommand(

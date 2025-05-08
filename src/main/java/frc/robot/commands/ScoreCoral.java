@@ -52,7 +52,6 @@ public class ScoreCoral extends StateMachine {
 
   private final DrivetrainWrapper wrapper;
   private final Mechanism mech;
-  private final Elevator elevator;
   private final Arm arm;
   private final LED led;
   private final RobotConfig config;
@@ -237,7 +236,6 @@ public class ScoreCoral extends StateMachine {
 
     this.wrapper = wrapper;
     this.mech = mech;
-    this.elevator = elevator;
     this.arm = arm;
     this.led = led;
     this.config = config;

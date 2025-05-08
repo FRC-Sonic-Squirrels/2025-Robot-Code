@@ -52,6 +52,8 @@ public class Intake extends SubsystemBase {
   private static final LoggerGroup starLogGroup = logGroup.subgroup("StarRollers");
   private static final LoggerEntry.Decimal logStarTargetVelocityRPM =
       starLogGroup.buildDecimal("TargetVelocityRPM");
+  private static final LoggerEntry.EnumValue<ControlMode> logStarControlMode =
+      starLogGroup.buildEnum("ControlMode");
 
   // Pivot
   private static final LoggerGroup pivotLogGroup = logGroup.subgroup(PivotConstants.ROOT_TABLE);
@@ -112,8 +114,8 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber rKV = rollerSubgroup.build("KV");
   private static final LoggedTunableNumber rollerTargetAccelerationConfig =
       rollerSubgroup.build("MaxAccelerationConstraint");
-  private static final LoggedTunableNumber holdAlgaeVel =
-      rollerSubgroup.build("HoldAlgaeVel", 1000);
+  private static final LoggedTunableNumber holdAlgaePercentOut =
+      rollerSubgroup.build("HoldAlgaeVel", 1);
   private static final LoggedTunableNumber holdCoralVel = rollerSubgroup.build("HoldCoralVel", 200);
 
   // Pivot
@@ -226,6 +228,8 @@ public class Intake extends SubsystemBase {
       logToFDistance.info(inputs.intakeTofDistanceInches);
       logToFSignalStrength.info(inputs.intakeTofSignalStrength);
 
+      logStarControlMode.info(starControlMode);
+
       // Update tunable numbers
 
       var rhc = hashCode();
@@ -279,8 +283,8 @@ public class Intake extends SubsystemBase {
           break;
         case Stow:
           if (!states.coralExpectedInIntake) {
-            setRollerVelocity(holdAlgaeVel.get());
-            setStarVelocity(holdAlgaeVel.get());
+            setRollerVelocity(holdAlgaePercentOut.get());
+            setStarVelocity(holdAlgaePercentOut.get());
           } else if (states.coralInIntake) {
             setRollerVelocity(holdCoralVel.get());
             setStarPercentOut(0);
@@ -297,10 +301,9 @@ public class Intake extends SubsystemBase {
           setStarVelocity(algaeScoreVelocity.get());
           break;
         case ScoreAlgaePrep:
-          setRollerPercentOut(
-              holdAlgaeVel.get()); // TODO: this is putting a velocity into a percent out?
+          setRollerPercentOut(holdAlgaePercentOut.get());
           setPivotAngle(Rotation2d.fromDegrees(algaeScoreAngle.get()));
-          setStarPercentOut(holdAlgaeVel.get());
+          setStarPercentOut(holdAlgaePercentOut.get());
           break;
         case Climb:
           setPivotAngle(Rotation2d.fromDegrees(climbAngle.get()));
@@ -447,7 +450,6 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean intakeTimeOfFlight() {
-    // TODO: get an actual value fot this this code is only for testing purposes
     return inputs.intakeTofDetected;
   }
 

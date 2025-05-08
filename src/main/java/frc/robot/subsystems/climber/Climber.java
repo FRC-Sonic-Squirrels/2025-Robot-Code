@@ -63,7 +63,6 @@ public class Climber extends SubsystemBase {
       winchkD.initDefault(1.6);
       winchkG.initDefault(0.0);
 
-      // FIXME: find the theoretical from the JVN docs
       maxVelocityConfig.initDefault(10);
       winchTargetAccelerationConfig.initDefault(10);
 

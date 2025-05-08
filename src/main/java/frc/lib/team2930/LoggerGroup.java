@@ -26,8 +26,12 @@ public class LoggerGroup {
 
   private static final double logWriter_timestampUpdateDelay =
       5.0; // Wait several seconds after DS attached to
+
   // ensure timestamp/timezone is updated
+  @SuppressWarnings("unused")
   private static final double logWriter_defaultWritePeriodRio = 0.1;
+
+  @SuppressWarnings("unused")
   private static final double logWriter_defaultWritePeriodSim = 0.01;
 
   private static final Object g_lock = new Object();
@@ -424,7 +428,6 @@ public class LoggerGroup {
 
     var topic = akitTable.getTopic(".schema/" + typeString);
 
-    @SuppressWarnings("resource")
     var publisher = topic.genericPublish("structschema", PubSubOption.sendAll(true));
     publisher.setRaw(struct.getSchema().getBytes(StandardCharsets.UTF_8), currentTimestmapLog);
 
@@ -497,6 +500,7 @@ public class LoggerGroup {
     return buildEnum(name, 50);
   }
 
+  @SuppressWarnings("unchecked")
   public <E extends Enum<E>> LoggerEntry.EnumValue<E> buildEnum(
       String name, int updateFrequencyInSeconds) {
     //noinspection unchecked
@@ -623,6 +627,7 @@ public class LoggerGroup {
     return buildStruct(clz, name, 50);
   }
 
+  @SuppressWarnings("unchecked")
   public <T extends StructSerializable> LoggerEntry.Struct<T> buildStruct(
       Class<T> clz, String name, int updateFrequencyInSeconds) {
     //noinspection unchecked
@@ -640,6 +645,7 @@ public class LoggerGroup {
     return buildStructArray(clz, name, 50);
   }
 
+  @SuppressWarnings("unchecked")
   public <T extends StructSerializable> LoggerEntry.StructArray<T> buildStructArray(
       Class<T> clz, String name, int updateFrequencyInSeconds) {
     //noinspection unchecked

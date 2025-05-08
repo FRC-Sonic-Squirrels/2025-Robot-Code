@@ -163,17 +163,23 @@ public class RobotContainer {
 
   private boolean brakeModeTriggered = true;
 
+  @SuppressWarnings("unused")
   private boolean is_teleop;
+
   private boolean is_autonomous;
 
   private boolean brakeModeFailure = false;
 
   private final TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
-  private final LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
-  private final LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
-  private final LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
 
-  private final Trigger passOffTrigger;
+  @SuppressWarnings("unused")
+  private final LoggedTunableNumber tunableX = tunableNumberGroup.build("TunableX", 13.75);
+
+  @SuppressWarnings("unused")
+  private final LoggedTunableNumber tunableY = tunableNumberGroup.build("TunableY", 5.15);
+
+  @SuppressWarnings("unused")
+  private final LoggedTunableNumber tunableAngle = tunableNumberGroup.build("TunableAngle", 0);
 
   private final RobotStates robotStates;
 
@@ -466,9 +472,6 @@ public class RobotContainer {
 
     mech = new Mechanism(elevator, arm, robotStates);
     robotStates.setIntake(intake);
-    passOffTrigger =
-        new Trigger(() -> robotStates.coralInIntake && robotStates.scoringLevel != ScoringLevel.L1)
-            .debounce(.5);
 
     drivetrainWrapper =
         new DrivetrainWrapper(
@@ -930,7 +933,7 @@ public class RobotContainer {
               intake.resetPivotSensorToHomePosition();
               led.setRobotState(RobotState.ZERO_SUBSYSTEMS);
               climber.resetWinchSensorToHomePosition();
-            })); // TODO: add climber?
+            }));
 
     brakeModeButtonTrigger.onTrue(
         new ConditionalCommand(
@@ -972,12 +975,11 @@ public class RobotContainer {
                 },
                 elevator,
                 arm),
-            () -> brakeModeTriggered)); // TODO: add climber?
+            () -> brakeModeTriggered));
 
     // ---------- ELASTIC CONTROLS ------------
 
     // Add Reset and Reboot buttons to SmartDashboard
-    // TODO: add correct vision addresses
     SmartDashboard.putData(
         "PV Restart SW 1_Shooter_Left",
         new RunsWhenDisabledInstantCommand(() -> Vision.restartPhotonVision("10.29.30.13")));
@@ -1129,9 +1131,6 @@ public class RobotContainer {
    * @return Rotates robot to face center
    */
   public static Rotation2d faceTowardsCenter(Pose2d robotTranslation, Pose2d[] reefAprilTagPose) {
-    Pose2d tag1;
-
-    tag1 = Constants.isRedAlliance() ? reefAprilTagPose[1] : reefAprilTagPose[8];
 
     var center = FieldConstants.BLUE_REEF_CENTER_POSE;
     Pose2d centerPose = new Pose2d();
@@ -1146,11 +1145,7 @@ public class RobotContainer {
 
     double angleToCenter = Math.atan2(targetY - robotY, targetX - robotX);
 
-    double robotAngle = robotTranslation.getRotation().getRadians();
-    double angularError = angleToCenter - robotAngle;
     double normalizedAngleToCenter = Math.atan2(Math.sin(angleToCenter), Math.cos(angleToCenter));
-
-    var offset = centerPose.minus(robotTranslation);
 
     Rotation2d finalRotation = new Rotation2d(normalizedAngleToCenter);
     return finalRotation.rotateBy(Rotation2d.k180deg);

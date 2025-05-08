@@ -28,7 +28,6 @@ public class VisionGamepieceIOSim implements VisionGamepieceIO {
 
     this.poseSupplier = poseSupplier;
     var cameraProp = new SimCameraProperties();
-    // FIXME: get these values for the cameras we use
     cameraProp.setCalibration(
         VisionGamepieceConstants.RESOLUTION_WIDTH_PIXELS,
         VisionGamepieceConstants.RESOLUTION_HEIGHT_PIXELS,
@@ -64,9 +63,7 @@ public class VisionGamepieceIOSim implements VisionGamepieceIO {
 
     for (var results : camera.getAllUnreadResults()) {
       var aprilTagYaw = 0.0;
-      for (int i = 0;
-          i < results.getTargets().size();
-          i++) { // TODO: Add logic for which tags to detect
+      for (int i = 0; i < results.getTargets().size(); i++) {
         PhotonTrackedTarget target = results.targets.get(i);
         aprilTagYaw = target.getYaw();
       }

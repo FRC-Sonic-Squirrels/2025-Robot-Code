@@ -338,6 +338,7 @@ public class ChoreoHelper {
     return Math.hypot(xDesired - xRobot, yDesired - yRobot);
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static Trajectory<SwerveSample> rescale(
       Trajectory<SwerveSample> traj, double speedScaling) {
     if (speedScaling == 1.0) {
@@ -362,10 +363,10 @@ public class ChoreoHelper {
               state.moduleForcesY()));
     }
 
-    // TODO: check instantiation for Trajectory object
     return new Trajectory(traj.name(), newStates, traj.splits(), traj.events());
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public static Trajectory<SwerveSample> flipOnAlliance(Trajectory<SwerveSample> states) {
     var newStates = new ArrayList<SwerveSample>();
 
@@ -386,10 +387,10 @@ public class ChoreoHelper {
               state.moduleForcesY()));
     }
 
-    // TODO: check instantiation for Trajectory object
     return new Trajectory(states.name(), newStates, states.splits(), states.events());
   }
 
+  @SuppressWarnings("unchecked")
   private static List<SwerveSample> getStates(Trajectory<SwerveSample> traj) {
     try {
       var f = traj.getClass().getDeclaredField("samples");

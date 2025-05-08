@@ -90,7 +90,7 @@ public class SimulatorRobotConfig extends RobotConfig {
           Units.KilogramSquareMeters.of(5.3598424503),
           new ModuleConfig(
               WHEEL_RADIUS,
-              Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND), // TODO: find actual value
+              Units.MetersPerSecond.of(MAX_VELOCITY_METERS_PER_SECOND),
               0.65,
               DCMotor.getKrakenX60Foc(1),
               SwerveModuleConstants.MK4I.LEVEL_2_GEARING_DRIVE_GEAR_RATIO,
@@ -155,7 +155,6 @@ public class SimulatorRobotConfig extends RobotConfig {
    *
    */
 
-  // FIXME: define your swerve module objects here
   @Override
   public SwerveModules getSwerveModuleObjects() {
     return new SwerveModules(
@@ -183,7 +182,6 @@ public class SimulatorRobotConfig extends RobotConfig {
   //   throw new RuntimeException("Unsupported action for SIM BOT");
   // }
 
-  // FIXME: define vision modules here
   // CAVEAT: only call when we're testing real cameras on sim robot
   @Override
   public VisionModuleConfiguration[] getVisionModuleObjects() {

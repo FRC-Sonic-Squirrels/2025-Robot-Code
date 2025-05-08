@@ -27,20 +27,36 @@ public class MechanismVisualization {
 
   // Use these tunable numbers for testing different heights and angles manually
   private static final TunableNumberGroup tunableGroup = new TunableNumberGroup("Visualization");
+
+  @SuppressWarnings("unused")
   private static final LoggedTunableNumber tunableArmAngleDeg =
       tunableGroup.build("ArmAngleDeg", 0);
+
+  @SuppressWarnings("unused")
   private static final LoggedTunableNumber tunableElevatorHeightInches =
       tunableGroup.build("ElevatorHeightInches", 0);
+
+  @SuppressWarnings("unused")
   private static final LoggedTunableNumber tunableIntakeAngleDeg =
       tunableGroup.build("IntakeAngleDeg", 0);
+
+  @SuppressWarnings("unused")
   private static final LoggedTunableNumber tunableClimberAngleDeg =
       tunableGroup.build("ClimberAngleDeg", 0);
 
   private static final LoggedTunableNumber tunableX = tunableGroup.build("TunableX", 0);
+
+  @SuppressWarnings("unused")
   private static final LoggedTunableNumber tunableY = tunableGroup.build("TunableY", 0);
+
   private static final LoggedTunableNumber tunableZ = tunableGroup.build("TunableZ", 0);
+
+  @SuppressWarnings("unused")
   private static final LoggedTunableNumber tunableYaw = tunableGroup.build("TunableYaw", 0);
+
   private static final LoggedTunableNumber tunablePitch = tunableGroup.build("TunablePitch", 0);
+
+  @SuppressWarnings("unused")
   private static final LoggedTunableNumber tunableRoll = tunableGroup.build("TunableRoll", 0);
 
   private static Pose3d mechFirstStage = Constants.zeroPose3d;
@@ -60,7 +76,6 @@ public class MechanismVisualization {
       Rotation2d intakeAngle,
       Rotation2d climberAngle,
       RobotStates states) {
-    // TODO: input positions as variables, add to pose3ds
     double elevatorHeightMeters = elevatorHeight.in(Units.Meter);
     mechFirstStage =
         new Pose3d(0.0, 0.0, Math.max(0.0, elevatorHeightMeters - 0.691), new Rotation3d());
@@ -107,6 +122,6 @@ public class MechanismVisualization {
     logMechanism.info(new Pose3d[] {mechFirstStage, mechSecondStage, arm, intake, climber});
     logTestPose.info(Constants.zeroPose2d);
     logCoralInEndEffector.info(coralInEndEffector);
-    logArmCameraView.info(camViewFromArm); // TODO: make this work
+    logArmCameraView.info(camViewFromArm);
   }
 }

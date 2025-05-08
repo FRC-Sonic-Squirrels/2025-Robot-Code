@@ -51,9 +51,7 @@ public class VisionGamepieceIOReal implements VisionGamepieceIO {
       // April tag code (for if gamepiece camera is to be used for april tag detection)
 
       var aprilTagYaw = 0.0;
-      for (int i = 0;
-          i < results.getTargets().size();
-          i++) { // TODO: implement logic for what april tags to detect if necessary
+      for (int i = 0; i < results.getTargets().size(); i++) {
         PhotonTrackedTarget target = results.targets.get(i);
         aprilTagYaw = target.getYaw();
       }
