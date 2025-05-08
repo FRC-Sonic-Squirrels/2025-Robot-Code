@@ -24,10 +24,14 @@ public class Mechanism {
   // Execution timing
   private static final ExecutionTiming timing = new ExecutionTiming(ROOT_TABLE);
 
-  private static final LoggerGroup logGroup = LoggerGroup.build(ROOT_TABLE);
+  // Arm and Elevator objects
 
   private final Elevator elevator;
   private final Arm arm;
+
+  // Logging
+
+  private static final LoggerGroup logGroup = LoggerGroup.build(ROOT_TABLE);
 
   private static final LoggerEntry.Bool log_ElevatorInPosition =
       logGroup.buildBoolean("ElevatorInPosition");
@@ -36,6 +40,8 @@ public class Mechanism {
       logGroup.buildString("CurrentMotionState");
   private static final LoggerEntry.Text log_currentSection = logGroup.buildString("CurrentSection");
   private static final LoggerEntry.Text log_targetSection = logGroup.buildString("TargetSection");
+
+  // Tunable numbers
 
   private static final TunableNumberGroup tunableGroup = new TunableNumberGroup(ROOT_TABLE);
   private static final LoggedTunableNumber scoreL4ArmAccel =
@@ -46,6 +52,8 @@ public class Mechanism {
       tunableGroup.build("holdAlgaeArmAccel", 3);
   private static final LoggedTunableNumber holdAlgaeElevatorAccel =
       tunableGroup.build("holdAlgaeElevatorAccel", 100);
+
+  // States
 
   private boolean elevatorInPosition = false;
   private boolean armInPosition = false;
@@ -59,6 +67,7 @@ public class Mechanism {
 
   public void periodic() {
     try (var ignored = timing.start()) {
+      // Enum based state machine
       switch (states.mechState) {
         case Idle:
           elevator.setPercentOut(0);
@@ -67,7 +76,7 @@ public class Mechanism {
         case Override:
           break;
         case ReefPosition:
-          if (states.scoringLevel == ScoringLevel.L4) {
+          if (states.scoringLevel == ScoringLevel.L4) { // If scoring L4, slow arm accel
             goToPositionParallel(
                 MechanismPositions.reefPosition(states.scoringLevel),
                 Double.NaN,
@@ -77,7 +86,7 @@ public class Mechanism {
           }
           break;
         case ReefPositionCoralInWay:
-          if (states.scoringLevel == ScoringLevel.L4) {
+          if (states.scoringLevel == ScoringLevel.L4) { // If scoring L4, slow arm accel
             goToPositionParallel(
                 MechanismPositions.reefPositionCoralInWay(states.scoringLevel),
                 Double.NaN,
@@ -100,7 +109,7 @@ public class Mechanism {
               MechanismPositions.reefPosition(ScoringLevel.L4), Double.NaN, scoreL4ArmAccel.get());
           break;
         case ReefPrepPosition:
-          if (states.scoringLevel == ScoringLevel.L4) {
+          if (states.scoringLevel == ScoringLevel.L4) { // If scoring L4, slow arm accel
             goToPositionParallel(
                 MechanismPositions.reefPrepPosition(states.scoringLevel),
                 Double.NaN,
@@ -190,26 +199,33 @@ public class Mechanism {
   private void goToPositionParallel(
       MechanismPosition position, Double elevatorAccel, Double armAccel) {
 
+    // Mech sections/positions
+
     MechSection targetMechSection = getMechSection(position);
     MechanismPosition currentMechPos = new MechanismPosition(elevator.getHeight(), arm.getAngle());
     MechSection currentMechSection = getMechSection(currentMechPos);
+
+    // Log mech sections
 
     log_currentSection.info(currentMechSection.name());
     log_targetSection.info(targetMechSection.name());
 
     if (currentMechPos.armAngle().getDegrees() > 142
         && !elevator.isAtTarget(position.elevatorHeight())
-        && position.armAngle().getDegrees() <= 142) {
+        && position.armAngle().getDegrees()
+            <= 142) { // Bring arm in first if it is in danger of contacting reef
       if (armAccel.equals(Double.NaN)) {
         arm.setAngle(position.armAngle());
       } else {
         arm.setAngle(position.armAngle(), armAccel);
       }
       log_currentMotionState.info("Bring arm back");
-    } else if (compatibleMechSections(currentMechSection, targetMechSection)) {
+    } else if (compatibleMechSections(
+        currentMechSection,
+        targetMechSection)) { // If mech sections are compatible, do direct motion
       log_currentMotionState.info("Compatible");
       goToPositionParallelSimple(position, elevatorAccel, armAccel);
-    } else {
+    } else { // Reroute mech based on current and target mech sections
       if (currentMechSection == MechSection.S1 || currentMechSection == MechSection.S10) {
         log_currentMotionState.info("Getting out of " + currentMechSection.name());
         goToPositionParallelSimple(
@@ -249,12 +265,19 @@ public class Mechanism {
       }
     }
 
+    // Logging
+
     elevatorInPosition = elevator.isAtTarget(position.elevatorHeight());
     log_ElevatorInPosition.info(elevatorInPosition);
     armInPosition = arm.isAtTargetAngle(position.armAngle());
     log_ArmInPosition.info(armInPosition);
   }
 
+  /**
+   * @param mech1
+   * @param mech2
+   * @return whether direct mech motion would not cause collision
+   */
   private static boolean compatibleMechSections(MechSection mech1, MechSection mech2) {
     if (mech1 == mech2) return true;
     if ((mech1 == MechSection.S4 || mech1 == MechSection.S6 || mech1 == MechSection.S7)
@@ -276,10 +299,19 @@ public class Mechanism {
     return false;
   }
 
+  /**
+   * Sends mechanism to target position with little smart routing
+   *
+   * @param position
+   * @param elevatorAccel
+   * @param armAccel
+   */
   private void goToPositionParallelSimple(
       MechanismPosition position, Double elevatorAccel, Double armAccel) {
 
-    if (!elevator.isAtTarget(position.elevatorHeight()) && position.armAngle().getDegrees() > 142) {
+    if (!elevator.isAtTarget(position.elevatorHeight())
+        && position.armAngle().getDegrees()
+            > 142) { // Wait until elevator in position to bring arm all the way out
       position = new MechanismPosition(position.elevatorHeight(), Rotation2d.fromDegrees(142));
     }
 
@@ -297,25 +329,28 @@ public class Mechanism {
   }
 
   private static MechSection getMechSection(MechanismPosition position) {
-    if (position.armAngle().getDegrees() > 125) {
-      if (position.elevatorHeight().in(Units.Inches) < 0.1) {
+    if (position.armAngle().getDegrees() > 125) { // is arm back
+      if (position.elevatorHeight().in(Units.Inches) < 0.1) { // is arm clear to swing under
         return MechSection.S2;
-      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+      } else if (position.elevatorHeight().in(Units.Inches)
+          < 25) { // is arm not clear to swing over
         return MechSection.S1;
       } else return MechSection.S9;
-    } else if (position.armAngle().getDegrees() > 75) {
-      if (position.elevatorHeight().in(Units.Inches) < 0.1) {
+    } else if (position.armAngle().getDegrees() > 75) { // is arm up
+      if (position.elevatorHeight().in(Units.Inches) < 0.1) { // is arm clear to swing under
         return MechSection.S3;
-      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+      } else if (position.elevatorHeight().in(Units.Inches)
+          < 25) { // is arm not clear to swing over
         if (position.armAngle().getDegrees() > 110) {
           return MechSection.S10;
         }
         return MechSection.S5;
       } else return MechSection.S8;
-    } else {
-      if (position.elevatorHeight().in(Units.Inches) < 0.1) {
+    } else { // arm is forward
+      if (position.elevatorHeight().in(Units.Inches) < 0.1) { // is arm clear to swing under
         return MechSection.S4;
-      } else if (position.elevatorHeight().in(Units.Inches) < 25) {
+      } else if (position.elevatorHeight().in(Units.Inches)
+          < 25) { // is arm not clear to swing over
         return MechSection.S6;
       } else return MechSection.S7;
     }

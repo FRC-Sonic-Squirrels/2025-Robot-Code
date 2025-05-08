@@ -53,6 +53,7 @@ public class Arm extends SubsystemBase {
       group.build("TargetAccelerationConfig");
   private static final LoggedTunableNumber toleranceDegrees = group.build("ToleranceDegrees", 1);
 
+  // Define motion constants
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       kP.initDefault(70.0);
@@ -137,8 +138,13 @@ public class Arm extends SubsystemBase {
     setAngle(angle, targetAccelerationConfig.get());
   }
 
+  /**
+   * Sets angle and acceleration of arm
+   *
+   * @param angle
+   * @param accel
+   */
   public void setAngle(Rotation2d angle, double accel) {
-
     angle =
         Rotation2d.fromRadians(
             MathUtil.clamp(

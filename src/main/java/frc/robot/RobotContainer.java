@@ -116,11 +116,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  // Robot logging
   private static final LoggerEntry.EnumValue<RobotType> logRobotType =
       LoggerGroup.root.buildEnum("RobotType");
   private static final LoggerEntry.EnumValue<Mode> logRobotMode =
       LoggerGroup.root.buildEnum("RobotMode");
 
+  // Subsystems
   private final Drivetrain drivetrain;
   private final DrivetrainWrapper drivetrainWrapper;
   private final AprilTagFieldLayout aprilTagLayout;
@@ -134,9 +136,11 @@ public class RobotContainer {
   private final LED led;
   private final Climber climber;
 
+  // Controllers
   private final XboxControllerWrapper driverController = new XboxControllerWrapper(0);
   private final XboxControllerWrapper operatorController = new XboxControllerWrapper(1);
 
+  // Auto
   private final LoggedDashboardChooser<String> autoChooser =
       new LoggedDashboardChooser<>("Auto Routine");
   private final LoggedDashboardChooser<Boolean> flipAutoChooser =
@@ -152,6 +156,8 @@ public class RobotContainer {
   private final HashMap<String, Supplier<Auto>> stringToAutoSupplierMap = new HashMap<>();
   private final AutosManager autoManager;
 
+  // Buttons
+
   public DigitalInput brakeModeButton = new DigitalInput(0);
   public DigitalInput zeroSensorsButton = new DigitalInput(1);
 
@@ -163,12 +169,15 @@ public class RobotContainer {
 
   private boolean brakeModeTriggered = true;
 
+  // Robot Modes
   @SuppressWarnings("unused")
   private boolean is_teleop;
 
   private boolean is_autonomous;
 
   private boolean brakeModeFailure = false;
+
+  // Tunable numbers
 
   private final TunableNumberGroup tunableNumberGroup = new TunableNumberGroup("RobotContainer");
 
@@ -188,7 +197,7 @@ public class RobotContainer {
 
     robotStates = new RobotStates();
 
-    DriverStation.silenceJoystickConnectionWarning(true);
+    DriverStation.silenceJoystickConnectionWarning(true); // Silence annoying joystick warning
 
     RobotType robotType = Constants.RobotMode.getRobot();
     Mode mode = Constants.RobotMode.getMode();
@@ -483,14 +492,14 @@ public class RobotContainer {
     flipAutoChooser.addDefaultOption("No", false);
     flipAutoChooser.addOption("Yes", true);
 
-    for (int i = 0; i < customGamepieceCount; i++) {
+    for (int i = 0; i < customGamepieceCount; i++) { // Add custom scoring choosers
       LoggedDashboardChooser<ReefSide> chooser = new LoggedDashboardChooser<>(i + " CustomScoring");
       for (ReefSide side : ScoringLocation.ReefSide.values()) chooser.addOption(side.name(), side);
       chooser.addDefaultOption(ReefSide.CH.name(), ReefSide.CH);
       scoringPosChooser.add(chooser);
     }
 
-    for (int i = 1; i < customGamepieceCount; i++) {
+    for (int i = 1; i < customGamepieceCount; i++) { // Add custom pickup choosers
       LoggedDashboardChooser<PickupLocation> chooser =
           new LoggedDashboardChooser<>(i + " CustomPickup");
       for (PickupLocation side : PickupLocation.values()) {
@@ -546,16 +555,18 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // ----------- DRIVER CONTROLS ------------
 
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.back, "Zero Robot")
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () -> {
-    //               Pose2d pose = drivetrain.getReefPoseEstimatorPose();
-    //               drivetrain.setPose(
-    //                   new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
-    //             },
-    //             drivetrain));
+    if (Constants.unusedCode)
+      driverController
+          .registerTrigger(XboxControllerWrapper.Button.back, "Zero Robot")
+          .onTrue(
+              Commands.runOnce(
+                  () -> {
+                    Pose2d pose = drivetrain.getReefPoseEstimatorPose();
+                    drivetrain.setPose(
+                        new Pose2d(pose.getX(), pose.getY(), Constants.zeroRotation2d));
+                  },
+                  drivetrain));
+
     driverController
         .registerTrigger(XboxControllerWrapper.Button.back, "Score Algae in Net")
         .onTrue(Commands.runOnce(() -> robotStates.mechState = MechState.AlgaeBargePosition))
@@ -605,25 +616,12 @@ public class RobotContainer {
                 new MechToPosition(mech, MechState.Default, robotStates),
                 () -> robotStates.coralInRobot));
 
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.rightStick, "Teleop Autonomous")
-    //     .whileTrue(
-    //         new RunStateMachineCommand(
-    //             () ->
-    //                 new AutoStateMachine(
-    //                     new AutosSubsystems(drivetrainWrapper, elevator, arm, endEffector, led),
-    //                     Constants.RobotMode.getRobot().config.get(),
-    //                     (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r))));
-
     driverController
         .registerTrigger(XboxControllerWrapper.Button.rightBumper, "Intake Coral Station")
         .whileTrue(
             CommandComposer.intakeCoralFromStation(
                 drivetrainWrapper, endEffector, mech, led, driverController, true, robotStates));
 
-    // driverController
-    //     .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae in Processor")
-    //     .whileTrue(new ScoreAlgae(intake));
     driverController
         .registerTrigger(XboxControllerWrapper.Button.povLeft, "Score Algae")
         .whileTrue(new ScoreAlgae(intake, robotStates))
@@ -674,30 +672,6 @@ public class RobotContainer {
                             robotStates))
                 .finallyDo(() -> led.setBaseRobotState(BaseRobotState.LEVEL_MODE)));
 
-    // var layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
-    // Pose2d[] reefAprilTagPose = {
-    //   layout.getTagPose(6).get().toPose2d(),
-    //   layout.getTagPose(7).get().toPose2d(),
-    //   layout.getTagPose(8).get().toPose2d(),
-    //   layout.getTagPose(9).get().toPose2d(),
-    //   layout.getTagPose(10).get().toPose2d(),
-    //   layout.getTagPose(11).get().toPose2d(),
-    //   layout.getTagPose(17).get().toPose2d(),
-    //   layout.getTagPose(18).get().toPose2d(),
-    //   layout.getTagPose(19).get().toPose2d(),
-    //   layout.getTagPose(20).get().toPose2d(),
-    //   layout.getTagPose(21).get().toPose2d(),
-    //   layout.getTagPose(22).get().toPose2d()
-    // };
-
-    // Pose2d[] coralStationPose = {
-    //   layout.getTagPose(1).get().toPose2d(),
-    //   layout.getTagPose(2).get().toPose2d(),
-    //   layout.getTagPose(12).get().toPose2d(),
-    //   layout.getTagPose(13).get().toPose2d()
-    // };
-
     // Change scoring height
 
     driverController
@@ -738,7 +712,8 @@ public class RobotContainer {
                 }));
 
     driverController
-        .registerTrigger(XboxControllerWrapper.Button.leftStick, "ScoreCoral")
+        .registerTrigger(
+            XboxControllerWrapper.Button.leftStick, "ScoreCoral") // Manual score confirmation
         .whileTrue(
             Commands.either(
                 Commands.waitUntil(() -> !robotStates.coralInEndEffector)
@@ -901,17 +876,6 @@ public class RobotContainer {
 
     // ---------- NON-CONTROLLER TRIGGERS
 
-    // robotStates.triggerForCoralInEndEffector.onTrue(
-    //     new WaitUntilMovedDist(drivetrainWrapper, Units.Meters.of(0.3))
-    //         .andThen(
-    //             new MechToPosition(mech, MechState.StowPosition, robotStates)
-    //                 .finallyDo(
-    //                     () -> {
-    //                       robotStates.changeEndEffectorIfNotAligning(
-    //                           RobotStates.EndEffectorDesiredAction.AlignCoral);
-    //                     }))
-    //         .withName("GamepieceIntoEECommand"));
-
     robotStates.triggerForCoralInEndEffector.onFalse(
         new MechToPosition(mech, MechState.Default, robotStates)
             .withName("GamepieceOutOfEECommand"));
@@ -920,8 +884,6 @@ public class RobotContainer {
         new ControllerRumbleForTime(
                 (r) -> driverController.getHID().setRumble(RumbleType.kBothRumble, r), 0.5, 0.5)
             .alongWith(new LedSetStateForSeconds(led, RobotState.INTAKE_SUCCESS, 0.5)));
-
-    // passOffTrigger.onTrue(new PassToEndEffector(arm, elevator, intake));
 
     // ---------- ON-ROBOT CONTROLS ------------
 
@@ -1206,7 +1168,7 @@ public class RobotContainer {
   }
 
   public void enterAutonomous() {
-    // setBrakeMode();
+    // TODO: add setting all motors into break mode if they aren't already
     vision.useMaxDistanceAwayFromExistingEstimate(true);
     vision.useGyroBasedFilteringForVision(true);
 
@@ -1219,7 +1181,6 @@ public class RobotContainer {
   }
 
   public void enterTeleop() {
-    // setBrakeMode();
     climber.setServoAngle(ClimberConstants.SERVO_UNLOCK_ANGLE);
     resetDrivetrainResetOverrides();
     vision.useMaxDistanceAwayFromExistingEstimate(true);
@@ -1240,7 +1201,7 @@ public class RobotContainer {
     drivetrainWrapper.resetRotationOverride();
   }
 
-  public void updateVisualization() {
+  public void updateVisualization() { // Advantage Scope visualization
     MechanismVisualization.logMechanism();
     SimpleMechanismVisualization.updateVisualization(elevator.getHeight(), arm.getAngle());
     SimpleMechanismVisualization.logMechanism();
@@ -1256,10 +1217,6 @@ public class RobotContainer {
   }
 
   public void resetSubsystems() {}
-
-  public void setBrakeMode() {
-    brakeModeTriggered = true;
-  }
 
   public void updateRobotState() {
     robotStates.periodic();
@@ -1304,7 +1261,7 @@ public class RobotContainer {
     return startingLocationChooser.get();
   }
 
-  public Command threadCommand() {
+  public Command threadCommand() { // Used to set thread priority to main thread after a timed delay
     return Commands.sequence(
         Commands.waitSeconds(20),
         Commands.runOnce(() -> Threads.setCurrentThreadPriority(true, 10)).ignoringDisable(true));

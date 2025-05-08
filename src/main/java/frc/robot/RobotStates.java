@@ -12,6 +12,7 @@ import frc.robot.commands.PassToIntake;
 import frc.robot.subsystems.intake.Intake;
 
 public class RobotStates {
+  // End Effector states
   public enum EndEffectorDesiredAction {
     Idle(false),
     CoralStationIntake(false),
@@ -34,6 +35,8 @@ public class RobotStates {
       this.alignmentActive = alignmentActive;
     }
   }
+
+  // Mechanism (Arm + Elevator) States
 
   public enum MechState {
     Idle,
@@ -63,6 +66,8 @@ public class RobotStates {
     GrabAlgaeFromReefLow
   }
 
+  // Intake states
+
   public enum IntakeState {
     Idle,
     Override,
@@ -81,6 +86,8 @@ public class RobotStates {
     Eject
   }
 
+  // Selected scoring level
+
   public enum ScoringLevel {
     L1,
     L2,
@@ -88,10 +95,14 @@ public class RobotStates {
     L4
   }
 
+  // Desired mech to hold coral
+
   public enum TargetCoralPosition {
     Intake,
     EndEffector
   }
+
+  // Logging
 
   private LoggerGroup logGroup = LoggerGroup.build("RobotState");
 
@@ -145,6 +156,8 @@ public class RobotStates {
   private LoggerEntry.Bool logMechInTargetState =
       logSubsystemsInTargetStates.buildBoolean("MechInTargetState");
 
+  // States
+
   public boolean clearingAlgae;
 
   public ScoringLevel scoringLevel = ScoringLevel.L4;
@@ -173,15 +186,6 @@ public class RobotStates {
 
   public ReefSide targetReefSide = ReefSide.CA;
 
-  public Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
-  public Trigger triggerForCoralInEndEffector = new Trigger(() -> coralInEndEffector).debounce(0.5);
-  public Trigger triggerForCoralInIntake =
-      new Trigger(() -> coralInIntake)
-          .debounce(
-              0.1); // debounce to allow coral to get fully in intake before ending intake command
-
-  public Trigger instantTriggerForCoralInIntake = new Trigger(() -> coralInIntake);
-  // command
   public TargetCoralPosition targetCoralPosition = TargetCoralPosition.EndEffector;
 
   private boolean transferCoralToEndEffector;
@@ -197,14 +201,27 @@ public class RobotStates {
   public boolean intakeInTargetState;
   public boolean mechInTargetState;
 
+  public boolean coralExpectedInEndEffector = true;
+  public boolean coralExpectedInIntake = true;
+
+  // Triggers
+
+  public Trigger triggerForCoralInRobot = new Trigger(() -> coralInRobot);
+  public Trigger triggerForCoralInEndEffector = new Trigger(() -> coralInEndEffector).debounce(0.5);
+  public Trigger triggerForCoralInIntake =
+      new Trigger(() -> coralInIntake)
+          .debounce(
+              0.1); // debounce to allow coral to get fully in intake before ending intake command
+
+  public Trigger instantTriggerForCoralInIntake = new Trigger(() -> coralInIntake);
+
+  // Commands
+
   private Command passCoralToEndEffector = Commands.none();
   private Command passCoralToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
 
   private Command passAlgaeToEndEffector = Commands.none();
   private Command passAlgaeToIntake = new RunStateMachineCommand(() -> new PassToIntake(this));
-
-  public boolean coralExpectedInEndEffector = true;
-  public boolean coralExpectedInIntake = true;
 
   public RobotStates() {}
 
@@ -226,7 +243,9 @@ public class RobotStates {
     targetCoralPosition =
         scoringLevel == ScoringLevel.L1
             ? TargetCoralPosition.Intake
-            : TargetCoralPosition.EndEffector;
+            : TargetCoralPosition
+                .EndEffector; // If scoring in L1, target mech for coral is intake, else end
+    // effector
 
     transferCoralToEndEffector =
         targetCoralPosition == TargetCoralPosition.EndEffector
@@ -261,6 +280,8 @@ public class RobotStates {
     }
 
     if (!mechanismInUse && !endEffectorInUse && !intakeInUse) {
+
+      // Passing coral between mechanisms
       if (transferCoralToEndEffector && !passCoralToEndEffector.isScheduled()) {
         passCoralToEndEffector.schedule();
       }
@@ -269,6 +290,7 @@ public class RobotStates {
         passCoralToIntake.schedule();
       }
 
+      // Passing algae between mechanisms
       if (transferAlgaeToEndEffector && !passAlgaeToEndEffector.isScheduled()) {
         passAlgaeToEndEffector.schedule();
       }
@@ -284,9 +306,13 @@ public class RobotStates {
       passAlgaeToIntake.cancel();
     }
 
+    // Updates states
+
     coralInRobot = coralInEndEffector || coralInIntake;
 
     algaeInRobot = algaeInEndEffector || algaeInIntake;
+
+    // Log states
 
     logEndEffectorDesiredAction.info(endEffectorDesiredAction);
     logMechState.info(mechState);

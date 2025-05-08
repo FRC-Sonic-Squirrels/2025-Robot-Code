@@ -84,7 +84,7 @@ public class EndEffector extends SubsystemBase {
   private static final LoggedTunableNumber alignL3Turns = group.build("alignL3Turns", 1.8);
   private static final LoggedTunableNumber alignL4Turns = group.build("alignL4Turns", 1.8);
 
-  // -- //
+  // Motion constants
 
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
@@ -186,14 +186,16 @@ public class EndEffector extends SubsystemBase {
         states.endEffectorOverrideVelocity = Double.NaN;
       }
 
-      if (Double.isFinite(states.endEffectorOverrideVelocity)) {
+      if (Double.isFinite(states.endEffectorOverrideVelocity)) { // Velocity override
         setVelocity(states.endEffectorOverrideVelocity);
       } else {
         var endEffectorSim = getSim();
+        // End Effector state machine
         while (true) {
           switch (desiredAction) {
             case Idle:
-              if (coralInEndEffectorScoringSide && coralInEndEffectorNonScoringSide) {
+              if (coralInEndEffectorScoringSide
+                  && coralInEndEffectorNonScoringSide) { // If coral possessed, align it
                 desiredAction = EndEffectorDesiredAction.AlignCoral;
               } else {
                 setPercentOut(0);
@@ -201,27 +203,27 @@ public class EndEffector extends SubsystemBase {
               break;
 
             case CoralStationIntake:
-              if (coralInEndEffectorNonScoringSide) {
+              if (coralInEndEffectorNonScoringSide) { // Coral recieved, align it
                 desiredAction = EndEffectorDesiredAction.AlignCoral;
-              } else if (coralInEndEffectorScoringSide) {
+              } else if (coralInEndEffectorScoringSide) { // Coral first sensed, slow down
                 setVelocity(intakingVelocitySlow.get());
-              } else {
+              } else { // Waiting for coral
                 setVelocity(intakingVelocityHigh.get());
               }
               break;
 
             case GroundIntake:
-              if (coralInEndEffectorScoringSide) {
+              if (coralInEndEffectorScoringSide) { // Coral recieved, align it
                 desiredAction = EndEffectorDesiredAction.AlignCoral;
-              } else if (coralInEndEffectorNonScoringSide) {
+              } else if (coralInEndEffectorNonScoringSide) { // Coral first sensed, slow down
                 setVelocity(-(intakingVelocitySlow.get()));
-              } else {
+              } else { // Waiting for coral
                 setVelocity(-(intakingVelocityHigh.get()));
               }
               break;
 
             case AlignCoral:
-              if (!coralInEndEffector) {
+              if (!coralInEndEffector) { // No coral, go to idle
                 desiredAction = EndEffectorDesiredAction.Idle;
               } else if (!coralInEndEffectorNonScoringSide) {
                 // Keep moving the coral in.
@@ -252,8 +254,7 @@ public class EndEffector extends SubsystemBase {
 
             case AlignCoralPhase4:
               double diff = Math.abs(getMotorPosition() - zeroCoralPosition);
-              //          log_Position.info(dif);
-              if (diff >= alignTarget.get()) {
+              if (diff >= alignTarget.get()) { // coral moved to target
                 zeroCoralPosition = getMotorPosition();
                 desiredAction = EndEffectorDesiredAction.AlignedCoral;
               }
@@ -262,7 +263,9 @@ public class EndEffector extends SubsystemBase {
             case AlignedCoral:
               double pos = getMotorPosition() - zeroCoralPosition;
               double desiredPos = 0;
-              switch (states.scoringLevel) {
+              switch (states
+                  .scoringLevel) { // Seperate coral positions in end effector based on scoring
+                  // target
                 case L1:
                   desiredPos = alignL1Turns.get();
                   break;
@@ -279,6 +282,9 @@ public class EndEffector extends SubsystemBase {
                   setPercentOut(0);
                   break;
               }
+
+              // Centering
+
               if (Math.abs(pos - desiredPos) < alignTolerance.get()) {
                 setPercentOut(0);
               } else if (pos > desiredPos) {
@@ -290,11 +296,11 @@ public class EndEffector extends SubsystemBase {
 
             case ScoreFastForward:
               setVelocity(scoringVelocityRPM.get());
-              if (!coralInEndEffector) {
+              if (!coralInEndEffector) { // Once coral is released, return to idle
                 desiredAction = EndEffectorDesiredAction.Idle;
               }
 
-              if (endEffectorSim != null) {
+              if (endEffectorSim != null) { // Update no coral in sim
                 endEffectorSim.scoringSideTofDetecting = false;
                 endEffectorSim.nonScoringSideTofDetecting = false;
               }
@@ -302,11 +308,11 @@ public class EndEffector extends SubsystemBase {
 
             case ScoreFastBackward:
               setVelocity(-scoringVelocityRPM.get());
-              if (!coralInEndEffector) {
+              if (!coralInEndEffector) { // Once coral is released, return to idle
                 desiredAction = EndEffectorDesiredAction.Idle;
               }
 
-              if (endEffectorSim != null) {
+              if (endEffectorSim != null) { // Update no coral in sim
                 endEffectorSim.scoringSideTofDetecting = false;
                 endEffectorSim.nonScoringSideTofDetecting = false;
               }
@@ -322,7 +328,7 @@ public class EndEffector extends SubsystemBase {
               break;
           }
           if (states.endEffectorDesiredAction == desiredAction) {
-            break;
+            break; // Once end effector state logic has been processed, exit while loop
           }
           states.endEffectorDesiredAction = desiredAction;
         }

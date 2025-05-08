@@ -111,29 +111,31 @@ public class LED extends SubsystemBase {
               }
               break;
             case GAMEPIECE_STATUS:
-              if (robotLoops < robotLoopsTillReady) {
+              if (robotLoops < robotLoopsTillReady) { // Loading bar
                 setProgressBar(Color.kGreen, (double) robotLoops / (double) robotLoopsTillReady);
-              } else if (!brakeMode.get()) {
+              } else if (!brakeMode.get()) { // No brake mode indication
                 setSnake(Color.kGreen, Color.kCrimson);
-              } else if (!preloadComplete.get()) {
+              } else if (!preloadComplete.get()) { // Code preload incomplete indication
                 setRainbow();
-              } else if (!motorsZeroed.get() && DriverStation.isDisabled()) {
+              } else if (!motorsZeroed.get()
+                  && DriverStation.isDisabled()) { // moters not zeroed indication
                 setSnake(Color.kRed, Color.kPurple);
-              } else if (!gyroConnected.get() && !Constants.RobotMode.isSimBot()) {
+              } else if (!gyroConnected.get()
+                  && !Constants.RobotMode.isSimBot()) { // gyro disconnected indication
                 setBlinking(Color.kAquamarine);
               } else if (!autoConfirmed
                   && DriverStation.isFMSAttached()
-                  && DriverStation.isDisabled()) {
+                  && DriverStation.isDisabled()) { // auto not confirmed indication
                 setBlinking(Color.kDarkViolet);
               } else {
-                if (gamepieceInRobot) {
+                if (gamepieceInRobot) { // gamepiece in robot indication
                   setSolidColor(squirrelOrange);
                 } else {
-                  if (DriverStation.isTeleop() && DriverStation.isEnabled()) {
+                  if (DriverStation.isTeleop() && DriverStation.isEnabled()) { // Teleop pattern
                     setSolidColor(Color.kBlack);
-                  } else if (DriverStation.isAutonomous()) {
+                  } else if (DriverStation.isAutonomous()) { // Auton pattern
                     setSeaLevelGraphic();
-                  } else {
+                  } else { // Disabled pattern
                     setSnake(squirrelOrange, new Color(1, 0.3, 0));
                   }
                 }
@@ -146,11 +148,9 @@ public class LED extends SubsystemBase {
               setZoomingDot();
               break;
             case ALGAE_ALIGNMENT:
-              //  setBlinking(Color.kWhite, Color.kAqua);
               setBlinking(Color.kAqua);
               break;
             case INTAKE_SUCCESS:
-              //  setBlinking(Color.kGreen, Color.kBlack);
               setBlinking(Color.kRed);
               break;
             default:
