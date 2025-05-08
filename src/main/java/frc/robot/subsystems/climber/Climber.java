@@ -113,14 +113,6 @@ public class Climber extends SubsystemBase {
 
       logWinchControlMode.info(winchControlMode);
 
-      // if (DriverStation.isEnabled()) {
-      //   if (isWinchAtTargetAngle()) {
-      //     setServoAngle(Constants.ClimberConstants.SERVO_LOCK_ANGLE);
-      //   } else {
-      //     setServoAngle(Constants.ClimberConstants.SERVO_UNLOCK_ANGLE);
-      //   }
-      // }
-
       // Updating tunable numbers
       var hc = hashCode();
       if (winchkP.hasChanged(hc) || winchkD.hasChanged(hc) || winchkG.hasChanged(hc)) {

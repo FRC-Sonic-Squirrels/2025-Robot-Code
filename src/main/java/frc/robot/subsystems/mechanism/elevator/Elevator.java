@@ -59,6 +59,7 @@ public class Elevator extends SubsystemBase {
 
   private final LoggedTunableNumber tolerance = group.build("toleranceInches", 0.1);
 
+  // Motion constants
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_SIMBOT) {
       kP.initDefault(3);
@@ -139,6 +140,12 @@ public class Elevator extends SubsystemBase {
     setHeight(height, targetAccelerationConfig.get());
   }
 
+  /**
+   * Sets height and elevator acceleration
+   *
+   * @param height
+   * @param accel
+   */
   public void setHeight(Distance height, double accel) {
 
     if (accel != setAccel) {

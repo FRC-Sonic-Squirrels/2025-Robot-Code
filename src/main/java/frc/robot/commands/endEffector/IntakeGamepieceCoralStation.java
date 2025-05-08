@@ -28,7 +28,7 @@ public class IntakeGamepieceCoralStation extends Command {
     this.endEffector = endEffector;
     this.states = states;
 
-    simConditions =
+    simConditions = // whether to put simulated coral in robot
         new Trigger(
                 () -> {
                   Pose2d blueAllianceReferencePose =

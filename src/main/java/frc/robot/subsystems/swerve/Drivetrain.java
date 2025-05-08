@@ -133,7 +133,7 @@ public class Drivetrain extends SubsystemBase {
 
   private static final LoggerEntry.Decimal logTimeSinceVisionReef =
       logGroupLocalization.buildDecimal("timeSinceVisionReef");
-  private static final LoggerEntry.Decimal logTimeSinceVisionStatiob =
+  private static final LoggerEntry.Decimal logTimeSinceVisionStation =
       logGroupLocalization.buildDecimal("timeSinceVisionStation");
   private static final LoggerEntry.Integer logRejectionCutoff =
       logGroupLocalization.buildInteger("rejectionCutoff");
@@ -202,6 +202,7 @@ public class Drivetrain extends SubsystemBase {
     this.gyroIO2 = gyroIO2;
     this.isAutonomous = isAutonomous;
 
+    // Can bus
     String canBusName = config.getCANBusName();
     if (canBusName != null) {
       canBus = new CANBus(canBusName);
@@ -213,11 +214,15 @@ public class Drivetrain extends SubsystemBase {
 
     kinematics = config.getSwerveDriveKinematics();
 
+    // Define pose estimators
+
     int[] reefTags = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
     int[] coralStationTags = {1, 2, 12, 13};
 
     reefPoseEstimator = new PoseEstimator(0.1, 0.1, 0.1, reefTags);
     coralStationPoseEstimator = new PoseEstimator(0.6, 0.6, 0.3, coralStationTags);
+
+    // High speed odometry thread
 
     var thread = new Thread(this::runOdometry);
     thread.setName("PhoenixOdometryThread");
@@ -227,9 +232,10 @@ public class Drivetrain extends SubsystemBase {
 
   public void periodic() {
     try (var ignored = timing.start()) {
+      // Gyro
       GyroIO gyroIO = selectedGyroIO;
       GyroIO.Inputs inputs = selectedGyroInputs;
-      if (gyroIO != null && inputs != null) {
+      if (gyroIO != null && inputs != null) { // Only log if real gyro
         gyroIO.updateInputs(inputs);
         logGyro_yawPosition.info(inputs.yawPosition);
         logGyro_yawVelocityRadPerSec.info(inputs.yawVelocityRadPerSec);
@@ -238,6 +244,8 @@ public class Drivetrain extends SubsystemBase {
         logGyro_zAcceleration.info(inputs.zAcceleration);
         logGyro_Acceleration.info(Math.hypot(inputs.xAcceleration, inputs.yAcceleration));
       }
+
+      // Swerve modules
 
       modules.updateInputs();
       modules.periodic();
@@ -255,7 +263,10 @@ public class Drivetrain extends SubsystemBase {
       logSwerveStatesMeasured.info(getModuleStates());
 
       log_FieldRelativeVel.info(getFieldRelativeVelocities());
-      linearVel.calculate(getFieldRelativeVelocities().getTranslation().getNorm());
+      linearVel.calculate(
+          getFieldRelativeVelocities()
+              .getTranslation()
+              .getNorm()); // Update linear vel approximation
       log_FieldRelativeLinearVel.info(getLinearVel());
       log_FieldRelativeAcceleration.info(
           getFieldRelativeAccelerationMagnitude(prevVel.getTranslation().getNorm()));
@@ -267,6 +278,7 @@ public class Drivetrain extends SubsystemBase {
       var reefVisionStaleness = getReefVisionStaleness();
       var stationVisionStaleness = getCoralStationVisionStaleness();
 
+      // Log robot poses
       logLocalization_ReefRobotPosition.info(reefPoseEstimatorPose);
       logLocalization_CoralStationRobotPosition.info(coralPoseEstimatorPose);
 
@@ -279,15 +291,22 @@ public class Drivetrain extends SubsystemBase {
       logLocalization_RobotPosition_RAW_ODOMETRY.info(rawOdometryPose);
       SmartDashboard.putData("Localization/rawOdometryField2d", rawOdometryField2d);
 
+      // Log other vision information
+
       logTimeSinceVisionReef.info(reefVisionStaleness);
-      logTimeSinceVisionStatiob.info(stationVisionStaleness);
+      logTimeSinceVisionStation.info(stationVisionStaleness);
       logRejectionCutoff.info(reefPoseEstimator.rejectionCutoff);
       logRejectionInvalidTags.info(reefPoseEstimator.rejectionInvalidTags);
       logRejectionNoDriveData.info(reefPoseEstimator.rejectionNoDriveData);
 
+      // Log which gyro in use
+
       if (useSecondGyro != null) {
         logGyro_usingSecondGyro.info(useSecondGyro);
       }
+
+      // Log can bus util
+
       if (canBus != null) {
         logGyro_canivoreBusUtilization.info(canBus.getStatus().BusUtilization);
       }

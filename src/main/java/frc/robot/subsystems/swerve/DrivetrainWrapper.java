@@ -40,6 +40,7 @@ public class DrivetrainWrapper {
 
   /** Updated periodically, updates swerve state. */
   public void apply() {
+    // Log chassis speeds
     if (chassisSpeedsBase != null) {
       logChassisSpeedsBase.info(chassisSpeedsBase);
     }
@@ -52,6 +53,7 @@ public class DrivetrainWrapper {
 
     boolean prioritizeRotation;
 
+    // If omega override, use that for omega
     if (Double.isFinite(omegaOverride)) {
       prioritizeRotation = true;
       chassisSpeeds =
@@ -60,16 +62,25 @@ public class DrivetrainWrapper {
     } else {
       prioritizeRotation = false;
     }
+
+    // If chassisSpeedsOverride, replace chassisSpeeds with that
+
     if (chassisSpeedsOverride != null) {
       chassisSpeeds = chassisSpeedsOverride;
     }
+
+    // Run drivetrain
 
     drivetrain.runVelocity(chassisSpeeds, prioritizeRotation, chassisSpeedsOverride != null);
 
     var pose1 = getReefPoseEstimatorPose(false);
     var pose2 = getReefPoseEstimatorPose(true);
 
-    logGyroDrift.info(pose1.getRotation().minus(pose2.getRotation()));
+    logGyroDrift.info(
+        pose1
+            .getRotation()
+            .minus(pose2.getRotation())); // Dif between strictly gyro estimate and vision assisted
+    // estimate
   }
 
   // Setters
@@ -84,18 +95,34 @@ public class DrivetrainWrapper {
     chassisSpeedsBase = chassisSpeeds;
   }
 
+  /**
+   * Sets robot-centric chassis speeds
+   *
+   * <p>Overrides 'setVelocity' and 'setRotationOverride'
+   *
+   * @param chassisSpeeds speeds (m/s, rad/s)
+   */
   public void setVelocityOverride(ChassisSpeeds chassisSpeeds) {
     chassisSpeedsOverride = chassisSpeeds;
   }
 
+  /** Gives velocity control back to base */
   public void resetVelocityOverride() {
     chassisSpeedsOverride = null;
   }
 
+  /**
+   * Sets robot rotational vel
+   *
+   * <p>Overrides 'setVelocity'
+   *
+   * @param omega
+   */
   public void setRotationOverride(double omega) {
     omegaOverride = omega;
   }
 
+  /** Gives rotational vel control back to base */
   public void resetRotationOverride() {
     omegaOverride = Double.NaN;
   }

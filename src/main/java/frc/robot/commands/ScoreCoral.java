@@ -252,7 +252,7 @@ public class ScoreCoral extends StateMachine {
     setInitialState(stateWithName("ChooseAction", () -> chooseAction()));
   }
 
-  private StateHandler chooseAction() {
+  private StateHandler chooseAction() { // Decide whether to score L1, clear algae, or score L2-L4
     if (states.scoringLevel == ScoringLevel.L1
         && !(objective.get() == ScoreCoralObjective.JustClear))
       return stateWithName("ScoreL1", L1Position());
@@ -290,13 +290,13 @@ public class ScoreCoral extends StateMachine {
 
   // SCORING STATES
 
-  private StateHandler L1Position() {
+  private StateHandler L1Position() { // Set the intake and mech into L1 scoring mode
     states.intakeState = IntakeState.ScoreCoralPrep;
     states.mechState = MechState.AvoidIntake;
     return setDone();
   }
 
-  private StateHandler prepL2Alignment() {
+  private StateHandler prepL2Alignment() { // Initialize L2 alignment
     alignToScore =
         new DriveToPosePathing(
                 wrapper,
@@ -317,7 +317,9 @@ public class ScoreCoral extends StateMachine {
     return stateWithName("L2Alignment", () -> L2Alignment());
   }
 
-  private StateHandler L2Alignment() {
+  private StateHandler
+      L2Alignment() { // Wait for coral to not be in passoff while driving to secondary L2 position,
+    // then wait for mechism to be in scoring position to move in
     if (!states.coralInPassOff()) {
       states.mechState = MechState.ReefPosition;
       if (states.mechInTargetState)
@@ -326,7 +328,7 @@ public class ScoreCoral extends StateMachine {
     return null;
   }
 
-  private StateHandler prepForScoringAlignment() {
+  private StateHandler prepForScoringAlignment() { // Initialize scoring alignment commands
     if (!(states.coralInEndEffectorScoringSide
             || states.coralInEndEffectorNonScoringSide
             || states.coralInIntake
@@ -370,7 +372,7 @@ public class ScoreCoral extends StateMachine {
         : stateWithName("InitFollowGeneratedPath", () -> InitFollowGeneratedPath());
   }
 
-  private StateHandler InitFollowGeneratedPath() {
+  private StateHandler InitFollowGeneratedPath() { // initialize follow path
     alignToScore =
         new DriveToPosePathing(
                 wrapper,
@@ -386,7 +388,7 @@ public class ScoreCoral extends StateMachine {
     return stateWithName("FollowGeneratedPath", () -> followGeneratedPath(false));
   }
 
-  private StateHandler followGeneratedPath(boolean checkAlignment) {
+  private StateHandler followGeneratedPath(boolean checkAlignment) { // follow path
     if (checkAlignment
         && alignToScore.pathStalling()
         && GeometryUtil.getDist(wrapper.getReefPoseEstimatorPose(false), scoringPose) < 0.5) {
@@ -399,7 +401,9 @@ public class ScoreCoral extends StateMachine {
     return null;
   }
 
-  private StateHandler prepAlignWithCoralInWay() {
+  private StateHandler
+      prepAlignWithCoralInWay() { // initialize commands to move robot and mechanism to score with
+    // coral in way
     alignToScore.cancel();
     Pose2d newScoringPose =
         getClosestScoringSide(
@@ -417,7 +421,7 @@ public class ScoreCoral extends StateMachine {
     return stateWithName("FollowGeneratedPath", () -> followGeneratedPath(false));
   }
 
-  private StateHandler initFollowPath() {
+  private StateHandler initFollowPath() { // initialize path following
     choreoHelper =
         new ChoreoHelper(
             timeFromStart(),
@@ -455,7 +459,7 @@ public class ScoreCoral extends StateMachine {
     return stateWithName("Score", () -> score());
   }
 
-  private StateHandler score() {
+  private StateHandler score() { // score coral
 
     if (scoringTrigger.getAsBoolean() && !confirmation) {
       states.endEffectorDesiredAction = RobotStates.EndEffectorDesiredAction.ScoreFastForward;
@@ -478,7 +482,7 @@ public class ScoreCoral extends StateMachine {
 
   // ALGAE STATES
 
-  private StateHandler prepForAlgaeAlignment() {
+  private StateHandler prepForAlgaeAlignment() { // run algae clearing commands
     led.setBaseRobotState(BaseRobotState.ALGAE_ALIGNMENT);
     boolean high =
         scoringSide == ScoringSide.NEAR_MID
@@ -505,7 +509,7 @@ public class ScoreCoral extends StateMachine {
         (command) -> stateWithName("End", () -> end(false)));
   }
 
-  private StateHandler scoreFailure() {
+  private StateHandler scoreFailure() { // notify driver score has failed
     spawnCommand(new ControllerRumbleForTime(rumble, 0.25, 0.3), (c) -> null);
     led.setRobotState(RobotState.SCORE_FAILURE);
     System.out.println("scoreFailure");

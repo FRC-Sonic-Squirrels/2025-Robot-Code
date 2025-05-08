@@ -131,6 +131,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber pivotToleranceDegrees =
       pivotSubgroup.build("ToleranceDegrees", 3);
 
+  // Motion constants
   static {
     if (Constants.RobotMode.getRobot() == RobotType.ROBOT_2024_RETIRED_MAESTRO) {
       rKS.initDefault(0);
@@ -174,6 +175,8 @@ public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final RobotStates states;
   private final IntakeIO.Inputs inputs = new IntakeIO.Inputs(logGroup);
+
+  // Intake states
 
   private double rollerTargetRPM;
   private double starTargetRPM;
@@ -247,6 +250,8 @@ public class Intake extends SubsystemBase {
           || pivotTargetAccelerationConfig.hasChanged(phc)) {
         setPivotConstants();
       }
+
+      // Intake state machine
 
       switch (states.intakeState) {
         case Override:

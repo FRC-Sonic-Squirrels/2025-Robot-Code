@@ -26,7 +26,7 @@ public class CommandComposer {
 
     return new IntakeGamepieceCoralStation(
             endEffector, mech, () -> wrapper.getCoralStationPoseEstimatorPose(true), states)
-        .alongWith(
+        .alongWith( // update driver feedback
             Commands.run(
                     () -> {
                       if (states.coralInEndEffector) {
@@ -41,7 +41,7 @@ public class CommandComposer {
                         driverController.getHID().setRumble(RumbleType.kBothRumble, 0.0);
                       led.setBaseRobotState(BaseRobotState.LEVEL_MODE);
                     }))
-        .andThen(
+        .andThen( // bring mech to stow position after moving away from coral station
             new WaitUntilMovedDist(wrapper, Units.Meters.of(0.3))
                 .andThen(
                     new MechToPosition(mech, MechState.StowPosition, states)
