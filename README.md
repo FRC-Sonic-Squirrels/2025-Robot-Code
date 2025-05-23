@@ -7,39 +7,39 @@ Won Autonomous Award at GPK and Innovation in Controls award at SunDome.
 ---------------------------------------------------------------------------
 
 ## Key Features
--Autonomous state machine system.
+* Autonomous state machine system.
 
--Periodically controlled intake, endeffector, and mechanism subsystems.
+* Periodically controlled intake, endeffector, and mechanism subsystems.
 
--Automatic collision detection system for smooth motions on the robot.
+* Automatic collision detection system for smooth motions on the robot.
 
 --------------------------------------------------------------------------
 
 ## Autonomous
--State machine system that goes through the actions of intaking and scoring coral as well as pathfinding.
+* State machine system that goes through the actions of intaking and scoring coral as well as pathfinding.
 
--Uses over 100 tiny choreo segments to construct long strings of autos for flexibility and adaptibility in auto selection.
+* Uses over 100 tiny choreo segments to construct long strings of autos for flexibility and adaptibility in auto selection.
 
 --------------------------------------------------------------------------
 
 ## Periodic Subsystems
--The intake, endeffector, and mechanism (elevator and arm) subsystems run through periodic checks (checking the state of the subsystem based on enum states) to detemine what action they should be taking.
+* The intake, endeffector, and mechanism (elevator and arm) subsystems run through periodic checks (checking the state of the subsystem based on enum states) to detemine what action they should be taking.
 
--Using constants throughout the robot that are changed when certain commands are called, the state of these subsystems is able to be altered.
+* Using constants throughout the robot that are changed when certain commands are called, the state of these subsystems is able to be altered.
 
 --------------------------------------------------------------------------
 
 ## Collision Detection
--By segmenting the robot into sections based on the angle of the arm and the height of the elevator, when movements to these mechanisms are called it is able to adjust to travel through a path that does not result in a collision.
+* By segmenting the robot into sections based on the angle of the arm and the height of the elevator, when movements to these mechanisms are called it is able to adjust to travel through a path that does not result in a collision.
 
--By doing this, the robot does not need to worry about colliding into itself to perform some of its different scoring motions.
+* By doing this, the robot does not need to worry about colliding into itself to perform some of its different scoring motions.
 
 ---------------------------------------------------------------------------
 
 ## Extras
--Fully autonomous scoring of the robot through automatically generated paths and set positions using data from our vision system.
+* Fully autonomous scoring of the robot through automatically generated paths and set positions using data from our vision system.
 
--Our vision system is run through photonvision on 2 orange pis, and we use a kalman-based pose estimator to store all of the collected information we gather.
+* Our vision system is run through photonvision on 2 orange pis, and we use a kalman-based pose estimator to store all of the collected information we gather.
 
 
 --------------------------------------------------------------------------
