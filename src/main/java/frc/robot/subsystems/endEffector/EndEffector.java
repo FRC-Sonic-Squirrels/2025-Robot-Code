@@ -18,6 +18,7 @@ import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.RobotMode.RobotType;
 import frc.robot.RobotStates;
 import frc.robot.RobotStates.EndEffectorDesiredAction;
+import frc.robot.subsystems.endEffector.CoralAligner.AlignPhase;
 
 public class EndEffector extends SubsystemBase {
   // Execution timing
@@ -76,14 +77,6 @@ public class EndEffector extends SubsystemBase {
       group.build("passOffVelocityRPM", -1000);
   private static final LoggedTunableNumber holdAlgaeRPM = group.build("passOffVelocityRPM", -1500);
 
-  private static final LoggedTunableNumber correctionVelocity = group.build("alignVelocity", 300);
-  private static final LoggedTunableNumber alignTarget = group.build("alignTarget", 1);
-  private static final LoggedTunableNumber alignTolerance = group.build("alignTolerance", 2);
-  private static final LoggedTunableNumber alignL1Turns = group.build("alignL1Turns", 0.75);
-  private static final LoggedTunableNumber alignL2Turns = group.build("alignL2Turns", 0.15);
-  private static final LoggedTunableNumber alignL3Turns = group.build("alignL3Turns", 1.8);
-  private static final LoggedTunableNumber alignL4Turns = group.build("alignL4Turns", 1.8);
-
   // Motion constants
 
   static {
@@ -109,8 +102,11 @@ public class EndEffector extends SubsystemBase {
   private final RobotStates states;
   private final EndEffectorIO.Inputs inputs = new EndEffectorIO.Inputs(logGroup);
 
+  // Refactored components for separation of concerns
+  private final EndEffectorContext context;
+  private final CoralAligner aligner = new CoralAligner();
+
   private ControlMode controlMode = ControlMode.OPEN_LOOP;
-  private double zeroCoralPosition;
 
   private Trigger stallDetected =
       new Trigger(() -> inputs.velocityRPM <= 50 && inputs.appliedVolts >= 0.5).debounce(.1);
@@ -119,6 +115,7 @@ public class EndEffector extends SubsystemBase {
   public EndEffector(EndEffectorIO io, RobotStates states) {
     this.io = io;
     this.states = states;
+    this.context = new EndEffectorContext(states);
 
     setConstants();
 
@@ -141,200 +138,283 @@ public class EndEffector extends SubsystemBase {
     try (var ignored = timing.start()) {
       counter++;
       counterLog.info(counter % 100);
-      // Logging
+
+      // === PHASE 1: Read Inputs ===
       io.updateInputs(inputs);
 
-      var coralInEndEffectorScoringSide = scoringSideTofSeenGamepiece();
-      var coralInEndEffectorNonScoringSide = nonScoringSideTOFSeenGamepiece();
-      var coralInEndEffector = coralInEndEffectorScoringSide || coralInEndEffectorNonScoringSide;
+      // === PHASE 2: Update Context ===
+      context.update(inputs, states.scoringLevel);
 
-      states.coralInEndEffectorScoringSide = coralInEndEffectorScoringSide;
-      states.coralInEndEffectorNonScoringSide = coralInEndEffectorNonScoringSide;
-      states.coralInEndEffector = states.coralExpectedInEndEffector && coralInEndEffector;
+      // === PHASE 3: Update Shared State ===
+      updateSharedCoralState();
 
-      logInputs_velocityRPM.info(inputs.velocityRPM);
-      logInputs_currentAmps.info(inputs.currentAmps);
-      logInputs_tempCelsius.info(inputs.tempCelsius);
-      logInputs_appliedVolts.info(inputs.appliedVolts);
-      logInputs_scoringSideTofDist.info(inputs.scoringSideTofDistInches);
-      logInputs_nonScoringSideTOFDist.info(inputs.nonScoringSideTofDistInches);
-      logInputs_scoringSideTofActivated.info(inputs.scoringSideTofDetecting);
-      logInputs_nonScoringSideTOFActivated.info(inputs.nonScoringSideTofDetecting);
-      logInputs_scoringSideTofSignalStrength.info(inputs.scoringSideSignalStrength);
-      logInputs_nonScoringSideTOFSignalStrength.info(inputs.nonScoringSideSignalStrength);
+      // === PHASE 4: Log Inputs ===
+      logAllInputs();
 
-      logControlMode.info(controlMode);
+      // === PHASE 5: Update Tunable Numbers ===
+      updateTunableConstants();
 
-      logVelocityOverride.info(states.endEffectorOverrideVelocity);
+      // === PHASE 6: Run State Machine & Get Motor Output ===
+      MotorOutput output = runStateMachine();
 
-      // Update tunable numbers
+      // === PHASE 7: Apply Motor Output ===
+      applyMotorOutput(output);
+    }
+  }
 
-      var hc = hashCode();
-      if (kS.hasChanged(hc)
-          || kP.hasChanged(hc)
-          || kV.hasChanged(hc)
-          || targetAccelerationConfig.hasChanged(hc)) {
-        setConstants();
+  // --- Separated Concerns ---
+
+  /** Update shared robot state based on sensor readings. */
+  private void updateSharedCoralState() {
+    var scoringSide = context.hasCoralScoringSide();
+    var nonScoringSide = context.hasCoralNonScoringSide();
+    var anyCoral = context.hasAnyCoral();
+
+    states.coralInEndEffectorScoringSide = scoringSide;
+    states.coralInEndEffectorNonScoringSide = nonScoringSide;
+    states.coralInEndEffector = states.coralExpectedInEndEffector && anyCoral;
+  }
+
+  /** Log all input values. */
+  private void logAllInputs() {
+    logInputs_velocityRPM.info(inputs.velocityRPM);
+    logInputs_currentAmps.info(inputs.currentAmps);
+    logInputs_tempCelsius.info(inputs.tempCelsius);
+    logInputs_appliedVolts.info(inputs.appliedVolts);
+    logInputs_scoringSideTofDist.info(inputs.scoringSideTofDistInches);
+    logInputs_nonScoringSideTOFDist.info(inputs.nonScoringSideTofDistInches);
+    logInputs_scoringSideTofActivated.info(inputs.scoringSideTofDetecting);
+    logInputs_nonScoringSideTOFActivated.info(inputs.nonScoringSideTofDetecting);
+    logInputs_scoringSideTofSignalStrength.info(inputs.scoringSideSignalStrength);
+    logInputs_nonScoringSideTOFSignalStrength.info(inputs.nonScoringSideSignalStrength);
+    logControlMode.info(controlMode);
+    logVelocityOverride.info(states.endEffectorOverrideVelocity);
+  }
+
+  /** Check and apply tunable constant updates. */
+  private void updateTunableConstants() {
+    var hc = hashCode();
+    if (kS.hasChanged(hc)
+        || kP.hasChanged(hc)
+        || kV.hasChanged(hc)
+        || targetAccelerationConfig.hasChanged(hc)) {
+      setConstants();
+    }
+  }
+
+  /**
+   * Run the state machine and return the motor output to apply. This separates the decision logic
+   * from the motor control.
+   */
+  private MotorOutput runStateMachine() {
+    var desiredAction = states.endEffectorDesiredAction;
+
+    // Handle disabled state
+    if (DriverStation.isDisabled()) {
+      if (desiredAction != EndEffectorDesiredAction.AlignedCoral) {
+        desiredAction = EndEffectorDesiredAction.Idle;
+      }
+      states.endEffectorOverrideVelocity = Double.NaN;
+    }
+
+    // Handle velocity override
+    if (Double.isFinite(states.endEffectorOverrideVelocity)) {
+      return MotorOutput.velocity(states.endEffectorOverrideVelocity);
+    }
+
+    // Process state machine with potential immediate transitions
+    // The loop continues until a state does NOT request an immediate transition.
+    // Only the final state's motor output is applied (matching original behavior
+    // where setVelocity was called, then state changed, then loop re-ran).
+    MotorOutput output;
+    int loopCount = 0;
+    // In practice, max 2-3 transitions should happen (e.g., Idle -> AlignCoral -> Phase2)
+    // A higher number indicates a bug (state oscillation or missing break condition)
+    final int maxLoops = 4;
+
+    while (true) {
+      output = processState(desiredAction);
+
+      // Check if state changed (immediate transition requested)
+      if (states.endEffectorDesiredAction == desiredAction) {
+        // No transition - use this state's output
+        break;
       }
 
-      var desiredAction = states.endEffectorDesiredAction;
+      // State transition requested - loop will process the new state
+      // and use ITS output instead (the current output is discarded)
+      desiredAction = states.endEffectorDesiredAction;
 
-      if (DriverStation.isDisabled()) {
-        if (desiredAction != EndEffectorDesiredAction.AlignedCoral) {
-          desiredAction = EndEffectorDesiredAction.Idle;
-        }
-        states.endEffectorOverrideVelocity = Double.NaN;
+      // Safety check
+      if (++loopCount >= maxLoops) {
+        System.err.println("EndEffector state machine exceeded max iterations!");
+        break;
       }
+    }
 
-      if (Double.isFinite(states.endEffectorOverrideVelocity)) { // Velocity override
-        setVelocity(states.endEffectorOverrideVelocity);
-      } else {
-        var endEffectorSim = getSim();
-        // End Effector state machine
-        while (true) {
-          switch (desiredAction) {
-            case Idle:
-              if (coralInEndEffectorScoringSide
-                  && coralInEndEffectorNonScoringSide) { // If coral possessed, align it
-                desiredAction = EndEffectorDesiredAction.AlignCoral;
-              } else {
-                setPercentOut(0);
-              }
-              break;
+    return output;
+  }
 
-            case CoralStationIntake:
-              if (coralInEndEffectorNonScoringSide) { // Coral recieved, align it
-                desiredAction = EndEffectorDesiredAction.AlignCoral;
-              } else if (coralInEndEffectorScoringSide) { // Coral first sensed, slow down
-                setVelocity(intakingVelocitySlow.get());
-              } else { // Waiting for coral
-                setVelocity(intakingVelocityHigh.get());
-              }
-              break;
+  /**
+   * Process a single state and return the motor output. May update states.endEffectorDesiredAction
+   * for immediate transitions.
+   */
+  private MotorOutput processState(EndEffectorDesiredAction action) {
+    return switch (action) {
+      case Idle -> handleIdle();
+      case CoralStationIntake -> handleCoralStationIntake();
+      case GroundIntake -> handleGroundIntake();
+      case AlignCoral -> handleAlignCoral();
+      case AlignCoralPhase2 -> handleAlignCoralPhase2();
+      case AlignCoralPhase3 -> handleAlignCoralPhase3();
+      case AlignCoralPhase4 -> handleAlignCoralPhase4();
+      case AlignedCoral -> handleAlignedCoral();
+      case ScoreFastForward -> handleScoreFastForward();
+      case ScoreFastBackward -> handleScoreFastBackward();
+      case PassCoralToEndEffector -> MotorOutput.velocity(passOffVelocityRPM.get());
+      case PassToIntake -> MotorOutput.velocity(-passOffVelocityRPM.get());
+      case HoldAlgae -> MotorOutput.velocity(holdAlgaeRPM.get());
+      case ScoreAlgae -> MotorOutput.velocity(scoringVelocityRPM.get());
+    };
+  }
 
-            case GroundIntake:
-              if (coralInEndEffectorScoringSide) { // Coral recieved, align it
-                desiredAction = EndEffectorDesiredAction.AlignCoral;
-              } else if (coralInEndEffectorNonScoringSide) { // Coral first sensed, slow down
-                setVelocity(-(intakingVelocitySlow.get()));
-              } else { // Waiting for coral
-                setVelocity(-(intakingVelocityHigh.get()));
-              }
-              break;
+  // --- State Handlers ---
 
-            case AlignCoral:
-              if (!coralInEndEffector) { // No coral, go to idle
-                desiredAction = EndEffectorDesiredAction.Idle;
-              } else if (!coralInEndEffectorNonScoringSide) {
-                // Keep moving the coral in.
-                setVelocity(correctionVelocity.get());
-              } else {
-                // Start backtracking the coral.
-                setVelocity(-correctionVelocity.get());
-                desiredAction = EndEffectorDesiredAction.AlignCoralPhase2;
-              }
-              break;
+  private MotorOutput handleIdle() {
+    if (context.hasCoralBothSides()) {
+      states.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
+      aligner.reset();
+    }
+    return MotorOutput.percent(0);
+  }
 
-            case AlignCoralPhase2:
-              if (!coralInEndEffectorNonScoringSide) {
-                // Now reverse until we see it again.
-                setVelocity(correctionVelocity.get());
+  private MotorOutput handleCoralStationIntake() {
+    if (context.hasCoralNonScoringSide()) {
+      states.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
+      aligner.reset();
+      return MotorOutput.stop();
+    } else if (context.hasCoralScoringSide()) {
+      return MotorOutput.velocity(intakingVelocitySlow.get());
+    } else {
+      return MotorOutput.velocity(intakingVelocityHigh.get());
+    }
+  }
 
-                desiredAction = EndEffectorDesiredAction.AlignCoralPhase3;
-              }
-              break;
+  private MotorOutput handleGroundIntake() {
+    if (context.hasCoralScoringSide()) {
+      states.endEffectorDesiredAction = EndEffectorDesiredAction.AlignCoral;
+      aligner.reset();
+      return MotorOutput.stop();
+    } else if (context.hasCoralNonScoringSide()) {
+      return MotorOutput.velocity(-intakingVelocitySlow.get());
+    } else {
+      return MotorOutput.velocity(-intakingVelocityHigh.get());
+    }
+  }
 
-            case AlignCoralPhase3:
-              if (coralInEndEffectorNonScoringSide) {
-                zeroCoralPosition = getMotorPosition();
+  private MotorOutput handleAlignCoral() {
+    // Use the CoralAligner for the alignment sequence
+    aligner.setPhase(AlignPhase.CENTERING);
+    var result = aligner.update(context);
 
-                desiredAction = EndEffectorDesiredAction.AlignCoralPhase4;
-              }
-              break;
+    if (!context.hasAnyCoral()) {
+      states.endEffectorDesiredAction = EndEffectorDesiredAction.Idle;
+      return MotorOutput.stop();
+    }
 
-            case AlignCoralPhase4:
-              double diff = Math.abs(getMotorPosition() - zeroCoralPosition);
-              if (diff >= alignTarget.get()) { // coral moved to target
-                zeroCoralPosition = getMotorPosition();
-                desiredAction = EndEffectorDesiredAction.AlignedCoral;
-              }
-              break;
+    // Map aligner phase to EndEffectorDesiredAction for compatibility
+    states.endEffectorDesiredAction =
+        switch (aligner.getPhase()) {
+          case CENTERING -> EndEffectorDesiredAction.AlignCoral;
+          case BACKTRACK -> EndEffectorDesiredAction.AlignCoralPhase2;
+          case FIND_EDGE -> EndEffectorDesiredAction.AlignCoralPhase3;
+          case MOVE_TO_TARGET -> EndEffectorDesiredAction.AlignCoralPhase4;
+          case ALIGNED -> EndEffectorDesiredAction.AlignedCoral;
+        };
 
-            case AlignedCoral:
-              double pos = getMotorPosition() - zeroCoralPosition;
-              double desiredPos = 0;
-              switch (states
-                  .scoringLevel) { // Seperate coral positions in end effector based on scoring
-                  // target
-                case L1:
-                  desiredPos = alignL1Turns.get();
-                  break;
-                case L2:
-                  desiredPos = alignL2Turns.get();
-                  break;
-                case L3:
-                  desiredPos = alignL3Turns.get();
-                  break;
-                case L4:
-                  desiredPos = alignL4Turns.get();
-                  break;
-                default:
-                  setPercentOut(0);
-                  break;
-              }
+    return alignResultToMotorOutput(result);
+  }
 
-              // Centering
+  private MotorOutput handleAlignCoralPhase2() {
+    aligner.setPhase(AlignPhase.BACKTRACK);
+    var result = aligner.update(context);
+    updateAlignmentState();
+    return alignResultToMotorOutput(result);
+  }
 
-              if (Math.abs(pos - desiredPos) < alignTolerance.get()) {
-                setPercentOut(0);
-              } else if (pos > desiredPos) {
-                setVelocity(-correctionVelocity.get());
-              } else if (pos < desiredPos) {
-                setVelocity(correctionVelocity.get());
-              }
-              break;
+  private MotorOutput handleAlignCoralPhase3() {
+    aligner.setPhase(AlignPhase.FIND_EDGE);
+    var result = aligner.update(context);
+    updateAlignmentState();
+    return alignResultToMotorOutput(result);
+  }
 
-            case ScoreFastForward:
-              setVelocity(scoringVelocityRPM.get());
-              if (!coralInEndEffector) { // Once coral is released, return to idle
-                desiredAction = EndEffectorDesiredAction.Idle;
-              }
+  private MotorOutput handleAlignCoralPhase4() {
+    aligner.setPhase(AlignPhase.MOVE_TO_TARGET);
+    var result = aligner.update(context);
+    updateAlignmentState();
+    return alignResultToMotorOutput(result);
+  }
 
-              if (endEffectorSim != null) { // Update no coral in sim
-                endEffectorSim.scoringSideTofDetecting = false;
-                endEffectorSim.nonScoringSideTofDetecting = false;
-              }
-              break;
+  private MotorOutput handleAlignedCoral() {
+    aligner.setPhase(AlignPhase.ALIGNED);
+    var result = aligner.update(context);
+    return alignResultToMotorOutput(result);
+  }
 
-            case ScoreFastBackward:
-              setVelocity(-scoringVelocityRPM.get());
-              if (!coralInEndEffector) { // Once coral is released, return to idle
-                desiredAction = EndEffectorDesiredAction.Idle;
-              }
+  private void updateAlignmentState() {
+    states.endEffectorDesiredAction =
+        switch (aligner.getPhase()) {
+          case CENTERING -> EndEffectorDesiredAction.AlignCoral;
+          case BACKTRACK -> EndEffectorDesiredAction.AlignCoralPhase2;
+          case FIND_EDGE -> EndEffectorDesiredAction.AlignCoralPhase3;
+          case MOVE_TO_TARGET -> EndEffectorDesiredAction.AlignCoralPhase4;
+          case ALIGNED -> EndEffectorDesiredAction.AlignedCoral;
+        };
+  }
 
-              if (endEffectorSim != null) { // Update no coral in sim
-                endEffectorSim.scoringSideTofDetecting = false;
-                endEffectorSim.nonScoringSideTofDetecting = false;
-              }
-              break;
-            case PassCoralToEndEffector:
-              setVelocity(passOffVelocityRPM.get());
-              break;
-            case PassToIntake:
-              setVelocity(-passOffVelocityRPM.get());
-              break;
-            case HoldAlgae:
-              setVelocity(holdAlgaeRPM.get());
-              break;
-          }
-          if (states.endEffectorDesiredAction == desiredAction) {
-            break; // Once end effector state logic has been processed, exit while loop
-          }
-          states.endEffectorDesiredAction = desiredAction;
-        }
-      }
+  private MotorOutput alignResultToMotorOutput(CoralAligner.AlignResult result) {
+    return switch (result.command()) {
+      case VELOCITY -> MotorOutput.velocity(result.velocityRPM());
+      case STOP -> MotorOutput.percent(0);
+    };
+  }
 
-      states.endEffectorDesiredAction = desiredAction;
+  private MotorOutput handleScoreFastForward() {
+    return handleScoreFast(1);
+  }
+
+  private MotorOutput handleScoreFastBackward() {
+    return handleScoreFast(-1);
+  }
+
+  /**
+   * Common scoring logic for both forward and backward directions.
+   *
+   * @param direction 1 for forward, -1 for backward
+   */
+  private MotorOutput handleScoreFast(int direction) {
+    if (!context.hasAnyCoral()) {
+      states.endEffectorDesiredAction = EndEffectorDesiredAction.Idle;
+    }
+    clearCoralInSim();
+    return MotorOutput.velocity(direction * scoringVelocityRPM.get());
+  }
+
+  /** Clear coral detection in simulation when scoring. */
+  private void clearCoralInSim() {
+    var sim = getSim();
+    if (sim != null) {
+      sim.clearCoralDetection();
+    }
+  }
+
+  /** Apply the motor output to the hardware. */
+  private void applyMotorOutput(MotorOutput output) {
+    switch (output.type()) {
+      case VELOCITY -> setVelocity(output.value());
+      case PERCENT -> setPercentOut(output.value());
+      case STOP -> setPercentOut(0);
     }
   }
 

@@ -34,6 +34,18 @@ public class EndEffectorIOSim implements EndEffectorIO {
     inputs.nonScoringSideTofDetecting = nonScoringSideTofDetecting;
   }
 
+  /** Clear coral detection flags - called when scoring to simulate coral leaving. */
+  public void clearCoralDetection() {
+    scoringSideTofDetecting = false;
+    nonScoringSideTofDetecting = false;
+  }
+
+  /** Set coral detection flags - useful for testing. */
+  public void setCoralDetection(boolean scoringSide, boolean nonScoringSide) {
+    scoringSideTofDetecting = scoringSide;
+    nonScoringSideTofDetecting = nonScoringSide;
+  }
+
   @Override
   public void setVoltage(double volts) {
     motor.setControl(openLoopControl.withOutput(volts));
